@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>7&nbsp; Packaging your code – Reproducible Discrete-Event Simulation in Python and R</title>
+<title>Structuring our model as a package – Reproducible Discrete-Event Simulation in Python and R</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -19,6 +19,40 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -70,6 +104,7 @@ ul.task-list li input[type="checkbox"] {
 }</script>
 
 
+<link rel="stylesheet" href="../../styles/language-selector.css">
 </head>
 
 <body class="nav-sidebar floating nav-fixed">
@@ -100,7 +135,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../pages/setup/version.html">Setup</a></li><li class="breadcrumb-item"><a href="../../pages/setup/package.html"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Packaging your code</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../pages/setup/version.html">Setup</a></li><li class="breadcrumb-item"><a href="../../pages/setup/package.html"><span class="chapter-title">Structuring our model as a package</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -119,8 +154,7 @@ ul.task-list li input[type="checkbox"] {
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Welcome</span></span></a>
+  <a href="../../index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Welcome</span></a>
   </div>
 </li>
         <li class="sidebar-item sidebar-item-section">
@@ -134,20 +168,17 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/intro/rap.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Reproducibility and why it matters</span></span></a>
+  <a href="../../pages/intro/rap.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Reproducibility and why it matters</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/intro/guidelines.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Reproducibility guidelines</span></span></a>
+  <a href="../../pages/intro/guidelines.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Reproducibility guidelines</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/intro/foss.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Free and open source software (FOSS)</span></span></a>
+  <a href="../../pages/intro/foss.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Free and open source software (FOSS)</span></a>
   </div>
 </li>
       </ul>
@@ -163,26 +194,22 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/setup/version.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Version control</span></span></a>
+  <a href="../../pages/setup/version.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Version control and Git</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/setup/environment.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Dependency management</span></span></a>
+  <a href="../../pages/setup/environment.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Dependency management</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/setup/package.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Packaging your code</span></span></a>
+  <a href="../../pages/setup/package.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Structuring our model as a package</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/setup/code_structure.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Code organisation</span></span></a>
+  <a href="../../pages/setup/code_structure.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Code organisation</span></a>
   </div>
 </li>
       </ul>
@@ -198,32 +225,27 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/model/parameters.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Parameter management</span></span></a>
+  <a href="../../pages/model/parameters.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Parameter management</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/model/distributions.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Sampling distributions</span></span></a>
+  <a href="../../pages/model/distributions.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Sampling distributions and seeds</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/model/patients.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Generating patients</span></span></a>
+  <a href="../../pages/model/patients.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Generating patients</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/model/process.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Processing patients</span></span></a>
+  <a href="../../pages/model/process.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Processing patients</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/model/logs.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Logs</span></span></a>
+  <a href="../../pages/model/logs.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Logs</span></a>
   </div>
 </li>
       </ul>
@@ -239,26 +261,22 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/execution/outputs.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Outputs</span></span></a>
+  <a href="../../pages/execution/outputs.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Outputs</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/execution/warmup.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Warm-up</span></span></a>
+  <a href="../../pages/execution/warmup.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Warm-up</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/execution/replications.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Replications</span></span></a>
+  <a href="../../pages/execution/replications.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Replications</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/execution/parallel.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Parallel processing</span></span></a>
+  <a href="../../pages/execution/parallel.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Parallel processing</span></a>
   </div>
 </li>
       </ul>
@@ -274,20 +292,17 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/analysis/tables_figures.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Producing tables and figures</span></span></a>
+  <a href="../../pages/analysis/tables_figures.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Producing tables and figures</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/analysis/scenarios.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Scenarios and sensitivity analysis</span></span></a>
+  <a href="../../pages/analysis/scenarios.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Scenarios and sensitivity analysis</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/analysis/full_run.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Full run</span></span></a>
+  <a href="../../pages/analysis/full_run.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Full run</span></a>
   </div>
 </li>
       </ul>
@@ -303,32 +318,27 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/quality/docstrings.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Docstrings</span></span></a>
+  <a href="../../pages/quality/docstrings.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Docstrings</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/quality/linting.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Linting</span></span></a>
+  <a href="../../pages/quality/linting.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Linting</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/quality/tests.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">Tests</span></span></a>
+  <a href="../../pages/quality/tests.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Tests</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/quality/github_actions.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">GitHub actions</span></span></a>
+  <a href="../../pages/quality/github_actions.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">GitHub actions</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/quality/peer_review.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title">Peer review</span></span></a>
+  <a href="../../pages/quality/peer_review.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Peer review</span></a>
   </div>
 </li>
       </ul>
@@ -344,32 +354,27 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/sharing/documentation.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title">Documentation</span></span></a>
+  <a href="../../pages/sharing/documentation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Documentation</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/sharing/licence.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">27</span>&nbsp; <span class="chapter-title">Licensing</span></span></a>
+  <a href="../../pages/sharing/licence.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Licensing</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/sharing/archive.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">28</span>&nbsp; <span class="chapter-title">Sharing and archiving the model</span></span></a>
+  <a href="../../pages/sharing/archive.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Sharing and archiving the model</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/sharing/citation.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">29</span>&nbsp; <span class="chapter-title">Citation guidance</span></span></a>
+  <a href="../../pages/sharing/citation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Citation guidance</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/sharing/changelog.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">30</span>&nbsp; <span class="chapter-title">Changelog</span></span></a>
+  <a href="../../pages/sharing/changelog.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Changelog</span></a>
   </div>
 </li>
       </ul>
@@ -385,8 +390,7 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-8" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/further_info/acknowledgements.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">31</span>&nbsp; <span class="chapter-title">Acknowledgements</span></span></a>
+  <a href="../../pages/further_info/acknowledgements.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Acknowledgements</span></a>
   </div>
 </li>
       </ul>
@@ -396,15 +400,22 @@ ul.task-list li input[type="checkbox"] {
 </nav>
 <div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#rationale" id="toc-rationale" class="nav-link active" data-scroll-target="#rationale">Rationale</a></li>
+  <li><a href="#packaging-our-model" id="toc-packaging-our-model" class="nav-link" data-scroll-target="#packaging-our-model">Packaging our model</a></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../pages/setup/version.html">Setup</a></li><li class="breadcrumb-item"><a href="../../pages/setup/package.html"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Packaging your code</span></a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../pages/setup/version.html">Setup</a></li><li class="breadcrumb-item"><a href="../../pages/setup/package.html"><span class="chapter-title">Structuring our model as a package</span></a></li></ol></nav>
 <div class="quarto-title">
-<h1 class="title"><span id="sec-package" class="quarto-section-identifier"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Packaging your code</span></span></h1>
+<h1 class="title"><span id="sec-package" class="quarto-section-identifier"><span class="chapter-title">Structuring our model as a package</span></span></h1>
 </div>
 
 
@@ -421,8 +432,165 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
+<div class="language-selector">
+<p>Choose your language:&nbsp;&nbsp; <button class="language-button" onclick="setLanguage('python')">Python</button> <button class="language-button" onclick="setLanguage('r')">R</button></p>
+</div>
+<blockquote class="blockquote">
+<p><a href="../intro/guidelines.html" class="quarto-xref"><span>Reproducibility guidelines</span></a>:</p>
+<ul>
+<li>NHS Levels of RAP (🥈): Code is well-organised following standard directory format.</li>
+<li>NHS Levels of RAP (🥇): Code is fully packaged.</li>
+</ul>
+</blockquote>
+<section id="rationale" class="level2">
+<h2 class="anchored" data-anchor-id="rationale">Rationale</h2>
+<p>Building our simulation model as a package has several advantages:</p>
+<ul>
+<li>The model is <strong>installed</strong> in our environment and can then be easily used anywhere else in our directory (or even from other directories) without needing to specify a system path.</li>
+<li>It encourages us to create a well-organised repository following <strong>standardised</strong> established package structures.</li>
+<li>It helps keep the model and analysis code <strong>separate</strong>, improving maintainability, reusability, and reducing the risk of unintended side effects.</li>
+<li>It supports automated <strong>testing</strong> frameworks which can verify functionality (<a href="../quality/tests.html" class="quarto-xref"><span>Tests</span></a>).</li>
+</ul>
+</section>
+<section id="packaging-our-model" class="level2">
+<h2 class="anchored" data-anchor-id="packaging-our-model">Packaging our model</h2>
+<div class="python-content">
+<section id="creating-a-package" class="level3">
+<h3 class="anchored" data-anchor-id="creating-a-package">Creating a package</h3>
+<p>In Python, a package is simply a directory with containing an 📄<code>__init__.py</code> file, which makes that directory recognisable as a package. The basic structure for our package is:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">our_directory/</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="ex">├──</span> simulation/             <span class="co"># Main package directory</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="ex">│</span>   ├── __init__.py         <span class="co"># Makes the directory a package</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="ex">│</span>   ├── model.py            <span class="co"># Code for the model</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="ex">│</span>   └── ...                 <span class="co"># Other .py files (e.g. parameters, replications)</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="ex">└──</span> pyproject.toml          <span class="co"># Package metadata</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>The code for the model is contained in 📁<code>simulation/</code> within individual python files (e.g.&nbsp;📄<code>model.py</code>). The 📄<code>__init__.py</code> file identifies this directory as a package and contains basic metadata:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="st">"""SimPy Discrete-Event Simulation (DES) Model.</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="ex">__version__</span> = <span class="st">"0.1.0"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>The 📄<code>pyproject.toml</code> file in the root directory contains package configuration information. We’re using <code>flit</code> as our build tool because of its simplicity. The <code>dynamic</code> field tells flit to extract the version and description from our 📄<code>__init__.py</code> file.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">[build-system]</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="ex">requires</span> = <span class="pp">[</span><span class="st">"flit"</span><span class="pp">]</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="ex">build-backend</span> = <span class="st">"flit_core.buildapi"</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="ex">[project]</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="ex">name</span> = <span class="st">"simulation"</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="ex">dynamic</span> = [<span class="st">"version"</span>, <span class="st">"description"</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="installing-and-using-the-package" class="level3">
+<h3 class="anchored" data-anchor-id="installing-and-using-the-package">Installing and using the package</h3>
+<!--TODO: Update so this refers back to @sec-environment, and we are updating the environment created there, and have made some basic empty files here, which we test installing locally, so its an action-->
+<p>To use our package during development, we install it in “editable” mode using the <code>-e</code> flag. This means it will update with any changes to the source code in 📁<code>simulation/</code>.</p>
+<p>In a conda 📄<code>environment.yaml</code> file:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">name:</span> our-environment</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="ex">channels:</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="ex">-</span> conda-forge</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="ex">dependencies:</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="ex">-</span> python</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  <span class="ex">-</span> simpy</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  <span class="ex">-</span> pip:</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    <span class="ex">-</span> <span class="at">-e</span> .<span class="pp">[</span><span class="ss">dev</span><span class="pp">]</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>In a 📄<code>requirements.txt</code> file:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">simpy</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="ex">-e</span> .<span class="pp">[</span><span class="ss">dev</span><span class="pp">]</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<!--TODO: add examples of scripts and .ipynb using the package, not just the env installation. perhaps it could be a package v.s. analysis section? Or just Analysis using this package. Same for R below. -->
+</section>
+<section id="further-information" class="level3">
+<h3 class="anchored" data-anchor-id="further-information">Further information</h3>
+<ul>
+<li><a href="https://joshuacook.netlify.app/posts/2024-07-27_python-data-analysis-org/">“How I use Python to organize my data analyses”</a> from Joshua Cook 2024</li>
+</ul>
+</section>
+</div>
+<div class="r-content">
+<section id="creating-a-package-1" class="level3">
+<h3 class="anchored" data-anchor-id="creating-a-package-1">Creating a package</h3>
+<p>A basic R package structure looks like this:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">our_directory/</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="ex">├──</span> R/                  <span class="co"># Directory containing R functions</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="ex">│</span>   ├── model.R         <span class="co"># Code for the model</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="ex">│</span>   └── ...             <span class="co"># Other .R files (e.g. parameters, replications)</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="ex">├──</span> man/                <span class="co"># Documentation (generated from roxygen comments)</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="ex">├──</span> tests/              <span class="co"># Unit tests</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="ex">├──</span> DESCRIPTION         <span class="co"># Package metadata</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="ex">├──</span> NAMESPACE           <span class="co"># Package exports (usually generated)</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="ex">└──</span> rmarkdown/          <span class="co"># Analysis notebooks</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>The core of our package is the 📁<code>R/</code> directory, which contains all our simulation functions within R files (e.g.&nbsp;📄<code>model.R</code>). Each function should be documented using roxygen2-style comments that will automatically generate the documentation in the 📁<code>man/</code> directory. Writing these docstrings is covered in <a href="../quality/docstrings.html" class="quarto-xref"><span>Docstrings</span></a>.</p>
+<p>The <code>DESCRIPTION</code> file contains essential metadata about the package:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ex">Package:</span> simulation</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="ex">Type:</span> Package</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="ex">Title:</span> Simulation</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="ex">Version:</span> 0.1.0</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="ex">Authors@R:</span> c<span class="er">(</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    <span class="ex">person</span><span class="er">(</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Amy"</span><span class="ex">,</span> <span class="st">"Heather"</span>,</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>      <span class="ex">email</span> = <span class="st">"a.heather2@exeter.ac.uk"</span>,</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>      <span class="ex">role</span> = c<span class="er">(</span><span class="st">"aut"</span><span class="ex">,</span> <span class="st">"cre"</span><span class="kw">)</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">)</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>  <span class="kw">)</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="ex">URL:</span> https://github.com/pythonhealthdatascience/rap_template_r_des</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="ex">Description:</span> Template reproducible analytical pipeline <span class="er">(</span><span class="ex">RAP</span><span class="kw">)</span> <span class="cf">for</span> simple <span class="ex">R</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>    <span class="ex">discrete-event</span> simulation <span class="er">(</span><span class="ex">DES</span><span class="kw">)</span> <span class="ex">model.</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a><span class="ex">License:</span> MIT + file LICENSE</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a><span class="ex">Encoding:</span> UTF-8</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a><span class="ex">LazyData:</span> true</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a><span class="ex">RoxygenNote:</span> 7.3.2</span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a><span class="ex">Imports:</span></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>    <span class="ex">simmer,</span></span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>    <span class="ex">magrittr,</span></span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>    <span class="ex">dplyr,</span></span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>    <span class="ex">purrr,</span></span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>    <span class="ex">rlang,</span></span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>    <span class="ex">tidyr,</span></span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>    <span class="ex">tidyselect,</span></span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>    <span class="ex">future,</span></span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>    <span class="ex">future.apply,</span></span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a>    <span class="ex">ggplot2,</span></span>
+<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a>    <span class="ex">tibble,</span></span>
+<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a>    <span class="ex">gridExtra,</span></span>
+<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a>    <span class="ex">R6</span></span>
+<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a><span class="ex">Suggests:</span></span>
+<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a>    <span class="ex">testthat</span> <span class="er">(</span><span class="op">&gt;</span>= <span class="ex">3.0.0</span><span class="kw">)</span><span class="ex">,</span></span>
+<span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a>    <span class="ex">patrick,</span></span>
+<span id="cb7-36"><a href="#cb7-36" aria-hidden="true" tabindex="-1"></a>    <span class="ex">lintr,</span></span>
+<span id="cb7-37"><a href="#cb7-37" aria-hidden="true" tabindex="-1"></a>    <span class="ex">devtools,</span></span>
+<span id="cb7-38"><a href="#cb7-38" aria-hidden="true" tabindex="-1"></a>    <span class="ex">xtable,</span></span>
+<span id="cb7-39"><a href="#cb7-39" aria-hidden="true" tabindex="-1"></a>    <span class="ex">data.table,</span></span>
+<span id="cb7-40"><a href="#cb7-40" aria-hidden="true" tabindex="-1"></a>    <span class="ex">mockery</span></span>
+<span id="cb7-41"><a href="#cb7-41" aria-hidden="true" tabindex="-1"></a><span class="ex">Config/testthat/edition:</span> 3</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="installing-and-using-the-package-1" class="level3">
+<h3 class="anchored" data-anchor-id="installing-and-using-the-package-1">Installing and using the package</h3>
+<p>We use the <code>devtools</code> package to build and install our package:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Install the package from the local directory</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">install</span>()</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Load the package</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(simulation)</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Now you can use functions from the package...</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>When developing the package, these commands are particularly helpful:</p>
+<ul>
+<li><code>devtools::document()</code> to reproduce documentation in 📁<code>man/</code> after changes to the docstrings.</li>
+<li><code>devtools::check()</code> to build and check the package follows best practices.</li>
+<li><code>devtools::install()</code> to load the latest version of the package into your environment.</li>
+<li><code>devtools::test()</code> to run the tests in 📁<code>tests/</code>.</li>
+</ul>
+<p>For analysis and reporting, we store our files in the 📁<code>rmarkdown/</code> directory rather than in 📁<code>vignettes/</code>. This is because files in 📁<code>vignettes/</code> are re-run with every package build/check. For simulations with longer run times, this can be inefficient - although this may be of interest for quicker simulations, as it will help ensure you always run everything from scratch. However, file paths for saving outputs can cause errors during the package build process.</p>
+<!--TODO: add a better context on what vignettes are, and how people talking about using r for research often mention putting your stuff in there -->
+</section>
+<section id="further-information-1" class="level3">
+<h3 class="anchored" data-anchor-id="further-information-1">Further information</h3>
+<ul>
+<li><a href="https://dante-sttr.gitlab.io/r-open-science/">“Open, Reproducible, and Distributable Research With R Packages”</a> from the DANTE Project - for example, this page on <a href="https://dante-sttr.gitlab.io/r-open-science/reports-manuscripts.html">vignettes</a>.</li>
+<li><a href="https://doi.org/10.3758/s13428-020-01436-x">“Sharing and organizing research products as R packages”</a> from Vuorre and Crump 2020</li>
+</ul>
+</section>
+</div>
 
 
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
@@ -570,124 +738,6 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       } else {
         return "";
       }
-    });
-  }
-  const xrefs = window.document.querySelectorAll('a.quarto-xref');
-  const processXRef = (id, note) => {
-    // Strip column container classes
-    const stripColumnClz = (el) => {
-      el.classList.remove("page-full", "page-columns");
-      if (el.children) {
-        for (const child of el.children) {
-          stripColumnClz(child);
-        }
-      }
-    }
-    stripColumnClz(note)
-    if (id === null || id.startsWith('sec-')) {
-      // Special case sections, only their first couple elements
-      const container = document.createElement("div");
-      if (note.children && note.children.length > 2) {
-        container.appendChild(note.children[0].cloneNode(true));
-        for (let i = 1; i < note.children.length; i++) {
-          const child = note.children[i];
-          if (child.tagName === "P" && child.innerText === "") {
-            continue;
-          } else {
-            container.appendChild(child.cloneNode(true));
-            break;
-          }
-        }
-        if (window.Quarto?.typesetMath) {
-          window.Quarto.typesetMath(container);
-        }
-        return container.innerHTML
-      } else {
-        if (window.Quarto?.typesetMath) {
-          window.Quarto.typesetMath(note);
-        }
-        return note.innerHTML;
-      }
-    } else {
-      // Remove any anchor links if they are present
-      const anchorLink = note.querySelector('a.anchorjs-link');
-      if (anchorLink) {
-        anchorLink.remove();
-      }
-      if (window.Quarto?.typesetMath) {
-        window.Quarto.typesetMath(note);
-      }
-      if (note.classList.contains("callout")) {
-        return note.outerHTML;
-      } else {
-        return note.innerHTML;
-      }
-    }
-  }
-  for (var i=0; i<xrefs.length; i++) {
-    const xref = xrefs[i];
-    tippyHover(xref, undefined, function(instance) {
-      instance.disable();
-      let url = xref.getAttribute('href');
-      let hash = undefined; 
-      if (url.startsWith('#')) {
-        hash = url;
-      } else {
-        try { hash = new URL(url).hash; } catch {}
-      }
-      if (hash) {
-        const id = hash.replace(/^#\/?/, "");
-        const note = window.document.getElementById(id);
-        if (note !== null) {
-          try {
-            const html = processXRef(id, note.cloneNode(true));
-            instance.setContent(html);
-          } finally {
-            instance.enable();
-            instance.show();
-          }
-        } else {
-          // See if we can fetch this
-          fetch(url.split('#')[0])
-          .then(res => res.text())
-          .then(html => {
-            const parser = new DOMParser();
-            const htmlDoc = parser.parseFromString(html, "text/html");
-            const note = htmlDoc.getElementById(id);
-            if (note !== null) {
-              const html = processXRef(id, note);
-              instance.setContent(html);
-            } 
-          }).finally(() => {
-            instance.enable();
-            instance.show();
-          });
-        }
-      } else {
-        // See if we can fetch a full url (with no hash to target)
-        // This is a special case and we should probably do some content thinning / targeting
-        fetch(url)
-        .then(res => res.text())
-        .then(html => {
-          const parser = new DOMParser();
-          const htmlDoc = parser.parseFromString(html, "text/html");
-          const note = htmlDoc.querySelector('main.content');
-          if (note !== null) {
-            // This should only happen for chapter cross references
-            // (since there is no id in the URL)
-            // remove the first header
-            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
-              note.children[0].remove();
-            }
-            const html = processXRef(null, note);
-            instance.setContent(html);
-          } 
-        }).finally(() => {
-          instance.enable();
-          instance.show();
-        });
-      }
-    }, function(instance) {
     });
   }
       let selectedAnnoteEl;
@@ -845,16 +895,17 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
       <a href="../../pages/setup/environment.html" class="pagination-link" aria-label="Dependency management">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Dependency management</span></span>
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">Dependency management</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
       <a href="../../pages/setup/code_structure.html" class="pagination-link" aria-label="Code organisation">
-        <span class="nav-page-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Code organisation</span></span> <i class="bi bi-arrow-right-short"></i>
+        <span class="nav-page-text"><span class="chapter-title">Code organisation</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
 </div> <!-- /content -->
+<script type="application/javascript" src="../../scripts/language-selector.js"></script>
 
 
 

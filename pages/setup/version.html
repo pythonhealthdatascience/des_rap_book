@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>5&nbsp; Version control – Reproducible Discrete-Event Simulation in Python and R</title>
+<title>Version control and Git – Reproducible Discrete-Event Simulation in Python and R</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -19,6 +19,40 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -70,6 +104,7 @@ ul.task-list li input[type="checkbox"] {
 }</script>
 
 
+<link rel="stylesheet" href="../../styles/language-selector.css">
 </head>
 
 <body class="nav-sidebar floating nav-fixed">
@@ -100,7 +135,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../pages/setup/version.html">Setup</a></li><li class="breadcrumb-item"><a href="../../pages/setup/version.html"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Version control</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../pages/setup/version.html">Setup</a></li><li class="breadcrumb-item"><a href="../../pages/setup/version.html"><span class="chapter-title">Version control and Git</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -119,8 +154,7 @@ ul.task-list li input[type="checkbox"] {
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Welcome</span></span></a>
+  <a href="../../index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Welcome</span></a>
   </div>
 </li>
         <li class="sidebar-item sidebar-item-section">
@@ -134,20 +168,17 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/intro/rap.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Reproducibility and why it matters</span></span></a>
+  <a href="../../pages/intro/rap.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Reproducibility and why it matters</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/intro/guidelines.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Reproducibility guidelines</span></span></a>
+  <a href="../../pages/intro/guidelines.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Reproducibility guidelines</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/intro/foss.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Free and open source software (FOSS)</span></span></a>
+  <a href="../../pages/intro/foss.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Free and open source software (FOSS)</span></a>
   </div>
 </li>
       </ul>
@@ -163,26 +194,22 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/setup/version.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Version control</span></span></a>
+  <a href="../../pages/setup/version.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Version control and Git</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/setup/environment.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Dependency management</span></span></a>
+  <a href="../../pages/setup/environment.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Dependency management</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/setup/package.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Packaging your code</span></span></a>
+  <a href="../../pages/setup/package.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Structuring our model as a package</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/setup/code_structure.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Code organisation</span></span></a>
+  <a href="../../pages/setup/code_structure.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Code organisation</span></a>
   </div>
 </li>
       </ul>
@@ -198,32 +225,27 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/model/parameters.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Parameter management</span></span></a>
+  <a href="../../pages/model/parameters.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Parameter management</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/model/distributions.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Sampling distributions</span></span></a>
+  <a href="../../pages/model/distributions.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Sampling distributions and seeds</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/model/patients.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Generating patients</span></span></a>
+  <a href="../../pages/model/patients.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Generating patients</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/model/process.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Processing patients</span></span></a>
+  <a href="../../pages/model/process.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Processing patients</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/model/logs.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Logs</span></span></a>
+  <a href="../../pages/model/logs.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Logs</span></a>
   </div>
 </li>
       </ul>
@@ -239,26 +261,22 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/execution/outputs.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Outputs</span></span></a>
+  <a href="../../pages/execution/outputs.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Outputs</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/execution/warmup.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Warm-up</span></span></a>
+  <a href="../../pages/execution/warmup.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Warm-up</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/execution/replications.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Replications</span></span></a>
+  <a href="../../pages/execution/replications.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Replications</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/execution/parallel.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">Parallel processing</span></span></a>
+  <a href="../../pages/execution/parallel.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Parallel processing</span></a>
   </div>
 </li>
       </ul>
@@ -274,20 +292,17 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/analysis/tables_figures.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Producing tables and figures</span></span></a>
+  <a href="../../pages/analysis/tables_figures.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Producing tables and figures</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/analysis/scenarios.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">Scenarios and sensitivity analysis</span></span></a>
+  <a href="../../pages/analysis/scenarios.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Scenarios and sensitivity analysis</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/analysis/full_run.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Full run</span></span></a>
+  <a href="../../pages/analysis/full_run.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Full run</span></a>
   </div>
 </li>
       </ul>
@@ -303,32 +318,27 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/quality/docstrings.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">21</span>&nbsp; <span class="chapter-title">Docstrings</span></span></a>
+  <a href="../../pages/quality/docstrings.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Docstrings</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/quality/linting.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">22</span>&nbsp; <span class="chapter-title">Linting</span></span></a>
+  <a href="../../pages/quality/linting.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Linting</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/quality/tests.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">23</span>&nbsp; <span class="chapter-title">Tests</span></span></a>
+  <a href="../../pages/quality/tests.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Tests</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/quality/github_actions.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">24</span>&nbsp; <span class="chapter-title">GitHub actions</span></span></a>
+  <a href="../../pages/quality/github_actions.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">GitHub actions</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/quality/peer_review.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">25</span>&nbsp; <span class="chapter-title">Peer review</span></span></a>
+  <a href="../../pages/quality/peer_review.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Peer review</span></a>
   </div>
 </li>
       </ul>
@@ -344,32 +354,27 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/sharing/documentation.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">26</span>&nbsp; <span class="chapter-title">Documentation</span></span></a>
+  <a href="../../pages/sharing/documentation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Documentation</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/sharing/licence.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">27</span>&nbsp; <span class="chapter-title">Licensing</span></span></a>
+  <a href="../../pages/sharing/licence.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Licensing</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/sharing/archive.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">28</span>&nbsp; <span class="chapter-title">Sharing and archiving the model</span></span></a>
+  <a href="../../pages/sharing/archive.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Sharing and archiving the model</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/sharing/citation.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">29</span>&nbsp; <span class="chapter-title">Citation guidance</span></span></a>
+  <a href="../../pages/sharing/citation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Citation guidance</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/sharing/changelog.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">30</span>&nbsp; <span class="chapter-title">Changelog</span></span></a>
+  <a href="../../pages/sharing/changelog.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Changelog</span></a>
   </div>
 </li>
       </ul>
@@ -385,8 +390,7 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-8" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/further_info/acknowledgements.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">31</span>&nbsp; <span class="chapter-title">Acknowledgements</span></span></a>
+  <a href="../../pages/further_info/acknowledgements.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Acknowledgements</span></a>
   </div>
 </li>
       </ul>
@@ -396,15 +400,26 @@ ul.task-list li input[type="checkbox"] {
 </nav>
 <div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#version-control" id="toc-version-control" class="nav-link active" data-scroll-target="#version-control">Version control</a></li>
+  <li><a href="#git" id="toc-git" class="nav-link" data-scroll-target="#git">Git</a></li>
+  <li><a href="#setting-up-a-github-repository" id="toc-setting-up-a-github-repository" class="nav-link" data-scroll-target="#setting-up-a-github-repository">Setting up a GitHub repository</a></li>
+  <li><a href="#cloning-the-repository" id="toc-cloning-the-repository" class="nav-link" data-scroll-target="#cloning-the-repository">Cloning the repository</a></li>
+  <li><a href="#creating-a-branch-and-pushing-changes" id="toc-creating-a-branch-and-pushing-changes" class="nav-link" data-scroll-target="#creating-a-branch-and-pushing-changes">Creating a branch and pushing changes</a></li>
+  <li><a href="#github-organisations" id="toc-github-organisations" class="nav-link" data-scroll-target="#github-organisations">GitHub organisations</a></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../pages/setup/version.html">Setup</a></li><li class="breadcrumb-item"><a href="../../pages/setup/version.html"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Version control</span></a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../pages/setup/version.html">Setup</a></li><li class="breadcrumb-item"><a href="../../pages/setup/version.html"><span class="chapter-title">Version control and Git</span></a></li></ol></nav>
 <div class="quarto-title">
-<h1 class="title"><span id="sec-version" class="quarto-section-identifier"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Version control</span></span></h1>
+<h1 class="title"><span id="sec-version" class="quarto-section-identifier"><span class="chapter-title">Version control and Git</span></span></h1>
 </div>
 
 
@@ -421,8 +436,188 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
+<blockquote class="blockquote">
+<p><a href="../intro/guidelines.html" class="quarto-xref"><span>Reproducibility guidelines</span></a>:</p>
+<ul>
+<li>NHS Levels of RAP (🥉): Code is version controlled.</li>
+</ul>
+</blockquote>
+<section id="version-control" class="level2">
+<h2 class="anchored" data-anchor-id="version-control">Version control</h2>
+<p><strong>Version control</strong> is a way to track changes to your documents over time. You can:</p>
+<ul>
+<li>Track changes to files: see what changes, when it changed, and who changed it.</li>
+<li>“Roll back” to earlier versions of your files if something goes wrong.</li>
+<li>Work simultaneously with others without overwriting each other.</li>
+<li>Try new ideas without risking your main work.</li>
+<li>Back up and share work online using platforms like GitHub.</li>
+</ul>
+<p>This is super handy, whether you’re working by yourself or in a team!</p>
+<p>💡 <strong>Recommendation:</strong> Using version control from the start of the project.</p>
+</section>
+<section id="git" class="level2">
+<h2 class="anchored" data-anchor-id="git">Git</h2>
+<p>The most popular version control system is <strong>Git</strong>.</p>
+<p>When using Git, we refer to our work as a <strong>repository</strong>. This is simply a folder containing your project files, as well as a special hidden <code>.git/</code> folder which stores all the version history.</p>
+<p>We take snapshots of the files at specific points in time, and these are called <strong>commits</strong>.</p>
+<p>Git can just be used on your local computer, but most people will use an online platform to store their repositories. The most popular options are:</p>
+<ul>
+<li><strong>GitHub</strong> - <a href="https://github.com/" class="uri">https://github.com/</a>.</li>
+<li><strong>GitLab</strong> - <a href="https://gitlab.com/" class="uri">https://gitlab.com/</a>.</li>
+<li><strong>GBitBucket</strong> - <a href="https://bitbucket.org/" class="uri">https://bitbucket.org/</a>.</li>
+</ul>
+<p>This tutorial will focus on <strong>GitHub</strong> as it is the most widely used and beginner-friendly.</p>
+</section>
+<section id="setting-up-a-github-repository" class="level2">
+<h2 class="anchored" data-anchor-id="setting-up-a-github-repository">Setting up a GitHub repository</h2>
+<p><strong>1. Create an account</strong>. Go to <a href="https://github.com/signup" class="uri">https://github.com/signup</a> and sign up with your email and a username.</p>
+<p><img src="version_files/github_1.png" class="img-fluid"></p>
+<p><strong>2. Create a new repository</strong>. Click the “+” button in the top right corner, and select “New repository”.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="version_files/github_2.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:70.0%"></p>
+</figure>
+</div>
+<p>Then fill out the form to create a repository…</p>
+<ul>
+<li><p><strong>Repository name:</strong> e.g.&nbsp;<em>emergency-des</em></p></li>
+<li><p><strong>Description</strong>: e.g.&nbsp;<em>Discrete-event simulation of a hospital emergency department.</em></p></li>
+<li><p><strong>Visibility:</strong> Choose whether to make the repository public (anyone can see it) or private (only visible to you and people your invite).</p></li>
+<li><p><strong>README:</strong> Select “Add a README file”, which will create a blank README we can populate later (see <a href="../sharing/documentation.html" class="quarto-xref"><span>Documentation</span></a>).</p></li>
+<li><p><strong>.gitignore:</strong> Select the “Python” or “R” .gitignore template. This will create a <code>.gitignore</code> file in your repository that tells Git which files not to track.</p></li>
+<li><p><strong>Licence:</strong> Select an appropriate licence for your repository (see <a href="../sharing/licence.html" class="quarto-xref"><span>Licensing</span></a> for more information and advice).</p></li>
+</ul>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Sharing your work openly
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>We would encourage you to make your work open access - i.e.&nbsp;creating a public GitHub repository, and using a permissive open licence (e.g.&nbsp;MIT). As described by <a href="https://book.the-turing-way.org/reproducible-research/open/open-access">The Turing Way</a>, benefits to making your work open include:</p>
+<ul>
+<li><strong>Sharing:</strong> Easy to reference and share in papers and presentations.</li>
+<li><strong>Transparency:</strong> Clearly shows how you conducted your analyses.</li>
+<li><strong>Reproducibility:</strong> Others can verify and reproduce your results.</li>
+<li><strong>Quality:</strong> Knowing it’s public encourages good practice.</li>
+<li><strong>Reuse and learning</strong>: Others can learn from and build on your work, reducing research waste.</li>
+<li><strong>Extends impact</strong>: Your work can continue to have impact after the project ends. This could include for you, if you change jobs, and want to be able to look back on old code!</li>
+<li><strong>Collaboration:</strong> Creates opportunities for collaboration, if others come across your code and are interested in working together.</li>
+<li><strong>Funder requirements:</strong> For research projects, some grants now mandate open code.</li>
+</ul>
+<p>Including a license (<a href="../sharing/licence.html" class="quarto-xref"><span>Licensing</span></a>) and citation instructions (<a href="../sharing/citation.html" class="quarto-xref"><span>Citation guidance</span></a>) enables others to use your code while giving you credit.</p>
+<p>That said, it’s your code and your choice - if you have specific concerns or proprietary work, a private repository is always an option.</p>
+</div>
+</div>
+<p><img src="version_files/github_3.png" class="img-fluid"></p>
+</section>
+<section id="cloning-the-repository" class="level2">
+<h2 class="anchored" data-anchor-id="cloning-the-repository">Cloning the repository</h2>
+<p>You have created a remote repository on GitHub - we now want to clone it, which means we create a local copy on your computer, and can sync between the local and remote repositories.</p>
+<p><strong>1. Get the URL.</strong> On the main page of you repository, click the green “&lt;&gt; Code” button, then copy the HTTPS url.</p>
+<p><img src="version_files/github_4.png" class="img-fluid"></p>
+<p><strong>2. Clone the repository.</strong> Depending on your operating system, open either the terminal (Linux or Mac) or Git Bash (windows). Navigate to the location where you would like to create the folder containing your repository. Then enter <code>git clone</code> and the pasted URL - for example:</p>
+<pre><code>git clone https://github.com/amyheather/hospital-des.git</code></pre>
+<p><img src="version_files/github_5.png" class="img-fluid"></p>
+<p>This will have created a local copy of the repository, which you can open with your preferred development environment (e.g.&nbsp;VSCode, RStudio).</p>
+</section>
+<section id="creating-a-branch-and-pushing-changes" class="level2">
+<h2 class="anchored" data-anchor-id="creating-a-branch-and-pushing-changes">Creating a branch and pushing changes</h2>
+<p>It is best practice to work in branches. A <strong>branch</strong> is like a separate workspace where you can safely experiment with changes without affecting the main project.</p>
+<p>As in the diagram below, you can make several commits in this branch, and when you’re ready, merge back into the main project (e.g.&nbsp;when new feature complete, or reached a stable point where everything is working properly).</p>
+<p>This is valuable even when you’re the only person working on the repository - but with multiple collaborator, becomes essential! Every person should work on their own branch.</p>
+<p><img src="version_files/git_branch.drawio.png" class="img-fluid"></p>
+<p>To work in a branch and push changes…</p>
+<p><strong>1. Create a branch.</strong> Open your terminal or Git Bash, and make sure your current working directory is your Git repository. To create a new branch (here, named <code>dev</code>), then run:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> branch dev</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>To move into this branch:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> checkout dev</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>You should see a message “Switched to branch ‘dev’”.</p>
+<p>We can add this branch to the remote GitHub repository by running:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> push <span class="at">-u</span> origin dev</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><strong>2. Make some changes.</strong> This could be any changes to code, documentation or other artefacts in the repository. So we can test this out, let’s make a simple change to our README -</p>
+<p>Before:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode md code-with-copy"><code class="sourceCode markdown"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu"># hospital-des</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>Discrete-event simulation of a hospital emergency department.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>After:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode md code-with-copy"><code class="sourceCode markdown"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu"># Hospital DES</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>Discrete-event simulation of a hospital emergency department.</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>Author: Amy Heather</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>Work in progress!</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><strong>3. Commit the changes.</strong> To save this new version of our file to Git, we need to commit the changes. We use <code>git add</code> to choose which files to commit. We then write a descriptive commit message using <code>git commit</code>. Finally, we push the changes using <code>git push</code>.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> add README.md</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> commit <span class="at">-m</span> <span class="st">"docs(README): add author + work-in-progress notice"</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> push</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><strong>4. Merge the changes.</strong> One of the easiest ways to merge changes into main is using the GitHub website. Open your repository. You should see that you now have “2 Branches”. Navigate to your new branch…</p>
+<p><img src="version_files/github_6.png" class="img-fluid"></p>
+<p>We can see this is now 1 commit ahead of main. We can browse the files in this branch, and can click on the right hand “2 Commits” to view the version history.</p>
+<p><img src="version_files/github_7.png" class="img-fluid"></p>
+<p>This just has 2 commits - the creation of our repository, and the change to our README file:</p>
+<p><img src="version_files/github_8.png" class="img-fluid"></p>
+<p>To merge the changes with main, go back to the page for that branch, and select either:</p>
+<ul>
+<li>“This branch is 1 commit ahead of main”, or</li>
+<li>“Compare &amp; pull request”</li>
+</ul>
+<p><img src="version_files/github_9.png" class="img-fluid"></p>
+<p>This will open a page which shows all the new commits in your branch, and side-by-side changes the files you have modified.</p>
+<p>Click the green “Create pull request” button.</p>
+<p><img src="version_files/github_10.png" class="img-fluid"></p>
+<p>A <strong>pull request</strong> is a request to merge changes from one branch to another. This provides an opportunity, for example, for others to review the changes and make sure they are happy before these are merged.</p>
+<p>We can modify the message - or just leave as is, and select the “Create pull request” button.</p>
+<p><img src="version_files/github_11.png" class="img-fluid"></p>
+<p>If new changes have been made to the main branch since you created your branch (e.g., new commits, merges from other branches, or contributions from other collaborators) and you’ve modified the same files, you may encounter merge conflicts that need to be resolved.</p>
+<p>If not though, you can just select “Merge pull request” and then “Confirm merge”.</p>
+<p><img src="version_files/github_12.png" class="img-fluid"></p>
+<p><img src="version_files/github_13.png" class="img-fluid"></p>
+<p><strong>5. Close your branch.</strong> We can now delete the branch-</p>
+<p><img src="version_files/github_14.png" class="img-fluid"></p>
+<p>On our local machine, switch back to main:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> checkout main</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Then pull the updated main branch, which contains our merged changes:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> pull</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>We can then delete our local branch:</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> branch <span class="at">-d</span> dev</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>And also get the latest list of branches from the remote repository, with our old branch now removed:</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> remote prune origin</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>To continue working in the repository, simply <strong>create a new branch</strong> and continue as above.</p>
+</section>
+<section id="github-organisations" class="level2">
+<h2 class="anchored" data-anchor-id="github-organisations">GitHub organisations</h2>
+<p>When creating a GitHub repository, by default, it will set the owner to be your personal user account. While this works well for person projects, you will often find it better to create repositories within a <strong>GitHub organisation</strong> instead.</p>
+<p>A GitHub organisation acts like a shared account which multiple people can own, access and collaborate on. Advantages of this are:</p>
+<ul>
+<li><strong>One place for each project/team.</strong> Related repositories are grouped into one organisation. For example, you could have different organisations for different teams or projects, with all the relevant repositories for each.</li>
+<li><strong>Shared ownership</strong>. Multiple people can have administrative access.</li>
+<li><strong>Continuity.</strong> If you leave a project, repositories remain accessible to and owned by the team.</li>
+<li><strong>Professional branding.</strong> Repositories appear under the organisation name rather than your personal username.</li>
+</ul>
+<p>To create a GitHub organisation…</p>
+<p><strong>1. Open settings.</strong> In the top-right corner, select your profile photo, then click “Settings”.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="version_files/organisation_1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:50.0%"></p>
+</figure>
+</div>
+<p>Then select “Organizations” under the Access section in the sidebar.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="version_files/organisation_2.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:60.0%"></p>
+</figure>
+</div>
+<p><strong>2. Make new organisation.</strong> In the top-right corner, select “New organization”.</p>
+<p><strong>3. Choose a plan.</strong> For example, simply select the Free plan.</p>
+<p><strong>4. Enter your organisation details.</strong> It will ask for a name and contact email. You can typically then select that the organisation belongs to your personal account. Follow the prompts to create the organisation. You can then add other GitHub users as owners or collaborators.</p>
+<p><img src="version_files/organisation_3.png" class="img-fluid"></p>
 
 
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
@@ -570,124 +765,6 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       } else {
         return "";
       }
-    });
-  }
-  const xrefs = window.document.querySelectorAll('a.quarto-xref');
-  const processXRef = (id, note) => {
-    // Strip column container classes
-    const stripColumnClz = (el) => {
-      el.classList.remove("page-full", "page-columns");
-      if (el.children) {
-        for (const child of el.children) {
-          stripColumnClz(child);
-        }
-      }
-    }
-    stripColumnClz(note)
-    if (id === null || id.startsWith('sec-')) {
-      // Special case sections, only their first couple elements
-      const container = document.createElement("div");
-      if (note.children && note.children.length > 2) {
-        container.appendChild(note.children[0].cloneNode(true));
-        for (let i = 1; i < note.children.length; i++) {
-          const child = note.children[i];
-          if (child.tagName === "P" && child.innerText === "") {
-            continue;
-          } else {
-            container.appendChild(child.cloneNode(true));
-            break;
-          }
-        }
-        if (window.Quarto?.typesetMath) {
-          window.Quarto.typesetMath(container);
-        }
-        return container.innerHTML
-      } else {
-        if (window.Quarto?.typesetMath) {
-          window.Quarto.typesetMath(note);
-        }
-        return note.innerHTML;
-      }
-    } else {
-      // Remove any anchor links if they are present
-      const anchorLink = note.querySelector('a.anchorjs-link');
-      if (anchorLink) {
-        anchorLink.remove();
-      }
-      if (window.Quarto?.typesetMath) {
-        window.Quarto.typesetMath(note);
-      }
-      if (note.classList.contains("callout")) {
-        return note.outerHTML;
-      } else {
-        return note.innerHTML;
-      }
-    }
-  }
-  for (var i=0; i<xrefs.length; i++) {
-    const xref = xrefs[i];
-    tippyHover(xref, undefined, function(instance) {
-      instance.disable();
-      let url = xref.getAttribute('href');
-      let hash = undefined; 
-      if (url.startsWith('#')) {
-        hash = url;
-      } else {
-        try { hash = new URL(url).hash; } catch {}
-      }
-      if (hash) {
-        const id = hash.replace(/^#\/?/, "");
-        const note = window.document.getElementById(id);
-        if (note !== null) {
-          try {
-            const html = processXRef(id, note.cloneNode(true));
-            instance.setContent(html);
-          } finally {
-            instance.enable();
-            instance.show();
-          }
-        } else {
-          // See if we can fetch this
-          fetch(url.split('#')[0])
-          .then(res => res.text())
-          .then(html => {
-            const parser = new DOMParser();
-            const htmlDoc = parser.parseFromString(html, "text/html");
-            const note = htmlDoc.getElementById(id);
-            if (note !== null) {
-              const html = processXRef(id, note);
-              instance.setContent(html);
-            } 
-          }).finally(() => {
-            instance.enable();
-            instance.show();
-          });
-        }
-      } else {
-        // See if we can fetch a full url (with no hash to target)
-        // This is a special case and we should probably do some content thinning / targeting
-        fetch(url)
-        .then(res => res.text())
-        .then(html => {
-          const parser = new DOMParser();
-          const htmlDoc = parser.parseFromString(html, "text/html");
-          const note = htmlDoc.querySelector('main.content');
-          if (note !== null) {
-            // This should only happen for chapter cross references
-            // (since there is no id in the URL)
-            // remove the first header
-            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
-              note.children[0].remove();
-            }
-            const html = processXRef(null, note);
-            instance.setContent(html);
-          } 
-        }).finally(() => {
-          instance.enable();
-          instance.show();
-        });
-      }
-    }, function(instance) {
     });
   }
       let selectedAnnoteEl;
@@ -845,16 +922,17 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
       <a href="../../pages/intro/foss.html" class="pagination-link" aria-label="Free and open source software (FOSS)">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Free and open source software (FOSS)</span></span>
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">Free and open source software (FOSS)</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
       <a href="../../pages/setup/environment.html" class="pagination-link" aria-label="Dependency management">
-        <span class="nav-page-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Dependency management</span></span> <i class="bi bi-arrow-right-short"></i>
+        <span class="nav-page-text"><span class="chapter-title">Dependency management</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
 </div> <!-- /content -->
+<script type="application/javascript" src="../../scripts/language-selector.js"></script>
 
 
 
