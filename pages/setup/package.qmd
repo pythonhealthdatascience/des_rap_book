@@ -7,7 +7,7 @@
 > * NHS Levels of RAP (🥈): Code is well-organised following standard directory format.
 > * NHS Levels of RAP (🥇): Code is fully packaged.
 
-## Rationale
+<br>
 
 Building our simulation model as a package has several advantages:
 
@@ -16,11 +16,15 @@ Building our simulation model as a package has several advantages:
 * It helps keep the model and analysis code **separate**, improving maintainability, reusability, and reducing the risk of unintended side effects.
 * It supports automated **testing** frameworks which can verify functionality (@sec-tests).
 
+<br>
+
 ::: {.python-content}
 
 ## Create the package structure
 
 First, let's create the basic directory structure for our simulation package.
+
+<br>
 
 **1. Create folder.** Create a folder called 📁`simulation/` in your project directory.
 
@@ -28,7 +32,15 @@ First, let's create the basic directory structure for our simulation package.
 mkdir simulation
 ```
 
-**2. Make init file.** Inside the 📁`simulation/` folder, create an 📄`__init__.py` file with basic metadata.
+<br>
+
+**2. Make init file.** Inside the 📁`simulation/` folder, create an 📄`__init__.py` file.
+
+```{.bash}
+touch simulation/__init__.py
+```
+
+Open this file and copy in some basic metadata.
 
 ```{.python}
 """SimPy Discrete-Event Simulation (DES) Model.
@@ -37,20 +49,29 @@ mkdir simulation
 __version__ = "0.1.0"
 ```
 
-**3. Add a function.** Create a file called 📄`model.py` with a simple function. This is just a simple function that generates a list of numbers - we will add some real code for our model later.
+<br>
+
+**3. Add a function.** Within 📁`simulation/`, create a file called 📄`model.py`.
+
+```{.bash}
+touch simulation/model.py
+```
+
+In this, we will add our model code. For now, just copy in this simple function that generates a list of numbers. We will add some real code for our model later.
 
 ```{.python}
 """Core simulation model functionality."""
 
+
 def run_simulation(duration=100):
     """
     Run a simple dummy simulation for the specified duration.
-    
+
     Parameters
     ----------
     duration: int
         The length of time to run the simulation.
-        
+
     Returns:
         dict:
             Dummy simulation results.
@@ -60,9 +81,18 @@ def run_simulation(duration=100):
         "status": "completed",
         "results": [i for i in range(duration) if i % 10 == 0]
     }
+
 ```
 
-**4. Make pyproject file.** Create a 📄`pyproject.toml` file in the project root directory (outside the 📁`simulation` folder). We're using `flit` as our build tool because of its simplicity. The `dynamic` field tells flit to extract the version and description from our 📄`__init__.py` file.
+<br>
+
+**4. Make pyproject file.** Create a 📄`pyproject.toml` file in the project root directory (outside the 📁`simulation` folder).
+
+```{.bash}
+touch pyproject.toml
+```
+
+Copy the text below into this file. This provides instructions for building the package. We're using `flit` as our build tool because of its simplicity. The `dynamic` field tells flit to extract the version and description from our 📄`__init__.py` file.
 
 ```{.bash}
 [build-system]
@@ -74,6 +104,8 @@ name = "simulation"
 dynamic = ["version", "description"]
 ```
 
+<br>
+
 Our directory is now recognisable as a package - it contains an 📄`__init__.py` file, and there is information about the package in 📄`pyproject.toml`.
 
 Your directory should now look like this:
@@ -84,52 +116,78 @@ our_directory/
 │   ├── __init__.py         # Makes the directory a package
 │   └── model.py            # Our function
 ├── .gitignore
-├── .LICENSE
-├── README.md
-└── pyproject.toml          # Package metadata
+├── environment.yaml
+├── LICENSE
+├── pyproject.toml          # Package metadata
+└── README.md
 ```
+
+<br>
 
 ## Update the environment
 
+<br>
+
 **5. Add package to environment file**. Edit the `environment.yaml` file created in @sec-environment to add the local package. We use the `-e` flag to install it in "editable" mode, which means it will update with any changes to the source code in 📁`simulation/`.
 
-<!--TODO: add other expected packages alongside-->
+We add the following line within the `pip` installs:
+
 ```{.bash}
-name: hospital-des
-channels:
-  - conda-forge
-dependencies:
   - pip:
     - -e .[dev]
 ```
 
-**6. Update the environment**. Update our environment based on our `.yaml` file.
+So our full environment file is now:
 
 ```{.bash}
-conda env update --file environment.yml --prune
+name: des-example
+channels:
+  - conda-forge
+dependencies:
+  - ipykernel=6.29.5
+  - jinja2=3.1.5
+  - joblib=1.4.2
+  - nbconvert=7.16.6
+  - nbformat=5.10.4
+  - nbqa=1.9.0
+  - numpy=2.2.2
+  - pandas=2.2.3
+  - pip=25.0
+  - plotly_express=0.4.1
+  - pylint=3.3.4
+  - pytest=8.3.4
+  - pytest-xdist=3.6.1
+  - python=3.13.1
+  - rich=13.9.4
+  - simpy=4.1.1
+  - pip:
+    - kaleido==0.2.1
+    - sim-tools==0.8.0
+    - -e .[dev]
 ```
 
-::: {.callout-note}
+<br>
 
-## Installing with venv
-
-In this book, we use conda for environment management. However, another popular tool is `venv`, for which you can create a 📄`requirements.txt` file. If you are using `venv`, then you can just add the following line to your requirements file:
+**6. Update the environment**. To update our environment, adding our new package, execute the following in the command line (after running `conda activate des-example`):
 
 ```{.bash}
--e .[dev]
+conda env update --file environment.yaml --prune
 ```
 
-Then update by running:
+If you run `conda list`, you should now see our `simulation` package listed as a dependency like so:
 
-```{.bash}
-pip install -r requirements.txt
+```
+# Name                    Version                   Build  Channel
+simulation                0.1.0                    pypi_0    pypi
 ```
 
-:::
+<br>
 
 ## Create a notebook to test your package
 
 We will run our model and analyse results within **Jupyter notebooks**, as they allow us to combine code, results and explanations in one document. This can help make our methods and results easier to share, read through and understand.
+
+<br>
 
 **7. Create directory and notebook**. We create a dedicated directory for our notebooks in the project root (📁`notebooks/`), and add a notebook (📄`simulation_test.ipynb`). These can be created via your operating system's file manager, or with the command line:
 
@@ -138,7 +196,9 @@ mkdir notebooks
 touch notebooks/simulation_test.ipynb
 ```
 
-**8. Check our package works.** Open `notebooks/simulation_test.ipynb` and add the following code. This will test that we are able to import our package and use the basic function we had created. When you run the notebook cells, you should see an output confirming that the simulation function runs and returns results, if everything is set up correctly.
+<br>
+
+**8. Check our package works.** Open `notebooks/simulation_test.ipynb` and add the following code. This will test that we are able to import our package and use the basic function we had created.
 
 ```{.python}
 # Import our simulation package
@@ -155,6 +215,16 @@ print(f"Longer simulation completed with duration: {long_results['duration']}")
 print(f"Number of results: {len(long_results['results'])}")
 ```
 
+When you run the notebook cells, you should see an output confirming that the simulation function runs and returns results, if everything is set up correctly.
+
+```
+Simulation completed with duration: 100
+Results: [0, 10, 20, 30, 40, 50, 60, 70, 80, 90]
+Longer simulation completed with duration: 200
+Number of results: 20
+```
+
+<br>
 
 ### Further information
 
