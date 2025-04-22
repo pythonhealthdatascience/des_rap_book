@@ -23,6 +23,8 @@ It is also important for **collaboration**, so that everyone working on the proj
 
 <!--TODO: these illustrations are very rough. keep? if so, redo much cleaner? make it consistent imagery - brown box - so the three project envs are three brown boxes - and the two little people are holding brown boxes-->
 
+<br>
+
 :::{.python-content}
 ## Python tools for dependency management
 
@@ -215,12 +217,149 @@ If you do this, make sure to update the `environment.yaml` to reflect these chan
 :::{.r-content}
 ## R tools for dependency management
 
-**rough notes**
+:::{.callout-warning}
+⚠️ EVERYTHING BELOW IS WORK IN PROGRESS ⚠️
+:::
 
-renv
+<br>
 
-rig
+The most popular tool for managing dependencies in R is **renv**. This replaced and improved upon the previous tool, **Packrat**.
 
-## Setting up our renv
+Renv will create isolated environments with the specific packages and their versions for a project. However, it **won't manage the version of R used** - the version of R used is simply whatever is installed on your system. <!--TODO: add note about how to switch R versions-->
+
+<!--TODO: had wanted to explore rig... thoughts... anything to mention here on other tools...?-->
+
+<br>
+
+## Setting up renv from scratch
+
+**1. Initialise renv**. Run the command below to get started with renv.
+
+```{.r}
+renv::init()
+```
+
+This will add three new files/folders to the project:
+
+* `renv/library/`: stores packages used in project.
+* `renv.lock`: record of packages used, so they can be re-installed on a new machine.
+* `.Rprofile`: ensures that renv is activated when open project.
+
+<br>
+
+**2. Create a DESCRIPTION file**. While not required, it is good practice to create a DESCRIPTION file. This file is standard for R packages (@sec-package), but is also helpful for regular projects using renv.
+
+It lists the main dependencies in a clear, human-readable way, and can specify versions. This makes it easier to see what packages are required, unlike the verbose `renv.lock` file, which will list every package (the main packages plus all of their dependencies).
+
+As an example, create the file in the project root:
+
+```{.bash}
+touch DESCRIPTION
+```
+
+Then copy in:
+
+```{.r}
+Package: simulation
+Type: Package
+Title: Simulation
+Version: 0.1.0
+Authors@R: c(
+    person(
+      "Amy", "Heather",
+      email = "a.heather2@exeter.ac.uk",
+      role = c("aut", "cre")
+    )
+  )
+URL: https://github.com/pythonhealthdatascience/rap_template_r_des
+Description: Template reproducible analytical pipeline (RAP) for simple R
+    discrete-event simulation (DES) model.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.3.2
+Imports:
+    simmer,
+    magrittr,
+    dplyr,
+    purrr,
+    rlang,
+    tidyr,
+    tidyselect,
+    future,
+    future.apply,
+    ggplot2,
+    tibble,
+    gridExtra,
+    R6
+Suggests:
+    testthat (>= 3.0.0),
+    patrick,
+    lintr,
+    devtools,
+    xtable,
+    data.table,
+    mockery
+Config/testthat/edition: 3
+```
+
+These are all dependencies we know we will need for this book. But if you were starting from scratch, would just add what need as go along, and iteratively expand it.
+<!--TODO: explain imports vs suggests-->
+
+<br>
+
+**3. Install packages from DESCRIPTION**. The command below will install the packages (and their dependencies) into your project library. It will typically install the latest available versions <!--TODO: check if it doesn't if you specify versions... i found specifying didn't necessarily mean it fixed versions...-->
+
+<!--TODO: add note about how it asks you 1 2 3 options re building from description-->
+
+```{.r}
+renv::install()
+```
+
+<br>
+
+**4. Save environment to lockfile**. Having installed these packages, we then save the current state of the project library to a lock file. This updates `renv.lock`, which is a record of the exact packages and versions used in the project.
+
+```{.r}
+renv::snapshot()
+```
+
+<!--TODO: add note about how in r, working with specific r and packages, bit different to python, bit harder, suppoesdly forwards compatabile but no guarantee, often way of working is building a new env based on known packages, and backdating versions if something not working because of that... but also you can direct reuse an renv, as below, just check same version of r and so on, and other stuff, its not super simple-->
+
+<br>
+
+## Restoring a previous renv from lockfile
+
+**1. Obtain lockfile**. If you are attempting to restore an environment from a lockfile, you need to obtain that `renv.lock`.  This provides details on packages and versions to be restored (but not R version). As an example: TBC.
+<!--TODO: download option for renv?-->
+
+<br>
+
+**2. Initialise renv**. As before, initialise `renv` for the project. <!--TODO: note that this time it will have a message like there are existing files-->
+
+```{.r}
+renv::init()
+```
+
+<br>
+
+**3. Restore the environment**. Restore the provided `renv` based on the lock file. This will install the exact packages listed in the lockfile.
+
+```{.r}
+renv::restore()
+```
+
+<br>
+
+## System dependencies
+
+Some R packages required external system libraries. The exact requirements will depend on which packages you use, what operating system you have, and whether you have used R before.
+
+For example, working on Ubuntu, we found that we had to install the following system dependencies for `igraph`:
+
+```{.bash}
+sudo apt install build-essential gfortran
+sudo apt install libglpk-dev libxml2-dev
+```
 
 :::
