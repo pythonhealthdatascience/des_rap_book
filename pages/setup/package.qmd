@@ -16,33 +16,53 @@ Building our simulation model as a package has several advantages:
 * It helps keep the model and analysis code **separate**, improving maintainability, reusability, and reducing the risk of unintended side effects.
 * It supports automated **testing** frameworks which can verify functionality (@sec-tests).
 
-## Packaging our model
-
 ::: {.python-content}
 
-### Creating a package
+## Create the package structure
 
-In Python, a package is simply a directory with containing an 📄`__init__.py` file, which makes that directory recognisable as a package. The basic structure for our package is:
+First, let's create the basic directory structure for our simulation package.
+
+**1. Create folder.** Create a folder called 📁`simulation/` in your project directory.
 
 ```{.bash}
-our_directory/
-├── simulation/             # Main package directory
-│   ├── __init__.py         # Makes the directory a package
-│   ├── model.py            # Code for the model
-│   └── ...                 # Other .py files (e.g. parameters, replications)
-└── pyproject.toml          # Package metadata
+mkdir simulation
 ```
 
-The code for the model is contained in 📁`simulation/` within individual python files (e.g. 📄`model.py`). The 📄`__init__.py` file identifies this directory as a package and contains basic metadata:
+**2. Make init file.** Inside the 📁`simulation/` folder, create an 📄`__init__.py` file with basic metadata.
 
-```{.bash}
+```{.python}
 """SimPy Discrete-Event Simulation (DES) Model.
 """
 
 __version__ = "0.1.0"
 ```
 
-The 📄`pyproject.toml` file in the root directory contains package configuration information. We're using `flit` as our build tool because of its simplicity. The `dynamic` field tells flit to extract the version and description from our 📄`__init__.py` file.
+**3. Add a function.** Create a file called 📄`model.py` with a simple function. This is just a simple function that generates a list of numbers - we will add some real code for our model later.
+
+```{.python}
+"""Core simulation model functionality."""
+
+def run_simulation(duration=100):
+    """
+    Run a simple dummy simulation for the specified duration.
+    
+    Parameters
+    ----------
+    duration: int
+        The length of time to run the simulation.
+        
+    Returns:
+        dict:
+            Dummy simulation results.
+    """
+    return {
+        "duration": duration,
+        "status": "completed",
+        "results": [i for i in range(duration) if i % 10 == 0]
+    }
+```
+
+**4. Make pyproject file.** Create a 📄`pyproject.toml` file in the project root directory (outside the 📁`simulation` folder). We're using `flit` as our build tool because of its simplicity. The `dynamic` field tells flit to extract the version and description from our 📄`__init__.py` file.
 
 ```{.bash}
 [build-system]
@@ -54,33 +74,87 @@ name = "simulation"
 dynamic = ["version", "description"]
 ```
 
-### Installing and using the package
+Our directory is now recognisable as a package - it contains an 📄`__init__.py` file, and there is information about the package in 📄`pyproject.toml`.
 
-<!--TODO: Update so this refers back to @sec-environment, and we are updating the environment created there, and have made some basic empty files here, which we test installing locally, so its an action-->
-
-To use our package during development, we install it in "editable" mode using the `-e` flag. This means it will update with any changes to the source code in 📁`simulation/`.
-
-In a conda 📄`environment.yaml` file:
+Your directory should now look like this:
 
 ```{.bash}
-name: our-environment
+our_directory/
+├── simulation/             # Main package directory
+│   ├── __init__.py         # Makes the directory a package
+│   └── model.py            # Our function
+├── .gitignore
+├── .LICENSE
+├── README.md
+└── pyproject.toml          # Package metadata
+```
+
+## Update the environment
+
+**5. Add package to environment file**. Edit the `environment.yaml` file created in @sec-environment to add the local package. We use the `-e` flag to install it in "editable" mode, which means it will update with any changes to the source code in 📁`simulation/`.
+
+<!--TODO: add other expected packages alongside-->
+```{.bash}
+name: hospital-des
 channels:
   - conda-forge
 dependencies:
-  - python
-  - simpy
   - pip:
     - -e .[dev]
 ```
 
-In a 📄`requirements.txt` file:
+**6. Update the environment**. Update our environment based on our `.yaml` file.
 
 ```{.bash}
-simpy
+conda env update --file environment.yml --prune
+```
+
+::: {.callout-note}
+
+## Installing with venv
+
+In this book, we use conda for environment management. However, another popular tool is `venv`, for which you can create a 📄`requirements.txt` file. If you are using `venv`, then you can just add the following line to your requirements file:
+
+```{.bash}
 -e .[dev]
 ```
 
-<!--TODO: add examples of scripts and .ipynb using the package, not just the env installation. perhaps it could be a package v.s. analysis section? Or just Analysis using this package. Same for R below. -->
+Then update by running:
+
+```{.bash}
+pip install -r requirements.txt
+```
+
+:::
+
+## Create a notebook to test your package
+
+We will run our model and analyse results within **Jupyter notebooks**, as they allow us to combine code, results and explanations in one document. This can help make our methods and results easier to share, read through and understand.
+
+**7. Create directory and notebook**. We create a dedicated directory for our notebooks in the project root (📁`notebooks/`), and add a notebook (📄`simulation_test.ipynb`). These can be created via your operating system's file manager, or with the command line:
+
+```{.bash}
+mkdir notebooks
+touch notebooks/simulation_test.ipynb
+```
+
+**8. Check our package works.** Open `notebooks/simulation_test.ipynb` and add the following code. This will test that we are able to import our package and use the basic function we had created. When you run the notebook cells, you should see an output confirming that the simulation function runs and returns results, if everything is set up correctly.
+
+```{.python}
+# Import our simulation package
+from simulation.model import run_simulation
+
+# Run the simulation with default parameters
+results = run_simulation()
+print(f"Simulation completed with duration: {results['duration']}")
+print(f"Results: {results['results']}")
+
+# Run with a different duration
+long_results = run_simulation(duration=200)
+print(f"Longer simulation completed with duration: {long_results['duration']}")
+print(f"Number of results: {len(long_results['results'])}")
+```
+
 
 ### Further information
 
