@@ -20,6 +20,40 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -401,11 +435,272 @@ ul.task-list li input[type="checkbox"] {
 <li>NHS Levels of RAP (🥈): Repository includes dependency information.</li>
 </ul>
 </blockquote>
+<p>Dependency management is about keeping track of the environment used for your project. This includes the version of your programming languages, any packages used, and their versions.</p>
+<p>It acts like a <strong>time capsule</strong>, allowing you to return to a project later and run it with the exact same packages and versions, reproducing the results generated previously.</p>
+<p><img src="environment_files/time_capsule.png" class="img-fluid"></p>
+<p>Dependency management enables you to <strong>isolate environments for different projects</strong>. Each project can have it’s own set of dependencies, preventing conflicts and making it easy to switch between projects.</p>
+<p><img src="environment_files/isolated_env.png" class="img-fluid"></p>
+<p>It is also important for <strong>collaboration</strong>, so that everyone working on the project is using the same environment.</p>
+<p><img src="environment_files/collaborate.png" class="img-fluid"></p>
+<!--TODO: these illustrations are very rough. keep? if so, redo much cleaner? make it consistent imagery - brown box - so the three project envs are three brown boxes - and the two little people are holding brown boxes-->
+<p><br></p>
 <div class="python-content">
-<p>Python</p>
+<section id="python-tools-for-dependency-management" class="level2">
+<h2 class="anchored" data-anchor-id="python-tools-for-dependency-management">Python tools for dependency management</h2>
+<p>There are lots of tools available for managing dependencies in isolated environments in python. A few of the most popular tools include <strong>venv</strong>, <strong>conda</strong>, and <strong>poetry</strong>.</p>
+<p>In this book, we will use <strong>conda</strong>, as it allows us to <strong>specify a python version</strong>, so each environment we create can have a different specific version of python. This is not possible with venv and poetry, which just manage the package dependencies, and will just use the system python.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Mamba
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Mamba</strong> is a drop-in replacement for conda that is often preferred as it is:</p>
+<ul>
+<li>Faster than conda.</li>
+<li>Better at dealing with dependency conflicts, providing more helpful messages in cases where environments fail to builds due to clashing requirements of different packages.</li>
+</ul>
+<p>To use mamba, simply replace <code>conda</code> in all the commands below with <code>mamba</code>.</p>
+</div>
+</div>
+<p><br></p>
+</section>
+<section id="installing-conda-or-mamba" class="level2">
+<h2 class="anchored" data-anchor-id="installing-conda-or-mamba">Installing conda (or mamba)</h2>
+<p>Refer to the conda or mamba documentation for the latest instructions on installing these for your operating system (windows, mac or linux).</p>
+<ul>
+<li><a href="https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html">Conda installation instructions</a>.</li>
+<li><a href="https://mamba.readthedocs.io/en/latest/installation/mamba-installation.html">Mamba installation instructions</a>.</li>
+</ul>
+<p><br></p>
+</section>
+<section id="setting-up-our-conda-environment" class="level2">
+<h2 class="anchored" data-anchor-id="setting-up-our-conda-environment">Setting up our conda environment</h2>
+<p><strong>1. Create an environment file.</strong> In the project root, we create 📄<code>environment.yaml</code>.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">touch</span> environment.yaml</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Within this file, we add three sections:</p>
+<ul>
+<li><strong>Name</strong>. The environment name.</li>
+<li><strong>Channels</strong>. Where to find packages (e.g.&nbsp;<code>conda-forge</code>). <!--TODO: explain about options here, and why we chose conda-forge--></li>
+<li><strong>Dependencies</strong>. The packages you need.</li>
+</ul>
+<p>When first creating our environment, we just list the dependencies we know we need at this point - we can always add more later! At the start of a project, you might only know one: python.</p>
+<p>As an example, we will add <code>simpy</code> and python.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">name:</span> des-example</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="ex">channels:</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="ex">-</span> conda-forge</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="ex">dependencies:</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="ex">-</span> python</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  <span class="ex">-</span> simpy</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><br></p>
+<p><strong>2. Build and activate the environment</strong>. In the command line, run the following to create your environment:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">conda</span> env create <span class="at">--file</span> environment.yaml</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>You can then activate it (replacing <code>des-example</code> with your environment name):</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">conda</span> activate des-example</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>To confirm your environment contains the expected packages, run:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">conda</span> list</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>This will output a list of packages, versions, builds and channels. For example, it may look similar to:</p>
+<pre><code>(des-example) amy@xps:~/Documents/hospital-des$ conda list
+# packages in environment at /home/amy/mambaforge/envs/des-example:
+#
+# Name                    Version                   Build  Channel
+_libgcc_mutex             0.1                 conda_forge    conda-forge
+_openmp_mutex             4.5                       2_gnu    conda-forge
+bzip2                     1.0.8                h4bc722e_7    conda-forge
+ca-certificates           2025.1.31            hbd8a1cb_1    conda-forge
+ld_impl_linux-64          2.43                 h712a8e2_4    conda-forge
+libexpat                  2.7.0                h5888daf_0    conda-forge
+libffi                    3.4.6                h2dba641_1    conda-forge
+libgcc                    14.2.0               h767d61c_2    conda-forge
+libgcc-ng                 14.2.0               h69a702a_2    conda-forge
+libgomp                   14.2.0               h767d61c_2    conda-forge
+liblzma                   5.8.1                hb9d3cd8_0    conda-forge
+libmpdec                  4.0.0                h4bc722e_0    conda-forge
+libsqlite                 3.49.1               hee588c1_2    conda-forge
+libuuid                   2.38.1               h0b41bf4_0    conda-forge
+libzlib                   1.3.1                hb9d3cd8_2    conda-forge
+ncurses                   6.5                  h2d0b736_3    conda-forge
+openssl                   3.5.0                h7b32b05_0    conda-forge
+pip                       25.0.1             pyh145f28c_0    conda-forge
+python                    3.13.3          hf636f53_101_cp313    conda-forge
+python_abi                3.13                    7_cp313    conda-forge
+readline                  8.2                  h8c095d6_2    conda-forge
+simpy                     4.1.1              pyhd8ed1ab_1    conda-forge
+tk                        8.6.13          noxft_h4845f30_101    conda-forge
+tzdata                    2025b                h78e105d_0    conda-forge</code></pre>
+<p><br></p>
+<p><strong>3. Specify versions</strong>. For reproducibility, it’s best to specify the exact package versions in you <code>environment.yaml</code>. If you’re starting from scratch, you may not know which versions you need, so you can leave them out initially, as we did in step 1.</p>
+<p>However, now that we have built our environment (which used the latest versions as none were specified), it is important to then record your versions in the 📄<code>environment.yaml</code>. These are the versions you saw when running <code>conda list</code>. For example:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ex">name:</span> des-example</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="ex">channels:</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="ex">-</span> conda-forge</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="ex">dependencies:</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="ex">-</span> python=3.13.3</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  <span class="ex">-</span> simpy=4.1.1</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><br></p>
+<p><strong>4. Setting up the full environment for this book.</strong> When working on a project from scratch, you will often build up your environment organically and iteratively as you find more packages you want to use. However, to follow along with this book and ensure everything works as expected, you can use the full environment provided below. Copy this into your 📄<code>environment.yaml</code> (feel free to alter the name!):</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ex">name:</span> des-example</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="ex">channels:</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="ex">-</span> conda-forge</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="ex">dependencies:</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="ex">-</span> ipykernel=6.29.5</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  <span class="ex">-</span> jinja2=3.1.5</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  <span class="ex">-</span> joblib=1.4.2</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  <span class="ex">-</span> nbconvert=7.16.6</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>  <span class="ex">-</span> nbformat=5.10.4</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>  <span class="ex">-</span> nbqa=1.9.0</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>  <span class="ex">-</span> numpy=2.2.2</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>  <span class="ex">-</span> pandas=2.2.3</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>  <span class="ex">-</span> pip=25.0</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>  <span class="ex">-</span> plotly_express=0.4.1</span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>  <span class="ex">-</span> pylint=3.3.4</span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>  <span class="ex">-</span> pytest=8.3.4</span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>  <span class="ex">-</span> pytest-xdist=3.6.1</span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>  <span class="ex">-</span> python=3.13.1</span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>  <span class="ex">-</span> rich=13.9.4</span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>  <span class="ex">-</span> simpy=4.1.1</span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>  <span class="ex">-</span> pip:</span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>    <span class="ex">-</span> kaleido==0.2.1</span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>    <span class="ex">-</span> sim-tools==0.8.0</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Then update your environment to include these packages (after running <code>conda activate des-example</code>) with:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="ex">conda</span> env update <span class="at">--file</span> environment.yaml <span class="at">--prune</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<!-- either make full section explaining that need to check run etc, or remove
+::: {.callout-note}
+
+## Updating packages
+
+If want to update all your packages, you can run:
+
+```{.bash}
+conda update --all
+```
+
+If you do this, make sure to update the `environment.yaml` to reflect these changes.
+
+:::
+-->
+<p><br></p>
+<section id="further-information" class="level3">
+<h3 class="anchored" data-anchor-id="further-information">Further information</h3>
+<ul>
+<li><a href="https://alpopkes.com/posts/python/packaging_tools/">“An unbiased evaluation of environment management and packaging tools”</a> from Anna-Lena Popkes 2024</li>
+<li><a href="https://nielscautaerts.xyz/python-dependency-management-is-a-dumpster-fire.html">“Python dependency management is a dumpster fire”</a> from Niels Cautaerts 2024</li>
+</ul>
+</section>
+</section>
 </div>
 <div class="r-content">
-<p>R</p>
+<section id="r-tools-for-dependency-management" class="level2">
+<h2 class="anchored" data-anchor-id="r-tools-for-dependency-management">R tools for dependency management</h2>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Warning
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>⚠️ EVERYTHING BELOW IS WORK IN PROGRESS ⚠️</p>
+</div>
+</div>
+<p><br></p>
+<p>The most popular tool for managing dependencies in R is <strong>renv</strong>. This replaced and improved upon the previous tool, <strong>Packrat</strong>.</p>
+<p>Renv will create isolated environments with the specific packages and their versions for a project. However, it <strong>won’t manage the version of R used</strong> - the version of R used is simply whatever is installed on your system. <!--TODO: add note about how to switch R versions--></p>
+<!--TODO: had wanted to explore rig... thoughts... anything to mention here on other tools...?-->
+<p><br></p>
+</section>
+<section id="setting-up-renv-from-scratch" class="level2">
+<h2 class="anchored" data-anchor-id="setting-up-renv-from-scratch">Setting up renv from scratch</h2>
+<p><strong>1. Initialise renv</strong>. Run the command below to get started with renv.</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>renv<span class="sc">::</span><span class="fu">init</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>This will add three new files/folders to the project:</p>
+<ul>
+<li><code>renv/library/</code>: stores packages used in project.</li>
+<li><code>renv.lock</code>: record of packages used, so they can be re-installed on a new machine.</li>
+<li><code>.Rprofile</code>: ensures that renv is activated when open project.</li>
+</ul>
+<p><br></p>
+<p><strong>2. Create a DESCRIPTION file</strong>. While not required, it is good practice to create a DESCRIPTION file. This file is standard for R packages (<a href="package.html" class="quarto-xref"><span>Structuring our model as a package</span></a>), but is also helpful for regular projects using renv.</p>
+<p>It lists the main dependencies in a clear, human-readable way, and can specify versions. This makes it easier to see what packages are required, unlike the verbose <code>renv.lock</code> file, which will list every package (the main packages plus all of their dependencies).</p>
+<p>As an example, create the file in the project root:</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">touch</span> DESCRIPTION</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Then copy in:</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>Package<span class="sc">:</span> simulation</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>Type<span class="sc">:</span> Package</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>Title<span class="sc">:</span> Simulation</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>Version<span class="sc">:</span> <span class="dv">0</span>.<span class="fl">1.0</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>Authors<span class="sc">@</span>R<span class="sc">:</span> <span class="fu">c</span>(</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">person</span>(</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Amy"</span>, <span class="st">"Heather"</span>,</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>      <span class="at">email =</span> <span class="st">"a.heather2@exeter.ac.uk"</span>,</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>      <span class="at">role =</span> <span class="fu">c</span>(<span class="st">"aut"</span>, <span class="st">"cre"</span>)</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>URL<span class="sc">:</span> https<span class="sc">:</span><span class="er">//</span>github.com<span class="sc">/</span>pythonhealthdatascience<span class="sc">/</span>rap_template_r_des</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>Description<span class="sc">:</span> Template reproducible analytical <span class="fu">pipeline</span> (RAP) <span class="cf">for</span> simple R</span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>    discrete<span class="sc">-</span>event <span class="fu">simulation</span> (DES) model.</span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>License<span class="sc">:</span> MIT <span class="sc">+</span> file LICENSE</span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>Encoding<span class="sc">:</span> UTF<span class="dv">-8</span></span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>LazyData<span class="sc">:</span> true</span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>RoxygenNote<span class="sc">:</span> <span class="dv">7</span>.<span class="fl">3.2</span></span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>Imports<span class="sc">:</span></span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>    simmer,</span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>    magrittr,</span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>    dplyr,</span>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a>    purrr,</span>
+<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a>    rlang,</span>
+<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a>    tidyr,</span>
+<span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a>    tidyselect,</span>
+<span id="cb12-27"><a href="#cb12-27" aria-hidden="true" tabindex="-1"></a>    future,</span>
+<span id="cb12-28"><a href="#cb12-28" aria-hidden="true" tabindex="-1"></a>    future.apply,</span>
+<span id="cb12-29"><a href="#cb12-29" aria-hidden="true" tabindex="-1"></a>    ggplot2,</span>
+<span id="cb12-30"><a href="#cb12-30" aria-hidden="true" tabindex="-1"></a>    tibble,</span>
+<span id="cb12-31"><a href="#cb12-31" aria-hidden="true" tabindex="-1"></a>    gridExtra,</span>
+<span id="cb12-32"><a href="#cb12-32" aria-hidden="true" tabindex="-1"></a>    R6</span>
+<span id="cb12-33"><a href="#cb12-33" aria-hidden="true" tabindex="-1"></a>Suggests<span class="sc">:</span></span>
+<span id="cb12-34"><a href="#cb12-34" aria-hidden="true" tabindex="-1"></a>    <span class="fu">testthat</span> (<span class="sc">&gt;=</span> <span class="dv">3</span>.<span class="fl">0.0</span>),</span>
+<span id="cb12-35"><a href="#cb12-35" aria-hidden="true" tabindex="-1"></a>    patrick,</span>
+<span id="cb12-36"><a href="#cb12-36" aria-hidden="true" tabindex="-1"></a>    lintr,</span>
+<span id="cb12-37"><a href="#cb12-37" aria-hidden="true" tabindex="-1"></a>    devtools,</span>
+<span id="cb12-38"><a href="#cb12-38" aria-hidden="true" tabindex="-1"></a>    xtable,</span>
+<span id="cb12-39"><a href="#cb12-39" aria-hidden="true" tabindex="-1"></a>    data.table,</span>
+<span id="cb12-40"><a href="#cb12-40" aria-hidden="true" tabindex="-1"></a>    mockery</span>
+<span id="cb12-41"><a href="#cb12-41" aria-hidden="true" tabindex="-1"></a>Config<span class="sc">/</span>testthat<span class="sc">/</span>edition<span class="sc">:</span> <span class="dv">3</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>These are all dependencies we know we will need for this book. But if you were starting from scratch, would just add what need as go along, and iteratively expand it. <!--TODO: explain imports vs suggests--></p>
+<p><br></p>
+<p><strong>3. Install packages from DESCRIPTION</strong>. The command below will install the packages (and their dependencies) into your project library. It will typically install the latest available versions <!--TODO: check if it doesn't if you specify versions... i found specifying didn't necessarily mean it fixed versions...--></p>
+<!--TODO: add note about how it asks you 1 2 3 options re building from description-->
+<div class="sourceCode" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>renv<span class="sc">::</span><span class="fu">install</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><br></p>
+<p><strong>4. Save environment to lockfile</strong>. Having installed these packages, we then save the current state of the project library to a lock file. This updates <code>renv.lock</code>, which is a record of the exact packages and versions used in the project.</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>renv<span class="sc">::</span><span class="fu">snapshot</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<!--TODO: add note about how in r, working with specific r and packages, bit different to python, bit harder, suppoesdly forwards compatabile but no guarantee, often way of working is building a new env based on known packages, and backdating versions if something not working because of that... but also you can direct reuse an renv, as below, just check same version of r and so on, and other stuff, its not super simple-->
+<p><br></p>
+</section>
+<section id="restoring-a-previous-renv-from-lockfile" class="level2">
+<h2 class="anchored" data-anchor-id="restoring-a-previous-renv-from-lockfile">Restoring a previous renv from lockfile</h2>
+<p><strong>1. Obtain lockfile</strong>. If you are attempting to restore an environment from a lockfile, you need to obtain that <code>renv.lock</code>. This provides details on packages and versions to be restored (but not R version). As an example: TBC. <!--TODO: download option for renv?--></p>
+<p><br></p>
+<p><strong>2. Initialise renv</strong>. As before, initialise <code>renv</code> for the project. <!--TODO: note that this time it will have a message like there are existing files--></p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>renv<span class="sc">::</span><span class="fu">init</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><br></p>
+<p><strong>3. Restore the environment</strong>. Restore the provided <code>renv</code> based on the lock file. This will install the exact packages listed in the lockfile.</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>renv<span class="sc">::</span><span class="fu">restore</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><br></p>
+</section>
+<section id="system-dependencies" class="level2">
+<h2 class="anchored" data-anchor-id="system-dependencies">System dependencies</h2>
+<p>Some R packages required external system libraries. The exact requirements will depend on which packages you use, what operating system you have, and whether you have used R before.</p>
+<p>For example, working on Ubuntu, we found that we had to install the following system dependencies for <code>igraph</code>:</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt install build-essential gfortran</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt install libglpk-dev libxml2-dev</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
 </div>
 
 

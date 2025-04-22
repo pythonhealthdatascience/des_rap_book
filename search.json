@@ -135,7 +135,84 @@
     "href": "pages/setup/environment.html",
     "title": "Dependency management",
     "section": "",
-    "text": "Choose your language:   Python R\n\n\nReproducibility guidelines:\n\nHeather et al. 2025: List dependencies and versions.\nNHS Levels of RAP (🥈): Repository includes dependency information.\n\n\n\nPython\n\n\nR",
+    "text": "Dependency management is about keeping track of the environment used for your project. This includes the version of your programming languages, any packages used, and their versions.\nIt acts like a time capsule, allowing you to return to a project later and run it with the exact same packages and versions, reproducing the results generated previously.\nDependency management enables you to isolate environments for different projects. Each project can have it’s own set of dependencies, preventing conflicts and making it easy to switch between projects.\nIt is also important for collaboration, so that everyone working on the project is using the same environment.",
+    "crumbs": [
+      "Setup",
+      "<span class='chapter-number'>6</span>  <span class='chapter-title'>Dependency management</span>"
+    ]
+  },
+  {
+    "objectID": "pages/setup/environment.html#python-tools-for-dependency-management",
+    "href": "pages/setup/environment.html#python-tools-for-dependency-management",
+    "title": "Dependency management",
+    "section": "Python tools for dependency management",
+    "text": "Python tools for dependency management\nThere are lots of tools available for managing dependencies in isolated environments in python. A few of the most popular tools include venv, conda, and poetry.\nIn this book, we will use conda, as it allows us to specify a python version, so each environment we create can have a different specific version of python. This is not possible with venv and poetry, which just manage the package dependencies, and will just use the system python.\n\n\n\n\n\n\nMamba\n\n\n\nMamba is a drop-in replacement for conda that is often preferred as it is:\n\nFaster than conda.\nBetter at dealing with dependency conflicts, providing more helpful messages in cases where environments fail to builds due to clashing requirements of different packages.\n\nTo use mamba, simply replace conda in all the commands below with mamba.",
+    "crumbs": [
+      "Setup",
+      "<span class='chapter-number'>6</span>  <span class='chapter-title'>Dependency management</span>"
+    ]
+  },
+  {
+    "objectID": "pages/setup/environment.html#installing-conda-or-mamba",
+    "href": "pages/setup/environment.html#installing-conda-or-mamba",
+    "title": "Dependency management",
+    "section": "Installing conda (or mamba)",
+    "text": "Installing conda (or mamba)\nRefer to the conda or mamba documentation for the latest instructions on installing these for your operating system (windows, mac or linux).\n\nConda installation instructions.\nMamba installation instructions.",
+    "crumbs": [
+      "Setup",
+      "<span class='chapter-number'>6</span>  <span class='chapter-title'>Dependency management</span>"
+    ]
+  },
+  {
+    "objectID": "pages/setup/environment.html#setting-up-our-conda-environment",
+    "href": "pages/setup/environment.html#setting-up-our-conda-environment",
+    "title": "Dependency management",
+    "section": "Setting up our conda environment",
+    "text": "Setting up our conda environment\n1. Create an environment file. In the project root, we create 📄environment.yaml.\ntouch environment.yaml\nWithin this file, we add three sections:\n\nName. The environment name.\nChannels. Where to find packages (e.g. conda-forge). \nDependencies. The packages you need.\n\nWhen first creating our environment, we just list the dependencies we know we need at this point - we can always add more later! At the start of a project, you might only know one: python.\nAs an example, we will add simpy and python.\nname: des-example\nchannels:\n  - conda-forge\ndependencies:\n  - python\n  - simpy\n\n2. Build and activate the environment. In the command line, run the following to create your environment:\nconda env create --file environment.yaml\nYou can then activate it (replacing des-example with your environment name):\nconda activate des-example\nTo confirm your environment contains the expected packages, run:\nconda list\nThis will output a list of packages, versions, builds and channels. For example, it may look similar to:\n(des-example) amy@xps:~/Documents/hospital-des$ conda list\n# packages in environment at /home/amy/mambaforge/envs/des-example:\n#\n# Name                    Version                   Build  Channel\n_libgcc_mutex             0.1                 conda_forge    conda-forge\n_openmp_mutex             4.5                       2_gnu    conda-forge\nbzip2                     1.0.8                h4bc722e_7    conda-forge\nca-certificates           2025.1.31            hbd8a1cb_1    conda-forge\nld_impl_linux-64          2.43                 h712a8e2_4    conda-forge\nlibexpat                  2.7.0                h5888daf_0    conda-forge\nlibffi                    3.4.6                h2dba641_1    conda-forge\nlibgcc                    14.2.0               h767d61c_2    conda-forge\nlibgcc-ng                 14.2.0               h69a702a_2    conda-forge\nlibgomp                   14.2.0               h767d61c_2    conda-forge\nliblzma                   5.8.1                hb9d3cd8_0    conda-forge\nlibmpdec                  4.0.0                h4bc722e_0    conda-forge\nlibsqlite                 3.49.1               hee588c1_2    conda-forge\nlibuuid                   2.38.1               h0b41bf4_0    conda-forge\nlibzlib                   1.3.1                hb9d3cd8_2    conda-forge\nncurses                   6.5                  h2d0b736_3    conda-forge\nopenssl                   3.5.0                h7b32b05_0    conda-forge\npip                       25.0.1             pyh145f28c_0    conda-forge\npython                    3.13.3          hf636f53_101_cp313    conda-forge\npython_abi                3.13                    7_cp313    conda-forge\nreadline                  8.2                  h8c095d6_2    conda-forge\nsimpy                     4.1.1              pyhd8ed1ab_1    conda-forge\ntk                        8.6.13          noxft_h4845f30_101    conda-forge\ntzdata                    2025b                h78e105d_0    conda-forge\n\n3. Specify versions. For reproducibility, it’s best to specify the exact package versions in you environment.yaml. If you’re starting from scratch, you may not know which versions you need, so you can leave them out initially, as we did in step 1.\nHowever, now that we have built our environment (which used the latest versions as none were specified), it is important to then record your versions in the 📄environment.yaml. These are the versions you saw when running conda list. For example:\nname: des-example\nchannels:\n  - conda-forge\ndependencies:\n  - python=3.13.3\n  - simpy=4.1.1\n\n4. Setting up the full environment for this book. When working on a project from scratch, you will often build up your environment organically and iteratively as you find more packages you want to use. However, to follow along with this book and ensure everything works as expected, you can use the full environment provided below. Copy this into your 📄environment.yaml (feel free to alter the name!):\nname: des-example\nchannels:\n  - conda-forge\ndependencies:\n  - ipykernel=6.29.5\n  - jinja2=3.1.5\n  - joblib=1.4.2\n  - nbconvert=7.16.6\n  - nbformat=5.10.4\n  - nbqa=1.9.0\n  - numpy=2.2.2\n  - pandas=2.2.3\n  - pip=25.0\n  - plotly_express=0.4.1\n  - pylint=3.3.4\n  - pytest=8.3.4\n  - pytest-xdist=3.6.1\n  - python=3.13.1\n  - rich=13.9.4\n  - simpy=4.1.1\n  - pip:\n    - kaleido==0.2.1\n    - sim-tools==0.8.0\nThen update your environment to include these packages (after running conda activate des-example) with:\nconda env update --file environment.yaml --prune\n\n\n\nFurther information\n\n“An unbiased evaluation of environment management and packaging tools” from Anna-Lena Popkes 2024\n“Python dependency management is a dumpster fire” from Niels Cautaerts 2024",
+    "crumbs": [
+      "Setup",
+      "<span class='chapter-number'>6</span>  <span class='chapter-title'>Dependency management</span>"
+    ]
+  },
+  {
+    "objectID": "pages/setup/environment.html#r-tools-for-dependency-management",
+    "href": "pages/setup/environment.html#r-tools-for-dependency-management",
+    "title": "Dependency management",
+    "section": "R tools for dependency management",
+    "text": "R tools for dependency management\n\n\n\n\n\n\nWarning\n\n\n\n⚠️ EVERYTHING BELOW IS WORK IN PROGRESS ⚠️\n\n\n\nThe most popular tool for managing dependencies in R is renv. This replaced and improved upon the previous tool, Packrat.\nRenv will create isolated environments with the specific packages and their versions for a project. However, it won’t manage the version of R used - the version of R used is simply whatever is installed on your system.",
+    "crumbs": [
+      "Setup",
+      "<span class='chapter-number'>6</span>  <span class='chapter-title'>Dependency management</span>"
+    ]
+  },
+  {
+    "objectID": "pages/setup/environment.html#setting-up-renv-from-scratch",
+    "href": "pages/setup/environment.html#setting-up-renv-from-scratch",
+    "title": "Dependency management",
+    "section": "Setting up renv from scratch",
+    "text": "Setting up renv from scratch\n1. Initialise renv. Run the command below to get started with renv.\nrenv::init()\nThis will add three new files/folders to the project:\n\nrenv/library/: stores packages used in project.\nrenv.lock: record of packages used, so they can be re-installed on a new machine.\n.Rprofile: ensures that renv is activated when open project.\n\n\n2. Create a DESCRIPTION file. While not required, it is good practice to create a DESCRIPTION file. This file is standard for R packages (Structuring our model as a package), but is also helpful for regular projects using renv.\nIt lists the main dependencies in a clear, human-readable way, and can specify versions. This makes it easier to see what packages are required, unlike the verbose renv.lock file, which will list every package (the main packages plus all of their dependencies).\nAs an example, create the file in the project root:\ntouch DESCRIPTION\nThen copy in:\nPackage: simulation\nType: Package\nTitle: Simulation\nVersion: 0.1.0\nAuthors@R: c(\n    person(\n      \"Amy\", \"Heather\",\n      email = \"a.heather2@exeter.ac.uk\",\n      role = c(\"aut\", \"cre\")\n    )\n  )\nURL: https://github.com/pythonhealthdatascience/rap_template_r_des\nDescription: Template reproducible analytical pipeline (RAP) for simple R\n    discrete-event simulation (DES) model.\nLicense: MIT + file LICENSE\nEncoding: UTF-8\nLazyData: true\nRoxygenNote: 7.3.2\nImports:\n    simmer,\n    magrittr,\n    dplyr,\n    purrr,\n    rlang,\n    tidyr,\n    tidyselect,\n    future,\n    future.apply,\n    ggplot2,\n    tibble,\n    gridExtra,\n    R6\nSuggests:\n    testthat (&gt;= 3.0.0),\n    patrick,\n    lintr,\n    devtools,\n    xtable,\n    data.table,\n    mockery\nConfig/testthat/edition: 3\nThese are all dependencies we know we will need for this book. But if you were starting from scratch, would just add what need as go along, and iteratively expand it. \n\n3. Install packages from DESCRIPTION. The command below will install the packages (and their dependencies) into your project library. It will typically install the latest available versions \n\nrenv::install()\n\n4. Save environment to lockfile. Having installed these packages, we then save the current state of the project library to a lock file. This updates renv.lock, which is a record of the exact packages and versions used in the project.\nrenv::snapshot()",
+    "crumbs": [
+      "Setup",
+      "<span class='chapter-number'>6</span>  <span class='chapter-title'>Dependency management</span>"
+    ]
+  },
+  {
+    "objectID": "pages/setup/environment.html#restoring-a-previous-renv-from-lockfile",
+    "href": "pages/setup/environment.html#restoring-a-previous-renv-from-lockfile",
+    "title": "Dependency management",
+    "section": "Restoring a previous renv from lockfile",
+    "text": "Restoring a previous renv from lockfile\n1. Obtain lockfile. If you are attempting to restore an environment from a lockfile, you need to obtain that renv.lock. This provides details on packages and versions to be restored (but not R version). As an example: TBC. \n\n2. Initialise renv. As before, initialise renv for the project. \nrenv::init()\n\n3. Restore the environment. Restore the provided renv based on the lock file. This will install the exact packages listed in the lockfile.\nrenv::restore()",
+    "crumbs": [
+      "Setup",
+      "<span class='chapter-number'>6</span>  <span class='chapter-title'>Dependency management</span>"
+    ]
+  },
+  {
+    "objectID": "pages/setup/environment.html#system-dependencies",
+    "href": "pages/setup/environment.html#system-dependencies",
+    "title": "Dependency management",
+    "section": "System dependencies",
+    "text": "System dependencies\nSome R packages required external system libraries. The exact requirements will depend on which packages you use, what operating system you have, and whether you have used R before.\nFor example, working on Ubuntu, we found that we had to install the following system dependencies for igraph:\nsudo apt install build-essential gfortran\nsudo apt install libglpk-dev libxml2-dev",
     "crumbs": [
       "Setup",
       "<span class='chapter-number'>6</span>  <span class='chapter-title'>Dependency management</span>"
@@ -146,29 +223,40 @@
     "href": "pages/setup/package.html",
     "title": "Structuring our model as a package",
     "section": "",
-    "text": "Rationale\nBuilding our simulation model as a package has several advantages:",
+    "text": "Building our simulation model as a package has several advantages:",
     "crumbs": [
       "Setup",
       "<span class='chapter-number'>7</span>  <span class='chapter-title'>Structuring our model as a package</span>"
     ]
   },
   {
-    "objectID": "pages/setup/package.html#rationale",
-    "href": "pages/setup/package.html#rationale",
+    "objectID": "pages/setup/package.html#create-the-package-structure",
+    "href": "pages/setup/package.html#create-the-package-structure",
     "title": "Structuring our model as a package",
-    "section": "",
-    "text": "The model is installed in our environment and can then be easily used anywhere else in our directory (or even from other directories) without needing to specify a system path.\nIt encourages us to create a well-organised repository following standardised established package structures.\nIt helps keep the model and analysis code separate, improving maintainability, reusability, and reducing the risk of unintended side effects.\nIt supports automated testing frameworks which can verify functionality (Tests).",
+    "section": "Create the package structure",
+    "text": "Create the package structure\nFirst, let’s create the basic directory structure for our simulation package.\n\n1. Create folder. Create a folder called 📁simulation/ in your project directory.\nmkdir simulation\n\n2. Make init file. Inside the 📁simulation/ folder, create an 📄__init__.py file.\ntouch simulation/__init__.py\nOpen this file and copy in some basic metadata.\n\"\"\"SimPy Discrete-Event Simulation (DES) Model.\n\"\"\"\n\n__version__ = \"0.1.0\"\n\n3. Add a function. Within 📁simulation/, create a file called 📄model.py.\ntouch simulation/model.py\nIn this, we will add our model code. For now, just copy in this simple function that generates a list of numbers. We will add some real code for our model later.\n\"\"\"Core simulation model functionality.\"\"\"\n\n\ndef run_simulation(duration=100):\n    \"\"\"\n    Run a simple dummy simulation for the specified duration.\n\n    Parameters\n    ----------\n    duration: int\n        The length of time to run the simulation.\n\n    Returns:\n        dict:\n            Dummy simulation results.\n    \"\"\"\n    return {\n        \"duration\": duration,\n        \"status\": \"completed\",\n        \"results\": [i for i in range(duration) if i % 10 == 0]\n    }\n\n4. Make pyproject file. Create a 📄pyproject.toml file in the project root directory (outside the 📁simulation folder).\ntouch pyproject.toml\nCopy the text below into this file. This provides instructions for building the package. We’re using flit as our build tool because of its simplicity. The dynamic field tells flit to extract the version and description from our 📄__init__.py file.\n[build-system]\nrequires = [\"flit\"]\nbuild-backend = \"flit_core.buildapi\"\n\n[project]\nname = \"simulation\"\ndynamic = [\"version\", \"description\"]\n\nOur directory is now recognisable as a package - it contains an 📄__init__.py file, and there is information about the package in 📄pyproject.toml.\nYour directory should now look like this:\nour_directory/\n├── simulation/             # Main package directory\n│   ├── __init__.py         # Makes the directory a package\n│   └── model.py            # Our function\n├── .gitignore\n├── environment.yaml\n├── LICENSE\n├── pyproject.toml          # Package metadata\n└── README.md",
     "crumbs": [
       "Setup",
       "<span class='chapter-number'>7</span>  <span class='chapter-title'>Structuring our model as a package</span>"
     ]
   },
   {
-    "objectID": "pages/setup/package.html#packaging-our-model",
-    "href": "pages/setup/package.html#packaging-our-model",
+    "objectID": "pages/setup/package.html#update-the-environment",
+    "href": "pages/setup/package.html#update-the-environment",
     "title": "Structuring our model as a package",
-    "section": "Packaging our model",
-    "text": "Packaging our model\n\n\nCreating a package\nIn Python, a package is simply a directory with containing an 📄__init__.py file, which makes that directory recognisable as a package. The basic structure for our package is:\nour_directory/\n├── simulation/             # Main package directory\n│   ├── __init__.py         # Makes the directory a package\n│   ├── model.py            # Code for the model\n│   └── ...                 # Other .py files (e.g. parameters, replications)\n└── pyproject.toml          # Package metadata\nThe code for the model is contained in 📁simulation/ within individual python files (e.g. 📄model.py). The 📄__init__.py file identifies this directory as a package and contains basic metadata:\n\"\"\"SimPy Discrete-Event Simulation (DES) Model.\n\"\"\"\n\n__version__ = \"0.1.0\"\nThe 📄pyproject.toml file in the root directory contains package configuration information. We’re using flit as our build tool because of its simplicity. The dynamic field tells flit to extract the version and description from our 📄__init__.py file.\n[build-system]\nrequires = [\"flit\"]\nbuild-backend = \"flit_core.buildapi\"\n\n[project]\nname = \"simulation\"\ndynamic = [\"version\", \"description\"]\n\n\nInstalling and using the package\n\nTo use our package during development, we install it in “editable” mode using the -e flag. This means it will update with any changes to the source code in 📁simulation/.\nIn a conda 📄environment.yaml file:\nname: our-environment\nchannels:\n  - conda-forge\ndependencies:\n  - python\n  - simpy\n  - pip:\n    - -e .[dev]\nIn a 📄requirements.txt file:\nsimpy\n-e .[dev]\n\n\n\nFurther information\n\n“How I use Python to organize my data analyses” from Joshua Cook 2024\n\n\n\n\n\nCreating a package\nA basic R package structure looks like this:\nour_directory/\n├── R/                  # Directory containing R functions\n│   ├── model.R         # Code for the model\n│   └── ...             # Other .R files (e.g. parameters, replications)\n├── man/                # Documentation (generated from roxygen comments)\n├── tests/              # Unit tests\n├── DESCRIPTION         # Package metadata\n├── NAMESPACE           # Package exports (usually generated)\n└── rmarkdown/          # Analysis notebooks\nThe core of our package is the 📁R/ directory, which contains all our simulation functions within R files (e.g. 📄model.R). Each function should be documented using roxygen2-style comments that will automatically generate the documentation in the 📁man/ directory. Writing these docstrings is covered in Docstrings.\nThe DESCRIPTION file contains essential metadata about the package:\nPackage: simulation\nType: Package\nTitle: Simulation\nVersion: 0.1.0\nAuthors@R: c(\n    person(\n      \"Amy\", \"Heather\",\n      email = \"a.heather2@exeter.ac.uk\",\n      role = c(\"aut\", \"cre\")\n    )\n  )\nURL: https://github.com/pythonhealthdatascience/rap_template_r_des\nDescription: Template reproducible analytical pipeline (RAP) for simple R\n    discrete-event simulation (DES) model.\nLicense: MIT + file LICENSE\nEncoding: UTF-8\nLazyData: true\nRoxygenNote: 7.3.2\nImports:\n    simmer,\n    magrittr,\n    dplyr,\n    purrr,\n    rlang,\n    tidyr,\n    tidyselect,\n    future,\n    future.apply,\n    ggplot2,\n    tibble,\n    gridExtra,\n    R6\nSuggests:\n    testthat (&gt;= 3.0.0),\n    patrick,\n    lintr,\n    devtools,\n    xtable,\n    data.table,\n    mockery\nConfig/testthat/edition: 3\n\n\nInstalling and using the package\nWe use the devtools package to build and install our package:\n# Install the package from the local directory\ndevtools::install()\n\n# Load the package\nlibrary(simulation)\n\n# Now you can use functions from the package...\nWhen developing the package, these commands are particularly helpful:\n\ndevtools::document() to reproduce documentation in 📁man/ after changes to the docstrings.\ndevtools::check() to build and check the package follows best practices.\ndevtools::install() to load the latest version of the package into your environment.\ndevtools::test() to run the tests in 📁tests/.\n\nFor analysis and reporting, we store our files in the 📁rmarkdown/ directory rather than in 📁vignettes/. This is because files in 📁vignettes/ are re-run with every package build/check. For simulations with longer run times, this can be inefficient - although this may be of interest for quicker simulations, as it will help ensure you always run everything from scratch. However, file paths for saving outputs can cause errors during the package build process.\n\n\n\nFurther information\n\n“Open, Reproducible, and Distributable Research With R Packages” from the DANTE Project - for example, this page on vignettes.\n“Sharing and organizing research products as R packages” from Vuorre and Crump 2020",
+    "section": "Update the environment",
+    "text": "Update the environment\n\n5. Add package to environment file. Edit the environment.yaml file created in Dependency management to add the local package. We use the -e flag to install it in “editable” mode, which means it will update with any changes to the source code in 📁simulation/.\nWe add the following line within the pip installs:\n  - pip:\n    - -e .[dev]\nSo our full environment file is now:\nname: des-example\nchannels:\n  - conda-forge\ndependencies:\n  - ipykernel=6.29.5\n  - jinja2=3.1.5\n  - joblib=1.4.2\n  - nbconvert=7.16.6\n  - nbformat=5.10.4\n  - nbqa=1.9.0\n  - numpy=2.2.2\n  - pandas=2.2.3\n  - pip=25.0\n  - plotly_express=0.4.1\n  - pylint=3.3.4\n  - pytest=8.3.4\n  - pytest-xdist=3.6.1\n  - python=3.13.1\n  - rich=13.9.4\n  - simpy=4.1.1\n  - pip:\n    - kaleido==0.2.1\n    - sim-tools==0.8.0\n    - -e .[dev]\n\n6. Update the environment. To update our environment, adding our new package, execute the following in the command line (after running conda activate des-example):\nconda env update --file environment.yaml --prune\nIf you run conda list, you should now see our simulation package listed as a dependency like so:\n# Name                    Version                   Build  Channel\nsimulation                0.1.0                    pypi_0    pypi",
+    "crumbs": [
+      "Setup",
+      "<span class='chapter-number'>7</span>  <span class='chapter-title'>Structuring our model as a package</span>"
+    ]
+  },
+  {
+    "objectID": "pages/setup/package.html#create-a-notebook-to-test-your-package",
+    "href": "pages/setup/package.html#create-a-notebook-to-test-your-package",
+    "title": "Structuring our model as a package",
+    "section": "Create a notebook to test your package",
+    "text": "Create a notebook to test your package\nWe will run our model and analyse results within Jupyter notebooks, as they allow us to combine code, results and explanations in one document. This can help make our methods and results easier to share, read through and understand.\n\n7. Create directory and notebook. We create a dedicated directory for our notebooks in the project root (📁notebooks/), and add a notebook (📄simulation_test.ipynb). These can be created via your operating system’s file manager, or with the command line:\nmkdir notebooks\ntouch notebooks/simulation_test.ipynb\n\n8. Check our package works. Open notebooks/simulation_test.ipynb and add the following code. This will test that we are able to import our package and use the basic function we had created.\n# Import our simulation package\nfrom simulation.model import run_simulation\n\n# Run the simulation with default parameters\nresults = run_simulation()\nprint(f\"Simulation completed with duration: {results['duration']}\")\nprint(f\"Results: {results['results']}\")\n\n# Run with a different duration\nlong_results = run_simulation(duration=200)\nprint(f\"Longer simulation completed with duration: {long_results['duration']}\")\nprint(f\"Number of results: {len(long_results['results'])}\")\nWhen you run the notebook cells, you should see an output confirming that the simulation function runs and returns results, if everything is set up correctly.\nSimulation completed with duration: 100\nResults: [0, 10, 20, 30, 40, 50, 60, 70, 80, 90]\nLonger simulation completed with duration: 200\nNumber of results: 20\n\n\nFurther information\n\n“How I use Python to organize my data analyses” from Joshua Cook 2024",
     "crumbs": [
       "Setup",
       "<span class='chapter-number'>7</span>  <span class='chapter-title'>Structuring our model as a package</span>"
