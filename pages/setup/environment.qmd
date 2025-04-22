@@ -7,10 +7,176 @@
 > * Heather et al. 2025: List dependencies and versions.
 > * NHS Levels of RAP (🥈): Repository includes dependency information.
 
+Dependency management is about keeping track of the environment used for your project. This includes the version of your programming languages, any packages used, and their versions.
+
+It acts like a **time capsule**, allowing you to return to a project later and run it with the exact same packages and versions, reproducing the results generated previously.
+
+Dependency management enables you to **isolate environments for different projects**. Each project can have it's own set of dependencies, preventing conflicts and making it easy to switch between projects.
+
+It is also important for **collaboration**, so that everyone working on the project is using the same environment.
+
+<!--TODO: This could be a nice place to add illustrations for each of these benefits-->
+
 :::{.python-content}
-python
+## Python tools for dependency management
+
+There are lots of tools available for managing dependencies in isolated environments in python. A few of the most popular tools include **venv**, **conda**, and **poetry**.
+
+In this book, we will use **conda**, as it allows us to **specify a python version**, so each environment we create can have a different specific version of python. This is not possible with venv and poetry, which just manage the package dependencies, and will just use the system python.
+
+::: {.callout-note}
+
+## Mamba
+
+**Mamba** is a drop-in replacement for conda that is often preferred as it is:
+
+* Faster than conda.
+* Better at dealing with dependency conflicts, providing more helpful messages in cases where environments fail to builds due to clashing requirements of different packages.
+
+To use mamba, simply replace `conda` in all the commands below with `mamba`.
+
+:::
+
+<br>
+
+## Installing conda (or mamba)
+
+Refer to the conda or mamba documentation for the latest instructions on installing these for your operating system (windows, mac or linux).
+
+* [Conda installation instructions](https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html).
+* [Mamba installation instructions](https://mamba.readthedocs.io/en/latest/installation/mamba-installation.html).
+
+<br>
+
+## Setting up our conda environment
+
+**1. Create an environment file.** In the project root, we create 📄`environment.yaml`.
+
+```{.bash}
+touch environment.yaml
+```
+
+Within this file, we add three sections:
+
+* **Name**. The environment name.
+* **Channels**. Where to find packages (e.g. `conda-forge`).
+* **Dependencies**. The packages you need.
+
+When first creating our environment, we just list the dependencies we know we need at this point - we can always add more later! At the start of a project, you might only know one: python.
+
+As an example, we will add `simpy` and python.
+
+```{.bash}
+name: des-example
+channels:
+  - conda-forge
+dependencies:
+  - python
+  - simpy
+```
+
+<br>
+
+**2. Build and activate the environment**. In the command line, run the following to create and activate the environment:
+
+```{.bash}
+conda env create --file environment.yaml
+conda activate des-example
+```
+
+To confirm your environment contains the expected packages, run:
+
+```{.bash}
+conda list
+```
+
+<br>
+
+**3. Specify versions**. For reproducibility, it's best to specify the exact package versions in you `environment.yaml`. If you're starting from scratch, you may not know which versions you need, so you can leave them out initially, as we did in step 1.
+
+However, now that we have built our environment (which used the latest versions as none were specified), it is important to then record your versions in the 📄`environment.yaml`. These are the versions you saw when running `conda list`. For example:
+
+```{.bash}
+name: hospital-des
+channels:
+  - conda-forge
+dependencies:
+  - python=3.13.1
+  - simpy=4.1.1
+```
+
+<br>
+
+**4. Setting up the full environment for this book.** When working on a project from scratch, you will often build up your environment organically and iteratively as you find more packages you want to use. However, to follow along with this book and ensure everything works as expected, you can use the full environment provided below. Copy this into your 📄`environment.yaml`:
+
+```{.bash}
+name: hospital-des
+channels:
+  - conda-forge
+dependencies:
+  - ipykernel=6.29.5
+  - jinja2=3.1.5
+  - joblib=1.4.2
+  - nbconvert=7.16.6
+  - nbformat=5.10.4
+  - nbqa=1.9.0
+  - numpy=2.2.2
+  - pandas=2.2.3
+  - pip=25.0
+  - plotly_express=0.4.1
+  - pylint=3.3.4
+  - pytest=8.3.4
+  - pytest-xdist=3.6.1
+  - python=3.13.1
+  - rich=13.9.4
+  - simpy=4.1.1
+  - pip:
+    - kaleido==0.2.1
+    - sim-tools==0.8.0
+```
+
+Then update your active environment (after running `conda activate hospital-des`) with:
+
+```{.bash}
+conda env update --file environment.yml --prune
+```
+
+
+
+<!-- either make full section explaining that need to check run etc, or remove
+::: {.callout-note}
+
+## Updating packages
+
+If want to update all your packages, you can run:
+
+```{.bash}
+conda update --all
+```
+
+If you do this, make sure to update the `environment.yaml` to reflect these changes.
+
+:::
+-->
+
+<br>
+
+### Further information
+
+* ["An unbiased evaluation of environment management and packaging tools"](https://alpopkes.com/posts/python/packaging_tools/) from Anna-Lena Popkes 2024
+* ["Python dependency management is a dumpster fire"](https://nielscautaerts.xyz/python-dependency-management-is-a-dumpster-fire.html) from Niels Cautaerts 2024
+
 :::
 
 :::{.r-content}
-r
+## R tools for dependency management
+
+**rough notes**
+
+renv
+
+that one tom mentioned
+
+## Setting up our renv
+
 :::
