@@ -2,10 +2,10 @@
 
 {{< include ../../scripts/language-selector.html >}}
 
-> @sec-guidelines:
->
-> * Heather et al. 2025: List dependencies and versions.
-> * NHS Levels of RAP (🥈): Repository includes dependency information.
+:::{.guidelines}
+* Heather et al. 2025: List dependencies and versions.
+* NHS Levels of RAP (🥈): Repository includes dependency information.
+:::
 
 Dependency management is about keeping track of the environment used for your project. This includes the version of your programming languages, any packages used, and their versions.
 
@@ -20,8 +20,6 @@ Dependency management enables you to **isolate environments for different projec
 It is also important for **collaboration**, so that everyone working on the project is using the same environment.
 
 ![](environment_files/collaborate.png)
-
-<!--TODO: these illustrations are very rough. keep? if so, redo much cleaner? make it consistent imagery - brown box - so the three project envs are three brown boxes - and the two little people are holding brown boxes-->
 
 <br>
 
@@ -58,7 +56,7 @@ Refer to the conda or mamba documentation for the latest instructions on install
 
 ## Setting up our conda environment
 
-**1. Create an environment file.** In the project root, we create 📄`environment.yaml`.
+**1. Create an environment file.** In the project root, we create `environment.yaml`.
 
 ```{.bash}
 touch environment.yaml
@@ -140,7 +138,7 @@ tzdata                    2025b                h78e105d_0    conda-forge
 
 **3. Specify versions**. For reproducibility, it's best to specify the exact package versions in you `environment.yaml`. If you're starting from scratch, you may not know which versions you need, so you can leave them out initially, as we did in step 1.
 
-However, now that we have built our environment (which used the latest versions as none were specified), it is important to then record your versions in the 📄`environment.yaml`. These are the versions you saw when running `conda list`. For example:
+However, now that we have built our environment (which used the latest versions as none were specified), it is important to then record your versions in the `environment.yaml`. These are the versions you saw when running `conda list`. For example:
 
 ```{.bash}
 name: des-example
@@ -153,7 +151,7 @@ dependencies:
 
 <br>
 
-**4. Setting up the full environment for this book.** When working on a project from scratch, you will often build up your environment organically and iteratively as you find more packages you want to use. However, to follow along with this book and ensure everything works as expected, you can use the full environment provided below. Copy this into your 📄`environment.yaml` (feel free to alter the name!):
+**4. Setting up the full environment for this book.** When working on a project from scratch, you will often build up your environment organically and iteratively as you find more packages you want to use. However, to follow along with this book and ensure everything works as expected, you can use the full environment provided below. Copy this into your `environment.yaml` (feel free to alter the name!):
 
 ```{.bash}
 name: des-example
@@ -217,67 +215,142 @@ If you do this, make sure to update the `environment.yaml` to reflect these chan
 :::{.r-content}
 ## R tools for dependency management
 
-:::{.callout-warning}
-⚠️ EVERYTHING BELOW IS WORK IN PROGRESS ⚠️
-:::
-
-<br>
-
 The most popular tool for managing dependencies in R is **renv**. This replaced and improved upon the previous tool, **Packrat**.
 
-Renv will create isolated environments with the specific packages and their versions for a project. However, it **won't manage the version of R used** - the version of R used is simply whatever is installed on your system. <!--TODO: add note about how to switch R versions-->
-
+Renv will create isolated environments with the specific packages and their versions for a project. However, it **won't manage the version of R used** - the version of R used is simply whatever is installed on your system.
+<!--TODO: add note about how to switch R versions... explain why this matters -->
 <!--TODO: had wanted to explore rig... thoughts... anything to mention here on other tools...?-->
 
 <br>
 
-## Setting up renv from scratch
+## Setting up renv
 
-**1. Initialise renv**. Run the command below to get started with renv.
+**1. Create an R project**. It's best to use `renv` within an R project. In RStudio, select **File > New Project...**, and choose **Existing Directory**.
+
+![](environment_files/rproject1.png){fig-align="center"}
+
+Navigate to your project directory, then select **Create Project**.
+
+![](environment_files/rproject2.png){fig-align="center"}
+
+This creates:
+
+* `.Rproj`: project file (contains some settings for the project).
+* `.Rproj.user`: hidden folder with temporary project files (e.g. auto-saved source documents).
+
+**Note:** R projects are commonly created and managed by RStudio. If you are not using RStudio, they can be difficult to set-up, as they have to be created manually. However, it is possible to use `renv` *without* an R project, as discussed in [this GitHub issue](https://github.com/rstudio/renv/issues/460). This can be done by using `setwd()` to set your repository as the current working directory, and then continuing with the steps below, running `renv::init()`.
+
+<br>
+
+**2. Initialise renv**. In your R console:
 
 ```{.r}
 renv::init()
 ```
 
-This will add three new files/folders to the project:
+This creates:
 
-* `renv/library/`: stores packages used in project.
-* `renv.lock`: record of packages used, so they can be re-installed on a new machine.
-* `.Rprofile`: ensures that renv is activated when open project.
+* `renv/`: stores packages for the project.
+* `renv.lock`: records packages and the exact versions used.
+* `.Rprofile`: ensures `renv` activates when the project opens.
 
 <br>
 
-**2. Create a DESCRIPTION file**. While not required, it is good practice to create a DESCRIPTION file. This file is standard for R packages (@sec-package), but is also helpful for regular projects using renv.
+With `renv` initialised, you will now have an empty project library, just containing `renv`, as you can see from viewing `renv.lock` (example below). This is isolated from your previous projects, and from here, you can install the packages relevant for your current project.
 
-It lists the main dependencies in a clear, human-readable way, and can specify versions. This makes it easier to see what packages are required, unlike the verbose `renv.lock` file, which will list every package (the main packages plus all of their dependencies).
+Example `renv.lock`:
 
-As an example, create the file in the project root:
+```
+{
+  "R": {
+    "Version": "4.4.1",
+    "Repositories": [
+      {
+        "Name": "CRAN",
+        "URL": "https://packagemanager.posit.co/cran/latest"
+      }
+    ]
+  },
+  "Packages": {
+    "renv": {
+      "Package": "renv",
+      "Version": "1.0.7",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "utils"
+      ],
+      "Hash": "397b7b2a265bc5a7a06852524dabae20"
+    }
+  }
+}
 
-```{.bash}
+```
+
+<br>
+
+## Adding packages to the environment
+
+It is possible to simply install packages using `renv::install("packagename")` or `install.packages("packagename")`.
+
+However, we recommend using a `DESCRIPTION` file. This is because it allows you to keep a record of the main packages you installed. You'll generate a clear, readable summary of the main dependencies for your project.
+
+**Why use a `DESCRIPTION` file?**
+
+* **Clear requirements.** The `DESCRIPTION` file provides a clear summary of your project's main pages. This is much easier to read than `renv.lock`, which lists all the packages *and* their dependencies, making it cumbersome if you just want to see the key packages.
+* **Consistency with package development**. If your project is (or might become) an R package, the `DESCRIPTION` file is the standard way to declare dependencies.
+* **Alternative for environment recreation**. While `renv.lock` is the primary tool for restoring the exact environment, having a `DESCRIPTION` file is a valuable backup. If you encounter issues with `renv.lock`, you (or collaborators) can use `DESCRIPTION` to reinstall the main dependencies - with more information on this below in the section on recreating environments.
+* **Explicit snapshots**. If you want precise control over what is included in `renv.lock`, a `DESCRIPTION` file enables you to use "explicit" snapshots. These mean only the packages listed in `DESCRIPTION` (and their dependencies) are recorded - as is covered below in the step on updating your `renv.lock` file.
+
+![](environment_files/description_vs_lock.png)
+
+<br>
+
+**1. Create DESCRIPTION file**. Run in the terminal:
+
+```
 touch DESCRIPTION
 ```
 
-Then copy in:
+Open the file and copy in the template below. You can customise some of the meta-data (e.g. package, title, authors, description).
+
+This is a standard template. You can create an identical file with `usethis` by running `usethis::use_description()`. However, we can just create it from scratch, which helps to minimise our dependencies.
+
+```{.bash}
+Package: packagename
+Title: What the Package Does (One Line, Title Case)
+Version: 0.0.0.9000
+Authors@R: 
+    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"))
+Description: What the package does (one paragraph).
+License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
+    license
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.0.0
+```
+
+<br>
+
+**2. List dependencies**. In `DESCRIPTION`, dependencies are listed under two headings:
+
+* `Imports`: for required packages.
+* `Suggests`: for optional/development packages.
+
+For most projects (especially non-packages), it's fine to just list all your dependencies under `Imports` for simplicity. The distinction betweeen `Imports` and `Suggests` is more relevant when constructing your research as an R package, as it will distinguish between those necessary for the core simulation and those for other analysis and tests (see @sec-package). <!--TODO: make sure there is a section in packages about this-->
+
+At the very beginning of your project, your `DESCRIPTION` file might only include a few packages. For example, if you are starting with just the `simmer` package, your Imports section would look like this:
 
 ```{.r}
-Package: simulation
-Type: Package
-Title: Simulation
-Version: 0.1.0
-Authors@R: c(
-    person(
-      "Amy", "Heather",
-      email = "a.heather2@exeter.ac.uk",
-      role = c("aut", "cre")
-    )
-  )
-URL: https://github.com/pythonhealthdatascience/rap_template_r_des
-Description: Template reproducible analytical pipeline (RAP) for simple R
-    discrete-event simulation (DES) model.
-License: MIT + file LICENSE
-Encoding: UTF-8
-LazyData: true
-RoxygenNote: 7.3.2
+Imports:
+    simmer
+```
+
+As your project develops and you find yourself using additional packages, simply **add each new dependency to the `Imports` section** of your `DESCRIPTION` file.
+
+If you are following along with this book, you can use the following `DESCRIPTION` snippet to include all the packages needed to run the provided code in this book:
+
+```{.r}
 Imports:
     simmer,
     magrittr,
@@ -303,14 +376,11 @@ Suggests:
 Config/testthat/edition: 3
 ```
 
-These are all dependencies we know we will need for this book. But if you were starting from scratch, would just add what need as go along, and iteratively expand it.
-<!--TODO: explain imports vs suggests-->
+**Note:** In the [R Packages](https://r-pkgs.org/description.html) book, they recommend that versions are not specified in `DESCRIPTION`. Instead, they suggest that no version is specified - or that a minimum version is specified, if you know that an older version of specific package/s would break the code. This is why it is important to also create an `renv.lock` file (as below), so you do have a record of the exact versions used.
 
 <br>
 
-**3. Install packages from DESCRIPTION**. The command below will install the packages (and their dependencies) into your project library. It will typically install the latest available versions <!--TODO: check if it doesn't if you specify versions... i found specifying didn't necessarily mean it fixed versions...-->
-
-<!--TODO: add note about how it asks you 1 2 3 options re building from description-->
+**3. Install packages from `DESCRIPTION`**. Run the following command in your console. This will install the packages from `DESCRIPTION`, and will determine and install the dependencies of those packages too.
 
 ```{.r}
 renv::install()
@@ -318,42 +388,94 @@ renv::install()
 
 <br>
 
-**4. Save environment to lockfile**. Having installed these packages, we then save the current state of the project library to a lock file. This updates `renv.lock`, which is a record of the exact packages and versions used in the project.
+**4. Update `renv.lock`**. To take a snapshot of your environment and update your `renv.lock` file, run:
 
 ```{.r}
 renv::snapshot()
 ```
 
-<!--TODO: add note about how in r, working with specific r and packages, bit different to python, bit harder, suppoesdly forwards compatabile but no guarantee, often way of working is building a new env based on known packages, and backdating versions if something not working because of that... but also you can direct reuse an renv, as below, just check same version of r and so on, and other stuff, its not super simple-->
+This will update the lock file with a full list of the exact packages and dependencies, including the **versions** you have installed, providing a clear record of your working environment.
 
-<br>
+There are three snapshot types:
 
-## Restoring a previous renv from lockfile
+* **Implicit** - records any packages (and their dependencies) listed in `DESCRIPTION` or used in your code.
+* **Explicit** - only records packages (and their dependencies) listed in `DESCRIPTION`.
+* **All** - records all packages in your environment.
 
-**1. Obtain lockfile**. If you are attempting to restore an environment from a lockfile, you need to obtain that `renv.lock`.  This provides details on packages and versions to be restored (but not R version). As an example: TBC.
-<!--TODO: download option for renv?-->
+The default snapshot type is **implicit**, and we recommend this approach. This is because it will catch any packages you are using but that you have forgot to add to `DESCRIPTION` (although it is best to remember to record these in `DESCRIPTION`, so you have a nice clear list of packages, and don't have to delve into `renv.lock` if you're having issues).
 
-<br>
+The downside to this snapshot type if that it may include unnecessary packages if you include old scripts in your repository that use packages you no longer need. However, this can be avoided by removing old scripts (good practice!).
 
-**2. Initialise renv**. As before, initialise `renv` for the project. <!--TODO: note that this time it will have a message like there are existing files-->
+If you want to check your snapshot type, run this command in the R console:
 
 ```{.r}
-renv::init()
+renv::settings$snapshot.type()
+```
+
+You can then change it if desired using one of:
+
+```{.r}
+renv::settings$snapshot.type("implicit")
+renv::settings$snapshot.type("explicit")
+renv::settings$snapshot.type("all")
 ```
 
 <br>
 
-**3. Restore the environment**. Restore the provided `renv` based on the lock file. This will install the exact packages listed in the lockfile.
+## Recreate an existing environment {#subsec-recreate-env}
+
+When you want to recreate an environment—such as for an old project or when collaborating—you have two main options, depending on which files are available:
+
+| Method | What does it install? | Best for... |
+| - | - | - |
+| **From `renv.lock`** | Installs the exact package versions (and their dependencies) used previously | Full reproducibility; restoring the original environment exactly
+| **From `DESCRIPTION`** | Installs the main packages listed (and their dependencies), but uses the latest available versions (unless specified) | Getting started quickly or if `renv.lock` is missing or problematic |
+
+<br>
+
+**1. Restoring from `renv.lock` (preferred)**. If the project includes an `renv.lock` file, use this as your first option. This file records the exact versions of all packages used, enabling you to recreate the environment as it was originally (*except for R version and operating system differences).
+
+To restore the environment, run in your R console:
 
 ```{.r}
 renv::restore()
 ```
 
+This will attempt to install all packages at the precise versions specified.
+
+Occasionally, you may encounter issues - such as conflicts, unavailable packages, or operating system differences - especially with older projects or across different systems.
+
+<br>
+
+**2. Rebuilding from `DESCRIPTION`**. If `renv.lock` is unavailable or causes problems, you can use the `DESCRIPTION` file.  This file lists the main package dependencies, but typically does not specify exact versions (unless you have set minimum versions for specific needs).
+
+To install packages listed in `DESCRIPTION`, run:
+
+```{.r}
+renv::install()
+```
+
+This will install the latest available versions of the listed packages and their dependencies. This approach is less precise than using `renv.lock`, so results may differ slightly from the original environment, especially if package updates have introduced changes.
+
+In theory, the R ecosystem aspires to maintain backwards compatability, meaning that code written for older package versions should continue to work with newer ones. However, in practice, there is no strict guarantee of backward compatibility in R, either for the core language or for contributed packages.
+
+As discussed in the [R packages](https://r-pkgs.org/lifecycle.html) book:
+
+> "If we're being honest, most R users don’t manage package versions in a very intentional way. Given the way `update.packages()` and `install.packages()` work, it’s quite easy to upgrade a package to a new major version without really meaning to, especially for dependencies of the target package. This, in turn, can lead to unexpected exposure to breaking changes in code that previously worked. This unpleasantness has implications both for users and for maintainers."
+
+Hence, using a lockfile like `renv.lock` is the only reliable way to ensure that your environment is recreated exactly as it was - but `DESCRIPTION` can serve as a valuable back-up when this doesn't work, and otherwise just as a handy summary of the main packages.
+
+<br>
+
+**3. If neither file is provided**. If you have neither a `renv.lock` nor a `DESCRIPTION` file, you can try to create a `DESCRIPTION` file based on your knowledge of the project and its required packages.
+
 <br>
 
 ## System dependencies
 
-Some R packages required external system libraries. The exact requirements will depend on which packages you use, what operating system you have, and whether you have used R before.
+Some R packages require external system libraries. The exact requirements will depend on which packages you use, what operating system you have, and whether you have used R before.
+
+If these system libraries are missing, package installation may fail, even if you have the correct R package versions.
 
 For example, working on Ubuntu, we found that we had to install the following system dependencies for `igraph`:
 
@@ -361,5 +483,25 @@ For example, working on Ubuntu, we found that we had to install the following sy
 sudo apt install build-essential gfortran
 sudo apt install libglpk-dev libxml2-dev
 ```
+
+You should list any system dependencies that you are aware of in your project's README or setup instructions.
+
+<br>
+
+## Summary
+
+We can use `renv` to create a reproducible environment in R. In the process above, we generated two key files:
+
+* `DESCRIPTION` - lists project's primary packages with any minimum version requirements, but not exact versions.
+* `renv.lock` - complements this by recording the precise versions of all packages and their dependencies.
+
+These work together to both provide (a) a comprehensive record of your project environment, and (b) enable yourself or others to reconstruct the environment.
+
+<br>
+
+## Further information
+
+* ["9. DESCRIPTION" from R Packages](https://r-pkgs.org/description.html) by Hadley Wickham and Jennifer Bryan.
+* ["21. Lifecycle" from R Packages](https://r-pkgs.org/lifecycle.html) by Hadley Wickham and Jennifer Bryan.
 
 :::

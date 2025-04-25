@@ -2,31 +2,42 @@
 
 {{< include ../../scripts/language-selector.html >}}
 
-> @sec-guidelines:
->
-> * NHS Levels of RAP (🥈): Code is well-organised following standard directory format.
+:::{.guidelines}
+* NHS Levels of RAP (🥈): Code is well-organised following standard directory format.
 > * NHS Levels of RAP (🥇): Code is fully packaged.
+:::
 
 <br>
 
-Building our simulation model as a package has several advantages:
+Building our simulation model as a package has several advantages...
 
-* The model is **installed** in our environment and can then be easily used anywhere else in our directory (or even from other directories) without needing to specify a system path.
-* It encourages us to create a well-organised repository following **standardised** established package structures.
-* It helps keep the model and analysis code **separate**, improving maintainability, reusability, and reducing the risk of unintended side effects.
-* It supports automated **testing** frameworks which can verify functionality (@sec-tests).
+✅ The model is **installed** in our environment and can then be easily used anywhere else in our directory (or even from other directories) without needing to specify a system path.
+
+![](package_files/access.png)
+
+✅ It encourages us to create a well-organised repository following **standardised** established package structures.
+
+![](package_files/organise.png)
+
+✅ It helps keep the model and analysis code **separate**, improving maintainability, reusability, and reducing the risk of unintended side effects.
+
+![](package_files/separate.png)
+
+✅ It supports automated **testing** frameworks which can verify functionality (@sec-tests).
+
+![](package_files/tests.png)
 
 <br>
 
 ::: {.python-content}
 
-## Create the package structure
+## Create the Python package structure
 
 First, let's create the basic directory structure for our simulation package.
 
 <br>
 
-**1. Create folder.** Create a folder called 📁`simulation/` in your project directory.
+**1. Create folder.** Create a folder called `simulation/` in your project directory.
 
 ```{.bash}
 mkdir simulation
@@ -34,7 +45,7 @@ mkdir simulation
 
 <br>
 
-**2. Make init file.** Inside the 📁`simulation/` folder, create an 📄`__init__.py` file.
+**2. Make init file.** Inside the `simulation/` folder, create an `__init__.py` file.
 
 ```{.bash}
 touch simulation/__init__.py
@@ -51,7 +62,7 @@ __version__ = "0.1.0"
 
 <br>
 
-**3. Add a function.** Within 📁`simulation/`, create a file called 📄`model.py`.
+**3. Add a `.py` file with a function.** Within `simulation/`, create a file called `model.py`.
 
 ```{.bash}
 touch simulation/model.py
@@ -86,13 +97,13 @@ def run_simulation(duration=100):
 
 <br>
 
-**4. Make pyproject file.** Create a 📄`pyproject.toml` file in the project root directory (outside the 📁`simulation` folder).
+**4. Make pyproject file.** Create a `pyproject.toml` file in the project root directory (outside the `simulation` folder).
 
 ```{.bash}
 touch pyproject.toml
 ```
 
-Copy the text below into this file. This provides instructions for building the package. We're using `flit` as our build tool because of its simplicity. The `dynamic` field tells flit to extract the version and description from our 📄`__init__.py` file.
+Copy the text below into this file. This provides instructions for building the package. We're using `flit` as our build tool because of its simplicity. The `dynamic` field tells flit to extract the version and description from our `__init__.py` file.
 
 ```{.bash}
 [build-system]
@@ -106,7 +117,7 @@ dynamic = ["version", "description"]
 
 <br>
 
-Our directory is now recognisable as a package - it contains an 📄`__init__.py` file, and there is information about the package in 📄`pyproject.toml`.
+Our directory is now recognisable as a package - it contains an `__init__.py` file, and there is information about the package in `pyproject.toml`.
 
 Your directory should now look like this:
 
@@ -128,7 +139,7 @@ our_directory/
 
 <br>
 
-**5. Add package to environment file**. Edit the `environment.yaml` file created in @sec-environment to add the local package. We use the `-e` flag to install it in "editable" mode, which means it will update with any changes to the source code in 📁`simulation/`.
+**1. Add package to environment file**. Edit the `environment.yaml` file created in @sec-environment to add the local package. We use the `-e` flag to install it in "editable" mode, which means it will update with any changes to the source code in `simulation/`.
 
 We add the following line within the `pip` installs:
 
@@ -168,7 +179,7 @@ dependencies:
 
 <br>
 
-**6. Update the environment**. To update our environment, adding our new package, execute the following in the command line (after running `conda activate des-example`):
+**2. Update the environment**. To update our environment, adding our new package, execute the following in the command line (after running `conda activate des-example`):
 
 ```{.bash}
 conda env update --file environment.yaml --prune
@@ -189,7 +200,7 @@ We will run our model and analyse results within **Jupyter notebooks**, as they 
 
 <br>
 
-**7. Create directory and notebook**. We create a dedicated directory for our notebooks in the project root (📁`notebooks/`), and add a notebook (📄`simulation_test.ipynb`). These can be created via your operating system's file manager, or with the command line:
+**1. Create directory and notebook**. We create a dedicated directory for our notebooks in the project root (`notebooks/`), and add a notebook (`simulation_test.ipynb`). These can be created via your operating system's file manager, or with the command line:
 
 ```{.bash}
 mkdir notebooks
@@ -198,7 +209,7 @@ touch notebooks/simulation_test.ipynb
 
 <br>
 
-**8. Check our package works.** Open `notebooks/simulation_test.ipynb` and add the following code. This will test that we are able to import our package and use the basic function we had created.
+**2. Check our package works.** Open `notebooks/simulation_test.ipynb` and add the following code. This will test that we are able to import our package and use the basic function we had created.
 
 ```{.python}
 # Import our simulation package
@@ -215,7 +226,7 @@ print(f"Longer simulation completed with duration: {long_results['duration']}")
 print(f"Number of results: {len(long_results['results'])}")
 ```
 
-When you run the notebook cells, you should see an output confirming that the simulation function runs and returns results, if everything is set up correctly.
+When you run the cell, you should see an output confirming that the simulation function runs and returns results, if everything is set up correctly.
 
 ```
 Simulation completed with duration: 100
@@ -226,7 +237,31 @@ Number of results: 20
 
 <br>
 
-### Further information
+## Summary
+
+To structure your simulation project as a python package:
+
+* Place all core python functions in the `simulation/` directory (e.g. `model.py`).
+* Create `simulation/__init__.py` and `pyproject.toml` to set-up as a package.
+* Organise analysis into a seperate directory (e.g. `notebooks/`).
+
+For example:
+
+```{.bash}
+our_directory/
+├── simulation/             # Main package directory
+│   ├── __init__.py         # Makes the directory a package
+│   └── model.py            # Our function
+├── .gitignore
+├── environment.yaml
+├── LICENSE
+├── pyproject.toml          # Package metadata
+└── README.md
+```
+
+<br>
+
+## Further information
 
 * ["How I use Python to organize my data analyses"](https://joshuacook.netlify.app/posts/2024-07-27_python-data-analysis-org/) from Joshua Cook 2024 
 
@@ -234,25 +269,130 @@ Number of results: 20
 
 ::: {.r-content}
 
-### Creating a package
+## Required packages
 
-A basic R package structure looks like this:
+For this section, you will need `roxygen2`, `usethis` and `devtools`. If you used the environment provided in @sec-environment then you should have these already - but if you do not, make sure to install them! You can check if they are in your environment by running this command from the R console:
 
-```{.bash}
-our_directory/
-├── R/                  # Directory containing R functions
-│   ├── model.R         # Code for the model
-│   └── ...             # Other .R files (e.g. parameters, replications)
-├── man/                # Documentation (generated from roxygen comments)
-├── tests/              # Unit tests
-├── DESCRIPTION         # Package metadata
-├── NAMESPACE           # Package exports (usually generated)
-└── rmarkdown/          # Analysis notebooks
+```{.r}
+packageVersion("devtools")
+packageVersion("usethis")
+packageVersion("roxygen2")
 ```
 
-The core of our package is the 📁`R/` directory, which contains all our simulation functions within R files (e.g. 📄`model.R`). Each function should be documented using roxygen2-style comments that will automatically generate the documentation in the 📁`man/` directory. Writing these docstrings is covered in @sec-docstrings.
+If will print the version number of each package if installed.
 
-The `DESCRIPTION` file contains essential metadata about the package:
+## Create the R package structure
+
+First, let's create the basic directory structure for our simulation package.
+
+<br>
+
+**1. Create folder** Create a folder called `R/` in your project directory - for example, by running this command in the terminal:
+
+```{.bash}
+mkdir R
+```
+
+<br>
+
+**2. Add a `.R` file with a function**. Within `R/`, create a file called `model.R`.
+
+```{.bash}
+touch R/model.R
+```
+
+In this file, we will add our model code. For now, just copy in this simple function that generates a list of numbers. We will add some real code for our model later. 
+
+```{.r}
+# Core simulation model functionality
+
+run_simulation <- function(duration = 100) {
+  #' Run a simple dummy simulation for the specified duration.
+  #'
+  #' @param duration int. The length of time to run the simulation.
+  #' @return list. Dummy simulation results.
+  
+  results <- seq(0, duration - 1)
+  results <- results[results %% 10 == 0]
+  
+  return(list(
+    duration = duration,
+    status = "completed",
+    results = results
+  ))
+}
+
+```
+
+<br>
+
+**3. Make a `DESCRIPTION` file**. If you have worked through the @sec-environment page, then you should already have a `DESCRIPTION` file listing dependencies, though this step will walk you through more of the meta-data in that file important when structuring our work as a package.
+
+If you haven't already, then create a `DESCRIPTION` file by running this command in the terminal:
+
+```{.bash}
+touch DESCRIPTION
+```
+
+Open the file and copy in the template below. This is similar to the standard template generated by `usethis::use_description()`, but with a few extra sections.
+
+```{.bash}
+Package: packagename
+Type: Package
+Title: What the Package Does (One Line, Title Case)
+Version: 0.0.0.9000
+URL: ...
+Authors@R: 
+    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"))
+Description: What the package does (one paragraph).
+License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
+    license
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.0.0
+Imports:
+    ...
+Suggests:
+    ...
+```
+
+We will then fill in the template with relevant information for our project. You don't need to change `Type`, `Encoding`, or `Roxygen`. For the other arguments:
+
+* **Package**: When using `devtools` to work with our package (as below), it will prompt you to use a name that complies with CRAN (the main R package repository). They require that the name is only made up of letters, numbers and periods (`.`) - and that it must start with a letter and cannot end with a period. When structuring our research project as a package, this is not often with the aim of uploading it to CRAN, but it can be simple/good practice to follow these guidelines anyway, and means you avoid `devtools` error messages! <!--TODO: need to check if it would actually WORK and load with this, or if it would prevent it -->
+
+* **Title**: Capitalised single line description of the package which does not end with a period (`.`).
+
+* **Version**: The package version. For R packages, this is usually set to `0.0.0.9000` during early development - though some developers prefer to set it to `0.1.0`, as we have done. The version number is used to track changes to the package over time. It typically follows [semantic versioning](https://semver.org/spec/v2.0.0.html), with three numbers representing major, minor and patch changes. For more about how and when to update the version, see the @sec-changelog page.
+
+* **Authors**: List of author names, emails and roles. The main role options are the current maintainer (creator, `cre`), people who have made significant contributions (author, `aut`), those who have made smaller contributions (contributor, `ctb`), copyright holders (`cph`) and funders (`fnd`). You can add additional information using the `comment` argument, like your ORCID ID.
+
+* **URL**: Link to your repository. If you don't have one, we'd strongly recommend making one - check out the @sec-version page.
+
+* **Description**: Single paragraph describing project.
+
+* **License**: A license tells others how they can use your code. The `usethis` package makes it easy to add a license: just call the function for your chosen license, for example:
+
+    ```{.r}
+    usethis::use_mit_license()
+    ```
+
+    This will update the License field in `DESCRIPTION` and create both `LICENSE` (with the year and copyright holder) and `LICENSE.md` (with the full licence text). Note: it will prompt you to overwrite any existing licence files.
+
+    R packages use this two-file structure, while GitHub typically expects a single `LICENSE` file containing the full text. Unless you plan to submit to CRAN - which requires the R package structure - either approach is fine. For simplicity, we recommend sticking with the standard R package setup using `usethis`, and agreeing if prompted to overwrite old license files.
+
+    For more information, see the @sec-licence page in this book, and the [R Packages book](https://r-pkgs.org/license.html).
+
+* **RoxygenNote**: `roxygen2` is used when documenting code. Update this to the version of `roxygen2` which you have installed - to check, run:
+
+    ```{.r}
+    packageVersion("roxygen2")
+    ```
+
+* **Imports**: These are packages necessary for your package. In other words, if it's used by code in `R/`, then list it here.
+
+* **Suggests**: These are any other packages needed. For example, you might include those for development (`devtools`), testing (`testthat`), linting (`lintr`) - or packages used in your analysis (i.e. any code *not* in `R/`).
+
+As an example:
 
 ```{.bash}
 Package: simulation
@@ -263,7 +403,8 @@ Authors@R: c(
     person(
       "Amy", "Heather",
       email = "a.heather2@exeter.ac.uk",
-      role = c("aut", "cre")
+      role = c("aut", "cre"),
+      comment = c(ORCID = "0000-0002-6983-2759")
     )
   )
 URL: https://github.com/pythonhealthdatascience/rap_template_r_des
@@ -298,35 +439,235 @@ Suggests:
 Config/testthat/edition: 3
 ```
 
-### Installing and using the package
+<br>
 
-We use the `devtools` package to build and install our package:
+## Use `devtools` to build documentation and run checks
+
+**1. Build package documentation**. The function we created in `model.R` had a docstring (for more info on writing docstrings, see @sec-docstrings). We can create the documentation for this by calling:
 
 ```{.r}
-# Install the package from the local directory
+devtools::document()
+```
+
+This will create:
+
+* `man/`: folder with roxygen2 documentation for each function in package.
+* `NAMESPACE`: file which will list all the functions and packages used within your package.
+
+<br>
+
+**2. Check the package**. You can check that the package is set-up correctly by running:
+
+```{.r}
+devtools::check()
+```
+
+This will load it and perform standard checks. If all is well, you should get an output similar to:
+
+```
+> devtools::check()
+══ Documenting ══════════════════════════════════════════════════════════════════════════════
+ℹ Updating simulation documentation
+ℹ Loading simulation
+Writing NAMESPACE
+Writing run_simulation.Rd
+
+══ Building ═════════════════════════════════════════════════════════════════════════════════
+Setting env vars:
+• CFLAGS    : -Wall -pedantic -fdiagnostics-color=always
+• CXXFLAGS  : -Wall -pedantic -fdiagnostics-color=always
+• CXX11FLAGS: -Wall -pedantic -fdiagnostics-color=always
+• CXX14FLAGS: -Wall -pedantic -fdiagnostics-color=always
+• CXX17FLAGS: -Wall -pedantic -fdiagnostics-color=always
+• CXX20FLAGS: -Wall -pedantic -fdiagnostics-color=always
+── R CMD build ──────────────────────────────────────────────────────────────────────────────
+✔  checking for file ‘/home/amy/Documents/stars/hospital-des-r/DESCRIPTION’ ...
+─  preparing ‘simulation’:
+✔  checking DESCRIPTION meta-information ...
+─  checking for LF line-endings in source and make files and shell scripts
+─  checking for empty or unneeded directories
+─  building ‘simulation_0.1.0.tar.gz’
+   
+══ Checking ═════════════════════════════════════════════════════════════════════════════════
+Setting env vars:
+• _R_CHECK_CRAN_INCOMING_USE_ASPELL_           : TRUE
+• _R_CHECK_CRAN_INCOMING_REMOTE_               : FALSE
+• _R_CHECK_CRAN_INCOMING_                      : FALSE
+• _R_CHECK_FORCE_SUGGESTS_                     : FALSE
+• _R_CHECK_PACKAGES_USED_IGNORE_UNUSED_IMPORTS_: FALSE
+• NOT_CRAN                                     : true
+── R CMD check ──────────────────────────────────────────────────────────────────────────────
+─  using log directory ‘/tmp/RtmpyQepIc/file4b07699e20de/simulation.Rcheck’
+─  using R version 4.4.1 (2024-06-14)
+─  using platform: x86_64-pc-linux-gnu
+─  R was compiled by
+       gcc (Ubuntu 11.4.0-1ubuntu1~22.04) 11.4.0
+       GNU Fortran (Ubuntu 11.4.0-1ubuntu1~22.04) 11.4.0
+─  running under: Ubuntu 24.04.2 LTS
+─  using session charset: UTF-8
+─  using options ‘--no-manual --as-cran’
+✔  checking for file ‘simulation/DESCRIPTION’
+─  this is package ‘simulation’ version ‘0.1.0’
+─  package encoding: UTF-8
+✔  checking package namespace information
+✔  checking package dependencies (1.4s)
+✔  checking if this is a source package ...
+✔  checking if there is a namespace
+✔  checking for executable files
+✔  checking for hidden files and directories
+✔  checking for portable file names
+✔  checking for sufficient/correct file permissions
+✔  checking serialization versions
+✔  checking whether package ‘simulation’ can be installed (771ms)
+✔  checking installed package size ...
+✔  checking package directory
+✔  checking for future file timestamps
+✔  checking DESCRIPTION meta-information ...
+✔  checking top-level files
+✔  checking for left-over files
+✔  checking index information
+✔  checking package subdirectories ...
+✔  checking code files for non-ASCII characters ...
+✔  checking R files for syntax errors ...
+✔  checking whether the package can be loaded ...
+✔  checking whether the package can be loaded with stated dependencies ...
+✔  checking whether the package can be unloaded cleanly ...
+✔  checking whether the namespace can be loaded with stated dependencies ...
+✔  checking whether the namespace can be unloaded cleanly ...
+✔  checking loading without being on the library search path ...
+N  checking dependencies in R code ...
+   Namespaces in Imports field not imported from:
+     ‘R6’ ‘dplyr’ ‘future’ ‘future.apply’ ‘ggplot2’ ‘gridExtra’ ‘magrittr’
+     ‘purrr’ ‘rlang’ ‘simmer’ ‘tibble’ ‘tidyr’ ‘tidyselect’
+     All declared Imports should be used.
+✔  checking S3 generic/method consistency ...
+✔  checking replacement functions ...
+✔  checking foreign function calls ...
+✔  checking R code for possible problems (1.5s)
+✔  checking Rd files ...
+✔  checking Rd metadata ...
+✔  checking Rd line widths ...
+✔  checking Rd cross-references ...
+✔  checking for missing documentation entries ...
+✔  checking for code/documentation mismatches (343ms)
+✔  checking Rd \usage sections ...
+✔  checking Rd contents ...
+✔  checking for unstated dependencies in examples ...
+─  checking examples ... NONE
+✔  checking for non-standard things in the check directory
+✔  checking for detritus in the temp directory
+   
+   See
+     ‘/tmp/RtmpyQepIc/file4b07699e20de/simulation.Rcheck/00check.log’
+   for details.
+   
+── R CMD check results ──────────────────────────────────────────────── simulation 0.1.0 ────
+Duration: 7.3s
+
+❯ checking dependencies in R code ... NOTE
+  Namespaces in Imports field not imported from:
+    ‘R6’ ‘dplyr’ ‘future’ ‘future.apply’ ‘ggplot2’ ‘gridExtra’ ‘magrittr’
+    ‘purrr’ ‘rlang’ ‘simmer’ ‘tibble’ ‘tidyr’ ‘tidyselect’
+    All declared Imports should be used.
+
+0 errors ✔ | 0 warnings ✔ | 1 note ✖
+```
+
+The note in this case is because we are importing packages not currently used in `R/` - but won't worry about this for now, as will do later when build our simulation model.
+
+<br>
+
+**3. Install the package**. We can also verify that our package is working by trying to install it. From the console, run:
+
+```{.r}
 devtools::install()
+```
+
+<br>
+
+## Create a `.Rmd` file to test your package
+
+We will run our model and analyse results within **R markdown (.Rmd)** files, as they combine code, results and explanations in one document. This can help make our methods and results easier to share, read through and understand.
+
+<br>
+
+**1. Create directory and R markdown file**. We create a dedicated directory for our R markdown files in the project root (`rmarkdown/`), and add a file (`simulation_test.Rmd`). These can be created via the terminal by running:
+
+```{.bash}
+mkdir rmarkdown
+touch rmarkdown/simulation_test.Rmd
+```
+
+As part of an R package, you can create a `vignettes` folder, which is typically used to hold guides, tutorials, or extended examples demonstrating how to use the package. Some people suggest putting your analysis in `vignettes/`, as this ensures everything is run from scratch each time you call `devtools::check()`, helping maintain reproducibility.
+
+However, we usually prefer to use an `rmarkdown/` folder when structuring research as a package because running analyses as vignettes is very inefficient for simulations with longer run times, and saving outputs from vignettes can lead to file path errors during the package build process.
+
+<br>
+
+**2. Check our package works**. Open `rmarkdown/simulation_test.Rmd` and add the following code into a cell. This means you put \`\`\`{r} in the line before the code, and \`\`\` in the line after.
+
+This code will test that we are able to import our package and use the basic function we had created.
+
+```{.r}
+# Load the package from the local directory
+devtools::load_all()
 
 # Load the package
 library(simulation)
 
-# Now you can use functions from the package...
+# Run the simulation with default parameters
+results <- run_simulation()
+cat(sprintf("Simulation completed with duration: %s\n", results$duration))
+cat(sprintf("Results: %s\n", toString(results$results)))
+
+# Run with a different duration
+long_results <- run_simulation(duration = 200)
+cat(sprintf("Longer simulation completed with duration: %s\n", long_results$duration))
+cat(sprintf("Number of results: %d\n", length(long_results$results)))
 ```
 
-When developing the package, these commands are particularly helpful:
+When you run the cell, you should see an output confirming that the simulation function runs and returns results, if everything is set up correctly.
 
-* `devtools::document()` to reproduce documentation in 📁`man/` after changes to the docstrings.
-* `devtools::check()` to build and check the package follows best practices.
-* `devtools::install()` to load the latest version of the package into your environment.
-* `devtools::test()` to run the tests in 📁`tests/`.
+```
+ℹ Loading simulation
+Simulation completed with duration: 100
+Results: 0, 10, 20, 30, 40, 50, 60, 70, 80, 90
+Longer simulation completed with duration: 200
+Number of results: 20
+```
 
-For analysis and reporting, we store our files in the 📁`rmarkdown/` directory rather than in 📁`vignettes/`. This is because files in 📁`vignettes/` are re-run with every package build/check. For simulations with longer run times, this can be inefficient - although this may be of interest for quicker simulations, as it will help ensure you always run everything from scratch. However, file paths for saving outputs can cause errors during the package build process.
+<br>
 
-<!--TODO: add a better context on what vignettes are, and how people talking about using r for research often mention putting your stuff in there -->
+## Summary
+
+To structure your simulation project as an R package:
+
+* Place all core R functions in the `R/` directory (e.g. `model.R`).
+* Create a `DESCRIPTION` file to define package metadata.
+* Use `devtools` and `roxygen2` to generate documentation (`man/`, `NAMESPACE`) and check your package.
+* Organise analysis into a seperate directory (e.g. `rmarkdown/`).
+
+For example:
+
+```{.bash}
+our_directory/
+├── R/                  # Directory containing R functions
+│   ├── model.R         # Code (e.g. for the model)
+│   └── ...             # Other .R files
+├── man/                # Documentation (generated from roxygen comments)
+├── DESCRIPTION         # Package metadata
+├── NAMESPACE           # Package exports (usually generated)
+└── rmarkdown/          # Analysis notebooks
+```
+
+<br>
 
 ### Further information
 
 * ["Open, Reproducible, and Distributable Research With R Packages"](https://dante-sttr.gitlab.io/r-open-science/) from the DANTE Project - for example, this page on [vignettes](https://dante-sttr.gitlab.io/r-open-science/reports-manuscripts.html).
 * ["Sharing and organizing research products as R packages"](https://doi.org/10.3758/s13428-020-01436-x) from Vuorre and Crump 2020
+* ["4  Fundamental development workflows" from the "R Packages" book](https://r-pkgs.org/workflow101.html) by Hadley Wickham and Jennifer Bryan
+* ["9  DESCRIPTION" from the "R Packages" book](https://r-pkgs.org/description.html) by Hadley Wickham and Jennifer Bryan
 
 :::
 
