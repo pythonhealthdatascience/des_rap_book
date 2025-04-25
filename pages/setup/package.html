@@ -75,7 +75,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../../site_libs/quarto-html/quarto-syntax-highlighting-d4d76bf8491c20bad77d141916dc28e1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../site_libs/bootstrap/bootstrap-a34d670291f06f286357e447776a572a.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-292c0866b2e53f8190c286d1fd533ef9.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -105,6 +105,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 <link rel="stylesheet" href="../../styles/language-selector.css">
+<link rel="stylesheet" href="../../styles/callout.css">
 </head>
 
 <body class="nav-sidebar floating nav-fixed">
@@ -428,31 +429,32 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="language-selector">
 <p>Choose your language:&nbsp;&nbsp; <button class="language-button" onclick="setLanguage('python')">Python</button> <button class="language-button" onclick="setLanguage('r')">R</button></p>
 </div>
-<blockquote class="blockquote">
-<p><a href="../intro/guidelines.html" class="quarto-xref"><span>Reproducibility guidelines</span></a>:</p>
+<div class="guidelines">
+<p><a href="../intro/guidelines.html">🔗</a> <strong>Reproducibility guidelines:</strong></p>
 <ul>
-<li>NHS Levels of RAP (🥈): Code is well-organised following standard directory format.</li>
-<li>NHS Levels of RAP (🥇): Code is fully packaged.</li>
+<li>NHS Levels of RAP (🥈): Code is well-organised following standard directory format. &gt; * NHS Levels of RAP (🥇): Code is fully packaged.</li>
 </ul>
-</blockquote>
+</div>
 <p><br></p>
-<p>Building our simulation model as a package has several advantages:</p>
-<ul>
-<li>The model is <strong>installed</strong> in our environment and can then be easily used anywhere else in our directory (or even from other directories) without needing to specify a system path.</li>
-<li>It encourages us to create a well-organised repository following <strong>standardised</strong> established package structures.</li>
-<li>It helps keep the model and analysis code <strong>separate</strong>, improving maintainability, reusability, and reducing the risk of unintended side effects.</li>
-<li>It supports automated <strong>testing</strong> frameworks which can verify functionality (<a href="../quality/tests.html" class="quarto-xref"><span>Tests</span></a>).</li>
-</ul>
+<p>Building our simulation model as a package has several advantages…</p>
+<p>✅ The model is <strong>installed</strong> in our environment and can then be easily used anywhere else in our directory (or even from other directories) without needing to specify a system path.</p>
+<p><img src="package_files/access.png" class="img-fluid"></p>
+<p>✅ It encourages us to create a well-organised repository following <strong>standardised</strong> established package structures.</p>
+<p><img src="package_files/organise.png" class="img-fluid"></p>
+<p>✅ It helps keep the model and analysis code <strong>separate</strong>, improving maintainability, reusability, and reducing the risk of unintended side effects.</p>
+<p><img src="package_files/separate.png" class="img-fluid"></p>
+<p>✅ It supports automated <strong>testing</strong> frameworks which can verify functionality (<a href="../quality/tests.html" class="quarto-xref"><span>Tests</span></a>).</p>
+<p><img src="package_files/tests.png" class="img-fluid"></p>
 <p><br></p>
 <div class="python-content">
-<section id="create-the-package-structure" class="level2">
-<h2 class="anchored" data-anchor-id="create-the-package-structure">Create the package structure</h2>
+<section id="create-the-python-package-structure" class="level2">
+<h2 class="anchored" data-anchor-id="create-the-python-package-structure">Create the Python package structure</h2>
 <p>First, let’s create the basic directory structure for our simulation package.</p>
 <p><br></p>
-<p><strong>1. Create folder.</strong> Create a folder called 📁<code>simulation/</code> in your project directory.</p>
+<p><strong>1. Create folder.</strong> Create a folder called <code>simulation/</code> in your project directory.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> simulation</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p><br></p>
-<p><strong>2. Make init file.</strong> Inside the 📁<code>simulation/</code> folder, create an 📄<code>__init__.py</code> file.</p>
+<p><strong>2. Make init file.</strong> Inside the <code>simulation/</code> folder, create an <code>__init__.py</code> file.</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">touch</span> simulation/__init__.py</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Open this file and copy in some basic metadata.</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co">"""SimPy Discrete-Event Simulation (DES) Model.</span></span>
@@ -460,7 +462,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>__version__ <span class="op">=</span> <span class="st">"0.1.0"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p><br></p>
-<p><strong>3. Add a function.</strong> Within 📁<code>simulation/</code>, create a file called 📄<code>model.py</code>.</p>
+<p><strong>3. Add a <code>.py</code> file with a function.</strong> Within <code>simulation/</code>, create a file called <code>model.py</code>.</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">touch</span> simulation/model.py</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>In this, we will add our model code. For now, just copy in this simple function that generates a list of numbers. We will add some real code for our model later.</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co">"""Core simulation model functionality."""</span></span>
@@ -485,9 +487,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>        <span class="st">"results"</span>: [i <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(duration) <span class="cf">if</span> i <span class="op">%</span> <span class="dv">10</span> <span class="op">==</span> <span class="dv">0</span>]</span>
 <span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>    }</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p><br></p>
-<p><strong>4. Make pyproject file.</strong> Create a 📄<code>pyproject.toml</code> file in the project root directory (outside the 📁<code>simulation</code> folder).</p>
+<p><strong>4. Make pyproject file.</strong> Create a <code>pyproject.toml</code> file in the project root directory (outside the <code>simulation</code> folder).</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">touch</span> pyproject.toml</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Copy the text below into this file. This provides instructions for building the package. We’re using <code>flit</code> as our build tool because of its simplicity. The <code>dynamic</code> field tells flit to extract the version and description from our 📄<code>__init__.py</code> file.</p>
+<p>Copy the text below into this file. This provides instructions for building the package. We’re using <code>flit</code> as our build tool because of its simplicity. The <code>dynamic</code> field tells flit to extract the version and description from our <code>__init__.py</code> file.</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ex">[build-system]</span></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="ex">requires</span> = <span class="pp">[</span><span class="st">"flit"</span><span class="pp">]</span></span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="ex">build-backend</span> = <span class="st">"flit_core.buildapi"</span></span>
@@ -496,7 +498,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="ex">name</span> = <span class="st">"simulation"</span></span>
 <span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="ex">dynamic</span> = [<span class="st">"version"</span>, <span class="st">"description"</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p><br></p>
-<p>Our directory is now recognisable as a package - it contains an 📄<code>__init__.py</code> file, and there is information about the package in 📄<code>pyproject.toml</code>.</p>
+<p>Our directory is now recognisable as a package - it contains an <code>__init__.py</code> file, and there is information about the package in <code>pyproject.toml</code>.</p>
 <p>Your directory should now look like this:</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ex">our_directory/</span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="ex">├──</span> simulation/             <span class="co"># Main package directory</span></span>
@@ -512,7 +514,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="update-the-environment" class="level2">
 <h2 class="anchored" data-anchor-id="update-the-environment">Update the environment</h2>
 <p><br></p>
-<p><strong>5. Add package to environment file</strong>. Edit the <code>environment.yaml</code> file created in <a href="environment.html" class="quarto-xref"><span>Dependency management</span></a> to add the local package. We use the <code>-e</code> flag to install it in “editable” mode, which means it will update with any changes to the source code in 📁<code>simulation/</code>.</p>
+<p><strong>1. Add package to environment file</strong>. Edit the <code>environment.yaml</code> file created in <a href="environment.html" class="quarto-xref"><span>Dependency management</span></a> to add the local package. We use the <code>-e</code> flag to install it in “editable” mode, which means it will update with any changes to the source code in <code>simulation/</code>.</p>
 <p>We add the following line within the <code>pip</code> installs:</p>
 <div class="sourceCode" id="cb9"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>  <span class="ex">-</span> pip:</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    <span class="ex">-</span> <span class="at">-e</span> .<span class="pp">[</span><span class="ss">dev</span><span class="pp">]</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -542,7 +544,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a>    <span class="ex">-</span> sim-tools==0.8.0</span>
 <span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a>    <span class="ex">-</span> <span class="at">-e</span> .<span class="pp">[</span><span class="ss">dev</span><span class="pp">]</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p><br></p>
-<p><strong>6. Update the environment</strong>. To update our environment, adding our new package, execute the following in the command line (after running <code>conda activate des-example</code>):</p>
+<p><strong>2. Update the environment</strong>. To update our environment, adding our new package, execute the following in the command line (after running <code>conda activate des-example</code>):</p>
 <div class="sourceCode" id="cb11"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="ex">conda</span> env update <span class="at">--file</span> environment.yaml <span class="at">--prune</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>If you run <code>conda list</code>, you should now see our <code>simulation</code> package listed as a dependency like so:</p>
 <pre><code># Name                    Version                   Build  Channel
@@ -553,11 +555,11 @@ simulation                0.1.0                    pypi_0    pypi</code></pre>
 <h2 class="anchored" data-anchor-id="create-a-notebook-to-test-your-package">Create a notebook to test your package</h2>
 <p>We will run our model and analyse results within <strong>Jupyter notebooks</strong>, as they allow us to combine code, results and explanations in one document. This can help make our methods and results easier to share, read through and understand.</p>
 <p><br></p>
-<p><strong>7. Create directory and notebook</strong>. We create a dedicated directory for our notebooks in the project root (📁<code>notebooks/</code>), and add a notebook (📄<code>simulation_test.ipynb</code>). These can be created via your operating system’s file manager, or with the command line:</p>
+<p><strong>1. Create directory and notebook</strong>. We create a dedicated directory for our notebooks in the project root (<code>notebooks/</code>), and add a notebook (<code>simulation_test.ipynb</code>). These can be created via your operating system’s file manager, or with the command line:</p>
 <div class="sourceCode" id="cb13"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> notebooks</span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="fu">touch</span> notebooks/simulation_test.ipynb</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p><br></p>
-<p><strong>8. Check our package works.</strong> Open <code>notebooks/simulation_test.ipynb</code> and add the following code. This will test that we are able to import our package and use the basic function we had created.</p>
+<p><strong>2. Check our package works.</strong> Open <code>notebooks/simulation_test.ipynb</code> and add the following code. This will test that we are able to import our package and use the basic function we had created.</p>
 <div class="sourceCode" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Import our simulation package</span></span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> simulation.model <span class="im">import</span> run_simulation</span>
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -570,103 +572,349 @@ simulation                0.1.0                    pypi_0    pypi</code></pre>
 <span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>long_results <span class="op">=</span> run_simulation(duration<span class="op">=</span><span class="dv">200</span>)</span>
 <span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Longer simulation completed with duration: </span><span class="sc">{</span>long_results[<span class="st">'duration'</span>]<span class="sc">}</span><span class="ss">"</span>)</span>
 <span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Number of results: </span><span class="sc">{</span><span class="bu">len</span>(long_results[<span class="st">'results'</span>])<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>When you run the notebook cells, you should see an output confirming that the simulation function runs and returns results, if everything is set up correctly.</p>
+<p>When you run the cell, you should see an output confirming that the simulation function runs and returns results, if everything is set up correctly.</p>
 <pre><code>Simulation completed with duration: 100
 Results: [0, 10, 20, 30, 40, 50, 60, 70, 80, 90]
 Longer simulation completed with duration: 200
 Number of results: 20</code></pre>
 <p><br></p>
-<section id="further-information" class="level3">
-<h3 class="anchored" data-anchor-id="further-information">Further information</h3>
+</section>
+<section id="summary" class="level2">
+<h2 class="anchored" data-anchor-id="summary">Summary</h2>
+<p>To structure your simulation project as a python package:</p>
+<ul>
+<li>Place all core python functions in the <code>simulation/</code> directory (e.g.&nbsp;<code>model.py</code>).</li>
+<li>Create <code>simulation/__init__.py</code> and <code>pyproject.toml</code> to set-up as a package.</li>
+<li>Organise analysis into a seperate directory (e.g.&nbsp;<code>notebooks/</code>).</li>
+</ul>
+<p>For example:</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="ex">our_directory/</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="ex">├──</span> simulation/             <span class="co"># Main package directory</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="ex">│</span>   ├── __init__.py         <span class="co"># Makes the directory a package</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="ex">│</span>   └── model.py            <span class="co"># Our function</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="ex">├──</span> .gitignore</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a><span class="ex">├──</span> environment.yaml</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a><span class="ex">├──</span> LICENSE</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a><span class="ex">├──</span> pyproject.toml          <span class="co"># Package metadata</span></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a><span class="ex">└──</span> README.md</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><br></p>
+</section>
+<section id="further-information" class="level2">
+<h2 class="anchored" data-anchor-id="further-information">Further information</h2>
 <ul>
 <li><a href="https://joshuacook.netlify.app/posts/2024-07-27_python-data-analysis-org/">“How I use Python to organize my data analyses”</a> from Joshua Cook 2024</li>
 </ul>
 </section>
-</section>
 </div>
 <div class="r-content">
-<section id="creating-a-package" class="level3">
-<h3 class="anchored" data-anchor-id="creating-a-package">Creating a package</h3>
-<p>A basic R package structure looks like this:</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="ex">our_directory/</span></span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="ex">├──</span> R/                  <span class="co"># Directory containing R functions</span></span>
-<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="ex">│</span>   ├── model.R         <span class="co"># Code for the model</span></span>
-<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="ex">│</span>   └── ...             <span class="co"># Other .R files (e.g. parameters, replications)</span></span>
-<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="ex">├──</span> man/                <span class="co"># Documentation (generated from roxygen comments)</span></span>
-<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a><span class="ex">├──</span> tests/              <span class="co"># Unit tests</span></span>
-<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a><span class="ex">├──</span> DESCRIPTION         <span class="co"># Package metadata</span></span>
-<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a><span class="ex">├──</span> NAMESPACE           <span class="co"># Package exports (usually generated)</span></span>
-<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a><span class="ex">└──</span> rmarkdown/          <span class="co"># Analysis notebooks</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>The core of our package is the 📁<code>R/</code> directory, which contains all our simulation functions within R files (e.g.&nbsp;📄<code>model.R</code>). Each function should be documented using roxygen2-style comments that will automatically generate the documentation in the 📁<code>man/</code> directory. Writing these docstrings is covered in <a href="../quality/docstrings.html" class="quarto-xref"><span>Docstrings</span></a>.</p>
-<p>The <code>DESCRIPTION</code> file contains essential metadata about the package:</p>
-<div class="sourceCode" id="cb17"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="ex">Package:</span> simulation</span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="ex">Type:</span> Package</span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="ex">Title:</span> Simulation</span>
-<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="ex">Version:</span> 0.1.0</span>
-<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a><span class="ex">Authors@R:</span> c<span class="er">(</span></span>
-<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>    <span class="ex">person</span><span class="er">(</span></span>
-<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Amy"</span><span class="ex">,</span> <span class="st">"Heather"</span>,</span>
-<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>      <span class="ex">email</span> = <span class="st">"a.heather2@exeter.ac.uk"</span>,</span>
-<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>      <span class="ex">role</span> = c<span class="er">(</span><span class="st">"aut"</span><span class="ex">,</span> <span class="st">"cre"</span><span class="kw">)</span></span>
-<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">)</span></span>
-<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>  <span class="kw">)</span></span>
-<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a><span class="ex">URL:</span> https://github.com/pythonhealthdatascience/rap_template_r_des</span>
-<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a><span class="ex">Description:</span> Template reproducible analytical pipeline <span class="er">(</span><span class="ex">RAP</span><span class="kw">)</span> <span class="cf">for</span> simple <span class="ex">R</span></span>
-<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>    <span class="ex">discrete-event</span> simulation <span class="er">(</span><span class="ex">DES</span><span class="kw">)</span> <span class="ex">model.</span></span>
-<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a><span class="ex">License:</span> MIT + file LICENSE</span>
-<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a><span class="ex">Encoding:</span> UTF-8</span>
-<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a><span class="ex">LazyData:</span> true</span>
-<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a><span class="ex">RoxygenNote:</span> 7.3.2</span>
-<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a><span class="ex">Imports:</span></span>
-<span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a>    <span class="ex">simmer,</span></span>
-<span id="cb17-21"><a href="#cb17-21" aria-hidden="true" tabindex="-1"></a>    <span class="ex">magrittr,</span></span>
-<span id="cb17-22"><a href="#cb17-22" aria-hidden="true" tabindex="-1"></a>    <span class="ex">dplyr,</span></span>
-<span id="cb17-23"><a href="#cb17-23" aria-hidden="true" tabindex="-1"></a>    <span class="ex">purrr,</span></span>
-<span id="cb17-24"><a href="#cb17-24" aria-hidden="true" tabindex="-1"></a>    <span class="ex">rlang,</span></span>
-<span id="cb17-25"><a href="#cb17-25" aria-hidden="true" tabindex="-1"></a>    <span class="ex">tidyr,</span></span>
-<span id="cb17-26"><a href="#cb17-26" aria-hidden="true" tabindex="-1"></a>    <span class="ex">tidyselect,</span></span>
-<span id="cb17-27"><a href="#cb17-27" aria-hidden="true" tabindex="-1"></a>    <span class="ex">future,</span></span>
-<span id="cb17-28"><a href="#cb17-28" aria-hidden="true" tabindex="-1"></a>    <span class="ex">future.apply,</span></span>
-<span id="cb17-29"><a href="#cb17-29" aria-hidden="true" tabindex="-1"></a>    <span class="ex">ggplot2,</span></span>
-<span id="cb17-30"><a href="#cb17-30" aria-hidden="true" tabindex="-1"></a>    <span class="ex">tibble,</span></span>
-<span id="cb17-31"><a href="#cb17-31" aria-hidden="true" tabindex="-1"></a>    <span class="ex">gridExtra,</span></span>
-<span id="cb17-32"><a href="#cb17-32" aria-hidden="true" tabindex="-1"></a>    <span class="ex">R6</span></span>
-<span id="cb17-33"><a href="#cb17-33" aria-hidden="true" tabindex="-1"></a><span class="ex">Suggests:</span></span>
-<span id="cb17-34"><a href="#cb17-34" aria-hidden="true" tabindex="-1"></a>    <span class="ex">testthat</span> <span class="er">(</span><span class="op">&gt;</span>= <span class="ex">3.0.0</span><span class="kw">)</span><span class="ex">,</span></span>
-<span id="cb17-35"><a href="#cb17-35" aria-hidden="true" tabindex="-1"></a>    <span class="ex">patrick,</span></span>
-<span id="cb17-36"><a href="#cb17-36" aria-hidden="true" tabindex="-1"></a>    <span class="ex">lintr,</span></span>
-<span id="cb17-37"><a href="#cb17-37" aria-hidden="true" tabindex="-1"></a>    <span class="ex">devtools,</span></span>
-<span id="cb17-38"><a href="#cb17-38" aria-hidden="true" tabindex="-1"></a>    <span class="ex">xtable,</span></span>
-<span id="cb17-39"><a href="#cb17-39" aria-hidden="true" tabindex="-1"></a>    <span class="ex">data.table,</span></span>
-<span id="cb17-40"><a href="#cb17-40" aria-hidden="true" tabindex="-1"></a>    <span class="ex">mockery</span></span>
-<span id="cb17-41"><a href="#cb17-41" aria-hidden="true" tabindex="-1"></a><span class="ex">Config/testthat/edition:</span> 3</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<section id="required-packages" class="level2">
+<h2 class="anchored" data-anchor-id="required-packages">Required packages</h2>
+<p>For this section, you will need <code>roxygen2</code>, <code>usethis</code> and <code>devtools</code>. If you used the environment provided in <a href="environment.html" class="quarto-xref"><span>Dependency management</span></a> then you should have these already - but if you do not, make sure to install them! You can check if they are in your environment by running this command from the R console:</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">packageVersion</span>(<span class="st">"devtools"</span>)</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="fu">packageVersion</span>(<span class="st">"usethis"</span>)</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="fu">packageVersion</span>(<span class="st">"roxygen2"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>If will print the version number of each package if installed.</p>
 </section>
-<section id="installing-and-using-the-package" class="level3">
-<h3 class="anchored" data-anchor-id="installing-and-using-the-package">Installing and using the package</h3>
-<p>We use the <code>devtools</code> package to build and install our package:</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Install the package from the local directory</span></span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">install</span>()</span>
-<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Load the package</span></span>
-<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(simulation)</span>
-<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Now you can use functions from the package...</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>When developing the package, these commands are particularly helpful:</p>
+<section id="create-the-r-package-structure" class="level2">
+<h2 class="anchored" data-anchor-id="create-the-r-package-structure">Create the R package structure</h2>
+<p>First, let’s create the basic directory structure for our simulation package.</p>
+<p><br></p>
+<p><strong>1. Create folder</strong> Create a folder called <code>R/</code> in your project directory - for example, by running this command in the terminal:</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> R</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><br></p>
+<p><strong>2. Add a <code>.R</code> file with a function</strong>. Within <code>R/</code>, create a file called <code>model.R</code>.</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">touch</span> R/model.R</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>In this file, we will add our model code. For now, just copy in this simple function that generates a list of numbers. We will add some real code for our model later.</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Core simulation model functionality</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>run_simulation <span class="ot">&lt;-</span> <span class="cf">function</span>(<span class="at">duration =</span> <span class="dv">100</span>) {</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>  <span class="co">#' Run a simple dummy simulation for the specified duration.</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>  <span class="co">#'</span></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>  <span class="co">#' @param duration int. The length of time to run the simulation.</span></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>  <span class="co">#' @return list. Dummy simulation results.</span></span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>  results <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="dv">0</span>, duration <span class="sc">-</span> <span class="dv">1</span>)</span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>  results <span class="ot">&lt;-</span> results[results <span class="sc">%%</span> <span class="dv">10</span> <span class="sc">==</span> <span class="dv">0</span>]</span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(<span class="fu">list</span>(</span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">duration =</span> duration,</span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">status =</span> <span class="st">"completed"</span>,</span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">results =</span> results</span>
+<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a>  ))</span>
+<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><br></p>
+<p><strong>3. Make a <code>DESCRIPTION</code> file</strong>. If you have worked through the <a href="environment.html" class="quarto-xref"><span>Dependency management</span></a> page, then you should already have a <code>DESCRIPTION</code> file listing dependencies, though this step will walk you through more of the meta-data in that file important when structuring our work as a package.</p>
+<p>If you haven’t already, then create a <code>DESCRIPTION</code> file by running this command in the terminal:</p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">touch</span> DESCRIPTION</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Open the file and copy in the template below. This is similar to the standard template generated by <code>usethis::use_description()</code>, but with a few extra sections.</p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="ex">Package:</span> packagename</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="ex">Type:</span> Package</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="ex">Title:</span> What the Package Does <span class="er">(</span><span class="ex">One</span> Line, Title Case<span class="kw">)</span></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="ex">Version:</span> 0.0.0.9000</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a><span class="ex">URL:</span> ...</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a><span class="ex">Authors@R:</span> </span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>    <span class="ex">person</span><span class="er">(</span><span class="st">"First"</span><span class="ex">,</span> <span class="st">"Last"</span>, , <span class="st">"first.last@example.com"</span>, role = c<span class="er">(</span><span class="st">"aut"</span><span class="ex">,</span> <span class="st">"cre"</span><span class="kw">))</span></span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a><span class="ex">Description:</span> What the package does <span class="er">(</span><span class="ex">one</span> paragraph<span class="kw">)</span><span class="bu">.</span></span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a><span class="ex">License:</span> <span class="kw">`</span><span class="fu">use_mit_license()</span><span class="kw">`</span>, <span class="kw">`</span><span class="fu">use_gpl3_license()</span><span class="kw">`</span> or friends to pick a</span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>    <span class="ex">license</span></span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a><span class="ex">Encoding:</span> UTF-8</span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a><span class="ex">Roxygen:</span> list<span class="er">(</span><span class="ex">markdown</span> = TRUE<span class="kw">)</span></span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a><span class="ex">RoxygenNote:</span> 7.0.0</span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a><span class="ex">Imports:</span></span>
+<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a>    <span class="ex">...</span></span>
+<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a><span class="ex">Suggests:</span></span>
+<span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a>    <span class="ex">...</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>We will then fill in the template with relevant information for our project. You don’t need to change <code>Type</code>, <code>Encoding</code>, or <code>Roxygen</code>. For the other arguments:</p>
 <ul>
-<li><code>devtools::document()</code> to reproduce documentation in 📁<code>man/</code> after changes to the docstrings.</li>
-<li><code>devtools::check()</code> to build and check the package follows best practices.</li>
-<li><code>devtools::install()</code> to load the latest version of the package into your environment.</li>
-<li><code>devtools::test()</code> to run the tests in 📁<code>tests/</code>.</li>
+<li><p><strong>Package</strong>: When using <code>devtools</code> to work with our package (as below), it will prompt you to use a name that complies with CRAN (the main R package repository). They require that the name is only made up of letters, numbers and periods (<code>.</code>) - and that it must start with a letter and cannot end with a period. When structuring our research project as a package, this is not often with the aim of uploading it to CRAN, but it can be simple/good practice to follow these guidelines anyway, and means you avoid <code>devtools</code> error messages! <!--TODO: need to check if it would actually WORK and load with this, or if it would prevent it --></p></li>
+<li><p><strong>Title</strong>: Capitalised single line description of the package which does not end with a period (<code>.</code>).</p></li>
+<li><p><strong>Version</strong>: The package version. For R packages, this is usually set to <code>0.0.0.9000</code> during early development - though some developers prefer to set it to <code>0.1.0</code>, as we have done. The version number is used to track changes to the package over time. It typically follows <a href="https://semver.org/spec/v2.0.0.html">semantic versioning</a>, with three numbers representing major, minor and patch changes. For more about how and when to update the version, see the <a href="../sharing/changelog.html" class="quarto-xref"><span>Changelog</span></a> page.</p></li>
+<li><p><strong>Authors</strong>: List of author names, emails and roles. The main role options are the current maintainer (creator, <code>cre</code>), people who have made significant contributions (author, <code>aut</code>), those who have made smaller contributions (contributor, <code>ctb</code>), copyright holders (<code>cph</code>) and funders (<code>fnd</code>). You can add additional information using the <code>comment</code> argument, like your ORCID ID.</p></li>
+<li><p><strong>URL</strong>: Link to your repository. If you don’t have one, we’d strongly recommend making one - check out the <a href="version.html" class="quarto-xref"><span>Version control and Git</span></a> page.</p></li>
+<li><p><strong>Description</strong>: Single paragraph describing project.</p></li>
+<li><p><strong>License</strong>: A license tells others how they can use your code. The <code>usethis</code> package makes it easy to add a license: just call the function for your chosen license, for example:</p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">use_mit_license</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>This will update the License field in <code>DESCRIPTION</code> and create both <code>LICENSE</code> (with the year and copyright holder) and <code>LICENSE.md</code> (with the full licence text). Note: it will prompt you to overwrite any existing licence files.</p>
+<p>R packages use this two-file structure, while GitHub typically expects a single <code>LICENSE</code> file containing the full text. Unless you plan to submit to CRAN - which requires the R package structure - either approach is fine. For simplicity, we recommend sticking with the standard R package setup using <code>usethis</code>, and agreeing if prompted to overwrite old license files.</p>
+<p>For more information, see the <a href="../sharing/licence.html" class="quarto-xref"><span>Licensing</span></a> page in this book, and the <a href="https://r-pkgs.org/license.html">R Packages book</a>.</p></li>
+<li><p><strong>RoxygenNote</strong>: <code>roxygen2</code> is used when documenting code. Update this to the version of <code>roxygen2</code> which you have installed - to check, run:</p>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">packageVersion</span>(<span class="st">"roxygen2"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+<li><p><strong>Imports</strong>: These are packages necessary for your package. In other words, if it’s used by code in <code>R/</code>, then list it here.</p></li>
+<li><p><strong>Suggests</strong>: These are any other packages needed. For example, you might include those for development (<code>devtools</code>), testing (<code>testthat</code>), linting (<code>lintr</code>) - or packages used in your analysis (i.e.&nbsp;any code <em>not</em> in <code>R/</code>).</p></li>
 </ul>
-<p>For analysis and reporting, we store our files in the 📁<code>rmarkdown/</code> directory rather than in 📁<code>vignettes/</code>. This is because files in 📁<code>vignettes/</code> are re-run with every package build/check. For simulations with longer run times, this can be inefficient - although this may be of interest for quicker simulations, as it will help ensure you always run everything from scratch. However, file paths for saving outputs can cause errors during the package build process.</p>
-<!--TODO: add a better context on what vignettes are, and how people talking about using r for research often mention putting your stuff in there -->
+<p>As an example:</p>
+<div class="sourceCode" id="cb25"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="ex">Package:</span> simulation</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="ex">Type:</span> Package</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a><span class="ex">Title:</span> Simulation</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a><span class="ex">Version:</span> 0.1.0</span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a><span class="ex">Authors@R:</span> c<span class="er">(</span></span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>    <span class="ex">person</span><span class="er">(</span></span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Amy"</span><span class="ex">,</span> <span class="st">"Heather"</span>,</span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>      <span class="ex">email</span> = <span class="st">"a.heather2@exeter.ac.uk"</span>,</span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>      <span class="ex">role</span> = c<span class="er">(</span><span class="st">"aut"</span><span class="ex">,</span> <span class="st">"cre"</span><span class="kw">)</span><span class="ex">,</span></span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a>      <span class="ex">comment</span> = c<span class="er">(</span><span class="ex">ORCID</span> = <span class="st">"0000-0002-6983-2759"</span><span class="kw">)</span></span>
+<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">)</span></span>
+<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a>  <span class="kw">)</span></span>
+<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a><span class="ex">URL:</span> https://github.com/pythonhealthdatascience/rap_template_r_des</span>
+<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a><span class="ex">Description:</span> Template reproducible analytical pipeline <span class="er">(</span><span class="ex">RAP</span><span class="kw">)</span> <span class="cf">for</span> simple <span class="ex">R</span></span>
+<span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a>    <span class="ex">discrete-event</span> simulation <span class="er">(</span><span class="ex">DES</span><span class="kw">)</span> <span class="ex">model.</span></span>
+<span id="cb25-16"><a href="#cb25-16" aria-hidden="true" tabindex="-1"></a><span class="ex">License:</span> MIT + file LICENSE</span>
+<span id="cb25-17"><a href="#cb25-17" aria-hidden="true" tabindex="-1"></a><span class="ex">Encoding:</span> UTF-8</span>
+<span id="cb25-18"><a href="#cb25-18" aria-hidden="true" tabindex="-1"></a><span class="ex">LazyData:</span> true</span>
+<span id="cb25-19"><a href="#cb25-19" aria-hidden="true" tabindex="-1"></a><span class="ex">RoxygenNote:</span> 7.3.2</span>
+<span id="cb25-20"><a href="#cb25-20" aria-hidden="true" tabindex="-1"></a><span class="ex">Imports:</span></span>
+<span id="cb25-21"><a href="#cb25-21" aria-hidden="true" tabindex="-1"></a>    <span class="ex">simmer,</span></span>
+<span id="cb25-22"><a href="#cb25-22" aria-hidden="true" tabindex="-1"></a>    <span class="ex">magrittr,</span></span>
+<span id="cb25-23"><a href="#cb25-23" aria-hidden="true" tabindex="-1"></a>    <span class="ex">dplyr,</span></span>
+<span id="cb25-24"><a href="#cb25-24" aria-hidden="true" tabindex="-1"></a>    <span class="ex">purrr,</span></span>
+<span id="cb25-25"><a href="#cb25-25" aria-hidden="true" tabindex="-1"></a>    <span class="ex">rlang,</span></span>
+<span id="cb25-26"><a href="#cb25-26" aria-hidden="true" tabindex="-1"></a>    <span class="ex">tidyr,</span></span>
+<span id="cb25-27"><a href="#cb25-27" aria-hidden="true" tabindex="-1"></a>    <span class="ex">tidyselect,</span></span>
+<span id="cb25-28"><a href="#cb25-28" aria-hidden="true" tabindex="-1"></a>    <span class="ex">future,</span></span>
+<span id="cb25-29"><a href="#cb25-29" aria-hidden="true" tabindex="-1"></a>    <span class="ex">future.apply,</span></span>
+<span id="cb25-30"><a href="#cb25-30" aria-hidden="true" tabindex="-1"></a>    <span class="ex">ggplot2,</span></span>
+<span id="cb25-31"><a href="#cb25-31" aria-hidden="true" tabindex="-1"></a>    <span class="ex">tibble,</span></span>
+<span id="cb25-32"><a href="#cb25-32" aria-hidden="true" tabindex="-1"></a>    <span class="ex">gridExtra,</span></span>
+<span id="cb25-33"><a href="#cb25-33" aria-hidden="true" tabindex="-1"></a>    <span class="ex">R6</span></span>
+<span id="cb25-34"><a href="#cb25-34" aria-hidden="true" tabindex="-1"></a><span class="ex">Suggests:</span></span>
+<span id="cb25-35"><a href="#cb25-35" aria-hidden="true" tabindex="-1"></a>    <span class="ex">testthat</span> <span class="er">(</span><span class="op">&gt;</span>= <span class="ex">3.0.0</span><span class="kw">)</span><span class="ex">,</span></span>
+<span id="cb25-36"><a href="#cb25-36" aria-hidden="true" tabindex="-1"></a>    <span class="ex">patrick,</span></span>
+<span id="cb25-37"><a href="#cb25-37" aria-hidden="true" tabindex="-1"></a>    <span class="ex">lintr,</span></span>
+<span id="cb25-38"><a href="#cb25-38" aria-hidden="true" tabindex="-1"></a>    <span class="ex">devtools,</span></span>
+<span id="cb25-39"><a href="#cb25-39" aria-hidden="true" tabindex="-1"></a>    <span class="ex">xtable,</span></span>
+<span id="cb25-40"><a href="#cb25-40" aria-hidden="true" tabindex="-1"></a>    <span class="ex">data.table,</span></span>
+<span id="cb25-41"><a href="#cb25-41" aria-hidden="true" tabindex="-1"></a>    <span class="ex">mockery</span></span>
+<span id="cb25-42"><a href="#cb25-42" aria-hidden="true" tabindex="-1"></a><span class="ex">Config/testthat/edition:</span> 3</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><br></p>
 </section>
+<section id="use-devtools-to-build-documentation-and-run-checks" class="level2">
+<h2 class="anchored" data-anchor-id="use-devtools-to-build-documentation-and-run-checks">Use <code>devtools</code> to build documentation and run checks</h2>
+<p><strong>1. Build package documentation</strong>. The function we created in <code>model.R</code> had a docstring (for more info on writing docstrings, see <a href="../quality/docstrings.html" class="quarto-xref"><span>Docstrings</span></a>). We can create the documentation for this by calling:</p>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">document</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>This will create:</p>
+<ul>
+<li><code>man/</code>: folder with roxygen2 documentation for each function in package.</li>
+<li><code>NAMESPACE</code>: file which will list all the functions and packages used within your package.</li>
+</ul>
+<p><br></p>
+<p><strong>2. Check the package</strong>. You can check that the package is set-up correctly by running:</p>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">check</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>This will load it and perform standard checks. If all is well, you should get an output similar to:</p>
+<pre><code>&gt; devtools::check()
+══ Documenting ══════════════════════════════════════════════════════════════════════════════
+ℹ Updating simulation documentation
+ℹ Loading simulation
+Writing NAMESPACE
+Writing run_simulation.Rd
+
+══ Building ═════════════════════════════════════════════════════════════════════════════════
+Setting env vars:
+• CFLAGS    : -Wall -pedantic -fdiagnostics-color=always
+• CXXFLAGS  : -Wall -pedantic -fdiagnostics-color=always
+• CXX11FLAGS: -Wall -pedantic -fdiagnostics-color=always
+• CXX14FLAGS: -Wall -pedantic -fdiagnostics-color=always
+• CXX17FLAGS: -Wall -pedantic -fdiagnostics-color=always
+• CXX20FLAGS: -Wall -pedantic -fdiagnostics-color=always
+── R CMD build ──────────────────────────────────────────────────────────────────────────────
+✔  checking for file ‘/home/amy/Documents/stars/hospital-des-r/DESCRIPTION’ ...
+─  preparing ‘simulation’:
+✔  checking DESCRIPTION meta-information ...
+─  checking for LF line-endings in source and make files and shell scripts
+─  checking for empty or unneeded directories
+─  building ‘simulation_0.1.0.tar.gz’
+   
+══ Checking ═════════════════════════════════════════════════════════════════════════════════
+Setting env vars:
+• _R_CHECK_CRAN_INCOMING_USE_ASPELL_           : TRUE
+• _R_CHECK_CRAN_INCOMING_REMOTE_               : FALSE
+• _R_CHECK_CRAN_INCOMING_                      : FALSE
+• _R_CHECK_FORCE_SUGGESTS_                     : FALSE
+• _R_CHECK_PACKAGES_USED_IGNORE_UNUSED_IMPORTS_: FALSE
+• NOT_CRAN                                     : true
+── R CMD check ──────────────────────────────────────────────────────────────────────────────
+─  using log directory ‘/tmp/RtmpyQepIc/file4b07699e20de/simulation.Rcheck’
+─  using R version 4.4.1 (2024-06-14)
+─  using platform: x86_64-pc-linux-gnu
+─  R was compiled by
+       gcc (Ubuntu 11.4.0-1ubuntu1~22.04) 11.4.0
+       GNU Fortran (Ubuntu 11.4.0-1ubuntu1~22.04) 11.4.0
+─  running under: Ubuntu 24.04.2 LTS
+─  using session charset: UTF-8
+─  using options ‘--no-manual --as-cran’
+✔  checking for file ‘simulation/DESCRIPTION’
+─  this is package ‘simulation’ version ‘0.1.0’
+─  package encoding: UTF-8
+✔  checking package namespace information
+✔  checking package dependencies (1.4s)
+✔  checking if this is a source package ...
+✔  checking if there is a namespace
+✔  checking for executable files
+✔  checking for hidden files and directories
+✔  checking for portable file names
+✔  checking for sufficient/correct file permissions
+✔  checking serialization versions
+✔  checking whether package ‘simulation’ can be installed (771ms)
+✔  checking installed package size ...
+✔  checking package directory
+✔  checking for future file timestamps
+✔  checking DESCRIPTION meta-information ...
+✔  checking top-level files
+✔  checking for left-over files
+✔  checking index information
+✔  checking package subdirectories ...
+✔  checking code files for non-ASCII characters ...
+✔  checking R files for syntax errors ...
+✔  checking whether the package can be loaded ...
+✔  checking whether the package can be loaded with stated dependencies ...
+✔  checking whether the package can be unloaded cleanly ...
+✔  checking whether the namespace can be loaded with stated dependencies ...
+✔  checking whether the namespace can be unloaded cleanly ...
+✔  checking loading without being on the library search path ...
+N  checking dependencies in R code ...
+   Namespaces in Imports field not imported from:
+     ‘R6’ ‘dplyr’ ‘future’ ‘future.apply’ ‘ggplot2’ ‘gridExtra’ ‘magrittr’
+     ‘purrr’ ‘rlang’ ‘simmer’ ‘tibble’ ‘tidyr’ ‘tidyselect’
+     All declared Imports should be used.
+✔  checking S3 generic/method consistency ...
+✔  checking replacement functions ...
+✔  checking foreign function calls ...
+✔  checking R code for possible problems (1.5s)
+✔  checking Rd files ...
+✔  checking Rd metadata ...
+✔  checking Rd line widths ...
+✔  checking Rd cross-references ...
+✔  checking for missing documentation entries ...
+✔  checking for code/documentation mismatches (343ms)
+✔  checking Rd \usage sections ...
+✔  checking Rd contents ...
+✔  checking for unstated dependencies in examples ...
+─  checking examples ... NONE
+✔  checking for non-standard things in the check directory
+✔  checking for detritus in the temp directory
+   
+   See
+     ‘/tmp/RtmpyQepIc/file4b07699e20de/simulation.Rcheck/00check.log’
+   for details.
+   
+── R CMD check results ──────────────────────────────────────────────── simulation 0.1.0 ────
+Duration: 7.3s
+
+❯ checking dependencies in R code ... NOTE
+  Namespaces in Imports field not imported from:
+    ‘R6’ ‘dplyr’ ‘future’ ‘future.apply’ ‘ggplot2’ ‘gridExtra’ ‘magrittr’
+    ‘purrr’ ‘rlang’ ‘simmer’ ‘tibble’ ‘tidyr’ ‘tidyselect’
+    All declared Imports should be used.
+
+0 errors ✔ | 0 warnings ✔ | 1 note ✖</code></pre>
+<p>The note in this case is because we are importing packages not currently used in <code>R/</code> - but won’t worry about this for now, as will do later when build our simulation model.</p>
+<p><br></p>
+<p><strong>3. Install the package</strong>. We can also verify that our package is working by trying to install it. From the console, run:</p>
+<div class="sourceCode" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">install</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><br></p>
+</section>
+<section id="create-a-.rmd-file-to-test-your-package" class="level2">
+<h2 class="anchored" data-anchor-id="create-a-.rmd-file-to-test-your-package">Create a <code>.Rmd</code> file to test your package</h2>
+<p>We will run our model and analyse results within <strong>R markdown (.Rmd)</strong> files, as they combine code, results and explanations in one document. This can help make our methods and results easier to share, read through and understand.</p>
+<p><br></p>
+<p><strong>1. Create directory and R markdown file</strong>. We create a dedicated directory for our R markdown files in the project root (<code>rmarkdown/</code>), and add a file (<code>simulation_test.Rmd</code>). These can be created via the terminal by running:</p>
+<div class="sourceCode" id="cb30"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> rmarkdown</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="fu">touch</span> rmarkdown/simulation_test.Rmd</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>As part of an R package, you can create a <code>vignettes</code> folder, which is typically used to hold guides, tutorials, or extended examples demonstrating how to use the package. Some people suggest putting your analysis in <code>vignettes/</code>, as this ensures everything is run from scratch each time you call <code>devtools::check()</code>, helping maintain reproducibility.</p>
+<p>However, we usually prefer to use an <code>rmarkdown/</code> folder when structuring research as a package because running analyses as vignettes is very inefficient for simulations with longer run times, and saving outputs from vignettes can lead to file path errors during the package build process.</p>
+<p><br></p>
+<p><strong>2. Check our package works</strong>. Open <code>rmarkdown/simulation_test.Rmd</code> and add the following code into a cell. This means you put ```{r} in the line before the code, and ``` in the line after.</p>
+<p>This code will test that we are able to import our package and use the basic function we had created.</p>
+<div class="sourceCode" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load the package from the local directory</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">load_all</span>()</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Load the package</span></span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(simulation)</span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Run the simulation with default parameters</span></span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a>results <span class="ot">&lt;-</span> <span class="fu">run_simulation</span>()</span>
+<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"Simulation completed with duration: %s</span><span class="sc">\n</span><span class="st">"</span>, results<span class="sc">$</span>duration))</span>
+<span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"Results: %s</span><span class="sc">\n</span><span class="st">"</span>, <span class="fu">toString</span>(results<span class="sc">$</span>results)))</span>
+<span id="cb31-11"><a href="#cb31-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-12"><a href="#cb31-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Run with a different duration</span></span>
+<span id="cb31-13"><a href="#cb31-13" aria-hidden="true" tabindex="-1"></a>long_results <span class="ot">&lt;-</span> <span class="fu">run_simulation</span>(<span class="at">duration =</span> <span class="dv">200</span>)</span>
+<span id="cb31-14"><a href="#cb31-14" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"Longer simulation completed with duration: %s</span><span class="sc">\n</span><span class="st">"</span>, long_results<span class="sc">$</span>duration))</span>
+<span id="cb31-15"><a href="#cb31-15" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"Number of results: %d</span><span class="sc">\n</span><span class="st">"</span>, <span class="fu">length</span>(long_results<span class="sc">$</span>results)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>When you run the cell, you should see an output confirming that the simulation function runs and returns results, if everything is set up correctly.</p>
+<pre><code>ℹ Loading simulation
+Simulation completed with duration: 100
+Results: 0, 10, 20, 30, 40, 50, 60, 70, 80, 90
+Longer simulation completed with duration: 200
+Number of results: 20</code></pre>
+<p><br></p>
+</section>
+<section id="summary-1" class="level2">
+<h2 class="anchored" data-anchor-id="summary-1">Summary</h2>
+<p>To structure your simulation project as an R package:</p>
+<ul>
+<li>Place all core R functions in the <code>R/</code> directory (e.g.&nbsp;<code>model.R</code>).</li>
+<li>Create a <code>DESCRIPTION</code> file to define package metadata.</li>
+<li>Use <code>devtools</code> and <code>roxygen2</code> to generate documentation (<code>man/</code>, <code>NAMESPACE</code>) and check your package.</li>
+<li>Organise analysis into a seperate directory (e.g.&nbsp;<code>rmarkdown/</code>).</li>
+</ul>
+<p>For example:</p>
+<div class="sourceCode" id="cb33"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="ex">our_directory/</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a><span class="ex">├──</span> R/                  <span class="co"># Directory containing R functions</span></span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a><span class="ex">│</span>   ├── model.R         <span class="co"># Code (e.g. for the model)</span></span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a><span class="ex">│</span>   └── ...             <span class="co"># Other .R files</span></span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a><span class="ex">├──</span> man/                <span class="co"># Documentation (generated from roxygen comments)</span></span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a><span class="ex">├──</span> DESCRIPTION         <span class="co"># Package metadata</span></span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a><span class="ex">├──</span> NAMESPACE           <span class="co"># Package exports (usually generated)</span></span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a><span class="ex">└──</span> rmarkdown/          <span class="co"># Analysis notebooks</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><br></p>
 <section id="further-information-1" class="level3">
 <h3 class="anchored" data-anchor-id="further-information-1">Further information</h3>
 <ul>
 <li><a href="https://dante-sttr.gitlab.io/r-open-science/">“Open, Reproducible, and Distributable Research With R Packages”</a> from the DANTE Project - for example, this page on <a href="https://dante-sttr.gitlab.io/r-open-science/reports-manuscripts.html">vignettes</a>.</li>
 <li><a href="https://doi.org/10.3758/s13428-020-01436-x">“Sharing and organizing research products as R packages”</a> from Vuorre and Crump 2020</li>
+<li><a href="https://r-pkgs.org/workflow101.html">“4 Fundamental development workflows” from the “R Packages” book</a> by Hadley Wickham and Jennifer Bryan</li>
+<li><a href="https://r-pkgs.org/description.html">“9 DESCRIPTION” from the “R Packages” book</a> by Hadley Wickham and Jennifer Bryan</li>
 </ul>
+</section>
 </section>
 </div>
 

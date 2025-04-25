@@ -75,7 +75,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../../site_libs/quarto-html/quarto-syntax-highlighting-d4d76bf8491c20bad77d141916dc28e1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../site_libs/bootstrap/bootstrap-a34d670291f06f286357e447776a572a.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-292c0866b2e53f8190c286d1fd533ef9.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -105,6 +105,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 <link rel="stylesheet" href="../../styles/language-selector.css">
+<link rel="stylesheet" href="../../styles/callout.css">
 </head>
 
 <body class="nav-sidebar floating nav-fixed">
@@ -428,13 +429,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="language-selector">
 <p>Choose your language:&nbsp;&nbsp; <button class="language-button" onclick="setLanguage('python')">Python</button> <button class="language-button" onclick="setLanguage('r')">R</button></p>
 </div>
-<blockquote class="blockquote">
-<p><a href="../intro/guidelines.html" class="quarto-xref"><span>Reproducibility guidelines</span></a>:</p>
+<div class="guidelines">
+<p><a href="../intro/guidelines.html">🔗</a> <strong>Reproducibility guidelines:</strong></p>
 <ul>
 <li>Heather et al.&nbsp;2025: List dependencies and versions.</li>
 <li>NHS Levels of RAP (🥈): Repository includes dependency information.</li>
 </ul>
-</blockquote>
+</div>
 <p>Dependency management is about keeping track of the environment used for your project. This includes the version of your programming languages, any packages used, and their versions.</p>
 <p>It acts like a <strong>time capsule</strong>, allowing you to return to a project later and run it with the exact same packages and versions, reproducing the results generated previously.</p>
 <p><img src="environment_files/time_capsule.png" class="img-fluid"></p>
@@ -442,7 +443,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p><img src="environment_files/isolated_env.png" class="img-fluid"></p>
 <p>It is also important for <strong>collaboration</strong>, so that everyone working on the project is using the same environment.</p>
 <p><img src="environment_files/collaborate.png" class="img-fluid"></p>
-<!--TODO: these illustrations are very rough. keep? if so, redo much cleaner? make it consistent imagery - brown box - so the three project envs are three brown boxes - and the two little people are holding brown boxes-->
 <p><br></p>
 <div class="python-content">
 <section id="python-tools-for-dependency-management" class="level2">
@@ -480,7 +480,7 @@ Mamba
 </section>
 <section id="setting-up-our-conda-environment" class="level2">
 <h2 class="anchored" data-anchor-id="setting-up-our-conda-environment">Setting up our conda environment</h2>
-<p><strong>1. Create an environment file.</strong> In the project root, we create 📄<code>environment.yaml</code>.</p>
+<p><strong>1. Create an environment file.</strong> In the project root, we create <code>environment.yaml</code>.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">touch</span> environment.yaml</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Within this file, we add three sections:</p>
 <ul>
@@ -534,7 +534,7 @@ tk                        8.6.13          noxft_h4845f30_101    conda-forge
 tzdata                    2025b                h78e105d_0    conda-forge</code></pre>
 <p><br></p>
 <p><strong>3. Specify versions</strong>. For reproducibility, it’s best to specify the exact package versions in you <code>environment.yaml</code>. If you’re starting from scratch, you may not know which versions you need, so you can leave them out initially, as we did in step 1.</p>
-<p>However, now that we have built our environment (which used the latest versions as none were specified), it is important to then record your versions in the 📄<code>environment.yaml</code>. These are the versions you saw when running <code>conda list</code>. For example:</p>
+<p>However, now that we have built our environment (which used the latest versions as none were specified), it is important to then record your versions in the <code>environment.yaml</code>. These are the versions you saw when running <code>conda list</code>. For example:</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ex">name:</span> des-example</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="ex">channels:</span></span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="ex">-</span> conda-forge</span>
@@ -542,7 +542,7 @@ tzdata                    2025b                h78e105d_0    conda-forge</code><
 <span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="ex">-</span> python=3.13.3</span>
 <span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  <span class="ex">-</span> simpy=4.1.1</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p><br></p>
-<p><strong>4. Setting up the full environment for this book.</strong> When working on a project from scratch, you will often build up your environment organically and iteratively as you find more packages you want to use. However, to follow along with this book and ensure everything works as expected, you can use the full environment provided below. Copy this into your 📄<code>environment.yaml</code> (feel free to alter the name!):</p>
+<p><strong>4. Setting up the full environment for this book.</strong> When working on a project from scratch, you will often build up your environment organically and iteratively as you find more packages you want to use. However, to follow along with this book and ensure everything works as expected, you can use the full environment provided below. Copy this into your <code>environment.yaml</code> (feel free to alter the name!):</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ex">name:</span> des-example</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="ex">channels:</span></span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="ex">-</span> conda-forge</span>
@@ -596,110 +596,231 @@ If you do this, make sure to update the `environment.yaml` to reflect these chan
 <div class="r-content">
 <section id="r-tools-for-dependency-management" class="level2">
 <h2 class="anchored" data-anchor-id="r-tools-for-dependency-management">R tools for dependency management</h2>
-<div class="callout callout-style-default callout-warning callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Warning
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>⚠️ EVERYTHING BELOW IS WORK IN PROGRESS ⚠️</p>
-</div>
-</div>
-<p><br></p>
 <p>The most popular tool for managing dependencies in R is <strong>renv</strong>. This replaced and improved upon the previous tool, <strong>Packrat</strong>.</p>
-<p>Renv will create isolated environments with the specific packages and their versions for a project. However, it <strong>won’t manage the version of R used</strong> - the version of R used is simply whatever is installed on your system. <!--TODO: add note about how to switch R versions--></p>
-<!--TODO: had wanted to explore rig... thoughts... anything to mention here on other tools...?-->
+<p>Renv will create isolated environments with the specific packages and their versions for a project. However, it <strong>won’t manage the version of R used</strong> - the version of R used is simply whatever is installed on your system. <!--TODO: add note about how to switch R versions... explain why this matters --> <!--TODO: had wanted to explore rig... thoughts... anything to mention here on other tools...?--></p>
 <p><br></p>
 </section>
-<section id="setting-up-renv-from-scratch" class="level2">
-<h2 class="anchored" data-anchor-id="setting-up-renv-from-scratch">Setting up renv from scratch</h2>
-<p><strong>1. Initialise renv</strong>. Run the command below to get started with renv.</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>renv<span class="sc">::</span><span class="fu">init</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>This will add three new files/folders to the project:</p>
+<section id="setting-up-renv" class="level2">
+<h2 class="anchored" data-anchor-id="setting-up-renv">Setting up renv</h2>
+<p><strong>1. Create an R project</strong>. It’s best to use <code>renv</code> within an R project. In RStudio, select <strong>File &gt; New Project…</strong>, and choose <strong>Existing Directory</strong>.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="environment_files/rproject1.png" class="img-fluid quarto-figure quarto-figure-center figure-img"></p>
+</figure>
+</div>
+<p>Navigate to your project directory, then select <strong>Create Project</strong>.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="environment_files/rproject2.png" class="img-fluid quarto-figure quarto-figure-center figure-img"></p>
+</figure>
+</div>
+<p>This creates:</p>
 <ul>
-<li><code>renv/library/</code>: stores packages used in project.</li>
-<li><code>renv.lock</code>: record of packages used, so they can be re-installed on a new machine.</li>
-<li><code>.Rprofile</code>: ensures that renv is activated when open project.</li>
+<li><code>.Rproj</code>: project file (contains some settings for the project).</li>
+<li><code>.Rproj.user</code>: hidden folder with temporary project files (e.g.&nbsp;auto-saved source documents).</li>
+</ul>
+<p><strong>Note:</strong> R projects are commonly created and managed by RStudio. If you are not using RStudio, they can be difficult to set-up, as they have to be created manually. However, it is possible to use <code>renv</code> <em>without</em> an R project, as discussed in <a href="https://github.com/rstudio/renv/issues/460">this GitHub issue</a>. This can be done by using <code>setwd()</code> to set your repository as the current working directory, and then continuing with the steps below, running <code>renv::init()</code>.</p>
+<p><br></p>
+<p><strong>2. Initialise renv</strong>. In your R console:</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>renv<span class="sc">::</span><span class="fu">init</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>This creates:</p>
+<ul>
+<li><code>renv/</code>: stores packages for the project.</li>
+<li><code>renv.lock</code>: records packages and the exact versions used.</li>
+<li><code>.Rprofile</code>: ensures <code>renv</code> activates when the project opens.</li>
 </ul>
 <p><br></p>
-<p><strong>2. Create a DESCRIPTION file</strong>. While not required, it is good practice to create a DESCRIPTION file. This file is standard for R packages (<a href="package.html" class="quarto-xref"><span>Structuring our model as a package</span></a>), but is also helpful for regular projects using renv.</p>
-<p>It lists the main dependencies in a clear, human-readable way, and can specify versions. This makes it easier to see what packages are required, unlike the verbose <code>renv.lock</code> file, which will list every package (the main packages plus all of their dependencies).</p>
-<p>As an example, create the file in the project root:</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">touch</span> DESCRIPTION</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Then copy in:</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>Package<span class="sc">:</span> simulation</span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>Type<span class="sc">:</span> Package</span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>Title<span class="sc">:</span> Simulation</span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>Version<span class="sc">:</span> <span class="dv">0</span>.<span class="fl">1.0</span></span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>Authors<span class="sc">@</span>R<span class="sc">:</span> <span class="fu">c</span>(</span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">person</span>(</span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Amy"</span>, <span class="st">"Heather"</span>,</span>
-<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>      <span class="at">email =</span> <span class="st">"a.heather2@exeter.ac.uk"</span>,</span>
-<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>      <span class="at">role =</span> <span class="fu">c</span>(<span class="st">"aut"</span>, <span class="st">"cre"</span>)</span>
-<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>URL<span class="sc">:</span> https<span class="sc">:</span><span class="er">//</span>github.com<span class="sc">/</span>pythonhealthdatascience<span class="sc">/</span>rap_template_r_des</span>
-<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>Description<span class="sc">:</span> Template reproducible analytical <span class="fu">pipeline</span> (RAP) <span class="cf">for</span> simple R</span>
-<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>    discrete<span class="sc">-</span>event <span class="fu">simulation</span> (DES) model.</span>
-<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>License<span class="sc">:</span> MIT <span class="sc">+</span> file LICENSE</span>
-<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>Encoding<span class="sc">:</span> UTF<span class="dv">-8</span></span>
-<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>LazyData<span class="sc">:</span> true</span>
-<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>RoxygenNote<span class="sc">:</span> <span class="dv">7</span>.<span class="fl">3.2</span></span>
-<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>Imports<span class="sc">:</span></span>
-<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>    simmer,</span>
-<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>    magrittr,</span>
-<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>    dplyr,</span>
-<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a>    purrr,</span>
-<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a>    rlang,</span>
-<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a>    tidyr,</span>
-<span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a>    tidyselect,</span>
-<span id="cb12-27"><a href="#cb12-27" aria-hidden="true" tabindex="-1"></a>    future,</span>
-<span id="cb12-28"><a href="#cb12-28" aria-hidden="true" tabindex="-1"></a>    future.apply,</span>
-<span id="cb12-29"><a href="#cb12-29" aria-hidden="true" tabindex="-1"></a>    ggplot2,</span>
-<span id="cb12-30"><a href="#cb12-30" aria-hidden="true" tabindex="-1"></a>    tibble,</span>
-<span id="cb12-31"><a href="#cb12-31" aria-hidden="true" tabindex="-1"></a>    gridExtra,</span>
-<span id="cb12-32"><a href="#cb12-32" aria-hidden="true" tabindex="-1"></a>    R6</span>
-<span id="cb12-33"><a href="#cb12-33" aria-hidden="true" tabindex="-1"></a>Suggests<span class="sc">:</span></span>
-<span id="cb12-34"><a href="#cb12-34" aria-hidden="true" tabindex="-1"></a>    <span class="fu">testthat</span> (<span class="sc">&gt;=</span> <span class="dv">3</span>.<span class="fl">0.0</span>),</span>
-<span id="cb12-35"><a href="#cb12-35" aria-hidden="true" tabindex="-1"></a>    patrick,</span>
-<span id="cb12-36"><a href="#cb12-36" aria-hidden="true" tabindex="-1"></a>    lintr,</span>
-<span id="cb12-37"><a href="#cb12-37" aria-hidden="true" tabindex="-1"></a>    devtools,</span>
-<span id="cb12-38"><a href="#cb12-38" aria-hidden="true" tabindex="-1"></a>    xtable,</span>
-<span id="cb12-39"><a href="#cb12-39" aria-hidden="true" tabindex="-1"></a>    data.table,</span>
-<span id="cb12-40"><a href="#cb12-40" aria-hidden="true" tabindex="-1"></a>    mockery</span>
-<span id="cb12-41"><a href="#cb12-41" aria-hidden="true" tabindex="-1"></a>Config<span class="sc">/</span>testthat<span class="sc">/</span>edition<span class="sc">:</span> <span class="dv">3</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>These are all dependencies we know we will need for this book. But if you were starting from scratch, would just add what need as go along, and iteratively expand it. <!--TODO: explain imports vs suggests--></p>
-<p><br></p>
-<p><strong>3. Install packages from DESCRIPTION</strong>. The command below will install the packages (and their dependencies) into your project library. It will typically install the latest available versions <!--TODO: check if it doesn't if you specify versions... i found specifying didn't necessarily mean it fixed versions...--></p>
-<!--TODO: add note about how it asks you 1 2 3 options re building from description-->
-<div class="sourceCode" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>renv<span class="sc">::</span><span class="fu">install</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p><br></p>
-<p><strong>4. Save environment to lockfile</strong>. Having installed these packages, we then save the current state of the project library to a lock file. This updates <code>renv.lock</code>, which is a record of the exact packages and versions used in the project.</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>renv<span class="sc">::</span><span class="fu">snapshot</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<!--TODO: add note about how in r, working with specific r and packages, bit different to python, bit harder, suppoesdly forwards compatabile but no guarantee, often way of working is building a new env based on known packages, and backdating versions if something not working because of that... but also you can direct reuse an renv, as below, just check same version of r and so on, and other stuff, its not super simple-->
+<p>With <code>renv</code> initialised, you will now have an empty project library, just containing <code>renv</code>, as you can see from viewing <code>renv.lock</code> (example below). This is isolated from your previous projects, and from here, you can install the packages relevant for your current project.</p>
+<p>Example <code>renv.lock</code>:</p>
+<pre><code>{
+  "R": {
+    "Version": "4.4.1",
+    "Repositories": [
+      {
+        "Name": "CRAN",
+        "URL": "https://packagemanager.posit.co/cran/latest"
+      }
+    ]
+  },
+  "Packages": {
+    "renv": {
+      "Package": "renv",
+      "Version": "1.0.7",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "utils"
+      ],
+      "Hash": "397b7b2a265bc5a7a06852524dabae20"
+    }
+  }
+}
+</code></pre>
 <p><br></p>
 </section>
-<section id="restoring-a-previous-renv-from-lockfile" class="level2">
-<h2 class="anchored" data-anchor-id="restoring-a-previous-renv-from-lockfile">Restoring a previous renv from lockfile</h2>
-<p><strong>1. Obtain lockfile</strong>. If you are attempting to restore an environment from a lockfile, you need to obtain that <code>renv.lock</code>. This provides details on packages and versions to be restored (but not R version). As an example: TBC. <!--TODO: download option for renv?--></p>
+<section id="adding-packages-to-the-environment" class="level2">
+<h2 class="anchored" data-anchor-id="adding-packages-to-the-environment">Adding packages to the environment</h2>
+<p>It is possible to simply install packages using <code>renv::install("packagename")</code> or <code>install.packages("packagename")</code>.</p>
+<p>However, we recommend using a <code>DESCRIPTION</code> file. This is because it allows you to keep a record of the main packages you installed. You’ll generate a clear, readable summary of the main dependencies for your project.</p>
+<p><strong>Why use a <code>DESCRIPTION</code> file?</strong></p>
+<ul>
+<li><strong>Clear requirements.</strong> The <code>DESCRIPTION</code> file provides a clear summary of your project’s main pages. This is much easier to read than <code>renv.lock</code>, which lists all the packages <em>and</em> their dependencies, making it cumbersome if you just want to see the key packages.</li>
+<li><strong>Consistency with package development</strong>. If your project is (or might become) an R package, the <code>DESCRIPTION</code> file is the standard way to declare dependencies.</li>
+<li><strong>Alternative for environment recreation</strong>. While <code>renv.lock</code> is the primary tool for restoring the exact environment, having a <code>DESCRIPTION</code> file is a valuable backup. If you encounter issues with <code>renv.lock</code>, you (or collaborators) can use <code>DESCRIPTION</code> to reinstall the main dependencies - with more information on this below in the section on recreating environments.</li>
+<li><strong>Explicit snapshots</strong>. If you want precise control over what is included in <code>renv.lock</code>, a <code>DESCRIPTION</code> file enables you to use “explicit” snapshots. These mean only the packages listed in <code>DESCRIPTION</code> (and their dependencies) are recorded - as is covered below in the step on updating your <code>renv.lock</code> file.</li>
+</ul>
+<p><img src="environment_files/description_vs_lock.png" class="img-fluid"></p>
 <p><br></p>
-<p><strong>2. Initialise renv</strong>. As before, initialise <code>renv</code> for the project. <!--TODO: note that this time it will have a message like there are existing files--></p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>renv<span class="sc">::</span><span class="fu">init</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><strong>1. Create DESCRIPTION file</strong>. Run in the terminal:</p>
+<pre><code>touch DESCRIPTION</code></pre>
+<p>Open the file and copy in the template below. You can customise some of the meta-data (e.g.&nbsp;package, title, authors, description).</p>
+<p>This is a standard template. You can create an identical file with <code>usethis</code> by running <code>usethis::use_description()</code>. However, we can just create it from scratch, which helps to minimise our dependencies.</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="ex">Package:</span> packagename</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="ex">Title:</span> What the Package Does <span class="er">(</span><span class="ex">One</span> Line, Title Case<span class="kw">)</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="ex">Version:</span> 0.0.0.9000</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="ex">Authors@R:</span> </span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>    <span class="ex">person</span><span class="er">(</span><span class="st">"First"</span><span class="ex">,</span> <span class="st">"Last"</span>, , <span class="st">"first.last@example.com"</span>, role = c<span class="er">(</span><span class="st">"aut"</span><span class="ex">,</span> <span class="st">"cre"</span><span class="kw">))</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="ex">Description:</span> What the package does <span class="er">(</span><span class="ex">one</span> paragraph<span class="kw">)</span><span class="bu">.</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a><span class="ex">License:</span> <span class="kw">`</span><span class="fu">use_mit_license()</span><span class="kw">`</span>, <span class="kw">`</span><span class="fu">use_gpl3_license()</span><span class="kw">`</span> or friends to pick a</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>    <span class="ex">license</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a><span class="ex">Encoding:</span> UTF-8</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a><span class="ex">Roxygen:</span> list<span class="er">(</span><span class="ex">markdown</span> = TRUE<span class="kw">)</span></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a><span class="ex">RoxygenNote:</span> 7.0.0</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p><br></p>
-<p><strong>3. Restore the environment</strong>. Restore the provided <code>renv</code> based on the lock file. This will install the exact packages listed in the lockfile.</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>renv<span class="sc">::</span><span class="fu">restore</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><strong>2. List dependencies</strong>. In <code>DESCRIPTION</code>, dependencies are listed under two headings:</p>
+<ul>
+<li><code>Imports</code>: for required packages.</li>
+<li><code>Suggests</code>: for optional/development packages.</li>
+</ul>
+<p>For most projects (especially non-packages), it’s fine to just list all your dependencies under <code>Imports</code> for simplicity. The distinction betweeen <code>Imports</code> and <code>Suggests</code> is more relevant when constructing your research as an R package, as it will distinguish between those necessary for the core simulation and those for other analysis and tests (see <a href="package.html" class="quarto-xref"><span>Structuring our model as a package</span></a>). <!--TODO: make sure there is a section in packages about this--></p>
+<p>At the very beginning of your project, your <code>DESCRIPTION</code> file might only include a few packages. For example, if you are starting with just the <code>simmer</code> package, your Imports section would look like this:</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>Imports<span class="sc">:</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>    simmer</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>As your project develops and you find yourself using additional packages, simply <strong>add each new dependency to the <code>Imports</code> section</strong> of your <code>DESCRIPTION</code> file.</p>
+<p>If you are following along with this book, you can use the following <code>DESCRIPTION</code> snippet to include all the packages needed to run the provided code in this book:</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>Imports<span class="sc">:</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>    simmer,</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    magrittr,</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>    dplyr,</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>    purrr,</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>    rlang,</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>    tidyr,</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>    tidyselect,</span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>    future,</span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>    future.apply,</span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>    ggplot2,</span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>    tibble,</span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>    gridExtra,</span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>    R6</span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>Suggests<span class="sc">:</span></span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>    <span class="fu">testthat</span> (<span class="sc">&gt;=</span> <span class="dv">3</span>.<span class="fl">0.0</span>),</span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>    patrick,</span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a>    lintr,</span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a>    devtools,</span>
+<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a>    xtable,</span>
+<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a>    data.table,</span>
+<span id="cb15-22"><a href="#cb15-22" aria-hidden="true" tabindex="-1"></a>    mockery</span>
+<span id="cb15-23"><a href="#cb15-23" aria-hidden="true" tabindex="-1"></a>Config<span class="sc">/</span>testthat<span class="sc">/</span>edition<span class="sc">:</span> <span class="dv">3</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><strong>Note:</strong> In the <a href="https://r-pkgs.org/description.html">R Packages</a> book, they recommend that versions are not specified in <code>DESCRIPTION</code>. Instead, they suggest that no version is specified - or that a minimum version is specified, if you know that an older version of specific package/s would break the code. This is why it is important to also create an <code>renv.lock</code> file (as below), so you do have a record of the exact versions used.</p>
+<p><br></p>
+<p><strong>3. Install packages from <code>DESCRIPTION</code></strong>. Run the following command in your console. This will install the packages from <code>DESCRIPTION</code>, and will determine and install the dependencies of those packages too.</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>renv<span class="sc">::</span><span class="fu">install</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><br></p>
+<p><strong>4. Update <code>renv.lock</code></strong>. To take a snapshot of your environment and update your <code>renv.lock</code> file, run:</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>renv<span class="sc">::</span><span class="fu">snapshot</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>This will update the lock file with a full list of the exact packages and dependencies, including the <strong>versions</strong> you have installed, providing a clear record of your working environment.</p>
+<p>There are three snapshot types:</p>
+<ul>
+<li><strong>Implicit</strong> - records any packages (and their dependencies) listed in <code>DESCRIPTION</code> or used in your code.</li>
+<li><strong>Explicit</strong> - only records packages (and their dependencies) listed in <code>DESCRIPTION</code>.</li>
+<li><strong>All</strong> - records all packages in your environment.</li>
+</ul>
+<p>The default snapshot type is <strong>implicit</strong>, and we recommend this approach. This is because it will catch any packages you are using but that you have forgot to add to <code>DESCRIPTION</code> (although it is best to remember to record these in <code>DESCRIPTION</code>, so you have a nice clear list of packages, and don’t have to delve into <code>renv.lock</code> if you’re having issues).</p>
+<p>The downside to this snapshot type if that it may include unnecessary packages if you include old scripts in your repository that use packages you no longer need. However, this can be avoided by removing old scripts (good practice!).</p>
+<p>If you want to check your snapshot type, run this command in the R console:</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>renv<span class="sc">::</span>settings<span class="sc">$</span><span class="fu">snapshot.type</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>You can then change it if desired using one of:</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>renv<span class="sc">::</span>settings<span class="sc">$</span><span class="fu">snapshot.type</span>(<span class="st">"implicit"</span>)</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>renv<span class="sc">::</span>settings<span class="sc">$</span><span class="fu">snapshot.type</span>(<span class="st">"explicit"</span>)</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>renv<span class="sc">::</span>settings<span class="sc">$</span><span class="fu">snapshot.type</span>(<span class="st">"all"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><br></p>
+</section>
+<section id="subsec-recreate-env" class="level2">
+<h2 class="anchored" data-anchor-id="subsec-recreate-env">Recreate an existing environment</h2>
+<p>When you want to recreate an environment—such as for an old project or when collaborating—you have two main options, depending on which files are available:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Method</th>
+<th>What does it install?</th>
+<th>Best for…</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>From <code>renv.lock</code></strong></td>
+<td>Installs the exact package versions (and their dependencies) used previously</td>
+<td>Full reproducibility; restoring the original environment exactly</td>
+</tr>
+<tr class="even">
+<td><strong>From <code>DESCRIPTION</code></strong></td>
+<td>Installs the main packages listed (and their dependencies), but uses the latest available versions (unless specified)</td>
+<td>Getting started quickly or if <code>renv.lock</code> is missing or problematic</td>
+</tr>
+</tbody>
+</table>
+<p><br></p>
+<p><strong>1. Restoring from <code>renv.lock</code> (preferred)</strong>. If the project includes an <code>renv.lock</code> file, use this as your first option. This file records the exact versions of all packages used, enabling you to recreate the environment as it was originally (*except for R version and operating system differences).</p>
+<p>To restore the environment, run in your R console:</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>renv<span class="sc">::</span><span class="fu">restore</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>This will attempt to install all packages at the precise versions specified.</p>
+<p>Occasionally, you may encounter issues - such as conflicts, unavailable packages, or operating system differences - especially with older projects or across different systems.</p>
+<p><br></p>
+<p><strong>2. Rebuilding from <code>DESCRIPTION</code></strong>. If <code>renv.lock</code> is unavailable or causes problems, you can use the <code>DESCRIPTION</code> file. This file lists the main package dependencies, but typically does not specify exact versions (unless you have set minimum versions for specific needs).</p>
+<p>To install packages listed in <code>DESCRIPTION</code>, run:</p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>renv<span class="sc">::</span><span class="fu">install</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>This will install the latest available versions of the listed packages and their dependencies. This approach is less precise than using <code>renv.lock</code>, so results may differ slightly from the original environment, especially if package updates have introduced changes.</p>
+<p>In theory, the R ecosystem aspires to maintain backwards compatability, meaning that code written for older package versions should continue to work with newer ones. However, in practice, there is no strict guarantee of backward compatibility in R, either for the core language or for contributed packages.</p>
+<p>As discussed in the <a href="https://r-pkgs.org/lifecycle.html">R packages</a> book:</p>
+<blockquote class="blockquote">
+<p>“If we’re being honest, most R users don’t manage package versions in a very intentional way. Given the way <code>update.packages()</code> and <code>install.packages()</code> work, it’s quite easy to upgrade a package to a new major version without really meaning to, especially for dependencies of the target package. This, in turn, can lead to unexpected exposure to breaking changes in code that previously worked. This unpleasantness has implications both for users and for maintainers.”</p>
+</blockquote>
+<p>Hence, using a lockfile like <code>renv.lock</code> is the only reliable way to ensure that your environment is recreated exactly as it was - but <code>DESCRIPTION</code> can serve as a valuable back-up when this doesn’t work, and otherwise just as a handy summary of the main packages.</p>
+<p><br></p>
+<p><strong>3. If neither file is provided</strong>. If you have neither a <code>renv.lock</code> nor a <code>DESCRIPTION</code> file, you can try to create a <code>DESCRIPTION</code> file based on your knowledge of the project and its required packages.</p>
 <p><br></p>
 </section>
 <section id="system-dependencies" class="level2">
 <h2 class="anchored" data-anchor-id="system-dependencies">System dependencies</h2>
-<p>Some R packages required external system libraries. The exact requirements will depend on which packages you use, what operating system you have, and whether you have used R before.</p>
+<p>Some R packages require external system libraries. The exact requirements will depend on which packages you use, what operating system you have, and whether you have used R before.</p>
+<p>If these system libraries are missing, package installation may fail, even if you have the correct R package versions.</p>
 <p>For example, working on Ubuntu, we found that we had to install the following system dependencies for <code>igraph</code>:</p>
-<div class="sourceCode" id="cb17"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt install build-essential gfortran</span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt install libglpk-dev libxml2-dev</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb22"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt install build-essential gfortran</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt install libglpk-dev libxml2-dev</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>You should list any system dependencies that you are aware of in your project’s README or setup instructions.</p>
+<p><br></p>
+</section>
+<section id="summary" class="level2">
+<h2 class="anchored" data-anchor-id="summary">Summary</h2>
+<p>We can use <code>renv</code> to create a reproducible environment in R. In the process above, we generated two key files:</p>
+<ul>
+<li><code>DESCRIPTION</code> - lists project’s primary packages with any minimum version requirements, but not exact versions.</li>
+<li><code>renv.lock</code> - complements this by recording the precise versions of all packages and their dependencies.</li>
+</ul>
+<p>These work together to both provide (a) a comprehensive record of your project environment, and (b) enable yourself or others to reconstruct the environment.</p>
+<p><br></p>
+</section>
+<section id="further-information-1" class="level2">
+<h2 class="anchored" data-anchor-id="further-information-1">Further information</h2>
+<ul>
+<li><a href="https://r-pkgs.org/description.html">“9. DESCRIPTION” from R Packages</a> by Hadley Wickham and Jennifer Bryan.</li>
+<li><a href="https://r-pkgs.org/lifecycle.html">“21. Lifecycle” from R Packages</a> by Hadley Wickham and Jennifer Bryan.</li>
+</ul>
 </section>
 </div>
 
