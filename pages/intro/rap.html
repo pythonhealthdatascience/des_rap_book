@@ -145,7 +145,7 @@ ul.task-list li input[type="checkbox"] {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/intro/foss.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Free and open source software (FOSS)</span></a>
+  <a href="../../pages/intro/foss.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Free and open-source software (FOSS)</span></a>
   </div>
 </li>
       </ul>
@@ -367,8 +367,22 @@ ul.task-list li input[type="checkbox"] {
 </nav>
 <div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#reproducibility" id="toc-reproducibility" class="nav-link active" data-scroll-target="#reproducibility">Reproducibility</a></li>
+  <li><a href="#why-does-reproducibility-matter" id="toc-why-does-reproducibility-matter" class="nav-link" data-scroll-target="#why-does-reproducibility-matter">Why does reproducibility matter?</a>
+  <ul class="collapse">
+  <li><a href="#advantages-for-you-the-original-author" id="toc-advantages-for-you-the-original-author" class="nav-link" data-scroll-target="#advantages-for-you-the-original-author">Advantages for you (the original author)</a></li>
+  <li><a href="#advantages-for-others" id="toc-advantages-for-others" class="nav-link" data-scroll-target="#advantages-for-others">Advantages for others</a></li>
+  </ul></li>
+  <li><a href="#reproducible-analytical-pipelines-rap" id="toc-reproducible-analytical-pipelines-rap" class="nav-link" data-scroll-target="#reproducible-analytical-pipelines-rap">Reproducible analytical pipelines (RAP)</a></li>
+  <li><a href="#reproducible-work-v.s.-raps" id="toc-reproducible-work-v.s.-raps" class="nav-link" data-scroll-target="#reproducible-work-v.s.-raps">Reproducible work v.s. RAPs</a></li>
+  <li><a href="#focus-of-this-book" id="toc-focus-of-this-book" class="nav-link" data-scroll-target="#focus-of-this-book">Focus of this book</a></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
@@ -392,8 +406,73 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
+<section id="reproducibility" class="level2">
+<h2 class="anchored" data-anchor-id="reproducibility">Reproducibility</h2>
+<div class="pale-blue">
+<p><strong>Reproducibility</strong> = the ability to regenerate published results using the provided code and data.</p>
+</div>
+<p><img src="rap_files/reproduce.png" class="img-fluid"></p>
+<blockquote class="blockquote">
+<p>It’s helpful to distinguish reproducibility from related concepts:</p>
+<ul>
+<li><strong>Reusability</strong> refers to whether code can be adapted and applied to new contexts.</li>
+<li><strong>Replicability</strong> means others can independently implement your methods (without your code) and get the same results.</li>
+</ul>
+</blockquote>
+<p><br></p>
+</section>
+<section id="why-does-reproducibility-matter" class="level2">
+<h2 class="anchored" data-anchor-id="why-does-reproducibility-matter">Why does reproducibility matter?</h2>
+<section id="advantages-for-you-the-original-author" class="level3">
+<h3 class="anchored" data-anchor-id="advantages-for-you-the-original-author">Advantages for you (the original author)</h3>
+<ul>
+<li>✅ <strong>Reuse</strong>. Reproducibility makes it much easier for you to revisit and reuse your own code, whether you’re updating outputs or conducting new analyses.</li>
+</ul>
+<blockquote class="blockquote">
+<p><strong>Example: Peer review.</strong> The mean time from submission to publication in biomedical research ranges from 27 to 639 days (<a href="https://doi.org/10.1080/03007995.2021.1905622">Andersen et al.&nbsp;2021</a>) - so it’s crucial that your code remains functional and understandable long after it’s initial execution.</p>
+</blockquote>
+<ul>
+<li><p>✅ <strong>Quality</strong>. Aiming for reproducibility encourages you to structure code clearly and document your workflow thoroughly. This will help reduce the risk of errors and ambiguities, and improve code quality.</p></li>
+<li><p>✅ <strong>Time</strong>. Even if you retain access to your code, failure to record exact parameters for every scenario or document the computational environment used, for example, could make the code non-reproducible when revisited, even if only a few months later. Troubleshooting non-reproducible code can be <strong>time-consuming</strong> or even <strong>impossible</strong> if required information is lost.</p></li>
+</ul>
+<p>Many of these advantages apply regardless fo whether code is shared publicly or remains propreitrary.</p>
+</section>
+<section id="advantages-for-others" class="level3">
+<h3 class="anchored" data-anchor-id="advantages-for-others">Advantages for others</h3>
+<ul>
+<li><p>✅ <strong>Trust</strong>. If work is reproducibility, it builds trust, as others can independently confirm that your results are reliable and your methods are transparent.</p></li>
+<li><p>✅ <strong>Reuse</strong>. If others can reproduce your work, this verifies that the code is working as expected when they run it. Knowing that the underlying code works as expected, they are then able to confidently reuse and adapt the code for new contexts and projects.</p></li>
+</ul>
+<p><br></p>
+</section>
+</section>
+<section id="reproducible-analytical-pipelines-rap" class="level2">
+<h2 class="anchored" data-anchor-id="reproducible-analytical-pipelines-rap">Reproducible analytical pipelines (RAP)</h2>
+<div class="pale-blue">
+<p><strong>Reproducible analytical pipeline (RAP)</strong> = systematic approach to data analysis and modelling in which every step of the process (end-to-end) is transparent, automated, and repeatable.</p>
+</div>
+<p>Rather than relying on manual processes or undocumented decisions, a RAP ensures that <strong>the entire workflow</strong> - from data ingestion and cleaning, to modelling, and through to analysis (and sometimes also reporting) - is <strong>scripted, documented, and reproducible</strong>.</p>
+<p>There should be no (or minimal) manual intervention required to generate the results. The requirements of a RAP are outlined in the NHS RAP Maturity Framework (as detailed in <a href="guidelines.html" class="quarto-xref"><span>Reproducibility guidelines</span></a>).</p>
+<p><img src="rap_files/rap.png" class="img-fluid"></p>
+<p><br></p>
+</section>
+<section id="reproducible-work-v.s.-raps" class="level2">
+<h2 class="anchored" data-anchor-id="reproducible-work-v.s.-raps">Reproducible work v.s. RAPs</h2>
+<p>You can do reproducible work without building a full RAP - but a RAP takes things further. Reproducible analysis may still involve <strong>manual steps, selective re-running of scripts, or undocumented decisions</strong>. This leaves room for human error and inefficiency, and makes it harder to check and re-run the work.</p>
+<p>A RAP is distinct because it automates the entire workflow, <strong>minimising manual intervention</strong> and using <strong>software engineering best practices</strong> like version control, peer review, and modular code. This makes your analysis more <strong>efficient and robust</strong>, and <strong>easier</strong> to re-run and review.</p>
+<p><br></p>
+</section>
+<section id="focus-of-this-book" class="level2">
+<h2 class="anchored" data-anchor-id="focus-of-this-book">Focus of this book</h2>
+<p>This book does both! As detailed in the <a href="guidelines.html" class="quarto-xref"><span>Reproducibility guidelines</span></a> page:</p>
+<ul>
+<li>It aims to make your work <strong>reproducible</strong>, drawing on recommendations from Heather et al.&nbsp;(2025) for reproducible discrete-event simulation (DES)</li>
+<li>It also guides you through building a full <strong>RAP</strong>, following the NHS “Levels of RAP” maturity framework.</li>
+</ul>
+<p><br></p>
 
 
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
