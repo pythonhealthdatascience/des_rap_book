@@ -1,211 +1,195 @@
 # Code organisation {#sec-code_structure}
 
+{{< include ../../scripts/language-selector.html >}}
+
 :::{.guidelines}
 * Heather et al. 2025: Minimise code duplication.
 * NHS Levels of RAP (🥈): Reusable functions and/or classes are used where appropriate.
 :::
 
-It might seem convenient to write all your code in a single script and simply copy-and-paste sections when you need to reuse something. However, this approach quickly becomes unmanageable as your project grows. Organising your code with functions, classes, and separate files has several benefits:
+It might seem convenient to write all your code in a single script and simply copy-and-paste sections when you need to reuse something. However, this approach quickly becomes unmanageable as your project grows. The main tools you can use to **organise** your code are **functions** and **classes**. Using these has has several benefits:
 
-* **Easier to read and collaborate on**. Code with a standardised, logical structure-where complex processes are broken into manageable parts-is much easier to understand. This makes your code more accessible for you and others to contribute to, both now and in the future.
-* **Simpler to maintain with fewer errors**. When different components are isolated into separate chunks, they are easier to update, test, and debug. This reduces mistakes and makes it easier to add new features.
-* **No duplication**. Writing reusable code (like functions and classes) means changes only need to be made in one place. In contrast, duplicated code requires updates everywhere it appears, increasing the risk of missing something.
+* **Easier to read and collaborate on**. Code is clearer and easier to understand for you and others.
+* **Simpler to maintain with fewer errors**. Complex processes are broken into manageable parts. This makes them easier to update, test, and debug.
+* **No duplication**. Writing reusable code (like functions and classes) means changes only need to be made in one place, such as when you are updating or fixing a bug. In contrast, duplicated code requires updates everywhere it appears, and you may miss some.
+
+<br>
+
+## Functions
+
+Functions group code into reusable blocks that perform a specific task.
+
+Example:
+
+::: {.python-content}
+
+```{.python}
+def add(a, b):
+    return a + b
+```
+:::
+
+::: {.r-content}
+
+```{.r}
+add <- function(a, b) {
+  a + b
+}
+```
+:::
+
+<br>
+
+## Classes
+
+Classes bundle data ("**attributes**") and behaviour ("**methods**"). You create an **instance** of a class (an "object") to use it.
+
+::: {.python-content}
+
+Example:
+
+```{.python}
+class Dog:
+    def __init__(self, name):
+        self.name = name
+    def bark(self):
+        print(f"{self.name} says woof!")
+
+fido = Dog("Fido")
+fido.bark()  # Output: Fido says woof!
+```
+:::
+
+::: {.r-content}
+Classes are less common in R, but are used sometimes for complex or structure tasks. R supports several class systems, including S3, S4 and R6. The R6 class is shown as an example below, and is the most similar to classes in Python.
+
+Example:
+
+```{.r}
+library(R6)
+
+Dog <- R6Class("Dog",
+  public = list(
+    name = NULL,
+    initialize = function(name) {
+      self$name <- name
+    },
+    bark = function() {
+      cat(self$name, "says woof!\n")
+    }
+  )
+)
+
+# Create an instance and use it:
+fido <- Dog$new("Fido")
+fido$bark()  # Output: Fido says woof!
+```
+:::
+
+<br>
+
+### Subclasses and inheritance
+
+A **subclass** (or "child class") is a class that inherits from another class (the "parent" or "superclass"). Subclasses can **reuse or extend** the behaviour of their parent.
+
+Example:
+
+::: {.python-content}
+
+```{.python}
+class Animal:
+    def __init__(self, name, diet):
+        self.name = name
+        self.diet = diet
+    
+    def describe(self):
+        return f"{self.name} is a {self.diet}"
+
+
+class Cheetah(Animal):
+    def __init__(self, name):
+        super().__init__(name, diet="carnivore")
+    
+    def activity(self):
+        base = self.describe()
+        return f"{base}. Sprinting at 70 mph!"
+
+
+charlie = Cheetah("Charlie")
+print(charlie.activity())
+# Output: Charlie is a carnivore. Sprinting at 70 mph!
+```
+
+:::
+
+::: {.r-content}
+
+```{.r}
+library(R6)
+
+
+Animal <- R6Class("Animal",
+  public = list(
+    name = NULL,
+    diet = NULL,
+    initialize = function(name, diet) {
+      self$name <- name
+      self$diet <- diet
+    },
+    describe = function() {
+      paste(self$name, "is a", self$diet)
+    },
+  )
+)
+
+
+Cheetah <- R6Class("Cheetah",
+  inherit = Animal,
+  public = list(
+    initialize = function(name) {
+      super$initialize(name, diet = "carnivore")
+    },
+    activity = function() {
+      base <- super$describe()
+      paste(base, "Sprinting at 70 mph!")
+    }
+  )
+)
+
+
+charlie <- Cheetah$new("Charlie")
+cat(charlie$activity())
+# Output: Charlie is a carnivore Sprinting at 70 mph!
+```
+
+:::
 
 <br>
 
 ## Programming paradigms
 
-As you think about organising your code, it’s helpful to consider the different approaches, or "**programming paradigms**", that shape how code is structured. In Python and R, the most common paradigms are:
+**Programming paradigms**" define different ways to organise code. The table below provides a overview of the most common paradigms you'll use:
 
-* Procedural programming.
-* Functional programming.
-* Object-oriented programming (OOP).
+| Paradigm | Main object used | Key characteristics |
+| - | - | --- |
+| **Procedural programming** | Functions | •  Code runs **step-by-step** using functions, often passing data from one to the next<br>• Data structures (like lists) are usually **mutable** (i.e. can be changed directly).<br>• Use **loops** (`for`, `while`) to repeat actions. |
+| **Functional programming** | Functions | • Uses **pure functions** (always same output for same input, no side effects - i.e. doesn't change variables elsewhere, only effect is to return value)<br>• Functions are "first-class citizens" (i.e. can be assigned to variables, passed as arguments, or returned from functions).• Data structures are **immutable** (can't be changed; new ones are created for each change).• Repeats actions with **recursion** (functions calling themselves) and **higher-order functions** (e.g. Python's `map`, R's `sapply`). |
+| **Object-oriented programming (OOP)** | Classes/Objects | • Orgnaises code into **objects** (instances of classes) that bundle data (attributes) and behaviour (methods).<br>• Data and methods are **bundled together** ("encapsulation").<br>• Can **hide** details through private attributes and methods ("abstraction").<br>• A class can **inherit** from another class.<br>• The same object can behave diferently depending on context ("polymorphism"). |
 
-<!--TODO: add diagram-->
+In practice, both Python and R often mix paradigms, choosing what works best for the problem at hand.
 
-<br>
+This table just provides a brief introduction to the paradigms. If you're new to these concepts, don't worry. What matters most is understanding that you can use functions or classes to organise your code, and that certain features-like keeping functions “pure” (not changing things outside the function) or using immutable data-can help make your code more robust and easier to maintain. These are just tools to help you write better code. Use the approaches that make sense for your specific project and context-you don’t have to follow any single style rigidly.
 
-### Procedural programming
+You can see the resources listed in @sec-code_structure_further_reading below for more in-depth explanation of programming paradigms, if of interest.
 
-In procedural programming, code is organised into **functions** that are run **step-by-step**, in a specific sequence. Each function represents a clear step in the process, and the program flows from one step to the next.
+## When to use functions and classes
 
-As the code runs, data is passed between functions. Data structures (like lists) are **mutable**. This means they can be changed as the program runs. For example, you can add, remove or update items directly, rather than creating a new version each time something changes.
+In this book, you'll see both functions and classes used, depending on what made sense for the task. Generally, we've used more classes in Python and more functions in R-as is typical, since R code often relies less on classes-but neither approach is exclusive, and often either could have been used. The choice is mostly a matter of language style, clarity, and what fits best for the problem at hand.
 
-Procedural programs also commonly use **loops** (such as `for` or `while`) to repeat actions as needed.
+In general, **functions** are ideal when you want to group reusable actions or calculations, to just perform an operation or calculation.
+**Classes** become useful when you need to keep track of state or have several related functions that operate on the same kind of data. Choose the approach that best matches the problem you’re solving. There's no strict rule; often, a mix of both is the most practical and maintainable solution.
 
-<br>
-
-### Functional programming
-
-In functional programming, code is still organised into functions, but these are always **pure functions**. A pure function always returns the same output for the same input and does not affect anything outside itself. This means it doesn’t change variables, files, or data elsewhere in the program-its only effect is to return a value.
-
-In this paradigm, functions are treated as "first-class citizens". This means that they can be assigned to variables, passed as arguments to other functions, and returned from functions. Whilst you can do this in procedural programming, it is a core feature of functional programming, which is used to build programs in a different way. It relies on them much more.
-
-Data structures in functional programming are **immutable** - i.e. once created, they cannot be changed. Instead of updating or modifying existing data, new data structures are created for every change.
-
-Instead of traditional loops (`for`, `while`), functional programming uses recursion or higher-order functions to repeat actions. This avoids mutable state and aligns with the paradigm's empahsis on predicability and safety. 
-
-
-::: {.python-content}
-
-#### Example in python
-
-In this example, we have a function which manually loops, checks and updates the list step-by-step.
-
-```{python}
-def procedural_sum(n):
-    """
-    Calculate the sum of numbers from 1 to n using a procedural approach.
-
-    This function demonstrates procedural programming by using a loop
-    and a mutable variable to accumulate the sum.
-
-    Parameters
-    ----------
-    n: int
-        The upper limit of the range to sum.
-
-    Return
-    ------
-    int
-        The sum of numbers from 1 to n, inclusive.
-    """
-    total = 0
-    for i in range(1, n+1):
-        total += i
-    return total
-
-
-print(procedural_sum(5))
-```
-
-:::
-
-::: {.r-content}
-
-#### Example in R
-
-```{.r}
-```
-
-:::
-
-### Functional programming
-
-::: {.python-content}
-
-#### Example in python
-
-In this function, we describe the desired transformations, and the details of the sequence are handled for us.
-
-```{python}
-def functional_sum(n):
-    """
-    Calculate the sum of numbers from 1 to n using a functional approach.
-
-    This function demonstrates functional programming by using the built-in
-    'map' and 'sum' functions without explicit loops or mutable state.
-
-    Parameters
-    ----------
-    n: int
-        The upper limit of the range to sum.
-
-    Return
-    ------
-    int
-        The sum of numbers from 1 to n, inclusive.
-    """
-    return sum(map(lambda x: x, range(1, n+1)))
-
-
-print(functional_sum(5))
-```
-
-:::
-
-::: {.r-content}
-
-#### Example in R
-
-```{.r}
-```
-
-:::
-
-### Object oriented programming
-- classes with attributes and methods
-
-
-::: {.python-content}
-
-#### Example in python
-
-```{python}
-class SumCalculator:
-    """
-    A class to calculate the sum of numbers from 1 to n using an
-    object-oriented approach.
-
-    This class demonstrates object-oriented programming by encapsulating
-    data (n) and behavior (sum calculation) within an object.
-
-    Attributes
-    ----------
-    n: int
-        The upper limit of the range to sum.
-    """
-
-    def __init__(self, n):
-        """
-        Initialise the SumCalculator with the upper limit n.
-
-        Parameters
-        ----------
-        n: int
-            The upper limit of the range to sum.
-        """
-        self.n = n
-
-    def calculate_sum(self):
-        """
-        Calculate the sum of numbers from 1 to self.n.
-
-        Return
-        ------
-        int
-            The sum of numbers from 1 to n, inclusive.
-        """
-        total = 0
-        for i in range(1, self.n + 1):
-            total += i
-        return total
-
-
-calculator = SumCalculator(5)
-print(calculator.calculate_sum())
-```
-
-:::
-
-::: {.r-content}
-
-#### Example in R
-
-```{.r}
-```
-
-:::
-
-## Which to use?
-
-procedural and object oriented most common
-though functional is used
-often in python will blend paradigms
-
-e.g. list comprehension is quite functional... "emphasis on purity and immutability-list comprehensions do not produce side effects or leak variables into the outer scope"
-whilst for loop is classic of proecudral... execute code repeatedly... often side effects of modifying variables appending listsi
-
-## Further reading
+## Further reading {#sec-code_structure_further_reading}
 
 * ["Introduction to Programming Paradigms"](https://www.datacamp.com/blog/introduction-to-programming-paradigms) by Samuel Shaibu (Datacamp, 2024).
+* ["OOP vs Functional vs Procedural"](https://www.scaler.com/topics/java/oop-vs-functional-vs-procedural/) (Scaler Topics, 2022).
