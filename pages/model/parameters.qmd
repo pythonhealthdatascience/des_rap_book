@@ -1,10 +1,12 @@
 # Parameter management {#sec-parameters}
 
+{{< include ../../scripts/language-selector.html >}}
+
 :::{.guidelines}
 * Heather et al. 2025: Avoid hard-coded parameters.
 :::
 
-Discrete-event simulations (DES) rely on many parameters lik patient arrival rates, resource usage times, and transition probilities. **Manging these parameters well is crucial**, as you'll often want to change them to test different scenarios or run sensitivity analyses.
+Discrete-event simulations (DES) rely on many parameters lik patient arrival rates, resource usage times, and transition probilities. **Managing these parameters well is crucial**, as you'll often want to change them to test different scenarios or run sensitivity analyses.
 
 Good parameter management means storing parameters in a way that makes them **easy to update, track, and reuse**.
 
@@ -70,110 +72,49 @@ For scenarios, you would define the same global variables with alternative value
 ```{.python}
 # Scenario 1
 INTERARRIVAL_TIME = 6
-CONSULTATION_TIME = 18
-TRANSFER_PROB = 0.25
+CONSULTATION_TIME = 20
+TRANSFER_PROB = 0.3
+```
+
+```{.python}
+# Scenario 2
+INTERARRIVAL_TIME = 5
+CONSULTATION_TIME = 20
+TRANSFER_PROB = 0.4
 ```
 :::
 
-The improvements are that:
+The improvements are that parameters are:
 
-* ✅ **No longer hardcoded**. EXPLAIN WHY GOOD.
+* ✅ **No longer hardcoded**. Within the model, it refers to the variable name (e.g. `INTERARRIVAL_TIME`) rather than a specific value (e.g. `5`), which means we are able to now list the values in one *outside* the model logic.
 * ✅ **Centralised**. All parameters are in one place, making them easier to find and change.
 
-However, still several disadvantages:
+However, there are still several disadvantages:
 
-* ❌ **Still inflexible**. In order to re-run the model with different scenarios, would still need to do the approaches above - editing code directly or duplicating scripts for each scenario.
-* ❌ **Not scalable**. As the number of scenarios or parameters grows, managing all these global variables becomes messy. 
+* ❌ **Still inflexible**. In order to re-run the model with different scenarios, you would still need to do the approaches above - editing code directly or duplicating scripts for each scenario.
+* ❌ **Not scalable**. As the number of scenarios or parameters grows, managing all these global variables becomes messy.
 
 <br>
 
 ## Managing parameters in DES: two critical practices
 
-To manage parameters effectively, you need **both**:
+To manage parameters effectively, you need to:
 
-1. **Use a function or class to manage parameter sets**.
+1. **Group parameters into a dedicated object**.
 2. **Pass these objects explicitly to your model**.
 
-want to pass direct to model as then
+Why?
 
-* no globals... can't bleed between scenarios... everything explicitly defined for each run
-
-want to group parameters into dedicated objects
-
-* have object that can call to view all param easily (e.g. in logs).
-* can easily pass that object to model, reduce having loads of model inputs
-
-could just use a dictionary but becomes a pain when have large number of param
-e.g. just change one value, either rewrite dict, or copy dict and tweak that, but not an ideal approach
-
-::: {.python-content}
-```{.python}
-base_params = {
-    "interarrival_time": 5,
-    "consultation_time": 20,
-    "transfer_prob": 0.3,
-    ...
-}
-
-scenario1 = base_params.copy()
-scenario1["transfer_prob"] = 0.4
-```
-:::
-
-so have two options: functions or classes
-this is good. Full Reset: Easily reset all parameters to default values for each run. can easily tweak one or two param.
-
-A function can generate parameter sets with defaults, allowing you to override only what’s needed
-
-param are all in one place
-easy to reset to defaults, see what base values are, not copying stuff
-
-::: {.python-content}
-```{.python}
-def create_params(interarrival_time=5, consultation_time=20, transfer_prob=0.4):
-    return {"interarrival_time": interarrival_time,
-            "consultation_time": consultation_time,
-            "transfer_prob": transfer_prob}
-
-base_params = create_params()
-scenario1 = create_params(interarrival_time=6)
-scenario2 = create_params(transfer_prob=0.3)
-```
-:::
-
-or can use class, store values in class itself, pass the class
-
-::: {.python-content}
-```{.python}
-class Parameters:
-    def __init__(self, a=3, b=12, c=50, d=0.1, e=20):
-        self.a = a
-        self.b = b
-        self.c = c
-        self.d = d
-        self.e = e
-
-    def __repr__(self):
-        return f"Parameters(a={self.a}, b={self.b}, c={self.c}, d={self.d}, e={self.e})"
-
-# Base case
-base_params = Parameters()
-
-# Scenario 1: Only change "a" and "d"
-scenario1 = Parameters(a=5, d=0.2)
-
-# Scenario 2: Only change "b"
-scenario2 = Parameters(b=15)
-```
-:::
+* ✅ **Clear parameter sets**. Every scenario has its own object with all the parameters needed. This can be easily viewed, and comes in handy in logs (@sec-logs) to easily print a copy of all parameters used for a scenario.
+* ✅ **No global variables**. By explicitly passing our parameters, we avoid accidental parameter reuse between scenarios (which is a possibility with global variables!).
+* ✅ **Fewer inputs**. If all parameters are in one object, then we can just pass that as a single input to our model function/class, reducing the number of arguments we need to pass.
 
 <br>
 
-### Why you need both practices
+It's important to use **both** of these practices.
 
-If you only group parameters (but use globals), globals still cause issues, parameters might accidentally be modified elsewhere.
+If you only do option 1 (group parameters, but use as globals), parameters might accidentally be modified elsewhere, or one scenario's parameters might affect another's.
 
-::: {.python-content}
 ```{.python}
 # BAD: Parameters are grouped but still global
 global_params = Parameters()
@@ -182,32 +123,236 @@ def simulate():
     # Uses global_params.interarrival_time... 😬
     ...
 ```
-:::
 
-If you pass parameters (but don't group them), this is messy and error prone, too many arguments, hard to maintain.
+If you only do option 2 (pass parameters, but don't group them), you end up with messy, error-prone code that's hard to maintain:
 
-::: {.python-content}
 ```{.python}
 # BAD: Parameters are passed but disorganized
 def simulate(interarrival_time, consultation_time, transfer_prob, ...):
     # 10+ parameters? Hard to track!
     ...
 ```
+
+<br>
+
+There are three implementation options: **dictionary**, **function** or **class**.
+
+<br>
+
+### Using a dictionary
+
+::: {.python-content}
+```{.python}
+base_params = {
+    "interarrival_time": 5,
+    "consultation_time": 20,
+    "transfer_prob": 0.3,
+}
+
+# Create a scenario by copying and tweaking only what's needed
+scenario1 = base_params.copy()
+scenario1["interarrival_time"] = 6
+scenario2 = base_params.copy()
+scenario2["transfer_prob"] = 0.4
+```
 :::
 
 <br>
 
-## Bonus consideration:
+### Using a function
 
-the danger of not actually having behaviour expected for scenarios if use wrong parameter names.
+::: {.python-content}
+```{.python}
+def create_params(interarrival_time=5, consultation_time=20, transfer_prob=0.3):
+    return {
+        "interarrival_time": interarrival_time,
+        "consultation_time": consultation_time,
+        "transfer_prob": transfer_prob
+    }
 
-can either check in the model function
+base_params = create_params()
+scenario1 = create_params(interarrival_time=6)
+scenario2 = create_params(transfer_prob=0.4)
+```
+:::
 
-or if you use class, can check direct there
+<br>
+
+### Using a class
+
+::: {.python-content}
+```{.python}
+class Parameters:
+    def __init__(self, interarrival_time=5, consultation_time=20, transfer_prob=0.3):
+        self.interarrival_time = interarrival_time
+        self.consultation_time = consultation_time
+        self.transfer_prob = transfer_prob
+
+    def __repr__(self):
+        return (f"Parameters(interarrival_time={self.interarrival_time}, "
+                f"consultation_time={self.consultation_time}, "
+                f"transfer_prob={self.transfer_prob})")
+
+# Base case
+base_params = Parameters()
+
+# Scenario 1: Only change interarrival_time
+scenario1 = Parameters(interarrival_time=6)
+
+# Scenario 2: Only change transfer_prob
+scenario2 = Parameters(transfer_prob=0.4)
+```
+:::
+
+<br>
+
+### Which option is best?
+
+The **most robust** approach is to use a **function or class** to manage your parameters.
+
+* ✅ **Functions and classes** make it easy to create variations for different scenarios, since you simply change the inputs when you define a new scenario. For example, you can create a new scenario by only specifying the parameter you want to change, while all other parameters remain at their default values.
+* ❌ With a **dictionary**, you have to make a copy of the base dictionary and then manually change individual values for each scenario. This can become cumbersome as the number of parameters or scenarios grows - and is just a bit more clunky!
+
+Your choice may be further informed by options for parameter validation, where classes can be superior as you can incorporate validation within the class, as discussed below in the section "@sec-parameters-validation".
+
+<br>
+
+## Handling a large number of parameters
+
+### Using functions
+
+can do all in one
+
+```{.python}
+def create_params(
+    adult_interarrival=5, adult_consultation=20, adult_transfer=0.3,
+    child_interarrival=7, child_consultation=15, child_transfer=0.2,
+    elderly_interarrival=10, elderly_consultation=30, elderly_transfer=0.5
+):
+    return {
+        "adult": {
+            "interarrival_time": adult_interarrival,
+            "consultation_time": adult_consultation,
+            "transfer_prob": adult_transfer
+        },
+        "child": {
+            "interarrival_time": child_interarrival,
+            "consultation_time": child_consultation,
+            "transfer_prob": child_transfer
+        },
+        "elderly": {
+            "interarrival_time": elderly_interarrival,
+            "consultation_time": elderly_consultation,
+            "transfer_prob": elderly_transfer
+        }
+    }
+```
+
+can do as separate
+
+```{.python}
+def create_arrivals(adult=5, child=7, elderly=10):
+    return {
+        "adult": adult,
+        "child": child,
+        "elderly": elderly
+    }
+
+def create_consultations(adult=20, child=15, elderly=30):
+    return {
+        "adult": adult,
+        "child": child,
+        "elderly": elderly
+    }
+
+def create_transfers(adult=0.3, child=0.2, elderly=0.5):
+    return {
+        "adult": adult,
+        "child": child,
+        "elderly": elderly
+    }
+
+def create_parameters(
+    arrivals=create_arrivals(),
+    consultations=create_consultations(),
+    transfers=create_transfers()
+):
+    return {
+        "arrivals": arrivals,
+        "consultations": consultations,
+        "transfers": transfers
+    }
+```
+
+### Using classes
+
+seperate means its simpler with the inputs and stuff, just adult child elderly
+also, if doing validation, can do for each subclass
+
+```{.python}
+class Arrivals:
+    def __init__(self, adult=5, child=7, elderly=10):
+        self.adult = adult
+        self.child = child
+        self.elderly = elderly
+
+
+class Consultations:
+    def __init__(self, adult=20, child=15, elderly=30):
+        self.adult = adult
+        self.child = child
+        self.elderly = elderly
+
+
+class Transfers:
+    def __init__(self, adult=0.3, child=0.2, elderly=0.5):
+        self.adult = adult
+        self.child = child
+        self.elderly = elderly
+
+
+class Parameters():
+    def __init__(
+        self,
+        arrivals=Arrivals(),
+        consultations=Consultations(),
+        transfers=Transfers()
+    ):
+        self.arrivals = arrivals
+        self.consultations = consultations
+        self.transfers = transfers
+```
+
+<br>
+
+## Bonus consideration: {#sec-parameters-validation}
+
+need to be careful of thinking have changed parameter value when actually haven't
+
+using dict; could just add new param when think it is getting replaced
+
+by setting parameters as inputs to function and class, this prevents those mistakes
+
+BUT you could still have this issue after... either replacing in the dict directly that came from function... or in the class attributes directly
+
+hence, still important to have validation of parameters provided, to check all complete, no extras, and so on.
+
+for functions, this is done in model code, as if you did it in function, changes could be made to dict between making it with function and using it
+
+for classes, can do it direct in class, anytime try to update an attribute, which is preferable approach
+you then have two options:
+- directly in class
+- super class
 
 <br>
 
 ## Full code
+
+for the @sec-examples... parameter bits from those... copy in full to have the parameters for models examples...
+
+nurse visit simulation does classes, with validation directly in class
+
+stroke pathway simulation has more parma so multiple classes combined, with validation from super class
 
 <details>
 <summary>Show/Hide example 1: Nurse visit simulation</summary>
@@ -969,3 +1114,13 @@ class Param(RestrictAttributes):
 </details>
 
 ---
+
+<br>
+
+## Summary
+
+use function or class
+
+feed that as input to model
+
+validation in the model code (for functions) or within class (either direct within or super class)
