@@ -219,10 +219,19 @@ Your choice may be further informed by options for parameter validation, where c
 
 ## Handling a large number of parameters
 
-### Using functions
+You may need to manage many parameters - for example, if you have several patient types and/or units each with their own arrival times, resource times, and so on.
 
-can do all in one
+We have suggested a few strategies you could use...
 
+<br>
+
+### Using a single function or class for all parameters
+
+This can be convenient for smaller models, though can get unwieldly as the number of parameters grow, including potentially quick long parameter names!
+
+Function example:
+
+::: {.python-content}
 ```{.python}
 def create_params(
     adult_interarrival=5, adult_consultation=20, adult_transfer=0.3,
@@ -247,9 +256,47 @@ def create_params(
         }
     }
 ```
+:::
 
-can do as separate
+Class example:
 
+::: {.python-content}
+```{.python}
+class Parameters:
+    def __init__(
+        self,
+        adult_interarrival=5, adult_consultation=20, adult_transfer=0.3,
+        child_interarrival=7, child_consultation=15, child_transfer=0.2,
+        elderly_interarrival=10, elderly_consultation=30, elderly_transfer=0.5
+    ):
+        # Adult parameters
+        self.adult_interarrival = adult_interarrival
+        self.adult_consultation = adult_consultation
+        self.adult_transfer = adult_transfer
+        # Child parameters
+        self.child_interarrival = child_interarrival
+        self.child_consultation = child_consultation
+        self.child_transfer = child_transfer
+        # Elderly parameters
+        self.elderly_interarrival = elderly_interarrival
+        self.elderly_consultation = elderly_consultation
+        self.elderly_transfer = elderly_transfer
+```
+:::
+
+<br>
+
+### Using multiple functions or classes
+
+Alternatively, you can split parameters into logical groups (e.g. patient type, parameter type), each with it's own function or class. These are then combined into single parameter set.
+
+With a large number of parameters, this keeps each individual function/class simpler.
+seperate means its simpler with the inputs and stuff, just adult child elderly
+also, if doing validation, can do for each subclass
+
+Function example:
+
+::: {.python-content}
 ```{.python}
 def create_arrivals(adult=5, child=7, elderly=10):
     return {
@@ -283,11 +330,12 @@ def create_parameters(
         "transfers": transfers
     }
 ```
+:::
 
-### Using classes
+Class example:
 
-seperate means its simpler with the inputs and stuff, just adult child elderly
-also, if doing validation, can do for each subclass
+::: {.python-content}
+:::
 
 ```{.python}
 class Arrivals:
@@ -325,24 +373,140 @@ class Parameters():
 
 <br>
 
-## Bonus consideration: {#sec-parameters-validation}
+## Parameter validation {#sec-parameters-validation}
 
-need to be careful of thinking have changed parameter value when actually haven't
+<!--TODO: i feel like this could be moved onto its own page, labelled optional there... but then run into issue with full code, and where put that full code... do i show full code without validation on param management, then add validation on param validation page? think about how i'm going to maintain all this too... changes to the full code source code... etc.-->
 
-using dict; could just add new param when think it is getting replaced
+> This is not necessary to reproducibility or a reproducible analytical pipeline, but is good practice when working, and may help avoid mistakes.
 
-by setting parameters as inputs to function and class, this prevents those mistakes
+Accidental parameter changes or typos can **silently** invalidate your results.
 
-BUT you could still have this issue after... either replacing in the dict directly that came from function... or in the class attributes directly
+For example, mistyping `transfer_prob` as `transfer_probs` in a dictionary creates a **new, unused parameter** instead of raising an error.
 
-hence, still important to have validation of parameters provided, to check all complete, no extras, and so on.
+When you use function or class, they will prevent this error during set up (i.e. when provide arguments to both), but you can still run into this issue, if you alter the dictionary from function, or alter the class attributes.
+
+in each of examples below, have just add a new param called transfer_probs, and `transfer_prob` remains 0.3.
+we dont get an error message, but unbenownst to us, simulation still uses 0.3.
+
+```{.python}
+# Function example
+params = create_params()
+params["transfer_probs"] = 0.4
+
+# Class example
+params = Parameters()
+params.transfer_probs = 0.4
+```
+
+There are two solutions to this, depending on whether you use functions or classes:
+
+* For functions, parameter validation within simulation functions
+* For classes, parameter validation within class
+
+Validation in class preferable as at point of defining param, all in one place. But both good options
+
+<br>
+
+### Parameter validation within the simulation functions
 
 for functions, this is done in model code, as if you did it in function, changes could be made to dict between making it with function and using it
+
+<br>
+
+### Parameter validation within the class
+
+Prevent typos and unauthorised changes by locking down classes after initialisation.
 
 for classes, can do it direct in class, anytime try to update an attribute, which is preferable approach
 you then have two options:
 - directly in class
+
+```{.python}
+class Param:
+    def __init__(self, ...):
+        # Disable restriction on attribute modification during initialisation
+        object.__setattr__(self, '_initialising', True)
+
+        ...
+
+        # Re-enable attribute checks after initialisation
+        object.__setattr__(self, '_initialising', False)
+
+    def __setattr__(self, name, value):
+        # Skip the check if the object is still initialising
+        # pylint: disable=maybe-no-member
+        if hasattr(self, '_initialising') and self._initialising:
+            super().__setattr__(name, value)
+        else:
+            # Check if attribute of that name is already present
+            if name in self.__dict__:
+                super().__setattr__(name, value)
+            else:
+                raise AttributeError(
+                    f'Cannot add new attribute "{name}" - only possible to ' +
+                    f'modify existing attributes: {self.__dict__.keys()}')
+```
+
 - super class
+
+```{.python}
+class RestrictAttributesMeta(type):
+    """
+    Metaclass for attribute restriction.
+
+    A metaclass modifies class construction. It intercepts instance creation
+    via __call__, adding the _initialised flag after __init__ completes. This
+    is later used by RestrictAttributes to enforce attribute restrictions.
+    """
+    def __call__(cls, *args, **kwargs):
+        # Create instance using the standard method
+        instance = super().__call__(*args, **kwargs)
+        # Set the "_initialised" flag to True, marking end of initialisation
+        instance.__dict__["_initialised"] = True
+        return instance
+
+
+class RestrictAttributes(metaclass=RestrictAttributesMeta):
+    """
+    Base class that prevents the addition of new attributes after
+    initialisation.
+
+    This class uses RestrictAttributesMeta as its metaclass to implement
+    attribute restriction. It allows for safe initialisation of attributes
+    during the __init__ method, but prevents the addition of new attributes
+    afterwards.
+
+    The restriction is enforced through the custom __setattr__ method, which
+    checks if the attribute already exists before allowing assignment.
+    """
+    def __setattr__(self, name, value):
+        """
+        Prevent addition of new attributes.
+
+        Parameters
+        ----------
+        name: str
+            The name of the attribute to set.
+        value: any
+            The value to assign to the attribute.
+
+        Raises
+        ------
+        AttributeError
+            If `name` is not an existing attribute and an attempt is made
+            to add it to the class instance.
+        """
+        # Check if the instance is initialised and the attribute doesn"t exist
+        if hasattr(self, "_initialised") and not hasattr(self, name):
+            # Get a list of existing attributes for the error message
+            existing = ", ".join(self.__dict__.keys())
+            raise AttributeError(
+                f"Cannot add new attribute '{name}' - only possible to " +
+                f"modify existing attributes: {existing}."
+            )
+        # If checks pass, set the attribute using the standard method
+        object.__setattr__(self, name, value)
+```
 
 <br>
 
@@ -353,6 +517,8 @@ for the @sec-examples... parameter bits from those... copy in full to have the p
 nurse visit simulation does classes, with validation directly in class
 
 stroke pathway simulation has more parma so multiple classes combined, with validation from super class
+
+---
 
 <details>
 <summary>Show/Hide example 1: Nurse visit simulation</summary>
