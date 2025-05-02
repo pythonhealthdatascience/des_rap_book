@@ -1,0 +1,138 @@
+# Parameter validation {#sec-param_validation}
+
+{{< include ../../scripts/language-selector.html >}}
+
+<!--TODO: i feel like this could be moved onto its own page, labelled optional there... but then run into issue with full code, and where put that full code... do i show full code without validation on param management, then add validation on param validation page? think about how i'm going to maintain all this too... changes to the full code source code... etc.-->
+
+> This is not necessary to reproducibility or a reproducible analytical pipeline, but is good practice when working, and may help avoid mistakes.
+
+Accidental parameter changes or typos can **silently** invalidate your results.
+
+For example, mistyping `transfer_prob` as `transfer_probs` in a dictionary creates a **new, unused parameter** instead of raising an error.
+
+When you use function or class, they will prevent this error during set up (i.e. when provide arguments to both), but you can still run into this issue, if you alter the dictionary from function, or alter the class attributes.
+
+in each of examples below, have just add a new param called transfer_probs, and `transfer_prob` remains 0.3.
+we dont get an error message, but unbenownst to us, simulation still uses 0.3.
+
+```{.python}
+# Function example
+params = create_params()
+params["transfer_probs"] = 0.4
+
+# Class example
+params = Parameters()
+params.transfer_probs = 0.4
+```
+
+There are two solutions to this, depending on whether you use functions or classes:
+
+* For functions, parameter validation within simulation functions
+* For classes, parameter validation within class
+
+Validation in class preferable as at point of defining param, all in one place. But both good options
+
+<br>
+
+## Parameter validation within the simulation functions
+
+for functions, this is done in model code, as if you did it in function, changes could be made to dict between making it with function and using it
+
+<br>
+
+## Parameter validation within the class
+
+Prevent typos and unauthorised changes by locking down classes after initialisation.
+
+for classes, can do it direct in class, anytime try to update an attribute, which is preferable approach
+you then have two options:
+- directly in class
+
+```{.python}
+class Param:
+    def __init__(self, ...):
+        # Disable restriction on attribute modification during initialisation
+        object.__setattr__(self, '_initialising', True)
+
+        ...
+
+        # Re-enable attribute checks after initialisation
+        object.__setattr__(self, '_initialising', False)
+
+    def __setattr__(self, name, value):
+        # Skip the check if the object is still initialising
+        # pylint: disable=maybe-no-member
+        if hasattr(self, '_initialising') and self._initialising:
+            super().__setattr__(name, value)
+        else:
+            # Check if attribute of that name is already present
+            if name in self.__dict__:
+                super().__setattr__(name, value)
+            else:
+                raise AttributeError(
+                    f'Cannot add new attribute "{name}" - only possible to ' +
+                    f'modify existing attributes: {self.__dict__.keys()}')
+```
+
+- super class
+
+```{.python}
+class RestrictAttributesMeta(type):
+    """
+    Metaclass for attribute restriction.
+
+    A metaclass modifies class construction. It intercepts instance creation
+    via __call__, adding the _initialised flag after __init__ completes. This
+    is later used by RestrictAttributes to enforce attribute restrictions.
+    """
+    def __call__(cls, *args, **kwargs):
+        # Create instance using the standard method
+        instance = super().__call__(*args, **kwargs)
+        # Set the "_initialised" flag to True, marking end of initialisation
+        instance.__dict__["_initialised"] = True
+        return instance
+
+
+class RestrictAttributes(metaclass=RestrictAttributesMeta):
+    """
+    Base class that prevents the addition of new attributes after
+    initialisation.
+
+    This class uses RestrictAttributesMeta as its metaclass to implement
+    attribute restriction. It allows for safe initialisation of attributes
+    during the __init__ method, but prevents the addition of new attributes
+    afterwards.
+
+    The restriction is enforced through the custom __setattr__ method, which
+    checks if the attribute already exists before allowing assignment.
+    """
+    def __setattr__(self, name, value):
+        """
+        Prevent addition of new attributes.
+
+        Parameters
+        ----------
+        name: str
+            The name of the attribute to set.
+        value: any
+            The value to assign to the attribute.
+
+        Raises
+        ------
+        AttributeError
+            If `name` is not an existing attribute and an attempt is made
+            to add it to the class instance.
+        """
+        # Check if the instance is initialised and the attribute doesn"t exist
+        if hasattr(self, "_initialised") and not hasattr(self, name):
+            # Get a list of existing attributes for the error message
+            existing = ", ".join(self.__dict__.keys())
+            raise AttributeError(
+                f"Cannot add new attribute '{name}' - only possible to " +
+                f"modify existing attributes: {existing}."
+            )
+        # If checks pass, set the attribute using the standard method
+        object.__setattr__(self, name, value)
+```
+
+<br>
