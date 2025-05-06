@@ -1,3 +1,170 @@
 # Input data management {#sec-input_data}
 
-<!--TODO; may not be able to share input data, but if do, here's some rules to follow... could make some synthetic raw data, and use that for the models parameters in my templates... then demonstrate how to store... data dictionary etc... if can't share externally, input data management still important internally for reproducibility and RAP...-->
+To construct a discrete-event simulation (DES), you first need **data** that reflects the system you want to model. In healthcare, this might mean you need to access healthcare records with patient arrival, service and departure times, for example. The quality of your simulation depends directly on the quality of your data. Key considerations include:
+
+* **Accuracy**. Inaccurate data leads to inaccurate simulation results.
+* **Sample size**. Small samples can give misleading results if they capture unusual periods, lack variability, or are affected by outliers.
+* **Level of detail**. The data must be granular enough for your needs. For example, daily totals are insufficient if you want to model hourly arrivals.
+* **Representative**. The data should reflect the current system. For instance, data from the COVID-19 period may not represent typical operations.
+
+From this raw data, you calculate **parameters** such as the mean patient inter-arrival time or average length of stay. These parameters are used in the model - but not as fixed intervals. For example the model wouldn't have a patient arriving exactly every fix minutes.
+
+This is because DES models are **stochastic**, which means they incorporate random variation, to reflect the inherent variability of real-world systems. To achieve this, the data are fit to probability distributions (e.g. exponential, lognormal, gamma) and then the simulation samples from these distributions to generate events.
+
+<br>
+
+## Ensuring a reproducible analytical pipeline
+
+Your reproducible analytical pipeline (RAP) should start from the **earliest data you access** - either with raw data (if you estimate parameters yourself) or with pre-defined parameters (if those are supplied). This ensures that every step in your process is transparent and reproducible. For example, if you obtain updated raw data, you can re-estimate parameters, check that your chosen distributions are still appropriate, and re-run the simulation.
+
+**External sharing of the full RAP may not always be possible**. In healthcare simulations, the raw data may be sensitive or identifiable, and so cannot be shared due to privacy or ethical concerns. However, mainintaing a complete RAP internally is still essential for your **team or organisation** to ensure that the process is fully reproducible.
+
+There are a few key files to consider for your RAP:
+
+* Raw data
+* Parameter estimation scripts
+* Distribution fitting scripts
+* Parameters
+
+<br>
+
+### Raw data
+
+This is data which reflects system you will be simulating. It is used to estimate parameters and fit distributions for your simulation model. For example:
+
+| ARRIVAL_DATE | ARRIVAL_TIME | SERVICE_DATE | SERVICE_TIME | DEPARTURE_DATE | DEPARTURE_TIME |
+|--------------|--------------|--------------|--------------|----------------|----------------|
+| 2025-01-01   | 0001         | 2025-01-01   | 0007         | 2025-01-01     | 0012           |
+| 2025-01-01   | 0002         | 2025-01-01   | 0004         | 2025-01-01     | 0007           |
+| 2025-01-01   | 0003         | 2025-01-01   | 0010         | 2025-01-01     | 0030           |
+| 2025-01-01   | 0007         | 2025-01-01   | 0014         | 2025-01-01     | 0022           |
+
+#### Internal management of raw data
+
+You should either keep copies of the raw data or, if the data is in a secure database or very large, and cannot be exported, clearly describe how to access it (including the database location, access permissions, and navigation instructions).
+
+For both options, you should also document when you obtained the data, and relevant metadata (e.g. time period the data covers, number of records, any known issues or missing data). For example:
+
+> "Data sourced from the XYZ database. Copies are available in this repository, or, to access directly, log in to the XYZ database and navigate to [path/to/data].
+> Data covers January 2012 to December 2017, with [number] records. Note: [details on missing data, known issues, etc.].
+> A copy of the data dictionary is available in the repository or online at [URL]."
+
+You should keep a copy of the **data dictionary**. A data dictionary describes each field, its format, units, and any coding schemes used. If one is not provided for your data, then you should create your own, to ensure the raw data used for your simulation is clear and understandable. For example:
+
+| Field          | Field name                  | Format           | Description                                           |
+|----------------|----------------------------|------------------|-------------------------------------------------------|
+| ARRIVAL_DATE   | CLINIC ARRIVAL DATE        | Date(CCYY-MM-DD) | The date on which the patient arrived at the clinic   |
+| ARRIVAL_TIME   | CLINIC ARRIVAL TIME        | Time(HH:MM)      | The time at which the patient arrived at the clinic   |
+| DEPARTURE_DATE | CLINIC DEPARTURE DATE      | Date(CCYY-MM-DD) | The date on which the patient left the clinic         |
+| DEPARTURE_TIME | CLINIC DEPARTURE TIME      | Time(HH:MM)      | The time at which the patient left the clinic         |
+| SERVICE_DATE   | NURSE SERVICE START DATE   | Date(CCYY-MM-DD) | The date on which the nurse consultation began        |
+| SERVICE_TIME   | NURSE SERVICE START TIME   | Time(HH:MM)      | The time at which the nurse consultation began        |
+
+#### Sharing raw data
+
+If you are able to **share raw data externally**:
+
+* ☑️ Make the data **openly** available, following **FAIR** principles (Findable, Accessible, Interoperable, Reusable).
+
+* ☑️ Include a **data dictionary**.
+
+* ☑️ **Deposit** the data in a trusted public archive (e.g., Zenodo, Figshare) or a code/data repository (e.g., GitHub, GitLab).
+
+* ☑️ Include an open data **licence** (e.g., CC0, CC-BY) to clarify usage rights and restrictions.
+
+* ☑️ Provide a clear **citation** or DOI for others to reference.
+
+If you **cannot share raw data**:
+
+* ☑️ In documentation (e.g. `README.md`), **describe** the dataset (e.g. "*Patient records from XYZ database, covering 2012–2017, with fields for arrival, service, and departure times.*").
+
+* ☑️ If possible, share the **data dictionary** to demonstrate the structure and content of the dataset.
+
+* ☑️ Consider providing a **synthetic dataset** that mimics the structure and format of the real data. This allows others to understand the data layout and run processing scripts without exposing sensitive information.
+
+* ☑️ Explain the **access restrictions** for the dataset, and provide relevant contacts (e.g. "*Access to the dataset is restricted due to patient confidentiality. Researchers interested in accessing the data must submit a data access request to the XYZ Data Governance Committee. For more information, contact data.manager@xyz.org.*").
+
+<br>
+
+### Parameter estimation scripts
+
+<!--TODO:
+If you are estimating parameters yourself from raw data, then use programming language to process
+Have your scripts.
+Share them with your code ideally.
+
+EXAMPLE:
+
+```
+```
+
+Internally, make sure to share them regradless.
+
+Externtally, either
+- share (may be possible even for sensitive data as nothing in script to give it away)
+- describe processing (may be as simple as just "took mean of this and that" or may need more description for complex processing etc)
+-->
+
+<br>
+
+### Distribution fitting scripts
+
+<!--TODO:
+need to fit to distributions. a few ways to do this.
+
+PYTHON EXAMPLE:
+
+R EXAMPLE:
+
+Sharing: as with parameter estimation.
+-->
+
+<br>
+
+### Parameters
+
+<!--TODO:
+If parameters were not calculated by you but from someone else, clearly state source and any relevant processing steps know about.
+
+Sharing parameters is crucial, non optional. Must share some parameters, as without others cannot run model.
+
+Can be stored in CSV files or defined directly in scripts.
+
+could structure various ways... wide... long... etc.
+
+EXAMPLE DATA
+EXAMPLE DICTIONARY
+
+If real parameters can't be shared, must provide synthetic (fake but structually similar) parameters to enable model execution.
+could just have synthetic param or also pipeline with synthetic data at start etc.
+
+when sharing:
+* open, fair, github, archive, data dictionary
+--->
+
+<br>
+
+## Maintaing a private and public version of your model
+
+<!--TODO:
+healthcare sim likely to not be able to do raw all from scratch although maybe if non identfiaible
+but otherwise, mataining full internal, restricted external
+provided adivce on this
+
+e.g. there is gitignore but for sensitive stuff this could be a concern
+can have two repos
+give other options
+--->
+
+<br>
+
+## Further resources
+
+https://journals.sagepub.com/doi/full/10.1177/2515245920928007
+https://help.osf.io/article/217-how-to-make-a-data-dictionary
+
+https://open-science-training-handbook.github.io/Open-Science-Training-Handbook_EN/02OpenScienceBasics/02OpenResearchDataAndMaterials.html
+
+https://caltechlibrary.github.io/RDMworkbook/
+
+https://ddialliance.org/
