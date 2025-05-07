@@ -1,5 +1,169 @@
+---
+bibliography: input_data_resources/references.bib
+---
+
 # Input modelling {#sec-input_modelling}
 
 {{< include ../../scripts/language-selector.html >}}
 
+:::{.pale-blue}
+This page has step-by-step instructions for input modelling in Python or R. For advice on making your input modelling workflow reproducible and sharing data or scripts with sensitive content, see @sec-input_data.
+:::
+
 <!--TODO: seperate input_data.qmd into stuff about sharing and storing data and scripts, and then stuff about how to do input modelling. at top of each page, mention the other (say this is about sharing and storing - for how to do see :, and then also, this is about how to do input modelling in python and r, for sharing and storing these files, see:-->
+
+To construct a discrete-event simulation (DES), you first need **data** that reflects the system you want to model. In healthcare, this might mean you need to access healthcare records with patient arrival, service and departure times, for example. The quality of your simulation depends directly on the quality of your data. Key considerations include:
+
+* **Accuracy**. Inaccurate data leads to inaccurate simulation results.
+* **Sample size**. Small samples can give misleading results if they capture unusual periods, lack variability, or are affected by outliers.
+* **Level of detail**. The data must be granular enough for your needs. For example, daily totals may be insufficient if you want to model hourly arrivals (although may still be possible if know distribution - see @sec-input_data-fitting)
+* **Representative**. The data should reflect the current system. For instance, data from the COVID-19 period may not represent typical operations.
+
+From this raw data, you calculate **parameters** such as the mean patient inter-arrival time or average length of stay. These parameters are used in the model - but not as fixed intervals. For example the model wouldn't have a patient arriving exactly every fix minutes.
+
+This is because DES models are **stochastic**, which means they incorporate random variation, to reflect the inherent variability of real-world systems. To achieve this, the data are fit to probability distributions (e.g. exponential, lognormal, gamma) and then the simulation samples from these distributions to generate events.
+
+![](input_data_resources/samples.png)
+
+<br>
+
+This section is written with credit to @Robinson2007 and @Monks2024.
+
+When selecting appropriate statistical distributions for you model, one approach is to **base your choice on the known properties of the process being modelled**. This is useful when you have limited data - for example, only summary statistics like the mean. Some common distributions in healthcare simulation:
+
+* **Arrivals**: Random independent arrivals are often modelled with the Poisson distribution, whilst their inter-arrival times are modelled using an exponential distribution (@Pishro-Nik2014).
+* **Length of stay**: Length of stay is commonly right skewed (@Lee2003), and so will often be modelled with distributions like exponential, gamma, log-normal (for log-transformed length of stay) or Weibull.
+
+However, it is possible that these are not accurate reflections, if the process deviates from your assumptions or has unique features not captured by the distribution. As such, if you have access to sufficient data, it is good to **fit distributions on your data**, when determining which to use. You can either do this manually or use provided tools.
+
+#### Manually fitting distributions
+
+When doing it manually, you first need to select some candidate distributions to fit to your data. You should both:
+
+* Consider the known properties of the process being modelled (as above), and-
+* Inspect the data by plotting a histogram.
+
+<br>
+
+This example uses **synthetic arrival data** from the nurse visit simulation (@sec-examples) - so, based on the known properties, we'd assume exponential could be a good choice - but we'll inspect the data too. First, we load the relevant data.
+
+::: {.python-content}
+
+```{python}
+import pandas as pd
+import plotly.express as px
+
+# Import data
+data = pd.read_csv("../../data/NHS_synthetic.csv", dtype={
+    "ARRIVAL_TIME": str,
+    "SERVICE_TIME": str,
+    "DEPARTURE_TIME": str
+})
+
+# Preview data
+data.head()
+```
+
+<br>
+
+Many distributions assume data is **stationary** - i.e. no trends or sudden changes. Hence, we first plot the data as a time series to check if it is stationary - as, if not, certain periods may need to be excluded or modelled separately.
+
+```{python}
+# Define names
+date_col = "Date"
+arrivals_col = "Number of arrivals"
+
+# Plot daily arrivals
+daily_series = data.groupby(by=["ARRIVAL_DATE"]).size()
+daily_df = daily_series.reset_index(name=arrivals_col).rename(
+    columns={"ARRIVAL_DATE": date_col}
+)
+
+fig = px.line(daily_df, x=date_col, y=arrivals_col)
+fig.update_layout(showlegend=False, width=700, height=400)
+fig.show()
+```
+
+<br>
+
+We can then plot a histogram of our data. <!--TODO: add distplot... https://plotly.com/python/distplot/... requires addition of scipy to environment-->
+
+```{python}
+# Plot histogram of daily arrivals
+fig = px.histogram(daily_df, x=arrivals_col)
+fig.update_layout(xaxis_title="Arrivals per day", showlegend=False)
+fig.show()
+```
+
+This looks quite normally distributed.
+
+```{python}
+# Combine date/time and convert to datetime
+data["arrival_datetime"] = pd.to_datetime(
+    data["ARRIVAL_DATE"] + " " + data["ARRIVAL_TIME"].str.zfill(4),
+    format="%Y-%m-%d %H%M"
+)
+
+# Sort by arrival time and calculate inter-arrival times
+data_sorted = data.sort_values("arrival_datetime")
+data_sorted["iat_mins"] = (
+    data_sorted["arrival_datetime"].diff().dt.total_seconds() / 60
+)
+
+# Plot histogram of inter-arrival times
+fig = px.histogram(data_sorted, x="iat_mins")
+fig.update_layout(xaxis_title="Inter-arrival time (min)", showlegend=False)
+fig.update_traces(
+    hovertemplate="Inter-arrival time: %{x} min<br>Count: %{y}"
+)
+fig.show()
+```
+
+These are right skewed, so some candidates could be exponential, gamma, log-normal and Weibull.
+
+<!--TODO:which you plot? how you know? etc?-->
+<!--
+:::
+
+::: {.r-content}
+
+```{.r}
+library(readr)
+
+data <- read_csv("../../data/NHS_synthetic.csv")
+
+head(data)
+```
+
+:::
+
+<br>
+
+Next, calculate the parameters required for each of your chosen distributions.
+
+Then... using graphs or statistical tests. with graphs, you compare data hist to hist of the distribution (which you make by sampling from distribution and placing on "same cell ranges"??? as the empirical data) (OR you make by finding freq from cum. dist functions for proposed distributions??? % obs in cell range) BUT these are quite influenced by cell range so important to do a few cell widths ALSO if <30 samples hist not smooth... so then there is p-p plot... and q-q plot...then for stats there is ch-square test... also kolmogorov-smirnov.., and assess goodness of fit.
+
+
+#### Using a tool to test distributions
+
+* fitter: <https://medium.com/the-researchers-guide/finding-the-best-distribution-that-fits-your-data-using-pythons-fitter-library-319a5a0972e9>
+* distfit: <https://www.kdnuggets.com/2021/09/determine-best-fitting-data-distribution-python.html> amd <https://github.com/erdogant/distfit>
+* manually/stats: <https://medium.com/@sigari.salman/discovering-the-best-fit-probability-distribution-for-your-data-a14c0e8d762>
+* Mike's auto_fit: <https://github.com/health-data-science-OR/stochastic_systems/blob/master/labs/simulation/lab3/input_modelling/fitting.py> and <https://github.com/health-data-science-OR/stochastic_systems/blob/master/labs/simulation/lab3/sim_lab3_autofit_intro.ipynb>
+
+::: {.python-content}
+
+```{python}
+
+```
+
+:::
+-->
+<br>
+
+## Further information
+
+* "[Simulation modelling for stochastic systems lab 3](https://github.com/health-data-science-OR/stochastic_systems/tree/master/labs/simulation/lab3)" from Tom Monks 2024.
+* "Chapter 7: Data Collection and Analysis" from "Simulation: The Practice of Model Development and Use" by Stewart Robinson 2007.
+
+## References
