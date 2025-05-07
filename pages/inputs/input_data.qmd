@@ -1,3 +1,9 @@
+---
+format:
+  html:
+    css: input_data_files/styles.css
+---
+
 # Input data management {#sec-input_data}
 
 To construct a discrete-event simulation (DES), you first need **data** that reflects the system you want to model. In healthcare, this might mean you need to access healthcare records with patient arrival, service and departure times, for example. The quality of your simulation depends directly on the quality of your data. Key considerations include:
@@ -10,6 +16,8 @@ To construct a discrete-event simulation (DES), you first need **data** that ref
 From this raw data, you calculate **parameters** such as the mean patient inter-arrival time or average length of stay. These parameters are used in the model - but not as fixed intervals. For example the model wouldn't have a patient arriving exactly every fix minutes.
 
 This is because DES models are **stochastic**, which means they incorporate random variation, to reflect the inherent variability of real-world systems. To achieve this, the data are fit to probability distributions (e.g. exponential, lognormal, gamma) and then the simulation samples from these distributions to generate events.
+
+![](input_data_files/samples.png)
 
 <br>
 
@@ -26,11 +34,15 @@ There are a few key files to consider for your RAP:
 * Distribution fitting scripts
 * Parameters
 
+![](input_data_files/input_files.png)
+
 <br>
 
 ### Raw data
 
 This is data which reflects system you will be simulating. It is used to estimate parameters and fit distributions for your simulation model. For example:
+
+::: {.grey-table}
 
 | ARRIVAL_DATE | ARRIVAL_TIME | SERVICE_DATE | SERVICE_TIME | DEPARTURE_DATE | DEPARTURE_TIME |
 |--------------|--------------|--------------|--------------|----------------|----------------|
@@ -39,17 +51,21 @@ This is data which reflects system you will be simulating. It is used to estimat
 | 2025-01-01   | 0003         | 2025-01-01   | 0010         | 2025-01-01     | 0030           |
 | 2025-01-01   | 0007         | 2025-01-01   | 0014         | 2025-01-01     | 0022           |
 
+:::
+
 #### Internal management of raw data
 
-You should either keep copies of the raw data or, if the data is in a secure database or very large, and cannot be exported, clearly describe how to access it (including the database location, access permissions, and navigation instructions).
+You should either keep **copies of the raw data** or, if the data is in a secure database or very large, and cannot be exported, clearly **describe how to access it** (including the database location, access permissions, and navigation instructions).
 
-For both options, you should also document when you obtained the data, and relevant metadata (e.g. time period the data covers, number of records, any known issues or missing data). For example:
+For both options, you should also document **when** you obtained the data, and relevant **metadata** (e.g. time period the data covers, number of records, any known issues or missing data). For example:
 
 > "Data sourced from the XYZ database. Copies are available in this repository, or, to access directly, log in to the XYZ database and navigate to [path/to/data].
 > Data covers January 2012 to December 2017, with [number] records. Note: [details on missing data, known issues, etc.].
 > A copy of the data dictionary is available in the repository or online at [URL]."
 
 You should keep a copy of the **data dictionary**. A data dictionary describes each field, its format, units, and any coding schemes used. If one is not provided for your data, then you should create your own, to ensure the raw data used for your simulation is clear and understandable. For example:
+
+::: {.grey-table}
 
 | Field          | Field name                  | Format           | Description                                           |
 |----------------|----------------------------|------------------|-------------------------------------------------------|
@@ -60,29 +76,39 @@ You should keep a copy of the **data dictionary**. A data dictionary describes e
 | SERVICE_DATE   | NURSE SERVICE START DATE   | Date(CCYY-MM-DD) | The date on which the nurse consultation began        |
 | SERVICE_TIME   | NURSE SERVICE START TIME   | Time(HH:MM)      | The time at which the nurse consultation began        |
 
+:::
+
 #### Sharing raw data
 
-If you are able to **share raw data externally**:
+**If you are able to share raw data externally**:
 
-* ☑️ Make the data **openly** available, following **FAIR** principles (Findable, Accessible, Interoperable, Reusable).
+:::{.pale-blue}
 
-* ☑️ Include a **data dictionary**.
+* ☑️ **Make the data openly available**, following FAIR principles (Findable, Accessible, Interoperable, Reusable).
 
-* ☑️ **Deposit** the data in a trusted public archive (e.g., Zenodo, Figshare) or a code/data repository (e.g., GitHub, GitLab).
+* ☑️ **Include a data dictionary**.
 
-* ☑️ Include an open data **licence** (e.g., CC0, CC-BY) to clarify usage rights and restrictions.
+* ☑️ **Deposit the data** in a trusted public archive (e.g., Zenodo, Figshare) or a code/data repository (e.g., GitHub, GitLab).
 
-* ☑️ Provide a clear **citation** or DOI for others to reference.
+* ☑️ **Include an open data licence** (e.g., CC0, CC-BY) to clarify usage rights and restrictions.
 
-If you **cannot share raw data**:
+* ☑️ **Provide a clear citation or DOI** for others to reference.
 
-* ☑️ In documentation (e.g. `README.md`), **describe** the dataset (e.g. "*Patient records from XYZ database, covering 2012–2017, with fields for arrival, service, and departure times.*").
+:::
 
-* ☑️ If possible, share the **data dictionary** to demonstrate the structure and content of the dataset.
+**If you cannot share raw data**:
 
-* ☑️ Consider providing a **synthetic dataset** that mimics the structure and format of the real data. This allows others to understand the data layout and run processing scripts without exposing sensitive information.
+:::{.pale-blue}
 
-* ☑️ Explain the **access restrictions** for the dataset, and provide relevant contacts (e.g. "*Access to the dataset is restricted due to patient confidentiality. Researchers interested in accessing the data must submit a data access request to the XYZ Data Governance Committee. For more information, contact data.manager@xyz.org.*").
+* ☑️ **Describe the dataset** in your documentation (e.g. "*Patient records from XYZ database, covering 2012–2017, with fields for arrival, service, and departure times.*").
+
+* ☑️ **Share the data dictionary** (if possible) to demonstrate the structure and content of the dataset.
+
+* ☑️ **Consider providing a synthetic dataset** that mimics the structure and format of the real data. This allows others to understand the data layout and run processing scripts without exposing sensitive information.
+
+* ☑️ **Explain the access restrictions** for the dataset, and provide relevant contacts (e.g. "*Access to the dataset is restricted due to patient confidentiality. Researchers interested in accessing the data must submit a data access request to the XYZ Data Governance Committee. For more information, contact data.manager@xyz.org.*").
+
+:::
 
 <br>
 
