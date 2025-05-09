@@ -4,32 +4,27 @@ format:
     css: input_data_resources/styles.css
 ---
 
-{{< include ../../scripts/language-selector.html >}}
-
 # Input data management {#sec-input_data}
 
 :::{.pale-blue}
 This page explains how to maintain a reproducible analytical pipeline for input modelling. It also provides guidance on what and how to share data and scripts externally when some materials are sensitive. For instructions on conducting input modelling, see @sec-input_modelling.
 :::
 
-<!--TODO: mention how its important to share stuff from this stage... doesn't often get mentioned... etc-->
+Your reproducible analytical pipeline (RAP) should **start from the earliest data you access** - either with raw data (if you estimate parameters yourself) or with pre-defined parameters (if those are supplied). This ensures that every step in your process is transparent and reproducible. For example, if you obtain updated raw data, you would be able to re-estimate parameters, check that your chosen distributions are still appropriate, and re-run the simulation.
 
-Your reproducible analytical pipeline (RAP) should start from the **earliest data you access** - either with raw data (if you estimate parameters yourself) or with pre-defined parameters (if those are supplied). This ensures that every step in your process is transparent and reproducible. For example, if you obtain updated raw data, you can re-estimate parameters, check that your chosen distributions are still appropriate, and re-run the simulation.
-
-**External sharing of the full RAP may not always be possible**. In healthcare simulations, the raw data may be sensitive or identifiable, and so cannot be shared due to privacy or ethical concerns. However, mainintaing a complete RAP internally is still essential for your **team or organisation** to ensure that the process is fully reproducible.
+**External sharing of the full RAP may not always be possible**. In healthcare simulations, the raw data may be sensitive or identifiable, and so cannot be shared due to privacy or ethical concerns. However, mainintaing a complete RAP **internally** is still essential for your **team or organisation** to ensure that the process is fully reproducible.
 
 There are a few key files to consider for your RAP:
 
 * Raw data
-* Parameter estimation scripts
-* Distribution fitting scripts
+* Input modelling code
 * Parameters
 
 ![](input_data_resources/input_files.png)
 
 <br>
 
-### Raw data
+### Raw data {#sec-input_data-raw}
 
 This is data which reflects system you will be simulating. It is used to estimate parameters and fit distributions for your simulation model. For example:
 
@@ -43,6 +38,8 @@ This is data which reflects system you will be simulating. It is used to estimat
 | 2025-01-01   | 0007         | 2025-01-01   | 0014         | 2025-01-01     | 0022           |
 
 :::
+
+<br>
 
 #### Internal management of raw data
 
@@ -68,6 +65,8 @@ You should keep a copy of the **data dictionary**. A data dictionary describes e
 | SERVICE_TIME   | NURSE SERVICE START TIME   | Time(HH:MM)      | The time at which the nurse consultation began        |
 
 :::
+
+<br>
 
 #### Sharing raw data
 
@@ -103,70 +102,72 @@ You should keep a copy of the **data dictionary**. A data dictionary describes e
 
 <br>
 
-### Parameter estimation scripts
+### Input modelling code {#sec-input_data-code}
 
-<!--TODO:
-If you are estimating parameters yourself from raw data, then use programming language to process
-Have your scripts.
-Share them with your code ideally.
+This code (e.g. @sec-input_modelling) is often not shared, but is an essential part of your simulation RAP. It ensures transparency in how distributions were chosen and allows you (or others) to re-run the process if new data becomes available or if you need to update your assumptions.
 
-EXAMPLE:
+**If you are able to share this code externally:**
 
-```
-```
+:::{.pale-blue}
 
-Internally, make sure to share them regradless.
+* ☑️ Include it in your repository alongside your simulation code and scripts.
 
-Externtally, either
-- share (may be possible even for sensitive data as nothing in script to give it away)
-- describe processing (may be as simple as just "took mean of this and that" or may need more description for complex processing etc)
--->
+:::
 
-<br>
+**If you cannot share this code:**
 
-### Distribution fitting scripts {#sec-input_data-fitting}
+:::{.pale-blue}
 
-#### Writing and sharing distribution fitting scripts
+* ☑️ Internally, store the code securely, ideally with version control. For example, if possible, within a private GitHub repository.
 
-<!--TODO:
-rmd/ipynb
-located WHERE in repo
-mkdir
-touch notebook
+* ☑️ Externally, document the input modelling process you followed.
 
-sharing
+* ☑️ Externally, describe the reasons for not sharing (e.g. code contains sensitive logic).
 
-need to fit to distributions. a few ways to do this.
-
-PYTHON EXAMPLE:
-
-R EXAMPLE:
-
-Sharing: as with parameter estimation.
--->
+:::
 
 <br>
 
 ### Parameters
 
-<!--TODO:
-If parameters were not calculated by you but from someone else, clearly state source and any relevant processing steps know about.
+Parameters are the numerical values used in your model, like the arrival rates, service times or probabilities.
 
-Sharing parameters is crucial, non optional. Must share some parameters, as without others cannot run model.
+<br>
 
-Can be stored in CSV files or defined directly in scripts.
+#### Internal management of parameters
 
-could structure various ways... wide... long... etc.
+You should keep **clearly structured parameter files** that record all values used in your model. This could be:
 
-EXAMPLE DATA
-EXAMPLE DICTIONARY
+* A CSV file (e.g. @sec-param_file).
+* A script (e.g. @sec-param_script).
 
-If real parameters can't be shared, must provide synthetic (fake but structually similar) parameters to enable model execution.
-could just have synthetic param or also pipeline with synthetic data at start etc.
+For each parameter, keep documentation (e.g. data dictionary, docstrings). Ensure you document:
 
-when sharing:
-* open, fair, github, archive, data dictionary
---->
+* The parameter name and value.
+* Units (e.g. minutes).
+* Any abbreviations used.
+
+If the determination of parameters is not captured within any scripts from @sec-input_modelling, then you should either:
+
+* **Provide scripts** which calculate them, or
+* **Describe the processing steps** if these cannot be shared.
+
+If the parameters were not calculated by you, but provided by someone else, **clearly state the source** and describe any processing or transformation steps you know about.
+
+<br>
+
+##### Sharing parameters
+
+You **must share parameters** with your model so that it is possible for others to run it. Parameters are often **less sensitive** than raw data, so sharing is usually possible. 
+
+If you cannot share the real parameters, you should provide **synthetic parameters**, so others can still run your model. To create synthetic parameters:
+
+* Use plausible values within the expected range for each parameter, or
+* Simulate values based on published ranges or previous studies.
+
+Clearly document that these are synthetic and explain how they were generated.
+
+Any files (data or scripts) should be shared as described above for data (@sec-input_data-raw) and code (@sec-input_data-code).
 
 <br>
 
