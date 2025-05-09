@@ -7,51 +7,89 @@ bibliography: input_data_resources/references.bib
 {{< include ../../scripts/language-selector.html >}}
 
 :::{.pale-blue}
-This page has step-by-step instructions for input modelling in Python or R. For advice on making your input modelling workflow reproducible and sharing data or scripts with sensitive content, see @sec-input_data.
+This page has step-by-step instructions for input modelling in Python or R, with inspiration from @Robinson2007 and @Monks2024. For advice on making your input modelling workflow reproducible and sharing data or scripts with sensitive content, see @sec-input_data.
 :::
 
-<!--TODO: seperate input_data.qmd into stuff about sharing and storing data and scripts, and then stuff about how to do input modelling. at top of each page, mention the other (say this is about sharing and storing - for how to do see :, and then also, this is about how to do input modelling in python and r, for sharing and storing these files, see:-->
+## Data
 
-To construct a discrete-event simulation (DES), you first need **data** that reflects the system you want to model. In healthcare, this might mean you need to access healthcare records with patient arrival, service and departure times, for example. The quality of your simulation depends directly on the quality of your data. Key considerations include:
+To build a DES model, you first need **data** that reflects the system you want to model. In healthcare, this might mean you need to access healthcare records with patient arrival, service and departure times, for example. The quality of your simulation depends directly on the quality of your data. Key considerations include:
 
 * **Accuracy**. Inaccurate data leads to inaccurate simulation results.
 * **Sample size**. Small samples can give misleading results if they capture unusual periods, lack variability, or are affected by outliers.
 * **Level of detail**. The data must be granular enough for your needs. For example, daily totals may be insufficient if you want to model hourly arrivals (although may still be possible if know distribution - see @sec-input_data-fitting)
 * **Representative**. The data should reflect the current system. For instance, data from the COVID-19 period may not represent typical operations.
 
-From this raw data, you calculate **parameters** such as the mean patient inter-arrival time or average length of stay. These parameters are used in the model - but not as fixed intervals. For example the model wouldn't have a patient arriving exactly every fix minutes.
+<br>
 
-This is because DES models are **stochastic**, which means they incorporate random variation, to reflect the inherent variability of real-world systems. To achieve this, the data are fit to probability distributions (e.g. exponential, lognormal, gamma) and then the simulation samples from these distributions to generate events.
+## How is this data used in the model?
+
+Discrete-event simulation (DES) models are **stochastic**, which means they incorporate random variation, to reflect the inherent variability of real-world systems.
+
+Instead of using fixed times for events (like having a patient arrive exactly every five minutes), DES models pick the timing of events by **randomly sampling values from a probability distribution**.
+
+The process of selecting the most appropriate statistical distributions to use in your model is called **input modelling**.
 
 ![](input_data_resources/samples.png)
 
 <br>
 
-This section is written with credit to @Robinson2007 and @Monks2024.
+## Input modelling
 
-When selecting appropriate statistical distributions for you model, one approach is to **base your choice on the known properties of the process being modelled**. This is useful when you have limited data - for example, only summary statistics like the mean. Some common distributions in healthcare simulation:
+When selecting appropriate distributions, if you only have summary statistics (like the mean), you may need to rely on expert opinion or the general properties of the process you're modelling. For example:
 
 * **Arrivals**: Random independent arrivals are often modelled with the Poisson distribution, whilst their inter-arrival times are modelled using an exponential distribution (@Pishro-Nik2014).
 * **Length of stay**: Length of stay is commonly right skewed (@Lee2003), and so will often be modelled with distributions like exponential, gamma, log-normal (for log-transformed length of stay) or Weibull.
 
-However, it is possible that these are not accurate reflections, if the process deviates from your assumptions or has unique features not captured by the distribution. As such, if you have access to sufficient data, it is good to **fit distributions on your data**, when determining which to use. You can either do this manually or use provided tools.
+However, these standard choices may not always be appropriate. If the actual process differs from your assumptions or has unique features, the chosen distribution might not fit well.
 
-#### Manually fitting distributions
+Therefore, if you have enough data, it’s best to analyse it directly to select the most suitable distributions. This analysis generally involves two key steps:
 
-When doing it manually, you first need to select some candidate distributions to fit to your data. You should both:
+1. **Identify possible distributions**. This is based on knowledge of the process being modelled, and by inspecting the data using time series plots and histograms.
+2. **Fit distributions to your data and compare goodness-of fit**. You can do this using a:
+    a. **Targeted approach**. Just test the distributions from step 1.
+    b. **Comprehensive approach**. Test a wide range of distributions.
+
+Though the comprehensive approach tests lots of different distributions, it's still important to do step 1 as:
+
+* It's important to be aware of **temporal patterns** in the data (e.g. spikes in service length every Friday).
+* You may find distributions which mathematically fit but are **contextually inappropriate** (e.g. normal distribution for service times, which can't be negative).
+* You may find better fit for complex distributions, even when **simpler are sufficient**.
+
+We'll demonstrate steps for input modelling below using **synthetic arrival data** from the nurse visit simulation (@sec-examples). In this case, we already know which distributions to use (as we sampled from them to create our synthetic data!). However, the steps still illustrate how you might select distributions in practice with real data.
+
+<br>
+
+### Step 1. Identify possible distributions
+
+You first need to select which distributions to fit to your data. You should both:
 
 * Consider the known properties of the process being modelled (as above), and-
 * Inspect the data by plotting a histogram.
 
-<br>
+Regarding the known properties, it would be good to consider the exponential distribution for our arrivals, as that is a common choice for random independent arrivals.
 
-This example uses **synthetic arrival data** from the nurse visit simulation (@sec-examples) - so, based on the known properties, we'd assume exponential could be a good choice - but we'll inspect the data too. First, we load the relevant data.
+To inspect the data, we will create two plots:
+
+| Plot type | What does it show? | Why do we create this plot? |
+| - | - | -- |
+| **Time series** | Trends, seasonality, and outliers (e.g., spikes or dips over time). | To check for **stationarity** (i.e. no trends or sudden changes). Stationary is an assumption of many distributions, and if trends or anomalies do exist, we may need to exclude certain periods or model them separately. The time series can also be useful for spotting outliers and data gaps. |
+| **Histogram** | The shape of the data's distribution. | Helps **identify which distributions might fit** the data. |
+
+We repeat this for the arrivals and service (nurse consultation) time, so have created functions to avoid duplicate code between each.
+
+<br>
 
 ::: {.python-content}
 
+First, we import the data.
+
 ```{python}
+from distfit import distfit
+import numpy as np
 import pandas as pd
 import plotly.express as px
+import plotly.graph_objects as go
+import scipy.stats as stats
 
 # Import data
 data = pd.read_csv("../../data/NHS_synthetic.csv", dtype={
@@ -66,36 +104,7 @@ data.head()
 
 <br>
 
-Many distributions assume data is **stationary** - i.e. no trends or sudden changes. Hence, we first plot the data as a time series to check if it is stationary - as, if not, certain periods may need to be excluded or modelled separately.
-
-```{python}
-# Define names
-date_col = "Date"
-arrivals_col = "Number of arrivals"
-
-# Plot daily arrivals
-daily_series = data.groupby(by=["ARRIVAL_DATE"]).size()
-daily_df = daily_series.reset_index(name=arrivals_col).rename(
-    columns={"ARRIVAL_DATE": date_col}
-)
-
-fig = px.line(daily_df, x=date_col, y=arrivals_col)
-fig.update_layout(showlegend=False, width=700, height=400)
-fig.show()
-```
-
-<br>
-
-We can then plot a histogram of our data. <!--TODO: add distplot... https://plotly.com/python/distplot/... requires addition of scipy to environment-->
-
-```{python}
-# Plot histogram of daily arrivals
-fig = px.histogram(daily_df, x=arrivals_col)
-fig.update_layout(xaxis_title="Arrivals per day", showlegend=False)
-fig.show()
-```
-
-This looks quite normally distributed.
+We then calculate the inter-arrival times.
 
 ```{python}
 # Combine date/time and convert to datetime
@@ -105,61 +114,361 @@ data["arrival_datetime"] = pd.to_datetime(
 )
 
 # Sort by arrival time and calculate inter-arrival times
-data_sorted = data.sort_values("arrival_datetime")
-data_sorted["iat_mins"] = (
-    data_sorted["arrival_datetime"].diff().dt.total_seconds() / 60
+data = data.sort_values("arrival_datetime")
+data["iat_mins"] = (
+    data["arrival_datetime"].diff().dt.total_seconds() / 60
 )
-
-# Plot histogram of inter-arrival times
-fig = px.histogram(data_sorted, x="iat_mins")
-fig.update_layout(xaxis_title="Inter-arrival time (min)", showlegend=False)
-fig.update_traces(
-    hovertemplate="Inter-arrival time: %{x} min<br>Count: %{y}"
-)
-fig.show()
 ```
 
-These are right skewed, so some candidates could be exponential, gamma, log-normal and Weibull.
+<br>
 
-<!--TODO:which you plot? how you know? etc?-->
-<!--
+We also calculate the service times.
+
+```{python}
+# Combine dates with times
+data["service_datetime"] = pd.to_datetime(
+    data["SERVICE_DATE"] + " " + data["SERVICE_TIME"].str.zfill(4)
+)
+data["departure_datetime"] = pd.to_datetime(
+    data["DEPARTURE_DATE"] + " " + data["DEPARTURE_TIME"].str.zfill(4)
+)
+
+# Calculate time difference in minutes
+time_delta = data["departure_datetime"] - data["service_datetime"]
+data["service_mins"] = time_delta / pd.Timedelta(minutes=1)
+```
+
+<br>
+
+**Time series**. For this data, we observe no trends, seasonality or outliers.
+
+```{python}
+def inspect_time_series(series, y_lab):
+    """
+    Plot time-series.
+
+    Parameters
+    ----------
+    series : pd.Series
+        Series containing the time series data (where index is the date).
+    y_lab : str
+        Y axis label.
+    """
+    # Label as "Date" and provided y_lab, and convert to dataframe
+    df = series.rename_axis("Date").reset_index(name=y_lab)
+
+    # Create plot
+    fig = px.line(df, x="Date", y=y_lab)
+    fig.update_layout(showlegend=False, width=700, height=400)
+    fig.show()
+```
+
+```{python}
+# Plot daily arrivals
+inspect_time_series(series=data.groupby(by=["ARRIVAL_DATE"]).size(),
+                    y_lab="Number of arrivals")
+
+# Calculate mean service length per day, dropping last day (incomplete)
+daily_service = data.groupby("SERVICE_DATE")["service_mins"].mean()
+daily_service = daily_service.iloc[:-1]
+
+# Plot mean service length each day
+inspect_time_series(series=daily_service,
+                    y_lab="Mean consultation length (min)")
+```
+
+<br>
+
+**Histogram**. For both inter-arrival times and service times, we observe a right skewed distribution. Hence, it would be good to try exponential, gamma and Weibull distributions.
+
+```{python}
+def inspect_histogram(series, x_lab):
+    """
+    Plot histogram.
+
+    Parameters
+    ----------
+    series : pd.Series
+        Series containing the values to plot as a histogram.
+    x_lab : str
+        X axis label.
+    """
+    fig = px.histogram(series)
+    fig.update_layout(
+        xaxis_title=x_lab, showlegend=False, width=700, height=400
+    )
+    fig.update_traces(
+        hovertemplate=x_lab + ": %{x}<br>Count: %{y}", name=""
+    )
+    fig.show()
+```
+
+```{python}
+# Plot histogram of inter-arrival times
+inspect_histogram(series=data["iat_mins"],
+                  x_lab="Inter-arrival time (min)")
+
+# Plot histogram of service times
+inspect_histogram(series=data["service_mins"],
+                  x_lab="Consultation length (min)")
+```
+
 :::
 
 ::: {.r-content}
 
 ```{.r}
-library(readr)
-
-data <- read_csv("../../data/NHS_synthetic.csv")
-
-head(data)
 ```
 
 :::
 
 <br>
 
-Next, calculate the parameters required for each of your chosen distributions.
+### Step 2. Fit distributions and compare goodness-of fit
 
-Then... using graphs or statistical tests. with graphs, you compare data hist to hist of the distribution (which you make by sampling from distribution and placing on "same cell ranges"??? as the empirical data) (OR you make by finding freq from cum. dist functions for proposed distributions??? % obs in cell range) BUT these are quite influenced by cell range so important to do a few cell widths ALSO if <30 samples hist not smooth... so then there is p-p plot... and q-q plot...then for stats there is ch-square test... also kolmogorov-smirnov.., and assess goodness of fit.
+We will fit distributions and assess goodness-of-fit using the **Kolmogorov-Smirnov (KS) Test**. This is a common test which is well-suited to continuous distributions. For categorical (or binned) data, consider using chi-squared tests.
 
+The KS Test returns a statistic and p value.
 
-#### Using a tool to test distributions
-
-* fitter: <https://medium.com/the-researchers-guide/finding-the-best-distribution-that-fits-your-data-using-pythons-fitter-library-319a5a0972e9>
-* distfit: <https://www.kdnuggets.com/2021/09/determine-best-fitting-data-distribution-python.html> amd <https://github.com/erdogant/distfit>
-* manually/stats: <https://medium.com/@sigari.salman/discovering-the-best-fit-probability-distribution-for-your-data-a14c0e8d762>
-* Mike's auto_fit: <https://github.com/health-data-science-OR/stochastic_systems/blob/master/labs/simulation/lab3/input_modelling/fitting.py> and <https://github.com/health-data-science-OR/stochastic_systems/blob/master/labs/simulation/lab3/sim_lab3_autofit_intro.ipynb>
+* **Statistic:** Measures how well the distribution fits your data.
+    * **Higher values indicate a better fit**.
+    * Ranges from 0 to 1.
+* **P-value:** Tells you if the fit could have happened by chance.
+    * **Higher p-values suggest the data follow the distribution**.
+    * In large datasets, even good fits often have small p-values.
+    * Ranges from 0 to 1.
 
 ::: {.python-content}
 
-```{python}
+`scipy.stats` is a popular library for fitting and testing statistical distributions. For more convenience, `distfit`, which is built on `scipy`, is another popular package which can test multiple distributions simultaneously (or evaluate specific distributions).
 
+We will illustrate how to perform the targeted approach using `scipy` directly, and the comprehensive approach using `distfit` - but you could use either for each approach.
+
+<br>
+
+#### Targeted approach
+
+To implement the targeted approach using `scipy.stats`...
+
+```{python}
+def fit_distributions(data, dists):
+    """
+    This function fits statistical distributions to the provided data and
+    performs Kolmogorov-Smirnov tests to assess the goodness of fit.
+
+    Parameters
+    ----------
+    data : array_like
+        The observed data to fit the distributions to.
+    dists : list
+        List of the distributions in scipy.stats to fit, eg. ["expon", "gamma"]
+
+    Notes
+    -----
+    A lower test statistic and higher p-value indicate a better fit to the data.
+    """
+    for dist_name in dists:
+        # Fit distribution to the data
+        dist = getattr(stats, dist_name)
+        params = dist.fit(data)
+
+        # Return results from Kolmogorov-Smirnov test
+        ks_result = stats.kstest(data, dist_name, args=params)
+        print(f"Kolmogorov-Smirnov statistic for {dist_name}: " +
+            f"{ks_result.statistic:.4f} (p={ks_result.pvalue:.2e})")
+
+
+# Fit and run Kolmogorov-Smirnov test on the inter-arrival and service times
+distributions = ["expon", "gamma", "weibull_min"]
+
+print("Inter-arrival time")
+fit_distributions(data=data["iat_mins"].dropna(), dists=distributions)
+
+print("Service time")
+fit_distributions(data=data["service_mins"], dists=distributions)
+```
+
+Unsurprisingly, the best fit for both is the **exponential distribution** (lowest test statistic).
+
+We can create a version of our histograms from before but with the distributions overlaid, to visually support this.
+
+```{python}
+def inspect_histogram_with_fits(series, x_lab, dist_name):
+    """
+    Plot histogram with overlaid fitted distributions.
+
+    Parameters
+    ----------
+    series : pd.Series
+        Series containing the values to plot as a histogram.
+    x_lab : str
+        X axis label.
+    dist_name : str
+        Name of the distributions in scipy.stats to fit, eg. "expon"
+    """
+    # Plot histogram with probability density normalisation
+    fig = px.histogram(series, nbins=30, histnorm="probability density")
+    fig.update_layout(
+        xaxis_title=x_lab, showlegend=True, width=700, height=400
+    )
+    
+    # Fit and plot each distribution
+    x = np.linspace(series.min(), series.max(), 1000)
+    dist = getattr(stats, dist_name)
+    params = dist.fit(series.dropna())
+    pdf_fitted = dist.pdf(x, *params[:-2], loc=params[-2], scale=params[-1])
+    fig.add_trace(go.Scatter(x=x, y=pdf_fitted, mode="lines", name=dist_name))
+    
+    fig.show()
+```
+
+```{python}
+# Plot histogram with fitted distribution
+inspect_histogram_with_fits(series=data["iat_mins"].dropna(), 
+                            x_lab="Inter-arrival time (min)", 
+                            dist_name="expon")
+inspect_histogram_with_fits(series=data["service_mins"], 
+                            x_lab="Service time (min)", 
+                            dist_name="expon")
+```
+
+<br>
+
+#### Comprehensive approach
+
+To implement the comprehensive approach using `distfit`...
+
+```{python}
+# Fit popular distributions to inter-arrivals times
+dfit_iat = distfit(distr="popular", stats="RSS", verbose="silent")
+_ = dfit_iat.fit_transform(data["iat_mins"].dropna())
+
+# Fit popular distributions to service times
+dfit_service = distfit(distr="popular", stats="RSS", verbose="silent")
+_ = dfit_service.fit_transform(data["service_mins"])
+```
+
+We can view a summary table from `distfit`.
+
+The **score** column is the result from a goodness-of-fit test. This is set using `stats` in `distfit` (e.g. `distfit(stats="RSS")`). It provides several possible tests including:
+
+* `RSS` - residual sum of squares
+* `wasserstein` - Wasserstein distance
+* `ks` - Kolmogorov-Smirnov statistic
+* `energy` - energy distance
+* `goodness_of_fit` - general purpose test from `scipy.stats.goodness_of_fit`
+
+For continuous data, `ks` is often a good choice - but for `distfit`, they use an unusual method for calculation of this statistic. In `distfit`, they resample from the fitted distribution and compare that to the original data. Meanwhile, our manual implementation just use the standard KS test from `scipy.stats`, which is the standard KS statistics that is commonly understood.
+
+As such, we have left `distfit` with `RSS`. However, we can calculate a standard KS statistic ourselves using the function below - which, as we can see, matches up with our results above.
+
+```{python}
+def calculate_ks(data, dfit_summary):
+    """
+    Calculate standard Kolmogorov-Smirnov statistics for fitted distributions.
+
+    This function applies the standard scipy.stats.kstest to data using the
+    distribution parameters obtained from distfit, providing conventional
+    KS statistics rather than distfit's resampling-based approach.
+
+    Parameters
+    ----------
+    data : pandas.Series
+        The original data series used for distribution fitting.
+    dfit_summary : pandas.DataFrame
+        The summary DataFrame from a distfit object, containing fitted
+        distribution names and parameters.
+
+    Returns
+    -------
+    pandas.DataFrame
+        A DataFrame containing the distribution names, KS statistics,
+        and p-values from the standard KS test.
+
+    Notes
+    -----
+    Lower KS statistic values indicate better fits to the data.
+    """
+    results = []
+    for idx, row in dfit_summary.iterrows():
+        dist_name = row["name"]
+        dist_params = row["params"]
+        
+        # Perform KS test using scipy.stats.kstest
+        ks_result = stats.kstest(data, dist_name, args=dist_params)
+        
+        # Store the results
+        results.append({
+            "name": dist_name,
+            "ks": ks_result.statistic[0],
+            "p_value": ks_result.pvalue[0]
+        })
+
+    # Create a DataFrame with the results
+    return pd.DataFrame(results).sort_values(by="ks")
+```
+
+```{python}
+calculate_ks(data=data[["iat_mins"]].dropna(), dfit_summary=dfit_iat.summary)
+
+calculate_ks(data=data[["service_mins"]], dfit_summary=dfit_service.summary)
+```
+
+<br>
+
+The `distfit` package has some nice visualisation functions. For example, using the inter-arrival times...
+
+```{python}
+# PDF with all the distributions overlaid
+dfit_iat.plot(n_top=11, figsize=(7, 4))
+
+# CDF with all the distributions overlaid
+dfit_iat.plot(chart="cdf", n_top=11, figsize=(7, 4))
+
+# QQ plot with all distributions overlaid
+dfit_iat.qqplot(data["iat_mins"].dropna(), n_top=11, figsize=(7, 4))
+
+# Summary plot using the RSS
+dfit_iat.plot_summary(figsize=(7, 4))
+```
+
+We can also use it to create a plot with a specific distribution overlaid, like in the targeted approach:
+
+```{python}
+# To create a plot with a specific distribution overlaid...
+dfit = distfit(distr="expon")
+dfit.fit_transform(data["iat_mins"].dropna())
+dfit.plot(figsize=(7, 4))
 ```
 
 :::
--->
-<br>
+
+::: {.r-content}
+
+```{.r}
+```
+
+:::
+
+### Chosen distributions
+
+::: {.python-content}
+
+It's good to have an idea of good likely distributions before testing a few. You can either do this directly with `scipy.stats`, or use a tool like `distfit`. This tool has the benefit of being able to run a whole panel of different distributions easily and plot results.
+
+In this case, manually we found exponential to be best. With `distfit`, there were a few distributions that were all very low scores (pareto, expon, genextreme). Choosing between these...
+
+* Exponential - simple, wide application, good for context, fewer parameters
+* Generalised pareto - useful if data has heavier tail (not the case here)
+* Generalised extreme value - more complex, spefically designed for modeling maximum values or extreme events
+
+As such, **exponential** seems a good choice for inter-arrival and service times.
+
+:::
+
+::: {.r-content}
+
+:::
 
 ## Further information
 
