@@ -26,12 +26,9 @@ jobs:
       - name: Configure Git safe directory
         run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
 
-      - name: Debug git branches
+      - name: Restore renv dependencies
         run: |
-          git remote -v
-          git branch -a
-          git fetch --all
-          git branch -r
+          Rscript -e "renv::restore()"
 
       - name: Render and publish to GitHub pages
         uses: quarto-dev/quarto-actions/publish@v2
