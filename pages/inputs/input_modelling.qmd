@@ -6,9 +6,7 @@ bibliography: input_data_resources/references.bib
 
 {{< include ../../scripts/language-selector.html >}}
 
-:::{.pale-blue}
-This page has step-by-step instructions for input modelling in Python or R, with inspiration from @Robinson2007 and @Monks2024. For advice on making your input modelling workflow reproducible and sharing data or scripts with sensitive content, see @sec-input_data.
-:::
+This page has step-by-step instructions for input modelling in Python or R, with inspiration from @Robinson2007 and @Monks2024. For advice on making your input modelling workflow **reproducible** and **sharing data or scripts with sensitive content**, see @sec-input_data.
 
 ## Data
 
@@ -16,7 +14,7 @@ To build a DES model, you first need **data** that reflects the system you want 
 
 * **Accuracy**. Inaccurate data leads to inaccurate simulation results.
 * **Sample size**. Small samples can give misleading results if they capture unusual periods, lack variability, or are affected by outliers.
-* **Level of detail**. The data must be granular enough for your needs. For example, daily totals may be insufficient if you want to model hourly arrivals (although may still be possible if know distribution - see @sec-input_data-fitting)
+* **Level of detail**. The data must be granular enough for your needs. For example, daily totals may be insufficient if you want to model hourly arrivals (although may still be possible if know distribution - see @sec-input_modelling-options)
 * **Representative**. The data should reflect the current system. For instance, data from the COVID-19 period may not represent typical operations.
 
 <br>
@@ -33,7 +31,7 @@ The process of selecting the most appropriate statistical distributions to use i
 
 <br>
 
-## Input modelling
+## Input modelling {#sec-input_modelling-options}
 
 When selecting appropriate distributions, if you only have summary statistics (like the mean), you may need to rely on expert opinion or the general properties of the process you're modelling. For example:
 
@@ -56,6 +54,18 @@ Though the comprehensive approach tests lots of different distributions, it's st
 * You may find better fit for complex distributions, even when **simpler are sufficient**.
 
 We'll demonstrate steps for input modelling below using **synthetic arrival data** from the nurse visit simulation (@sec-examples). In this case, we already know which distributions to use (as we sampled from them to create our synthetic data!). However, the steps still illustrate how you might select distributions in practice with real data.
+
+<!--
+<br> 
+### Create script
+TODO: WHERE to store in repo
+:::{.python-content}
+TODO: ipynb... touch notebooks/input_modelling.ipynb
+:::
+
+:::{.r-content}
+:::
+-->
 
 <br>
 
@@ -218,6 +228,7 @@ inspect_histogram(series=data["service_mins"],
 ::: {.r-content}
 
 ```{.r}
+library(readr)
 ```
 
 :::
@@ -469,6 +480,10 @@ As such, **exponential** seems a good choice for inter-arrival and service times
 ::: {.r-content}
 
 :::
+
+### Parameters
+
+<!--TODO: fetch the parameters for these dists... and then link to sections on parameters from script or file -->
 
 ## Further information
 
