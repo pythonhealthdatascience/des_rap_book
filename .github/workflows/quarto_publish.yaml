@@ -18,12 +18,19 @@ jobs:
       - name: Set up Quarto
         uses: quarto-dev/quarto-actions/setup@v2
 
-      - name: Install python and dependencies
-        uses: actions/setup-python@v4
+      - name: Set up R
+        uses: r-lib/actions/setup-r@v2
+
+      - name: Set up renv
+        uses: r-lib/actions/setup-renv@v2
+
+      - name: Set up Python conda environment
+        uses: conda-incubator/setup-miniconda@v2
         with:
-          python-version: '3.9'
-          cache: 'pip'
-      - run: pip install -r requirements.txt
+          activate-environment: des-rap-book
+          environment-file: environment.yaml
+          auto-update-conda: true
+          python-version: "3.9"
 
       - name: Render and publish to GitHub pages
         uses: quarto-dev/quarto-actions/publish@v2
