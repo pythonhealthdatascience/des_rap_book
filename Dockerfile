@@ -4,6 +4,9 @@ FROM rocker/r-ver:4.4.1
 # Install system dependencies for R and Python packages
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
+        libharfbuzz-dev \
+        libfribidi-dev \
+        libfontconfig1-dev \
         wget \
         curl \
         git \
