@@ -21,7 +21,14 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 0  # Fetch all history and branches
+
+      - name: Debug git branches
+        run: |
+          git remote -v
+          git branch -a
+          git fetch --all
+          git branch -r
 
       - name: Render and publish to GitHub pages
         uses: quarto-dev/quarto-actions/publish@v2
