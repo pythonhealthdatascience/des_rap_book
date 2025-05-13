@@ -1,12 +1,16 @@
 ---
+output: html
 bibliography: input_data_resources/references.bib
 ---
 
 # Input modelling {#sec-input_modelling}
 
 {{< include ../../scripts/language-selector.html >}}
+{{< include ../../scripts/reticulate-setup.md >}}
 
 This page has step-by-step instructions for input modelling in Python or R, with inspiration from @Robinson2007 and @Monks2024. For advice on making your input modelling workflow **reproducible** and **sharing data or scripts with sensitive content**, see @sec-input_data.
+
+<br>
 
 ## Data
 
@@ -89,9 +93,9 @@ We repeat this for the arrivals and service (nurse consultation) time, so have c
 
 <br>
 
-::: {.python-content}
-
 First, we import the data.
+
+::: {.python-content}
 
 ```{python}
 from distfit import distfit
@@ -99,6 +103,7 @@ import numpy as np
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
+import plotly.io as pio
 import scipy.stats as stats
 
 # Import data
@@ -112,9 +117,31 @@ data = pd.read_csv("../../data/NHS_synthetic.csv", dtype={
 data.head()
 ```
 
+:::
+
+::: {.r-content}
+
+```{r, message=FALSE}
+library(dplyr)
+library(ggplot2)
+library(lubridate)
+library(plotly)
+library(readr)
+```
+
+```{r}
+data <- read_csv("../../data/NHS_synthetic.csv", show_col_types = FALSE)
+
+head(data)
+```
+
+:::
+
 <br>
 
 We then calculate the inter-arrival times.
+
+::: {.python-content}
 
 ```{python}
 # Combine date/time and convert to datetime
@@ -128,11 +155,38 @@ data = data.sort_values("arrival_datetime")
 data["iat_mins"] = (
     data["arrival_datetime"].diff().dt.total_seconds() / 60
 )
+
+# Preview
+data[["ARRIVAL_DATE", "ARRIVAL_TIME", "arrival_datetime", "iat_mins"]].head()
 ```
+
+:::
+
+::: {.r-content}
+
+```{r}
+data <- data %>%
+  # Combine date/time and convert to datetime
+  mutate(arrival_datetime = ymd_hm(paste(ARRIVAL_DATE, ARRIVAL_TIME))) %>%
+  # Sort by arrival time
+  arrange(arrival_datetime) %>%
+  # Calculate inter-arrival times
+  mutate(iat_mins = as.numeric(difftime(
+    arrival_datetime, lag(arrival_datetime), units = "mins")))
+
+# Preview
+data %>%
+  select(ARRIVAL_DATE, ARRIVAL_TIME, arrival_datetime, iat_mins) %>%
+  head()
+```
+
+:::
 
 <br>
 
 We also calculate the service times.
+
+::: {.python-content}
 
 ```{python}
 # Combine dates with times
@@ -146,50 +200,132 @@ data["departure_datetime"] = pd.to_datetime(
 # Calculate time difference in minutes
 time_delta = data["departure_datetime"] - data["service_datetime"]
 data["service_mins"] = time_delta / pd.Timedelta(minutes=1)
+
+# Preview
+data[["service_datetime", "departure_datetime", "service_mins"]].head()
 ```
+
+:::
+
+::: {.r-content}
+
+```{r}
+data <- data %>%
+  mutate(
+    service_datetime   = ymd_hm(paste(SERVICE_DATE, SERVICE_TIME)),
+    departure_datetime = ymd_hm(paste(DEPARTURE_DATE, DEPARTURE_TIME)),
+    service_mins = as.numeric(
+      difftime(departure_datetime, service_datetime, units = "mins"))
+  )
+
+# Preview
+data %>% select(service_datetime, departure_datetime, service_mins) %>% head()
+```
+
+:::
 
 <br>
 
 **Time series**. For this data, we observe no trends, seasonality or outliers.
 
+::: {.python-content}
+
 ```{python}
-def inspect_time_series(series, y_lab):
+def inspect_time_series(time_series, y_lab):
     """
     Plot time-series.
 
     Parameters
     ----------
-    series : pd.Series
+    time_series : pd.Series
         Series containing the time series data (where index is the date).
     y_lab : str
         Y axis label.
+
+    Returns
+    -------
+    fig : plotly.graph_objects.Figure
     """
     # Label as "Date" and provided y_lab, and convert to dataframe
-    df = series.rename_axis("Date").reset_index(name=y_lab)
+    df = time_series.rename_axis("Date").reset_index(name=y_lab)
 
     # Create plot
     fig = px.line(df, x="Date", y=y_lab)
     fig.update_layout(showlegend=False, width=700, height=400)
-    fig.show()
+    return fig
 ```
 
 ```{python}
 # Plot daily arrivals
-inspect_time_series(series=data.groupby(by=["ARRIVAL_DATE"]).size(),
+fig = inspect_time_series(time_series=data.groupby(by=["ARRIVAL_DATE"]).size(),
                     y_lab="Number of arrivals")
+fig.show()
 
 # Calculate mean service length per day, dropping last day (incomplete)
 daily_service = data.groupby("SERVICE_DATE")["service_mins"].mean()
 daily_service = daily_service.iloc[:-1]
 
 # Plot mean service length each day
-inspect_time_series(series=daily_service,
-                    y_lab="Mean consultation length (min)")
+fig = inspect_time_series(time_series=daily_service,
+                          y_lab="Mean consultation length (min)")
+fig.show()
 ```
+
+:::
+
+::: {.r-content}
+
+```{r}
+inspect_time_series <- function(time_series, date_col, value_col, y_lab) {
+  #' Plot time-series
+  #' 
+  #' @param time_series Dataframe with date column and numeric column to plot.
+  #' @param date_col String. Name of column with dates.
+  #' @param value_col String. Name of column with numeric values.
+  #' @param y_lab String. Y axis label.
+
+  # Create custom tooltip text
+  time_series$tooltip_text <- paste0(
+    "<span style='color:white'>",
+    "Date: ", time_series[[date_col]], "<br>", 
+    y_lab, ": ", time_series[[value_col]], "</span>"
+  )
+
+  # Create plot
+  p <- ggplot(time_series, aes(x = .data[[date_col]], y = .data[[value_col]], text = tooltip_text)) +
+    geom_line(group=1, color = "#727af4") +
+    labs(x = "Date", y = y_lab) +
+    theme_minimal()
+
+  # Display as interactive figure
+  ggplotly(p, tooltip = "text")
+}
+```
+
+```{r, fig.width=7, fig.height=4}
+# Plot daily arrivals
+daily_arrivals <- data %>% group_by(ARRIVAL_DATE) %>% count()
+inspect_time_series(time_series = daily_arrivals, date_col = "ARRIVAL_DATE",
+                    value_col = "n", y_lab = "Number of arrivals")
+
+# Calculate mean service length per day, dropping last day (incomplete)
+daily_service <- data %>%
+  group_by(SERVICE_DATE) %>%
+  summarise(mean_service = mean(service_mins)) %>%
+  filter(row_number() <= n() - 1)
+
+# Plot mean service length each day
+inspect_time_series(time_series = daily_service, date_col = "SERVICE_DATE",
+                    value_col = "mean_service", y_lab = "Mean consultation length (min)")
+```
+
+:::
 
 <br>
 
 **Histogram**. For both inter-arrival times and service times, we observe a right skewed distribution. Hence, it would be good to try exponential, gamma and Weibull distributions.
+
+::: {.python-content}
 
 ```{python}
 def inspect_histogram(series, x_lab):
@@ -202,6 +338,10 @@ def inspect_histogram(series, x_lab):
         Series containing the values to plot as a histogram.
     x_lab : str
         X axis label.
+
+    Returns
+    -------
+    fig : plotly.graph_objects.Figure
     """
     fig = px.histogram(series)
     fig.update_layout(
@@ -210,25 +350,27 @@ def inspect_histogram(series, x_lab):
     fig.update_traces(
         hovertemplate=x_lab + ": %{x}<br>Count: %{y}", name=""
     )
-    fig.show()
+    return fig
 ```
 
 ```{python}
 # Plot histogram of inter-arrival times
-inspect_histogram(series=data["iat_mins"],
-                  x_lab="Inter-arrival time (min)")
+fig = inspect_histogram(series=data["iat_mins"],
+                        x_lab="Inter-arrival time (min)")
+fig.show()
 
 # Plot histogram of service times
-inspect_histogram(series=data["service_mins"],
-                  x_lab="Consultation length (min)")
+fig = inspect_histogram(series=data["service_mins"],
+                        x_lab="Consultation length (min)")
+fig.show()
 ```
 
 :::
 
-::: {.r-content}
+:::{.r-content}
 
-```{.r}
-library(readr)
+```{r}
+
 ```
 
 :::
@@ -260,6 +402,8 @@ We will illustrate how to perform the targeted approach using `scipy` directly, 
 #### Targeted approach
 
 To implement the targeted approach using `scipy.stats`...
+
+::: {.python-content}
 
 ```{python}
 def fit_distributions(data, dists):
@@ -349,7 +493,7 @@ inspect_histogram_with_fits(series=data["service_mins"],
 
 To implement the comprehensive approach using `distfit`...
 
-```{python}
+```{.python}
 # Fit popular distributions to inter-arrivals times
 dfit_iat = distfit(distr="popular", stats="RSS", verbose="silent")
 _ = dfit_iat.fit_transform(data["iat_mins"].dropna())
@@ -419,7 +563,7 @@ def calculate_ks(data, dfit_summary):
     return pd.DataFrame(results).sort_values(by="ks")
 ```
 
-```{python}
+```{.python}
 calculate_ks(data=data[["iat_mins"]].dropna(), dfit_summary=dfit_iat.summary)
 
 calculate_ks(data=data[["service_mins"]], dfit_summary=dfit_service.summary)
@@ -429,7 +573,7 @@ calculate_ks(data=data[["service_mins"]], dfit_summary=dfit_service.summary)
 
 The `distfit` package has some nice visualisation functions. For example, using the inter-arrival times...
 
-```{python}
+```{.python}
 # PDF with all the distributions overlaid
 dfit_iat.plot(n_top=11, figsize=(7, 4))
 
@@ -445,7 +589,7 @@ dfit_iat.plot_summary(figsize=(7, 4))
 
 We can also use it to create a plot with a specific distribution overlaid, like in the targeted approach:
 
-```{python}
+```{.python}
 # To create a plot with a specific distribution overlaid...
 dfit = distfit(distr="expon")
 dfit.fit_transform(data["iat_mins"].dropna())
