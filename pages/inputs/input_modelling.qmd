@@ -98,6 +98,7 @@ First, we import the data.
 ::: {.python-content}
 
 ```{python}
+# Import required packages
 from distfit import distfit
 import numpy as np
 import pandas as pd
@@ -121,17 +122,27 @@ data.head()
 
 ::: {.r-content}
 
+<!--DIFF: Doesn't import knitr or tidyr-->
 ```{r, message=FALSE}
+# nolint start: undesirable_function_linter.
+# Import required packages
 library(dplyr)
+library(fitdistrplus) 
 library(ggplot2)
 library(lubridate)
 library(plotly)
 library(readr)
+# nolint end
 ```
 
+<!--DIFF: Different file path-->
 ```{r}
-data <- read_csv("../../data/NHS_synthetic.csv", show_col_types = FALSE)
+# Import data
+data <- read_csv(
+    file.path("..", "..", "data", "NHS_synthetic.csv"), show_col_types = FALSE
+)
 
+# Preview data
 head(data)
 ```
 
@@ -171,8 +182,14 @@ data <- data %>%
   # Sort by arrival time
   arrange(arrival_datetime) %>%
   # Calculate inter-arrival times
-  mutate(iat_mins = as.numeric(difftime(
-    arrival_datetime, lag(arrival_datetime), units = "mins")))
+  mutate(
+    iat_mins = as.numeric(
+      difftime(
+        arrival_datetime, lag(arrival_datetime), units = "mins"
+      )
+    )
+  )
+
 
 # Preview
 data %>%
@@ -276,13 +293,18 @@ fig.show()
 ::: {.r-content}
 
 ```{r}
-inspect_time_series <- function(time_series, date_col, value_col, y_lab) {
+inspect_time_series <- function(
+  time_series, date_col, value_col, y_lab, interactive, save_path = NULL
+) {
   #' Plot time-series
   #' 
   #' @param time_series Dataframe with date column and numeric column to plot.
   #' @param date_col String. Name of column with dates.
   #' @param value_col String. Name of column with numeric values.
   #' @param y_lab String. Y axis label.
+  #' @param interactive Boolean. Whether to render interactive or static plot.
+  #' @param save_path String. Path to save static file to (inc. name and
+  #' filetype). If NULL, then will not save.
 
   # Create custom tooltip text
   time_series$tooltip_text <- paste0(
@@ -293,16 +315,25 @@ inspect_time_series <- function(time_series, date_col, value_col, y_lab) {
 
   # Create plot
   p <- ggplot(time_series, aes(x = .data[[date_col]], y = .data[[value_col]], text = tooltip_text)) +
-    geom_line(group=1, color = "#727af4") +
+    geom_line(group = 1, color = "#727af4") +
     labs(x = "Date", y = y_lab) +
     theme_minimal()
 
-  # Display as interactive figure
-  ggplotly(p, tooltip = "text")
+  # Save file if path provided
+  if(!is.null(save_path)){
+    ggsave(save_path, p, width = 7L, height = 4L)
+  }
+
+  # Display as interactive or static figure
+  if(interactive) {
+    ggplotly(p, tooltip = "text", width = 700, height = 400)
+  } else {
+    p
+  }
 }
 ```
 
-```{r, fig.width=7, fig.height=4}
+```{r}
 # Plot daily arrivals
 daily_arrivals <- data %>% group_by(ARRIVAL_DATE) %>% count()
 inspect_time_series(time_series = daily_arrivals, date_col = "ARRIVAL_DATE",
@@ -370,7 +401,53 @@ fig.show()
 :::{.r-content}
 
 ```{r}
+inspect_histogram <- function(data, var, x_lab) {
+  #' Plot histogram
+  #' 
+  #' @param data A dataframe or tibble containing the variable to plot.
+  #' @param var String. Name of the column to plot as a histogram.
+  #' @param x_lab String. X axis label.
 
+  # Remove non-finite values
+  data <- data[is.finite(data[[var]]), ]
+
+  # Create plot
+  p <- ggplot(data, aes(x = .data[[var]])) +
+    geom_histogram(aes(text = paste0("<span style='color:white'>", x_lab, ": ",
+                                     round(after_stat(x),2), "<br>Count: ",
+                                     after_stat(count), "</span>")),
+                   fill = "#727af4", bins = 30) +
+    labs(x = x_lab, y = "Count") +
+    theme_minimal() +
+    theme(legend.position = "none")
+  
+  # Display as interactive figure
+  ggplotly(p, tooltip = "text", width = 700, height = 400)
+}
+```
+
+```{r, warning=FALSE}
+# Plot histogram of inter-arrival times
+inspect_histogram(
+  data = data, var = "iat_mins", x_lab = "Inter-arrival time (min)")
+
+# Plot histogram of service times
+inspect_histogram(
+  data = data, var = "service_mins", x_lab = "Consultation length (min)")
+```
+
+<br>
+
+**Alternative:** You can use the `fitdistrplus` package to create these histograms - as well as the empirical cumulative distribution function (CDF), which can help you inspect the tails, central tendency, and spot jumps or plateaus in the data.
+
+```{r}
+# Get IAT and service time columns early (with NA dropped)
+data_iat <- data %>% drop_na(iat_mins) %>% select(iat_mins)
+data_service <- data %>% select(service_mins)
+
+# Plot histograms and CDFs
+plotdist(pull(data_iat), histo = TRUE, demp = TRUE)
+plotdist(pull(data_service), histo = TRUE, demp = TRUE)
 ```
 
 :::
@@ -397,13 +474,21 @@ The KS Test returns a statistic and p value.
 
 We will illustrate how to perform the targeted approach using `scipy` directly, and the comprehensive approach using `distfit` - but you could use either for each approach.
 
+:::
+
+::: {.r-content}
+
+`fitdistrplus` is a popular library for fitting and testing statistical distributions. This can evaluate specific distributions or test multiple distributions. We will use this library to illustrate how to perform the targeted or comprehensive approach.
+
+:::
+
 <br>
 
 #### Targeted approach
 
-To implement the targeted approach using `scipy.stats`...
-
 ::: {.python-content}
+
+To implement the targeted approach using `scipy.stats`...
 
 ```{python}
 def fit_distributions(data, dists):
@@ -435,17 +520,42 @@ def fit_distributions(data, dists):
 
 # Fit and run Kolmogorov-Smirnov test on the inter-arrival and service times
 distributions = ["expon", "gamma", "weibull_min"]
+```
 
-print("Inter-arrival time")
+Inter-arrival time:
+
+```{python}
 fit_distributions(data=data["iat_mins"].dropna(), dists=distributions)
+```
 
-print("Service time")
+Service time:
+
+```{python}
 fit_distributions(data=data["service_mins"], dists=distributions)
 ```
+
+:::
+
+::: {.r-content}
+
+To implement the targeted approach using `fitdistrplus`...
+
+```{r}
+# Fit and run Kolmogorov-Smirnov test on the inter-arrival and service times
+distributions <- c("expon", "gamma", "weibull")
+
+fe <- fitdist(data$iat_mins.dropna(), "expon")
+fg <- fitdist(data$iat_mins.dropna(), "gamma")
+fw <- fitdist(data$iat_mins.dropna(), "weibull")
+```
+
+:::
 
 Unsurprisingly, the best fit for both is the **exponential distribution** (lowest test statistic).
 
 We can create a version of our histograms from before but with the distributions overlaid, to visually support this.
+
+::: {.python-content}
 
 ```{python}
 def inspect_histogram_with_fits(series, x_lab, dist_name):
@@ -600,7 +710,7 @@ dfit.plot(figsize=(7, 4))
 
 ::: {.r-content}
 
-```{.r}
+```{r}
 ```
 
 :::
@@ -622,6 +732,9 @@ As such, **exponential** seems a good choice for inter-arrival and service times
 :::
 
 ::: {.r-content}
+
+```{r}
+```
 
 :::
 
