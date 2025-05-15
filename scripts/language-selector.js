@@ -16,9 +16,6 @@ function setLanguage(lang) {
   } else if (lang === 'r') {
       document.querySelectorAll('.python-content').forEach(el => el.style.display = 'none');
       document.querySelectorAll('.r-content').forEach(el => el.style.display = 'block');
-  } else if (lang === 'both') {
-      document.querySelectorAll('.python-content').forEach(el => el.style.display = 'block');
-      document.querySelectorAll('.r-content').forEach(el => el.style.display = 'block');
   }
 }
 
