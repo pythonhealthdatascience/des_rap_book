@@ -4,6 +4,12 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      force_docker_build:
+        description: 'Force Docker build (skip change detection)'
+        required: true
+        type: boolean
+        default: false
 
 jobs:
   publish-docker:
@@ -29,7 +35,7 @@ jobs:
               - 'renv/**'
 
       - name: Login to GitHub Container Registry
-        if: steps.changes.outputs.docker == 'true'
+        if: inputs.force_docker_build || steps.changes.outputs.docker == 'true'
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
@@ -37,7 +43,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build the Docker image
-        if: steps.changes.outputs.docker == 'true'
+        if: inputs.force_docker_build || steps.changes.outputs.docker == 'true'
         uses: docker/build-push-action@v6
         with:
           context: .
