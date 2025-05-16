@@ -3,7 +3,7 @@ function Div(div)
     -- Create the link node
     local link = pandoc.Link(
       {pandoc.Str("🔗")},    -- Link text (icon)
-      "#sec-guidelines"      -- Link target (as HTML anchor)
+      "../intro/guidelines.qmd"      -- Link target (as HTML anchor)
     )
     -- Create the title: link + space + bold text + colon
     local title = pandoc.Para{

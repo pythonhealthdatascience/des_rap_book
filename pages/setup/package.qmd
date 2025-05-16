@@ -1,4 +1,6 @@
-# Structuring as a package {#sec-package}
+---
+title: Structuring as a package
+---
 
 :::{.guidelines}
 * NHS Levels of RAP (🥈): Code is well-organised following standard directory format.
@@ -10,7 +12,7 @@ Building our simulation model as a package has several advantages...
 * The model is **installed** in our environment and can then be easily used anywhere else in our directory (or even from other directories) without needing to specify a system path.
 * It encourages us to create a well-organised repository following **standardised** established package structures.
 * It helps keep the model and analysis code **separate**, improving maintainability, reusability, and reducing the risk of unintended side effects.
-* It supports automated **testing** frameworks which can verify functionality (@sec-tests).
+* It supports **automated [testing](../verification_validation/tests.qmd)** frameworks which can verify functionality.
 
 ![](package_files/package_summary.png)
 
@@ -126,7 +128,7 @@ our_directory/
 
 <br>
 
-**1. Add package to environment file**. Edit the `environment.yaml` file created in @sec-environment to add the local package. We use the `-e` flag to install it in "editable" mode, which means it will update with any changes to the source code in `simulation/`.
+**1. Add package to environment file**. Edit the `environment.yaml` file created on the [dependency management](environment.qmd) page to add the local package. We use the `-e` flag to install it in "editable" mode, which means it will update with any changes to the source code in `simulation/`.
 
 We add the following line within the `pip` installs:
 
@@ -258,7 +260,7 @@ our_directory/
 
 ## Required packages
 
-For this section, you will need `roxygen2`, `usethis` and `devtools`. If you used the environment provided in @sec-environment then you should have these already - but if you do not, make sure to install them! You can check if they are in your environment by running this command from the R console:
+For this section, you will need `roxygen2`, `usethis` and `devtools`. If you used the environment provided on the [dependency management](environment.qmd) page then you should have these already - but if you do not, make sure to install them! You can check if they are in your environment by running this command from the R console:
 
 ```{.r}
 packageVersion("devtools")
@@ -313,7 +315,7 @@ run_simulation <- function(duration = 100) {
 
 <br>
 
-**3. Make a `DESCRIPTION` file**. If you have worked through the @sec-environment page, then you should already have a `DESCRIPTION` file listing dependencies, though this step will walk you through more of the meta-data in that file important when structuring our work as a package.
+**3. Make a `DESCRIPTION` file**. If you have worked through the [dependency management](environment.qmd) page then you should already have a `DESCRIPTION` file listing dependencies, though this step will walk you through more of the meta-data in that file important when structuring our work as a package.
 
 If you haven't already, then create a `DESCRIPTION` file by running this command in the terminal:
 
@@ -349,11 +351,11 @@ We will then fill in the template with relevant information for our project. You
 
 * **Title**: Capitalised single line description of the package which does not end with a period (`.`).
 
-* **Version**: The package version. For R packages, this is usually set to `0.0.0.9000` during early development - though some developers prefer to set it to `0.1.0`, as we have done. The version number is used to track changes to the package over time. It typically follows [semantic versioning](https://semver.org/spec/v2.0.0.html), with three numbers representing major, minor and patch changes. For more about how and when to update the version, see the @sec-changelog page.
+* **Version**: The package version. For R packages, this is usually set to `0.0.0.9000` during early development - though some developers prefer to set it to `0.1.0`, as we have done. The version number is used to track changes to the package over time. It typically follows [semantic versioning](https://semver.org/spec/v2.0.0.html), with three numbers representing major, minor and patch changes. For more about how and when to update the version, see the page on [changelogs](../sharing/changelog.qmd).
 
 * **Authors**: List of author names, emails and roles. The main role options are the current maintainer (creator, `cre`), people who have made significant contributions (author, `aut`), those who have made smaller contributions (contributor, `ctb`), copyright holders (`cph`) and funders (`fnd`). You can add additional information using the `comment` argument, like your ORCID ID.
 
-* **URL**: Link to your repository. If you don't have one, we'd strongly recommend making one - check out the @sec-version page.
+* **URL**: Link to your repository. If you don't have one, we'd strongly recommend making one - check out the [version control](version.qmd) page.
 
 * **Description**: Single paragraph describing project.
 
@@ -367,7 +369,7 @@ We will then fill in the template with relevant information for our project. You
 
     R packages use this two-file structure, while GitHub typically expects a single `LICENSE` file containing the full text. Unless you plan to submit to CRAN - which requires the R package structure - either approach is fine. For simplicity, we recommend sticking with the standard R package setup using `usethis`, and agreeing if prompted to overwrite old license files.
 
-    For more information, see the @sec-licence page in this book, and the [R Packages book](https://r-pkgs.org/license.html).
+    For more information, see the [licensing](../sharing/licence.qmd) page in this book, and the [R Packages book](https://r-pkgs.org/license.html).
 
 * **RoxygenNote**: `roxygen2` is used when documenting code. Update this to the version of `roxygen2` which you have installed - to check, run:
 
@@ -430,7 +432,7 @@ Config/testthat/edition: 3
 
 ## Use `devtools` to build documentation and run checks
 
-**1. Build package documentation**. The function we created in `model.R` had a docstring (for more info on writing docstrings, see @sec-docstrings). We can create the documentation for this by calling:
+**1. Build package documentation**. The function we created in `model.R` had a docstring (for more info on writing docstrings, see the [docstrings](../style_docs/docstrings.qmd) page). We can create the documentation for this by calling:
 
 ```{.r}
 devtools::document()
