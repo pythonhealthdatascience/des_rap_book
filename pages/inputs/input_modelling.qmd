@@ -103,7 +103,7 @@ First, we import the data.
 
 ::: {.python-content}
 
-<!--DIFF: Add plotly.io-->
+<!--SAME-->
 ```{python}
 # pylint: disable=missing-module-docstring
 # Import required packages
@@ -112,8 +112,7 @@ import numpy as np
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
-import plotly.io as pio
-import scipy.stats as stats
+from scipy import stats
 ```
 
 <!--DIFF: Different file path-->
@@ -138,7 +137,7 @@ data.head()
 # nolint start: undesirable_function_linter.
 # Import required packages
 library(dplyr)
-library(fitdistrplus) 
+library(fitdistrplus)
 library(ggplot2)
 library(lubridate)
 library(plotly)
@@ -151,7 +150,7 @@ library(tidyr)
 ```{r}
 # Import data
 data <- read_csv(
-    file.path("..", "..", "data", "NHS_synthetic.csv"), show_col_types = FALSE
+  file.path("..", "..", "data", "NHS_synthetic.csv"), show_col_types = FALSE
 )
 
 # Preview data
@@ -848,29 +847,29 @@ The `distfit` package has some nice visualisation functions. For example, using 
 <!--SAME-->
 ```{python}
 # PDF with all the distributions overlaid
-fig, ax = dfit_iat.plot(n_top=11, figsize=(7, 4))
-fig.show()
+p, _ = dfit_iat.plot(n_top=11, figsize=(7, 4))
+p.show()
 ```
 
 <!--SAME-->
 ```{python}
 # CDF with all the distributions overlaid
-fig, ax = dfit_iat.plot(chart="cdf", n_top=11, figsize=(7, 4))
-fig.show()
+p, _ = dfit_iat.plot(chart="cdf", n_top=11, figsize=(7, 4))
+p.show()
 ```
 
 <!--SAME-->
 ```{python}
 # QQ plot with all distributions overlaid
-fig, ax = dfit_iat.qqplot(data["iat_mins"].dropna(), n_top=11, figsize=(7, 4))
-fig.show()
+p, _ = dfit_iat.qqplot(data["iat_mins"].dropna(), n_top=11, figsize=(7, 4))
+p.show()
 ```
 
 <!--SAME-->
 ```{python}
 # Summary plot using the RSS
-fig, ax = dfit_iat.plot_summary(figsize=(7, 4))
-fig.show()
+p, _ = dfit_iat.plot_summary(figsize=(7, 4))
+p.show()
 ```
 
 We can also use it to create a plot with a specific distribution overlaid, like in the targeted approach:
@@ -880,8 +879,8 @@ We can also use it to create a plot with a specific distribution overlaid, like 
 # To create a plot with a specific distribution overlaid...
 dfit = distfit(distr="expon")
 _ = dfit.fit_transform(data["iat_mins"].dropna())
-fig, ax = dfit.plot(figsize=(7, 4))
-fig.show()
+p, _ = dfit.plot(figsize=(7, 4))
+p.show()
 ```
 
 :::
@@ -975,8 +974,8 @@ Rate:
 
 <!--SAME-->
 ```{r}
-1 / mean(data_iat)
-1 / mean(data_service)
+1L / mean(data_iat)
+1L / mean(data_service)
 ```
 
 :::
