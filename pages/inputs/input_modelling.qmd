@@ -6,6 +6,8 @@ bibliography: input_data_resources/references.bib
 # Input modelling {#sec-input_modelling}
 
 {{< include ../../scripts/_reticulate-setup.md >}}
+<!--Above each cell, have marked whether the code is the same or
+different as the source it was copied from-->
 
 This page has step-by-step instructions for input modelling in Python or R, with inspiration from @Robinson2007 and @Monks2024. For advice on making your input modelling workflow **reproducible** and **sharing data or scripts with sensitive content**, see @sec-input_data.
 
@@ -58,17 +60,25 @@ Though the comprehensive approach tests lots of different distributions, it's st
 
 We'll demonstrate steps for input modelling below using **synthetic arrival data** from the nurse visit simulation (@sec-examples). In this case, we already know which distributions to use (as we sampled from them to create our synthetic data!). However, the steps still illustrate how you might select distributions in practice with real data.
 
-<!--
-<br> 
-### Create script
-TODO: WHERE to store in repo
-:::{.python-content}
-TODO: ipynb... touch notebooks/input_modelling.ipynb
+::: {.python-content}
+
+We'll create a Jupyter Notebook to perform this analysis in.
+
+```{.bash}
+touch notebooks/input_modelling.ipynb
+```
+
 :::
 
-:::{.r-content}
+::: {.r-content}
+
+We'll create a R Markdown file to perform this analysis in.
+
+```{.bash}
+touch rmarkdown/input_modelling.Rmd
+```
+
 :::
--->
 
 <br>
 
@@ -96,7 +106,9 @@ First, we import the data.
 
 ::: {.python-content}
 
+<!--DIFF: Add plotly.io-->
 ```{python}
+# pylint: disable=missing-module-docstring
 # Import required packages
 from distfit import distfit
 import numpy as np
@@ -105,7 +117,10 @@ import plotly.express as px
 import plotly.graph_objects as go
 import plotly.io as pio
 import scipy.stats as stats
+```
 
+<!--DIFF: Different file path-->
+```{python}
 # Import data
 data = pd.read_csv("../../data/NHS_synthetic.csv", dtype={
     "ARRIVAL_TIME": str,
@@ -154,6 +169,7 @@ We then calculate the inter-arrival times.
 
 ::: {.python-content}
 
+<!--SAME-->
 ```{python}
 # Combine date/time and convert to datetime
 data["arrival_datetime"] = pd.to_datetime(
@@ -205,6 +221,7 @@ We also calculate the service times.
 
 ::: {.python-content}
 
+<!--SAME-->
 ```{python}
 # Combine dates with times
 data["service_datetime"] = pd.to_datetime(
@@ -249,6 +266,7 @@ data %>% select(service_datetime, departure_datetime, service_mins) %>% head()
 
 ::: {.python-content}
 
+<!--SAME-->
 ```{python}
 def inspect_time_series(time_series, y_lab):
     """
@@ -274,20 +292,26 @@ def inspect_time_series(time_series, y_lab):
     return fig
 ```
 
+<!--SAME-->
 ```{python}
-# Plot daily arrivals
-fig = inspect_time_series(time_series=data.groupby(by=["ARRIVAL_DATE"]).size(),
-                    y_lab="Number of arrivals")
-fig.show()
+# Calculate mean arrivals per day and plot time series
+p = inspect_time_series(
+    time_series=data.groupby(by=["ARRIVAL_DATE"]).size(),
+    y_lab="Number of arrivals")
 
+p.show()
+```
+
+<!--SAME-->
+```{python}
 # Calculate mean service length per day, dropping last day (incomplete)
 daily_service = data.groupby("SERVICE_DATE")["service_mins"].mean()
 daily_service = daily_service.iloc[:-1]
 
 # Plot mean service length each day
-fig = inspect_time_series(time_series=daily_service,
-                          y_lab="Mean consultation length (min)")
-fig.show()
+p = inspect_time_series(time_series=daily_service,
+                        y_lab="Mean consultation length (min)")
+p.show()
 ```
 
 :::
@@ -372,6 +396,7 @@ inspect_time_series(
 
 ::: {.python-content}
 
+<!--SAME-->
 ```{python}
 def inspect_histogram(series, x_lab):
     """
@@ -398,16 +423,20 @@ def inspect_histogram(series, x_lab):
     return fig
 ```
 
+<!--SAME-->
 ```{python}
 # Plot histogram of inter-arrival times
-fig = inspect_histogram(series=data["iat_mins"],
-                        x_lab="Inter-arrival time (min)")
-fig.show()
+p = inspect_histogram(series=data["iat_mins"],
+                      x_lab="Inter-arrival time (min)")
+p.show()
+```
 
+<!--SAME-->
+```{python}
 # Plot histogram of service times
-fig = inspect_histogram(series=data["service_mins"],
-                        x_lab="Consultation length (min)")
-fig.show()
+p = inspect_histogram(series=data["service_mins"],
+                      x_lab="Consultation length (min)")
+p.show()
 ```
 
 :::
@@ -525,30 +554,31 @@ We will illustrate how to perform the targeted approach using `scipy` directly, 
 
 To implement the targeted approach using `scipy.stats`...
 
+<!--SAME-->
 ```{python}
-def fit_distributions(data, dists):
+def fit_distributions(input_series, dists):
     """
     This function fits statistical distributions to the provided data and
     performs Kolmogorov-Smirnov tests to assess the goodness of fit.
 
     Parameters
     ----------
-    data : array_like
+    input_series : pandas.Series
         The observed data to fit the distributions to.
     dists : list
         List of the distributions in scipy.stats to fit, eg. ["expon", "gamma"]
 
     Notes
     -----
-    A lower test statistic and higher p-value indicate a better fit to the data.
+    A lower test statistic and higher p-value indicates better fit to the data.
     """
     for dist_name in dists:
         # Fit distribution to the data
         dist = getattr(stats, dist_name)
-        params = dist.fit(data)
+        params = dist.fit(input_series)
 
         # Return results from Kolmogorov-Smirnov test
-        ks_result = stats.kstest(data, dist_name, args=params)
+        ks_result = stats.kstest(input_series, dist_name, args=params)
         print(f"Kolmogorov-Smirnov statistic for {dist_name}: " +
             f"{ks_result.statistic:.4f} (p={ks_result.pvalue:.2e})")
 
@@ -559,14 +589,16 @@ distributions = ["expon", "gamma", "weibull_min"]
 
 Inter-arrival time:
 
+<!--SAME-->
 ```{python}
-fit_distributions(data=data["iat_mins"].dropna(), dists=distributions)
+fit_distributions(input_series=data["iat_mins"].dropna(), dists=distributions)
 ```
 
 Service time:
 
+<!--SAME-->
 ```{python}
-fit_distributions(data=data["service_mins"], dists=distributions)
+fit_distributions(input_series=data["service_mins"], dists=distributions)
 ```
 
 :::
@@ -652,6 +684,7 @@ We can create a version of our histograms from before but with the distributions
 
 ::: {.python-content}
 
+<!--SAME-->
 ```{python}
 def inspect_histogram_with_fits(series, x_lab, dist_name):
     """
@@ -665,38 +698,46 @@ def inspect_histogram_with_fits(series, x_lab, dist_name):
         X axis label.
     dist_name : str
         Name of the distributions in scipy.stats to fit, eg. "expon"
+
+    Returns
+    -------
+    fig : plotly.graph_objects.Figure
     """
     # Plot histogram with probability density normalisation
     fig = px.histogram(series, nbins=30, histnorm="probability density")
     fig.update_layout(
         xaxis_title=x_lab, showlegend=True, width=700, height=400
     )
-    
+
     # Fit and plot each distribution
     x = np.linspace(series.min(), series.max(), 1000)
     dist = getattr(stats, dist_name)
     params = dist.fit(series.dropna())
     pdf_fitted = dist.pdf(x, *params[:-2], loc=params[-2], scale=params[-1])
     fig.add_trace(go.Scatter(x=x, y=pdf_fitted, mode="lines", name=dist_name))
-    
-    fig.show()
+
+    return fig
 ```
 
+<!--SAME-->
 ```{python}
-# Plot histogram with fitted distribution
-inspect_histogram_with_fits(series=data["iat_mins"].dropna(), 
-                            x_lab="Inter-arrival time (min)", 
-                            dist_name="expon")
-inspect_histogram_with_fits(series=data["service_mins"], 
-                            x_lab="Service time (min)", 
-                            dist_name="expon")
+# Plot histograms with fitted distributions
+p = inspect_histogram_with_fits(series=data["iat_mins"].dropna(),
+                                x_lab="Inter-arrival time (min)",
+                                dist_name="expon")
+p.show()
+
+p = inspect_histogram_with_fits(series=data["service_mins"],
+                                x_lab="Service time (min)",
+                                dist_name="expon")
+p.show()
 ```
 
 :::
 
 ::: {.r-content}
 
-The simplest way to do this is to just use the plotting functions from `distfitrplus`.
+The simplest way to do this is to just use the plotting functions from `fitdistrplus`.
 
 <!--DIFF: Don't save-->
 ```{r}
@@ -719,6 +760,7 @@ denscomp(ser_exp, legendtext = "Exponential")
 
 To implement the comprehensive approach using `distfit`...
 
+<!--SAME-->
 ```{python}
 # Fit popular distributions to inter-arrivals times
 dfit_iat = distfit(distr="popular", stats="RSS", verbose="silent")
@@ -743,8 +785,9 @@ For continuous data, `ks` is often a good choice - but for `distfit`, they use a
 
 As such, we have left `distfit` with `RSS`. However, we can calculate a standard KS statistic ourselves using the function below - which, as we can see, matches up with our results above.
 
+<!--SAME-->
 ```{python}
-def calculate_ks(data, dfit_summary):
+def calculate_ks(input_series, dfit_summary):
     """
     Calculate standard Kolmogorov-Smirnov statistics for fitted distributions.
 
@@ -754,7 +797,7 @@ def calculate_ks(data, dfit_summary):
 
     Parameters
     ----------
-    data : pandas.Series
+    input_series : pandas.Series
         The original data series used for distribution fitting.
     dfit_summary : pandas.DataFrame
         The summary DataFrame from a distfit object, containing fitted
@@ -771,13 +814,13 @@ def calculate_ks(data, dfit_summary):
     Lower KS statistic values indicate better fits to the data.
     """
     results = []
-    for idx, row in dfit_summary.iterrows():
+    for _, row in dfit_summary.iterrows():
         dist_name = row["name"]
         dist_params = row["params"]
-        
+
         # Perform KS test using scipy.stats.kstest
-        ks_result = stats.kstest(data, dist_name, args=dist_params)
-        
+        ks_result = stats.kstest(input_series, dist_name, args=dist_params)
+
         # Store the results
         results.append({
             "name": dist_name,
@@ -789,44 +832,66 @@ def calculate_ks(data, dfit_summary):
     return pd.DataFrame(results).sort_values(by="ks")
 ```
 
+<!--SAME-->
 ```{python}
-calculate_ks(data=data[["iat_mins"]].dropna(), dfit_summary=dfit_iat.summary)
+calculate_ks(input_series=data[["iat_mins"]].dropna(),
+             dfit_summary=dfit_iat.summary)
+```
 
-calculate_ks(data=data[["service_mins"]], dfit_summary=dfit_service.summary)
+<!--SAME-->
+```{python}
+calculate_ks(input_series=data[["service_mins"]],
+             dfit_summary=dfit_service.summary)
 ```
 
 <br>
 
 The `distfit` package has some nice visualisation functions. For example, using the inter-arrival times...
 
+<!--SAME-->
 ```{python}
 # PDF with all the distributions overlaid
-dfit_iat.plot(n_top=11, figsize=(7, 4))
+fig, ax = dfit_iat.plot(n_top=11, figsize=(7, 4))
+fig.show()
+```
 
+<!--SAME-->
+```{python}
 # CDF with all the distributions overlaid
-dfit_iat.plot(chart="cdf", n_top=11, figsize=(7, 4))
+fig, ax = dfit_iat.plot(chart="cdf", n_top=11, figsize=(7, 4))
+fig.show()
+```
 
+<!--SAME-->
+```{python}
 # QQ plot with all distributions overlaid
-dfit_iat.qqplot(data["iat_mins"].dropna(), n_top=11, figsize=(7, 4))
+fig, ax = dfit_iat.qqplot(data["iat_mins"].dropna(), n_top=11, figsize=(7, 4))
+fig.show()
+```
 
+<!--SAME-->
+```{python}
 # Summary plot using the RSS
-dfit_iat.plot_summary(figsize=(7, 4))
+fig, ax = dfit_iat.plot_summary(figsize=(7, 4))
+fig.show()
 ```
 
 We can also use it to create a plot with a specific distribution overlaid, like in the targeted approach:
 
+<!--SAME-->
 ```{python}
 # To create a plot with a specific distribution overlaid...
 dfit = distfit(distr="expon")
-dfit.fit_transform(data["iat_mins"].dropna())
-dfit.plot(figsize=(7, 4))
+_ = dfit.fit_transform(data["iat_mins"].dropna())
+fig, ax = dfit.plot(figsize=(7, 4))
+fig.show()
 ```
 
 :::
 
 ::: {.r-content}
 
-The `distfitrplus` package does not have a built-in function to automatically fit a large set of distributions in a single command. Instead, we just need to specify a list of candidate distributions.
+The `fitdistrplus` package does not have a built-in function to automatically fit a large set of distributions in a single command. Instead, we just need to specify a list of candidate distributions.
 
 <!--SAME-->
 ```{r}
@@ -840,9 +905,11 @@ fit_distributions(data_service, distributions)
 
 Again, **exponential** is returned as the best fit.
 
+<br>
+
 #### Plots
 
-The `distfitrplus` package also has some nice visualisation functions.
+The `fitdistrplus` package also has some nice visualisation functions.
 
 <!--DIFF: Don't save-->
 ```{r}
@@ -852,13 +919,13 @@ plot(iat_exp)
 
 :::
 
-### Chosen distributions
+<br>
+
+### Step 3. Choose distributions
 
 ::: {.python-content}
 
-It's good to have an idea of good likely distributions before testing a few. You can either do this directly with `scipy.stats`, or use a tool like `distfit`. This tool has the benefit of being able to run a whole panel of different distributions easily and plot results.
-
-In this case, manually we found exponential to be best. With `distfit`, there were a few distributions that were all very low scores (pareto, expon, genextreme). Choosing between these...
+Using the targeted approach, we found exponential to be the best. Using the comprehensive approach, there were a few distributions that were all very low scores (pareto, expon, genextreme). Choosing between these...
 
 * Exponential - simple, wide application, good for context, fewer parameters
 * Generalised pareto - useful if data has heavier tail (not the case here)
@@ -870,15 +937,56 @@ As such, **exponential** seems a good choice for inter-arrival and service times
 
 ::: {.r-content}
 
-It's good to have an idea of good likely distributions before testing a few. You can do this using `distfitrplus`, testing just those or a whole panel of different distributions.
-
-In this case, we found **exponential** to be best for inter-arrival and service times.
+Using the targeted and comprehensive approach, we found **exponential** to be best for inter-arrival and service times.
 
 :::
 
+<br>
+
 ### Parameters
 
-<!--TODO: fetch the parameters for these dists... and then link to sections on parameters from script or file -->
+The exponential distribution is defined by a single parameter, but this parameter can be expressed in two ways - as the:
+
+* **Mean** (also called the **scale**) - this is just your sample mean.
+* **Rate** (also called **lambda** λ) - this is calculated as `1 / mean`.
+
+::: {.python-content}
+
+We will use the `Exponential` class from `sim-tools`, which uses the `numpy.random.exponential()` function. That accepts the **scale** parameter, so we just need to calculate the sample mean.
+
+Mean:
+
+* Inter-arrival time: 4 minutes.
+* Service time: 10 minutes.
+
+<!--SAME-->
+```{python}
+print(data["iat_mins"].dropna().mean())
+print(data["service_mins"].dropna().mean())
+```
+
+:::
+
+::: {.r-content}
+
+We will use the `rexp()` function from the `stats` package which requires the **rate** parameter, not the mean.
+
+Rate:
+
+* Inter-arrival time: 0.25
+* Service time: 0.1
+
+<!--SAME-->
+```{r}
+1 / mean(data_iat)
+1 / mean(data_service)
+```
+
+:::
+
+For guidance on storing and using these parameters, see the pages @sec-param_file and @sec-param_script.
+
+<br>
 
 ## Further information
 
