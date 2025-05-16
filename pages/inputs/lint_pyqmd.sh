@@ -5,13 +5,22 @@
 quarto convert "$1.qmd"
 jupytext --to py:percent "$1.ipynb"
 
-# Process generate Python file so line numbers align with qmd...
+# Process the generated Python file so line numbers align with qmd...
+
 # Remove Jupyter metadata
 perl -i -0777 -pe 's/^# ---.*?\n# %% \[markdown\]\n//s' "$1.py"
 
+# Replace all comment lines in markdown cells with '# -' otherwise the linter
+# will says these lines are too long (as assumes they are python comments)
+sed -i -e '/^# %% \[markdown\]/,/^# %%/ {
+  /^#/ s/^# .*/# -/
+}' "$1.py"
+
+# Do the same for the first section of markdown before the first code cell
+sed -i -e '0,/^# %%[^%]*$/ {/^#/ s/^#.*/# -/}' "$1.py"
+
 # Removes lines which are # %%, but not # %% [markdown]
 # And remove line after if that is blank (for 2nd command)
-#perl -i -ne 'print unless /^# %%$/' "$1.py"
 perl -i -ne 'if ($skip) { $skip = 0; next if /^$/; } $skip = /^# %%$/; print unless $skip' "$1.py"
 
 # Remove consecutive blank lines, leaving one line at most, if they are before
