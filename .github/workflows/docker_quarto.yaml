@@ -1,0 +1,77 @@
+name: Publish docker on GHCR and quarto on GitHub pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  publish-docker:
+    name: Publish docker
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Check if Docker build needed
+        id: changes
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            docker:
+              - 'Dockerfile'
+              - 'environment.yaml'
+              - 'renv.lock'
+              - 'renv/**'
+
+      - name: Login to GitHub Container Registry
+        if: steps.changes.outputs.docker == 'true'
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build the Docker image
+        if: steps.changes.outputs.docker == 'true'
+        uses: docker/build-push-action@4
+        with:
+          context: .
+          tags: |
+            ghcr.io/pythonhealthdatascience/des_rap_book:latest
+          push: true
+  
+  build-deploy:
+    runs-on: ubuntu-latest
+    needs: [publish-docker]
+    container:
+      image: ghcr.io/pythonhealthdatascience/des_rap_book:latest
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    permissions:
+      contents: write
+      packages: read
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure Git safe directory
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
+      - name: Restore renv dependencies
+        run: |
+          Rscript -e "renv::restore()"
+
+      - name: Render and publish to GitHub pages
+        uses: quarto-dev/quarto-actions/publish@v2
+        with:
+          target: gh-pages
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
