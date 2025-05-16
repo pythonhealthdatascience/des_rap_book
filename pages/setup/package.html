@@ -2,12 +2,12 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.7.30">
+<meta name="generator" content="quarto-1.7.31">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Structuring as a package – Reproducible Discrete-Event Simulation in Python and R</title>
+<title>package – Reproducible Discrete-Event Simulation in Python and R</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -65,8 +65,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../../">
-<link href="../../pages/setup/code_structure.html" rel="next">
-<link href="../../pages/setup/environment.html" rel="prev">
 <link href="../../images/stars_logo_blue.png" rel="icon" type="image/png">
 <script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
@@ -74,10 +72,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-de070a7b0ab54f8780927367ac907214.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-e1a5c8363afafaef2c763b6775fbf3ca.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../site_libs/bootstrap/bootstrap-09ce80c0277fc360936e517f68e5459d.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-6fc0b4f21feaadf59918ca6973b0cd26.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -90,6 +88,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "/",
     "s"
   ],
+  "show-item-context": false,
   "language": {
     "search-no-results-text": "No results",
     "search-matching-documents-text": "matching documents",
@@ -111,7 +110,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link rel="stylesheet" href="../../styles/callout.css">
 </head>
 
-<body class="nav-sidebar floating nav-fixed quarto-light">
+<body class="nav-sidebar docked nav-fixed quarto-light">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
@@ -139,17 +138,22 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../pages/setup/version.html">Setup</a></li><li class="breadcrumb-item"><a href="../../pages/setup/package.html"><span class="chapter-title">Structuring as a package</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../pages/setup/version.html">Setup</a></li><li class="breadcrumb-item"><a href="../../pages/setup/package.html">Structuring as a package</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
   </nav>
+  <div id="quarto-announcement" data-announcement-id="4617d65ad9316c9b7606e9c95215be6c" class="alert alert-primary hidden"><div class="quarto-announcement-content">
+<div class="language-selector">
+<p>Choose your language:&nbsp;&nbsp; <button class="language-button" onclick="setLanguage('python')">Python</button> <button class="language-button" onclick="setLanguage('r')">R</button></p>
+</div>
+</div></div>
 </header>
 <!-- content -->
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
-  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
-    <div class="pt-lg-2 mt-2 text-left sidebar-header sidebar-header-stacked">
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
       <a href="../../index.html" class="sidebar-logo-link">
       <img src="../../images/stars_logo_blue.png" alt="" class="sidebar-logo py-0 d-lg-inline d-none">
       </a>
@@ -158,7 +162,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Welcome</span></a>
+  <a href="../../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Welcome</span></a>
   </div>
 </li>
         <li class="sidebar-item sidebar-item-section">
@@ -172,22 +177,26 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/intro/rap.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Reproducibility and RAPs</span></a>
+  <a href="../../pages/intro/rap.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Reproducibility and RAPs</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/intro/guidelines.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Guidelines</span></a>
+  <a href="../../pages/intro/guidelines.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Guidelines</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/intro/foss.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Open-source languages</span></a>
+  <a href="../../pages/intro/foss.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Open-source languages</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/intro/examples.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Example conceptual models</span></a>
+  <a href="../../pages/intro/examples.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Example conceptual models</span></a>
   </div>
 </li>
       </ul>
@@ -203,22 +212,26 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/setup/version.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Version control</span></a>
+  <a href="../../pages/setup/version.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Version control</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/setup/environment.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Dependency management</span></a>
+  <a href="../../pages/setup/environment.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Dependency management</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/setup/package.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Structuring as a package</span></a>
+  <a href="../../pages/setup/package.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Structuring as a package</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/setup/code_structure.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Code organisation</span></a>
+  <a href="../../pages/setup/code_structure.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Code organisation</span></a>
   </div>
 </li>
       </ul>
@@ -234,27 +247,32 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/inputs/input_modelling.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Input modelling</span></a>
+  <a href="../../pages/inputs/input_modelling.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Input modelling</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/inputs/input_data.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Input data management</span></a>
+  <a href="../../pages/inputs/input_data.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Input data management</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/inputs/parameters_script.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Parameters from script</span></a>
+  <a href="../../pages/inputs/parameters_script.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Parameters from script</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/inputs/parameters_file.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Parameters from file</span></a>
+  <a href="../../pages/inputs/parameters_file.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Parameters from file</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/inputs/parameters_validation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Parameter validation</span></a>
+  <a href="../../pages/inputs/parameters_validation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Parameter validation</span></a>
   </div>
 </li>
       </ul>
@@ -270,17 +288,20 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/model/distributions.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Randomness</span></a>
+  <a href="../../pages/model/distributions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Randomness</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/model/patients.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Entity generation</span></a>
+  <a href="../../pages/model/patients.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Entity generation</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/model/process.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Entity processing</span></a>
+  <a href="../../pages/model/process.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Entity processing</span></a>
   </div>
 </li>
       </ul>
@@ -296,27 +317,32 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/output_analysis/outputs.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Performance measures</span></a>
+  <a href="../../pages/output_analysis/outputs.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Performance measures</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/output_analysis/warmup.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Initialisation bias</span></a>
+  <a href="../../pages/output_analysis/warmup.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Initialisation bias</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/output_analysis/replications.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Replications</span></a>
+  <a href="../../pages/output_analysis/replications.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Replications</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/output_analysis/n_reps.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Number of replications</span></a>
+  <a href="../../pages/output_analysis/n_reps.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Number of replications</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/output_analysis/parallel.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Parallel processing</span></a>
+  <a href="../../pages/output_analysis/parallel.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Parallel processing</span></a>
   </div>
 </li>
       </ul>
@@ -332,12 +358,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/experiments/scenarios.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Scenario analysis</span></a>
+  <a href="../../pages/experiments/scenarios.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Scenario analysis</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/experiments/sensitivity.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Sensitivity analysis</span></a>
+  <a href="../../pages/experiments/sensitivity.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Sensitivity analysis</span></a>
   </div>
 </li>
       </ul>
@@ -353,17 +381,20 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/verification_validation/logs.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Logging</span></a>
+  <a href="../../pages/verification_validation/logs.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Logging</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/verification_validation/tests.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Tests</span></a>
+  <a href="../../pages/verification_validation/tests.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Tests</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/verification_validation/validation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Validation</span></a>
+  <a href="../../pages/verification_validation/validation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Validation</span></a>
   </div>
 </li>
       </ul>
@@ -379,22 +410,26 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-8" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/style_docs/linting.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Linting</span></a>
+  <a href="../../pages/style_docs/linting.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Linting</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/style_docs/docstrings.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Docstrings</span></a>
+  <a href="../../pages/style_docs/docstrings.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Docstrings</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/style_docs/documentation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Documentation</span></a>
+  <a href="../../pages/style_docs/documentation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Documentation</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/style_docs/github_actions.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">GitHub actions</span></a>
+  <a href="../../pages/style_docs/github_actions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">GitHub actions</span></a>
   </div>
 </li>
       </ul>
@@ -410,12 +445,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-9" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/reports/tables_figures.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Producing tables and figures</span></a>
+  <a href="../../pages/reports/tables_figures.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Producing tables and figures</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/reports/full_run.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Full run</span></a>
+  <a href="../../pages/reports/full_run.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Full run</span></a>
   </div>
 </li>
       </ul>
@@ -431,27 +468,32 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-10" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/sharing/peer_review.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Peer review</span></a>
+  <a href="../../pages/sharing/peer_review.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Peer review</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/sharing/licence.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Licensing</span></a>
+  <a href="../../pages/sharing/licence.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Licensing</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/sharing/archive.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Sharing and archiving</span></a>
+  <a href="../../pages/sharing/archive.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Sharing and archiving</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/sharing/citation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Citation guidance</span></a>
+  <a href="../../pages/sharing/citation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Citation guidance</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/sharing/changelog.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Changelog</span></a>
+  <a href="../../pages/sharing/changelog.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Changelog</span></a>
   </div>
 </li>
       </ul>
@@ -467,7 +509,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-11" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/further_info/acknowledgements.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Acknowledgements</span></a>
+  <a href="../../pages/further_info/acknowledgements.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Acknowledgements</span></a>
   </div>
 </li>
       </ul>
@@ -477,36 +520,25 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </nav>
 <div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#sec-package" id="toc-sec-package" class="nav-link active" data-scroll-target="#sec-package">Structuring as a package</a></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
-<main class="content" id="quarto-document-content">
-
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../pages/setup/version.html">Setup</a></li><li class="breadcrumb-item"><a href="../../pages/setup/package.html"><span class="chapter-title">Structuring as a package</span></a></li></ol></nav>
-<div class="quarto-title">
-<h1 class="title"><span id="sec-package" class="quarto-section-identifier"><span class="chapter-title">Structuring as a package</span></span></h1>
-</div>
+<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../pages/setup/version.html">Setup</a></li><li class="breadcrumb-item"><a href="../../pages/setup/package.html">Structuring as a package</a></li></ol></nav></header>
 
 
 
-<div class="quarto-title-meta">
 
-    
-  
-    
-  </div>
-  
-
-
-</header>
-
-
-<div class="language-selector">
-<p>Choose your language:&nbsp;&nbsp; <button class="language-button" onclick="setLanguage('python')">Python</button> <button class="language-button" onclick="setLanguage('r')">R</button></p>
-</div>
+<section id="sec-package" class="level1">
+<h1>Structuring as a package</h1>
 <div class="guidelines">
-<p><a href="../intro/guidelines.html">🔗</a> <strong>Reproducibility guidelines:</strong></p>
+<p><a href="#sec-guidelines">🔗</a> <strong>Reproducibility guidelines:</strong></p>
 <ul>
 <li>NHS Levels of RAP (🥈): Code is well-organised following standard directory format. &gt; * NHS Levels of RAP (🥇): Code is fully packaged.</li>
 </ul>
@@ -516,7 +548,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>The model is <strong>installed</strong> in our environment and can then be easily used anywhere else in our directory (or even from other directories) without needing to specify a system path.</li>
 <li>It encourages us to create a well-organised repository following <strong>standardised</strong> established package structures.</li>
 <li>It helps keep the model and analysis code <strong>separate</strong>, improving maintainability, reusability, and reducing the risk of unintended side effects.</li>
-<li>It supports automated <strong>testing</strong> frameworks which can verify functionality (<a href="../verification_validation/tests.html" class="quarto-xref"><span>Tests</span></a>).</li>
+<li>It supports automated <strong>testing</strong> frameworks which can verify functionality (<strong>?@sec-tests</strong>).</li>
 </ul>
 <p><img src="package_files/package_summary.png" class="img-fluid"></p>
 <p><br></p>
@@ -588,7 +620,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="update-the-environment" class="level2">
 <h2 class="anchored" data-anchor-id="update-the-environment">Update the environment</h2>
 <p><br></p>
-<p><strong>1. Add package to environment file</strong>. Edit the <code>environment.yaml</code> file created in <a href="environment.html" class="quarto-xref"><span>Dependency management</span></a> to add the local package. We use the <code>-e</code> flag to install it in “editable” mode, which means it will update with any changes to the source code in <code>simulation/</code>.</p>
+<p><strong>1. Add package to environment file</strong>. Edit the <code>environment.yaml</code> file created in <strong>?@sec-environment</strong> to add the local package. We use the <code>-e</code> flag to install it in “editable” mode, which means it will update with any changes to the source code in <code>simulation/</code>.</p>
 <p>We add the following line within the <code>pip</code> installs:</p>
 <div class="sourceCode" id="cb9"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>  <span class="ex">-</span> pip:</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    <span class="ex">-</span> <span class="at">-e</span> .<span class="pp">[</span><span class="ss">dev</span><span class="pp">]</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -683,7 +715,7 @@ Number of results: 20</code></pre>
 <div class="r-content">
 <section id="required-packages" class="level2">
 <h2 class="anchored" data-anchor-id="required-packages">Required packages</h2>
-<p>For this section, you will need <code>roxygen2</code>, <code>usethis</code> and <code>devtools</code>. If you used the environment provided in <a href="environment.html" class="quarto-xref"><span>Dependency management</span></a> then you should have these already - but if you do not, make sure to install them! You can check if they are in your environment by running this command from the R console:</p>
+<p>For this section, you will need <code>roxygen2</code>, <code>usethis</code> and <code>devtools</code>. If you used the environment provided in <strong>?@sec-environment</strong> then you should have these already - but if you do not, make sure to install them! You can check if they are in your environment by running this command from the R console:</p>
 <div class="sourceCode" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">packageVersion</span>(<span class="st">"devtools"</span>)</span>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="fu">packageVersion</span>(<span class="st">"usethis"</span>)</span>
 <span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="fu">packageVersion</span>(<span class="st">"roxygen2"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -717,7 +749,7 @@ Number of results: 20</code></pre>
 <span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a>  ))</span>
 <span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p><br></p>
-<p><strong>3. Make a <code>DESCRIPTION</code> file</strong>. If you have worked through the <a href="environment.html" class="quarto-xref"><span>Dependency management</span></a> page, then you should already have a <code>DESCRIPTION</code> file listing dependencies, though this step will walk you through more of the meta-data in that file important when structuring our work as a package.</p>
+<p><strong>3. Make a <code>DESCRIPTION</code> file</strong>. If you have worked through the <strong>?@sec-environment</strong> page, then you should already have a <code>DESCRIPTION</code> file listing dependencies, though this step will walk you through more of the meta-data in that file important when structuring our work as a package.</p>
 <p>If you haven’t already, then create a <code>DESCRIPTION</code> file by running this command in the terminal:</p>
 <div class="sourceCode" id="cb21"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">touch</span> DESCRIPTION</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Open the file and copy in the template below. This is similar to the standard template generated by <code>usethis::use_description()</code>, but with a few extra sections.</p>
@@ -742,15 +774,15 @@ Number of results: 20</code></pre>
 <ul>
 <li><p><strong>Package</strong>: When using <code>devtools</code> to work with our package (as below), it will prompt you to use a name that complies with CRAN (the main R package repository). They require that the name is only made up of letters, numbers and periods (<code>.</code>) - and that it must start with a letter and cannot end with a period. When structuring our research project as a package, this is not often with the aim of uploading it to CRAN, but it can be simple/good practice to follow these guidelines anyway, and means you avoid <code>devtools</code> error messages! <!--TODO: need to check if it would actually WORK and load with this, or if it would prevent it --></p></li>
 <li><p><strong>Title</strong>: Capitalised single line description of the package which does not end with a period (<code>.</code>).</p></li>
-<li><p><strong>Version</strong>: The package version. For R packages, this is usually set to <code>0.0.0.9000</code> during early development - though some developers prefer to set it to <code>0.1.0</code>, as we have done. The version number is used to track changes to the package over time. It typically follows <a href="https://semver.org/spec/v2.0.0.html">semantic versioning</a>, with three numbers representing major, minor and patch changes. For more about how and when to update the version, see the <a href="../sharing/changelog.html" class="quarto-xref"><span>Changelog</span></a> page.</p></li>
+<li><p><strong>Version</strong>: The package version. For R packages, this is usually set to <code>0.0.0.9000</code> during early development - though some developers prefer to set it to <code>0.1.0</code>, as we have done. The version number is used to track changes to the package over time. It typically follows <a href="https://semver.org/spec/v2.0.0.html">semantic versioning</a>, with three numbers representing major, minor and patch changes. For more about how and when to update the version, see the <strong>?@sec-changelog</strong> page.</p></li>
 <li><p><strong>Authors</strong>: List of author names, emails and roles. The main role options are the current maintainer (creator, <code>cre</code>), people who have made significant contributions (author, <code>aut</code>), those who have made smaller contributions (contributor, <code>ctb</code>), copyright holders (<code>cph</code>) and funders (<code>fnd</code>). You can add additional information using the <code>comment</code> argument, like your ORCID ID.</p></li>
-<li><p><strong>URL</strong>: Link to your repository. If you don’t have one, we’d strongly recommend making one - check out the <a href="version.html" class="quarto-xref"><span>Version control</span></a> page.</p></li>
+<li><p><strong>URL</strong>: Link to your repository. If you don’t have one, we’d strongly recommend making one - check out the <strong>?@sec-version</strong> page.</p></li>
 <li><p><strong>Description</strong>: Single paragraph describing project.</p></li>
 <li><p><strong>License</strong>: A license tells others how they can use your code. The <code>usethis</code> package makes it easy to add a license: just call the function for your chosen license, for example:</p>
 <div class="sourceCode" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">use_mit_license</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>This will update the License field in <code>DESCRIPTION</code> and create both <code>LICENSE</code> (with the year and copyright holder) and <code>LICENSE.md</code> (with the full licence text). Note: it will prompt you to overwrite any existing licence files.</p>
 <p>R packages use this two-file structure, while GitHub typically expects a single <code>LICENSE</code> file containing the full text. Unless you plan to submit to CRAN - which requires the R package structure - either approach is fine. For simplicity, we recommend sticking with the standard R package setup using <code>usethis</code>, and agreeing if prompted to overwrite old license files.</p>
-<p>For more information, see the <a href="../sharing/licence.html" class="quarto-xref"><span>Licensing</span></a> page in this book, and the <a href="https://r-pkgs.org/license.html">R Packages book</a>.</p></li>
+<p>For more information, see the <strong>?@sec-licence</strong> page in this book, and the <a href="https://r-pkgs.org/license.html">R Packages book</a>.</p></li>
 <li><p><strong>RoxygenNote</strong>: <code>roxygen2</code> is used when documenting code. Update this to the version of <code>roxygen2</code> which you have installed - to check, run:</p>
 <div class="sourceCode" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">packageVersion</span>(<span class="st">"roxygen2"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
 <li><p><strong>Imports</strong>: These are packages necessary for your package. In other words, if it’s used by code in <code>R/</code>, then list it here.</p></li>
@@ -803,7 +835,7 @@ Number of results: 20</code></pre>
 </section>
 <section id="use-devtools-to-build-documentation-and-run-checks" class="level2">
 <h2 class="anchored" data-anchor-id="use-devtools-to-build-documentation-and-run-checks">Use <code>devtools</code> to build documentation and run checks</h2>
-<p><strong>1. Build package documentation</strong>. The function we created in <code>model.R</code> had a docstring (for more info on writing docstrings, see <a href="../style_docs/docstrings.html" class="quarto-xref"><span>Docstrings</span></a>). We can create the documentation for this by calling:</p>
+<p><strong>1. Build package documentation</strong>. The function we created in <code>model.R</code> had a docstring (for more info on writing docstrings, see <strong>?@sec-docstrings</strong>). We can create the documentation for this by calling:</p>
 <div class="sourceCode" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">document</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>This will create:</p>
 <ul>
@@ -993,6 +1025,7 @@ Number of results: 20</code></pre>
 </div>
 
 
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
@@ -1067,7 +1100,7 @@ Number of results: 20</code></pre>
     }
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
-        var filterRegex = new RegExp('/' + window.location.host + '/');
+        var filterRegex = new RegExp("https:\/\/pythonhealthdatascience\.github\.io\/des_rap_book\/");
       var isInternal = (href) => {
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }
@@ -1276,18 +1309,6 @@ Number of results: 20</code></pre>
     }
   });
   </script>
-<nav class="page-navigation">
-  <div class="nav-page nav-page-previous">
-      <a href="../../pages/setup/environment.html" class="pagination-link" aria-label="Dependency management">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">Dependency management</span></span>
-      </a>          
-  </div>
-  <div class="nav-page nav-page-next">
-      <a href="../../pages/setup/code_structure.html" class="pagination-link" aria-label="Code organisation">
-        <span class="nav-page-text"><span class="chapter-title">Code organisation</span></span> <i class="bi bi-arrow-right-short"></i>
-      </a>
-  </div>
-</nav>
 </div> <!-- /content -->
 <script type="application/javascript" src="../../scripts/language-selector.js"></script>
 
