@@ -47,4 +47,4 @@ awk '
 ' "$1.py" > tmp && mv tmp "$1.py"
 
 # Run pylint
-# pylint "$1.py"
+pylint "$1.py"
