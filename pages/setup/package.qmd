@@ -4,7 +4,7 @@ title: Structuring as a package
 
 :::{.guidelines}
 * NHS Levels of RAP (🥈): Code is well-organised following standard directory format.
-> * NHS Levels of RAP (🥇): Code is fully packaged.
+* NHS Levels of RAP (🥇): Code is fully packaged.
 :::
 
 Building our simulation model as a package has several advantages...
@@ -18,9 +18,11 @@ Building our simulation model as a package has several advantages...
 
 <br>
 
+## Create the package structure
+
 ::: {.python-content}
 
-## Create the Python package structure
+### Header in block
 
 First, let's create the basic directory structure for our simulation package.
 
@@ -122,143 +124,9 @@ our_directory/
 └── README.md
 ```
 
-<br>
-
-## Update the environment
-
-<br>
-
-**1. Add package to environment file**. Edit the `environment.yaml` file created on the [dependency management](environment.qmd) page to add the local package. We use the `-e` flag to install it in "editable" mode, which means it will update with any changes to the source code in `simulation/`.
-
-We add the following line within the `pip` installs:
-
-```{.bash}
-  - pip:
-    - -e .[dev]
-```
-
-So our full environment file is now:
-
-```{.bash}
-name: des-example
-channels:
-  - conda-forge
-dependencies:
-  - ipykernel=6.29.5
-  - jinja2=3.1.5
-  - joblib=1.4.2
-  - nbconvert=7.16.6
-  - nbformat=5.10.4
-  - nbqa=1.9.0
-  - numpy=2.2.2
-  - pandas=2.2.3
-  - pip=25.0
-  - plotly_express=0.4.1
-  - pylint=3.3.4
-  - pytest=8.3.4
-  - pytest-xdist=3.6.1
-  - python=3.13.1
-  - rich=13.9.4
-  - simpy=4.1.1
-  - pip:
-    - kaleido==0.2.1
-    - sim-tools==0.8.0
-    - -e .[dev]
-```
-
-<br>
-
-**2. Update the environment**. To update our environment, adding our new package, execute the following in the command line (after running `conda activate des-example`):
-
-```{.bash}
-conda env update --file environment.yaml --prune
-```
-
-If you run `conda list`, you should now see our `simulation` package listed as a dependency like so:
-
-```
-# Name                    Version                   Build  Channel
-simulation                0.1.0                    pypi_0    pypi
-```
-
-<br>
-
-## Create a notebook to test your package
-
-We will run our model and analyse results within **Jupyter notebooks**, as they allow us to combine code, results and explanations in one document. This can help make our methods and results easier to share, read through and understand.
-
-<br>
-
-**1. Create directory and notebook**. We create a dedicated directory for our notebooks in the project root (`notebooks/`), and add a notebook (`simulation_test.ipynb`). These can be created via your operating system's file manager, or with the command line:
-
-```{.bash}
-mkdir notebooks
-touch notebooks/simulation_test.ipynb
-```
-
-<br>
-
-**2. Check our package works.** Open `notebooks/simulation_test.ipynb` and add the following code. This will test that we are able to import our package and use the basic function we had created.
-
-```{.python}
-# Import our simulation package
-from simulation.model import run_simulation
-
-# Run the simulation with default parameters
-results = run_simulation()
-print(f"Simulation completed with duration: {results['duration']}")
-print(f"Results: {results['results']}")
-
-# Run with a different duration
-long_results = run_simulation(duration=200)
-print(f"Longer simulation completed with duration: {long_results['duration']}")
-print(f"Number of results: {len(long_results['results'])}")
-```
-
-When you run the cell, you should see an output confirming that the simulation function runs and returns results, if everything is set up correctly.
-
-```
-Simulation completed with duration: 100
-Results: [0, 10, 20, 30, 40, 50, 60, 70, 80, 90]
-Longer simulation completed with duration: 200
-Number of results: 20
-```
-
-<br>
-
-## Summary
-
-To structure your simulation project as a python package:
-
-* Place all core python functions in the `simulation/` directory (e.g. `model.py`).
-* Create `simulation/__init__.py` and `pyproject.toml` to set-up as a package.
-* Organise analysis into a seperate directory (e.g. `notebooks/`).
-
-For example:
-
-```{.bash}
-our_directory/
-├── simulation/             # Main package directory
-│   ├── __init__.py         # Makes the directory a package
-│   └── model.py            # Our function
-├── .gitignore
-├── environment.yaml
-├── LICENSE
-├── pyproject.toml          # Package metadata
-└── README.md
-```
-
-<br>
-
-## Further information
-
-* ["How I use Python to organize my data analyses"](https://joshuacook.netlify.app/posts/2024-07-27_python-data-analysis-org/) from Joshua Cook 2024 
-
 :::
 
-::: {.r-content}
-
-## Required packages
+:::{.r-content}
 
 For this section, you will need `roxygen2`, `usethis` and `devtools`. If you used the environment provided on the [dependency management](environment.qmd) page then you should have these already - but if you do not, make sure to install them! You can check if they are in your environment by running this command from the R console:
 
@@ -270,9 +138,7 @@ packageVersion("roxygen2")
 
 If will print the version number of each package if installed.
 
-## Create the R package structure
-
-First, let's create the basic directory structure for our simulation package.
+Now, let's first create the basic directory structure for our simulation package.
 
 <br>
 
@@ -428,9 +294,76 @@ Suggests:
 Config/testthat/edition: 3
 ```
 
+:::
+
 <br>
 
-## Use `devtools` to build documentation and run checks
+## Configure your project
+
+:::{.python-content}
+
+<br>
+
+**1. Add package to environment file**. Edit the `environment.yaml` file created on the [dependency management](environment.qmd) page to add the local package. We use the `-e` flag to install it in "editable" mode, which means it will update with any changes to the source code in `simulation/`.
+
+We add the following line within the `pip` installs:
+
+```{.bash}
+  - pip:
+    - -e .[dev]
+```
+
+So our full environment file is now:
+
+```{.bash}
+name: des-example
+channels:
+  - conda-forge
+dependencies:
+  - ipykernel=6.29.5
+  - jinja2=3.1.5
+  - joblib=1.4.2
+  - nbconvert=7.16.6
+  - nbformat=5.10.4
+  - nbqa=1.9.0
+  - numpy=2.2.2
+  - pandas=2.2.3
+  - pip=25.0
+  - plotly_express=0.4.1
+  - pylint=3.3.4
+  - pytest=8.3.4
+  - pytest-xdist=3.6.1
+  - python=3.13.1
+  - rich=13.9.4
+  - simpy=4.1.1
+  - pip:
+    - kaleido==0.2.1
+    - sim-tools==0.8.0
+    - -e .[dev]
+```
+
+<br>
+
+**2. Update the environment**. To update our environment, adding our new package, execute the following in the command line (after running `conda activate des-example`):
+
+```{.bash}
+conda env update --file environment.yaml --prune
+```
+
+If you run `conda list`, you should now see our `simulation` package listed as a dependency like so:
+
+```
+# Name                    Version                   Build  Channel
+simulation                0.1.0                    pypi_0    pypi
+```
+
+:::
+
+:::{.r-content}
+
+We will use `devtools` to build documentation and run checks.
+
+<br>
 
 **1. Build package documentation**. The function we created in `model.R` had a docstring (for more info on writing docstrings, see the [docstrings](../style_docs/docstrings.qmd) page). We can create the documentation for this by calling:
 
@@ -572,11 +505,62 @@ The note in this case is because we are importing packages not currently used in
 devtools::install()
 ```
 
+:::
+
 <br>
 
-## Create a `.Rmd` file to test your package
+## Test if the package works
+
+:::{.python-content}
+
+We will run our model and analyse results within **Jupyter notebooks**, as they allow us to combine code, results and explanations in one document. This can help make our methods and results easier to share, read through and understand.
+
+In this case, we're creating an `.ipynb` file so we can have a go at loading and using our package, to check it works.
+
+<br>
+
+**1. Create directory and notebook**. We create a dedicated directory for our notebooks in the project root (`notebooks/`), and add a notebook (`simulation_test.ipynb`). These can be created via your operating system's file manager, or with the command line:
+
+```{.bash}
+mkdir notebooks
+touch notebooks/simulation_test.ipynb
+```
+
+<br>
+
+**2. Check our package works.** Open `notebooks/simulation_test.ipynb` and add the following code. This will test that we are able to import our package and use the basic function we had created.
+
+```{.python}
+# Import our simulation package
+from simulation.model import run_simulation
+
+# Run the simulation with default parameters
+results = run_simulation()
+print(f"Simulation completed with duration: {results['duration']}")
+print(f"Results: {results['results']}")
+
+# Run with a different duration
+long_results = run_simulation(duration=200)
+print(f"Longer simulation completed with duration: {long_results['duration']}")
+print(f"Number of results: {len(long_results['results'])}")
+```
+
+When you run the cell, you should see an output confirming that the simulation function runs and returns results, if everything is set up correctly.
+
+```
+Simulation completed with duration: 100
+Results: [0, 10, 20, 30, 40, 50, 60, 70, 80, 90]
+Longer simulation completed with duration: 200
+Number of results: 20
+```
+
+:::
+
+::: {.r-content}
 
 We will run our model and analyse results within **R markdown (.Rmd)** files, as they combine code, results and explanations in one document. This can help make our methods and results easier to share, read through and understand.
+
+In this case, we're creating an `.Rmd` file so we can have a go at loading and using our package, to check it works.
 
 <br>
 
@@ -625,9 +609,37 @@ Longer simulation completed with duration: 200
 Number of results: 20
 ```
 
+:::
+
 <br>
 
 ## Summary
+
+:::{.python-content}
+
+To structure your simulation project as a python package:
+
+* Place all core python functions in the `simulation/` directory (e.g. `model.py`).
+* Create `simulation/__init__.py` and `pyproject.toml` to set-up as a package.
+* Organise analysis into a seperate directory (e.g. `notebooks/`).
+
+For example:
+
+```{.bash}
+our_directory/
+├── simulation/             # Main package directory
+│   ├── __init__.py         # Makes the directory a package
+│   └── model.py            # Our function
+├── .gitignore
+├── environment.yaml
+├── LICENSE
+├── pyproject.toml          # Package metadata
+└── README.md
+```
+
+:::
+
+:::{.r-content}
 
 To structure your simulation project as an R package:
 
@@ -649,9 +661,19 @@ our_directory/
 └── rmarkdown/          # Analysis notebooks
 ```
 
+:::
+
 <br>
 
-### Further information
+## Further information
+
+:::{.python-content}
+
+* ["How I use Python to organize my data analyses"](https://joshuacook.netlify.app/posts/2024-07-27_python-data-analysis-org/) from Joshua Cook 2024 
+
+:::
+
+:::{.r-content}
 
 * ["Open, Reproducible, and Distributable Research With R Packages"](https://dante-sttr.gitlab.io/r-open-science/) from the DANTE Project - for example, this page on [vignettes](https://dante-sttr.gitlab.io/r-open-science/reports-manuscripts.html).
 * ["Sharing and organizing research products as R packages"](https://doi.org/10.3758/s13428-020-01436-x) from Vuorre and Crump 2020
@@ -659,4 +681,3 @@ our_directory/
 * ["9  DESCRIPTION" from the "R Packages" book](https://r-pkgs.org/description.html) by Hadley Wickham and Jennifer Bryan
 
 :::
-
