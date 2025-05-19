@@ -1,10 +1,9 @@
 ---
+title: Input data management
 format:
   html:
     css: input_data_resources/styles.css
 ---
-
-# Input data management {#sec-input_data}
 
 Your reproducible analytical pipeline (RAP) should **start from the earliest data you access** - either with raw data (if you estimate parameters yourself) or with pre-defined parameters (if those are supplied). This ensures that every step in your process is transparent and reproducible. For example, if you obtain updated raw data, you would be able to re-estimate parameters, check that your chosen distributions are still appropriate, and re-run the simulation.
 
@@ -20,7 +19,7 @@ There are a few key files to consider for your RAP:
 
 <br>
 
-### Raw data {#sec-input_data-raw}
+### Raw data
 
 This is data which reflects system you will be simulating. It is used to estimate parameters and fit distributions for your simulation model. For example:
 
@@ -98,9 +97,9 @@ You should keep a copy of the **data dictionary**. A data dictionary describes e
 
 <br>
 
-### Input modelling code {#sec-input_data-code}
+### Input modelling code
 
-This code (e.g. @sec-input_modelling) is often not shared, but is an essential part of your simulation RAP. It ensures transparency in how distributions were chosen and allows you (or others) to re-run the process if new data becomes available or if you need to update your assumptions.
+[Input modelling code](input_modelling.qmd) is often not shared, but is an essential part of your simulation RAP. It ensures transparency in how distributions were chosen and allows you (or others) to re-run the process if new data becomes available or if you need to update your assumptions.
 
 **If you are able to share this code externally:**
 
@@ -134,8 +133,8 @@ Parameters are the numerical values used in your model, like the arrival rates, 
 
 You should keep **clearly structured parameter files** that record all values used in your model. This could be:
 
-* A CSV file (e.g. @sec-param_file).
-* A script (e.g. @sec-param_script).
+* A CSV file (e.g. page on [parameters from a file](parameters_file.qmd)).
+* A script (e.g. page on [parameters from a script](parameters_script.qmd)).
 
 For each parameter, keep documentation (e.g. data dictionary, docstrings). Ensure you document:
 
@@ -143,7 +142,7 @@ For each parameter, keep documentation (e.g. data dictionary, docstrings). Ensur
 * Units (e.g. minutes).
 * Any abbreviations used.
 
-If the determination of parameters is not captured within any scripts from @sec-input_modelling, then you should either:
+If the determination of parameters is not captured within any scripts from [input modelling](input_modelling.qmd), then you should either:
 
 * **Provide scripts** which calculate them, or
 * **Describe the processing steps** if these cannot be shared.
@@ -163,17 +162,17 @@ If you cannot share the real parameters, you should provide **synthetic paramete
 
 Clearly document that these are synthetic and explain how they were generated.
 
-Any files (data or scripts) should be shared as described above for data (@sec-input_data-raw) and code (@sec-input_data-code).
+Any files (data or scripts) should be shared as described above for [data](#raw-data) and [code](#input-modelling-code).
 
 <br>
 
 ## Maintaining a private and public version of your model
 
-It is likely that you may have some data and/or code that you need to keep private, and cannot share along with the simulation model. It's important that **both the private and public components are version controlled** (@sec-version). One way of managing this is to have two separate repositories: a private repository and a public repository.
+It is likely that you may have some data and/or code that you need to keep private, and cannot share along with the simulation model. It's important that **both the private and public components are [version controlled](../setup/version.qmd)**. One way of managing this is to have two separate repositories: a private repository and a public repository.
 
 **If the public repository contains the real parameters** and results, it's quite simple: use the private repository for processing input data, then switch to the public repository for running the model.
 
-**If the public repository only contains synthetic parameters**, you'll need to be able to run the simulation in the private repository with the real parameters and results, and also in the public repository with the synthetic parameters and results. To avoid duplicating the simulation code across both repositories, a good strategy is to develop your simulation code as a package (@sec-package). This package can be published on GitHub, PyPI, or simply installed locally. Your private repository can then import and use this package, allowing you to maintain a single version of the simulation code while keeping sensitive parameters and data private. <!--TODO: need to explain better about the import of package options-->
+**If the public repository only contains synthetic parameters**, you'll need to be able to run the simulation in the private repository with the real parameters and results, and also in the public repository with the synthetic parameters and results. To avoid duplicating the simulation code across both repositories, a good strategy is to develop your [simulation code as a package](../setup/package.qmd). This package can be published on GitHub, PyPI, or simply installed locally. Your private repository can then import and use this package, allowing you to maintain a single version of the simulation code while keeping sensitive parameters and data private. <!--TODO: need to explain better about the import of package options-->
 
 <br>
 

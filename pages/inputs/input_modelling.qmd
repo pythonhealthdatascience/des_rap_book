@@ -1,15 +1,12 @@
 ---
+title: Input modelling
 output: html
 bibliography: input_data_resources/references.bib
 ---
 
-# Input modelling {#sec-input_modelling}
-
 {{< include ../../scripts/_reticulate-setup.md >}}
-<!--Above each cell, have marked whether the code is the same or
-different as the source it was copied from-->
 
-This page has step-by-step instructions for input modelling in Python or R, with inspiration from @Robinson2007 and @Monks2024. For advice on making your input modelling workflow **reproducible** and **sharing data or scripts with sensitive content**, see @sec-input_data.
+This page has step-by-step instructions for input modelling in Python or R, with inspiration from @Robinson2007 and @Monks2024. For advice on making your input modelling workflow **reproducible** and **sharing data or scripts with sensitive content**, see the [page on input data management](input_data.qmd).
 
 <br>
 
@@ -19,7 +16,7 @@ To build a DES model, you first need **data** that reflects the system you want 
 
 * **Accuracy**. Inaccurate data leads to inaccurate simulation results.
 * **Sample size**. Small samples can give misleading results if they capture unusual periods, lack variability, or are affected by outliers.
-* **Level of detail**. The data must be granular enough for your needs. For example, daily totals may be insufficient if you want to model hourly arrivals (although may still be possible if know distribution - see @sec-input_modelling-options)
+* **Level of detail**. The data must be granular enough for your needs. For example, daily totals may be insufficient if you want to model hourly arrivals (although may still be possible if know distribution - [as noted below](#input-modelling-steps)).
 * **Representative**. The data should reflect the current system. For instance, data from the COVID-19 period may not represent typical operations.
 
 <br>
@@ -36,7 +33,7 @@ The process of selecting the most appropriate statistical distributions to use i
 
 <br>
 
-## Input modelling {#sec-input_modelling-options}
+## Input modelling steps
 
 When selecting appropriate distributions, if you only have summary statistics (like the mean), you may need to rely on expert opinion or the general properties of the process you're modelling. For example:
 
@@ -58,7 +55,7 @@ Though the comprehensive approach tests lots of different distributions, it's st
 * You may find distributions which mathematically fit but are **contextually inappropriate** (e.g. normal distribution for service times, which can't be negative).
 * You may find better fit for complex distributions, even when **simpler are sufficient**.
 
-We'll demonstrate steps for input modelling below using **synthetic arrival data** from the nurse visit simulation (@sec-examples). In this case, we already know which distributions to use (as we sampled from them to create our synthetic data!). However, the steps still illustrate how you might select distributions in practice with real data.
+We'll demonstrate steps for input modelling below using **synthetic arrival data** from the [nurse visit simulation](../intro/examples.qmd). In this case, we already know which distributions to use (as we sampled from them to create our synthetic data!). However, the steps still illustrate how you might select distributions in practice with real data.
 
 ::: {.python-content}
 
@@ -106,7 +103,7 @@ First, we import the data.
 
 ::: {.python-content}
 
-<!--DIFF: Add plotly.io-->
+<!--SAME-->
 ```{python}
 # pylint: disable=missing-module-docstring
 # Import required packages
@@ -115,8 +112,7 @@ import numpy as np
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
-import plotly.io as pio
-import scipy.stats as stats
+from scipy import stats
 ```
 
 <!--DIFF: Different file path-->
@@ -141,7 +137,7 @@ data.head()
 # nolint start: undesirable_function_linter.
 # Import required packages
 library(dplyr)
-library(fitdistrplus) 
+library(fitdistrplus)
 library(ggplot2)
 library(lubridate)
 library(plotly)
@@ -154,7 +150,7 @@ library(tidyr)
 ```{r}
 # Import data
 data <- read_csv(
-    file.path("..", "..", "data", "NHS_synthetic.csv"), show_col_types = FALSE
+  file.path("..", "..", "data", "NHS_synthetic.csv"), show_col_types = FALSE
 )
 
 # Preview data
@@ -851,29 +847,29 @@ The `distfit` package has some nice visualisation functions. For example, using 
 <!--SAME-->
 ```{python}
 # PDF with all the distributions overlaid
-fig, ax = dfit_iat.plot(n_top=11, figsize=(7, 4))
-fig.show()
+p, _ = dfit_iat.plot(n_top=11, figsize=(7, 4))
+p.show()
 ```
 
 <!--SAME-->
 ```{python}
 # CDF with all the distributions overlaid
-fig, ax = dfit_iat.plot(chart="cdf", n_top=11, figsize=(7, 4))
-fig.show()
+p, _ = dfit_iat.plot(chart="cdf", n_top=11, figsize=(7, 4))
+p.show()
 ```
 
 <!--SAME-->
 ```{python}
 # QQ plot with all distributions overlaid
-fig, ax = dfit_iat.qqplot(data["iat_mins"].dropna(), n_top=11, figsize=(7, 4))
-fig.show()
+p, _ = dfit_iat.qqplot(data["iat_mins"].dropna(), n_top=11, figsize=(7, 4))
+p.show()
 ```
 
 <!--SAME-->
 ```{python}
 # Summary plot using the RSS
-fig, ax = dfit_iat.plot_summary(figsize=(7, 4))
-fig.show()
+p, _ = dfit_iat.plot_summary(figsize=(7, 4))
+p.show()
 ```
 
 We can also use it to create a plot with a specific distribution overlaid, like in the targeted approach:
@@ -883,8 +879,8 @@ We can also use it to create a plot with a specific distribution overlaid, like 
 # To create a plot with a specific distribution overlaid...
 dfit = distfit(distr="expon")
 _ = dfit.fit_transform(data["iat_mins"].dropna())
-fig, ax = dfit.plot(figsize=(7, 4))
-fig.show()
+p, _ = dfit.plot(figsize=(7, 4))
+p.show()
 ```
 
 :::
@@ -978,13 +974,13 @@ Rate:
 
 <!--SAME-->
 ```{r}
-1 / mean(data_iat)
-1 / mean(data_service)
+1L / mean(data_iat)
+1L / mean(data_service)
 ```
 
 :::
 
-For guidance on storing and using these parameters, see the pages @sec-param_file and @sec-param_script.
+For guidance on storing and using these parameters, see the pages managing parameters [in a script](parameters_script.qmd) and [in a file](parameters_file.qmd).
 
 <br>
 
