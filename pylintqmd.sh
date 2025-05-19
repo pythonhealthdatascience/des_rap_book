@@ -1,21 +1,31 @@
 #!/bin/bash
 
+# ------------------------------------------------------------
 # Lint python code within quarto files with automatic cleanup
-# e.g. bash lint_pyqmd.sh pages/inputs/input_modelling
-# To keep the temporary .ipynb and .py files for debugging:
-# e.g. KEEP_TEMP_FILES=1 bash lint_pyqmd.sh pages/inputs/input_modelling
+#
+# To lint file:
+#      bash pylintqmd.sh file.qmd
+#
+# To keep temporary .ipynb and .py files for debugging when lint:
+#      KEEP_TEMP_FILES=1 bash pylintqmd.sh file.qmd
+# ------------------------------------------------------------
 
-# Get the first argument passed to the script (the base filename/path, without extension)
-base="$1"
+# Get the filename argument
+qmd_file="$1"
 
-# Check if the provided filename ends with '.qmd'
-# If it does, print an error message and exit.
-# This ensures the user provides the file path WITHOUT the .qmd extension,
-# as the script expects just the base name (e.g., 'pages/inputs/input_modelling')
-if [[ "$base" == *.qmd ]]; then
-    echo "Error: Please provide the file path without the .qmd extension (e.g., 'pages/inputs/input_modelling', not 'pages/inputs/input_modelling.qmd')." >&2
+# Check if the argument is provided and ends with .qmd
+if [[ -z "$qmd_file" ]]; then
+    echo "Error: Please provide the .qmd file (e.g., 'filename.qmd')." >&2
     exit 1
 fi
+
+if [[ "$qmd_file" != *.qmd ]]; then
+    echo "Error: File must have a .qmd extension (e.g., 'filename.qmd')." >&2
+    exit 1
+fi
+
+# Remove the .qmd extension for temporary files
+base="${qmd_file%.qmd}"
 
 # Define a cleanup function to remove temporary files (.ipynb and .py) after the script finishes
 # This will only remove the files if the KEEP_TEMP_FILES environment variable is not set
@@ -37,7 +47,7 @@ error_exit() {
 }
 
 # Convert .qmd to .py via .ipynb, suppressing output to terminal
-quarto convert "${base}.qmd" > /dev/null 2>&1 || error_exit "Failed to convert ${base}.qmd to .ipynb"
+quarto convert "$qmd_file" > /dev/null 2>&1 || error_exit "Failed to convert $qmd_file to .ipynb"
 jupytext --to py:percent "${base}.ipynb" > /dev/null 2>&1 || error_exit "Failed to convert ${base}.ipynb to .py"
 
 # Process the generated Python file so line numbers align with qmd...
@@ -82,4 +92,4 @@ awk '
 ' "${base}.py" > tmp && mv tmp "${base}.py"
 
 # Run pylint. Pipe output through sed to replace all ".py" with ".qmd"
-pylint "${base}.py" | sed "s|${base}.py|${base}.qmd|g"
+pylint "${base}.py" | sed "s|${base}.py|$qmd_file|g"
