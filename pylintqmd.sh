@@ -26,6 +26,9 @@ process_qmd() {
         exit 1
     fi
 
+    # Print message to say we are linting the file
+    echo "Checking for active python code in $qmd_file..."
+
     # Remove the .qmd extension for temporary files
     base="${qmd_file%.qmd}"
 
@@ -55,8 +58,9 @@ process_qmd() {
 
     # Do the same for the first section of markdown before the first code cell
     sed -i -e '0,/^# %%[^%]*$/ {
-      /^# %%[^%]*$/n        # Skip first code cell marker
-      /^#/ s/^#.*/# -/
+      /^# %%[^%]*$/! {        # Exclude code cell marker line
+        /^#/ s/^#.*/# -/      # Replace markdown comments
+      }
     }' "${base}.py"
 
     # Removes lines which are # %%, but not # %% [markdown]
@@ -86,8 +90,10 @@ process_qmd() {
       }
     ' "${base}.py" > tmp && mv tmp "${base}.py"
 
-    # Run pylint. Pipe output through sed to replace all ".py" with ".qmd"
-    pylint "${base}.py" | sed "s|${base}.py|$qmd_file|g"
+    # Remove leading "./" from base before using it, then run pylint, piping
+    # output through sed to replace all ".py" with ".qmd"
+    nodot_base="${base#./}"
+    pylint "${nodot_base}.py" | sed "s|${nodot_base}\.py|$qmd_file|g"
 
     # Remove temporary files (.ipynb and .py), but only if KEEP_TEMP_FILES is not set
     if [ -z "${KEEP_TEMP_FILES}" ]; then
