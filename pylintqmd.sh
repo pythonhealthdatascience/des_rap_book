@@ -6,6 +6,9 @@
 # To lint file:
 #      bash pylintqmd.sh file.qmd
 #
+# To lint all .qmd files in directory
+#      bash pylintqmd.sh folder
+#
 # To keep temporary .ipynb and .py files for debugging when lint:
 #      KEEP_TEMP_FILES=1 bash pylintqmd.sh file.qmd
 # ------------------------------------------------------------
