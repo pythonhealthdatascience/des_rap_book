@@ -58,11 +58,16 @@ perl -i -0777 -pe 's/^# ---.*?\n# %% \[markdown\]\n//s' "${base}.py"
 # Replace all comment lines in markdown cells with '# -' otherwise the linter
 # will says these lines are too long (as assumes they are python comments)
 sed -i -e '/^# %% \[markdown\]/,/^# %%/ {
-  /^#/ s/^# .*/# -/
+  /^# %% \[markdown\]/n  # Skip opening cell marker
+  /^# %%/n              # Skip closing cell marker
+  /^#/ s/^# .*/# -/     # Replace actual comment lines
 }' "${base}.py"
 
 # Do the same for the first section of markdown before the first code cell
-sed -i -e '0,/^# %%[^%]*$/ {/^#/ s/^#.*/# -/}' "${base}.py"
+sed -i -e '0,/^# %%[^%]*$/ {
+  /^# %%[^%]*$/n        # Skip first code cell marker
+  /^#/ s/^#.*/# -/
+}' "${base}.py"
 
 # Removes lines which are # %%, but not # %% [markdown]
 # And remove line after if that is blank (for 2nd command)
