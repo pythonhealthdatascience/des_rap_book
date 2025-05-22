@@ -1,5 +1,5 @@
 ---
-title: Citation guidance
+title: Citation
 ---
 
 <style>
@@ -258,6 +258,163 @@ For R packages, tools like **cffr** can automate the creation and maintenance of
 :::
 
 Since many users are still unsure how (or even whether) to cite software, making citation information visible in multiple places increases the likelihood your work will be credited properly.
+
+<br>
+
+## Citing and acknowledging others
+
+### Within your code
+
+When writing your simulation and analysis code, it's **common - and encouraged - to use or adapt code from other sources**. Proper attribution is good practice and often required by open source licenses.
+
+Before using code from others, you should check the licence is **open and compatible** with your project. For example, code under the GPL licence requires your project to also be GPL-licensed if you copy or adapt it directly.
+
+According to guidance from [The Turing Way](https://book.the-turing-way.org/reproducible-research/licensing/licensing-compatibility.html) and the [R Packages book](https://r-pkgs.org/license.html), you only need to change your project's license if you embed code from another package (i.e. copy+and+paste code), or if it is distributed as a binary with the work (i.e. bundled
+and stored with the work). Merely importing and using packages from conda/PyPI/CRAN does not make your work a derivative, so you can use a permissive license if you wish.
+
+To attribute code, you should follow the [Creative Commons TASL approach](https://wiki.creativecommons.org/wiki/Recommended_practices_for_attribution):
+
+* **Title**: Name of the work (e.g. repository name).
+* **Author**: Original author(s).
+* **Source**: Where it can be found (e.g. GitHub URL).
+* **Licence**: Licence used by the authors.
+
+You should specify if the code is an exact **copy** or if it has been **adapted**. Optionally, you can include further details like the version, commit has, or retrieval date.
+
+You should include attributions alongside the code - for example, **in a function/class docstring**. For very small snippets, in-line comments may suffice. If lots of code uses the same source, you could include it as a **module docstring**, and then refer back to it in the class docstrings.
+
+:::{.python-content}
+
+In this example from [rap_template_python_des](https://github.com/pythonhealthdatascience/rap_template_python_des), we have used a module docstring which we refer to from our class docstrings:
+
+```{.python}
+"""Selecting the number of replications.
+
+Credit:
+    > These functions are adapted from Tom Monks (2021) sim-tools:
+    fundamental tools to support the simulation process in python
+    (https://github.com/TomMonks/sim-tools) (MIT Licence).
+    > In sim-tools, they cite that their implementation is of the "replications
+    algorithm" from: Hoad, Robinson, & Davies (2010). Automated selection of
+    the number of replications for a discrete-event simulation. Journal of the
+    Operational Research Society. https://www.jstor.org/stable/40926090.
+
+Licence:
+    This project is licensed under the MIT Licence. See the LICENSE file for
+    more details.
+"""
+
+...
+
+class OnlineStatistics:
+    """
+    Computes running sample mean and variance (using Welford's algorithm),
+    which then allows computation of confidence intervals (CIs).
+
+    ...
+
+    Acknowledgements:
+        - Class adapted from Monks 2021.
+    """
+    ...
+```
+:::
+
+:::{.r-content}
+
+Example from [rap_template_r_des](https://github.com/pythonhealthdatascience/rap_template_r_des):
+
+```{.r}
+#' Calculate the resource utilisation
+#'
+#' ...
+#' 
+#' Credit: The utilisation calculation is adapted from the
+#' `plot.resources.utilization()` function in simmer.plot 0.1.18, which is
+#' shared under an MIT Licence (Ucar I, Smeets B (2023). simmer.plot: Plotting
+#' Methods for 'simmer'. https://r-simmer.org
+#' https://github.com/r-simmer/simmer.plot.).
+#'
+#' ...
+calc_utilisation <- function(resources, groups = NULL, summarise = TRUE) {
+  # ...
+}
+```
+:::
+
+You can also add an "Acknowledgements" or "Attributions" section in your `README.md` (or other documentation/a dedicate file), listing sources and where their code is used.
+
+:::{.python-content}
+
+In this example from [rap_template_python_des](https://github.com/pythonhealthdatascience/rap_template_python_des), we used a table to present the sources and files containing code from those sources:
+
+:::{.pale-grey}
+**Acknowledgements**
+
+This repository was developed with thanks to several others sources. These are acknowledged throughout in the relevant notebooks/modules/functions, and also summarised here:
+
+| Source | Find out more about how it was used... |
+| - | - |
+| ... | |
+| NHS Digital (2024) RAP repository template (<https://github.com/NHSDigital/rap-package-template>) (MIT Licence) | `simulation/logging.py`<br>`docs/nhs_rap.md` |
+| Sammi Rosser and Dan Chalk (2024) HSMA - the little book of DES (<https://github.com/hsma-programme/hsma6_des_book>) (MIT Licence) | `simulation/model.py`<br>`notebooks/choosing_cores.ipynb` |
+| ... | |
+:::
+:::
+
+:::{.r-content}
+
+In this example from [rap_template_r_des](https://github.com/pythonhealthdatascience/rap_template_r_des), we used a table to present the sources and files containing code from those sources:
+
+:::{.pale-grey}
+**Acknowledgements**
+
+This repository was developed with thanks to a few others sources. These are acknowledged throughout in the relevant scipts, and also summarised here:
+
+| Source | Find out more about how it was used... |
+| - | - |
+| Ucar I, Smeets B (2023). simmer.plot: Plotting Methods for 'simmer'. <https://r-simmer.org>. <https://github.com/r-simmer/simmer.plot>. | `R/get_run_results.R` |
+| Tom Monks (2021) sim-tools: fundamental tools to support the simulation process in python (<https://github.com/TomMonks/sim-tools>) (MIT Licence).<br> Who themselves cite Hoad, Robinson, & Davies (2010). Automated selection of the number of replications for a discrete-event simulation (<https://www.jstor.org/stable/40926090>), and Knuth. D "The Art of Computer Programming" Vol 2. 2nd ed. Page 216. | `R/choose_replications.R` |
+:::
+:::
+
+<br>
+
+### Within your reports
+
+The [FORCE11 Software Citation Principles](https://doi.org/10.7717/peerj-cs.86) recommend that software citations should:
+
+* Be treated with the same importance as other research products (e.g. papers, data).
+* Give credit and attribution to software authors and contributors.
+* Include unique, persistent identifiers (such as DOIs) and version information.
+* Make the software findable and accessible.
+* Specify exactly which version was used, for reproducibility.
+
+You don't need to cite every single package or dependency - these will be listed in your [environment files](../setup/environment.qmd) in your repository. You should however cite the main software/resources used for your analysis.
+
+The software authors will likely provide citation instructions in their documentation or a citation file. If none are provided, you should include:
+
+* Software name
+* Version number
+* Authors or project team
+* Year of release
+* Persistent identifier (DOI or archive) (if available)
+* Repository URL (e.g. GitHub, GitLab)
+* Access date (if no version or release date is available)
+
+For example:
+
+:::{.python-content}
+:::{.pale-grey}
+The simulation was developed in Python X.X.X [cite] using SimPy X.X.X [cite], with the model and analysis structured based on examples from the DES RAP Book [cite].
+:::
+:::
+
+:::{.r-content}
+:::{.pale-grey}
+The simulation was developed in R X.X.X [cite] using simmer X.X.X [cite], with the model and analysis structured based on examples from the DES RAP Book [cite].
+:::
+:::
 
 <br>
 
