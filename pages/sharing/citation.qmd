@@ -1,3 +1,268 @@
 ---
 title: Citation guidance
 ---
+
+<style>
+pre code {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+</style>
+
+<br>
+
+Your repository should include **clear guidance on how to cite your work**, specifying the authors, software title and other key details. This page explores why this is important, and ways to provide this information (e.g. `CITATION.cff`, section in `README.md`, within package, and including ORCID iDs).
+
+![](citation_resources/citation.png)
+
+<br>
+
+## Why provide citation information? {#sec-why}
+
+🛡️ **Protects yourself and collaborators**
+
+> Make sure you (and your collaborators) are recognised as the primary creators of the work.
+
+📢 **Encourages others to cite you**
+
+> When you make citation details easy to find and follow, others are more likely to cite your work. It makes it easier for them to do. Also, many people may not realise that non-traditional research outputs like software should be cited, so including explicit guidance helps educate and encourage users to give you credit.
+
+✅ **Ensures accurate citation**
+
+> Without citation instructions, others may only know your GitHub username. Therefore, it is important to provide all the correct details for a complete and accurate citation: full names, institution, ORCID iDs, software title, DOIs, etc.
+
+📬 **Provides contact information**
+
+> Including your name and contact details in the citation information makes it easy for others to reach you. This can lead to new opportunities for collaboration, feedback, or questions about your work.
+
+🤝 **Recognises contributors**
+
+> Explicitly list and acknowledge everyone who played a role in the project (including minor contributions). There are structured frameworks which can be used to specify roles, like the [Contributor Role Taxonomy (CRediT)](https://credit.niso.org/) for research projects.
+
+For `CITATION.cff` files...
+
+🗄️ **Used when archiving**
+
+> If you [archive](archive.qmd) your work using Zenodo, it will use the metadata from your `CITATION.cff` file to populate the archived record.
+
+🔗 **Integrates with reference managers**
+
+> A `CITATION.cff` file can be converted to BibTeX or directly imported into reference managers like Zotero.
+
+<br>
+
+## How to provide citation information {#sec-how}
+
+### `CITATION.cff`
+
+A `CITATION.cff` file is a plain text file with a standard structure to share citation metadata for software or datasets.
+
+The easiest way to create this file is using the [cffinit](https://citation-file-format.github.io/cff-initializer-javascript/#/) web application. It will guide you through the required information, and generate a `CITATION.cff` file at the end.
+
+![](citation_resources/cffinit.png)
+
+As an example, the `CITATION.cff` from the repository for this book:
+
+:::{.pale-grey}
+```{.text}
+{{< include ../../CITATION.cff >}}
+```
+:::
+
+`CITATION.cff` files are supported by Zenodo, Zotero and GitHub.
+
+* **Zenodo:** If use [Zenodo-GitHub integration to archive on Zenodo](archive.qmd), Zenodo will use the information in `CITATION.cff` to populate the archive entry.
+
+* **Zotero:** The Zotero reference manager uses `CITATION.cff` when importing the repository as a reference.
+
+* **GitHub:** Adds a "Cite this repository" button to the sidebar, which provides APA and BibTeX citations (based on the `CITATION.cff` file), and links to the file.
+
+![](citation_resources/cff_github.png)
+
+<br>
+
+### `README.md`
+
+You should include clear citation instructions in your documentation - typically in your `README.md`. There are two common approaches:
+
+**1. Point to a citation files** (e.g. `CITATION.cff` or files within the package).
+
+:::{.pale-grey}
+```{.text}
+## Citation
+
+To cite this work, see the `CITATION.cff` file in this repository or use the "Cite this repository" button on GitHub.
+```
+:::
+
+**2. Provide citation details directly**.
+
+:::{.pale-grey}
+```{.text}
+## Citation
+
+To cite this work, use:
+
+Heather, A. (2025). Reproducible Discrete-Event Simulation in Python and R. https://github.com/pythonhealthdatascience/des_rap_book
+```
+:::
+
+<br>
+
+### Within the package
+
+If you have [structured your model as a package](../setup/package.qmd), then you can include some citation instructions within the package.
+
+:::{.python-content}
+Depending on your package manager, you can include citation and author details in several ways...
+
+<br>
+
+**Flit:** Our tutorial used this as it is a very basic minimalist package manager. It had `__init.py` and `pyproject.toml` files. We can amend them to add some citation information as follows:
+
+```{.bash}
+"""SimPy Discrete-Event Simulation (DES) Model.
+"""
+
+__version__ = "0.1.0"
+__author__ = "Amy Heather"
+```
+
+```{.bash}
+[build-system]
+requires = ["flit"]
+build-backend = "flit_core.buildapi"
+
+[project]
+name = "simulation"
+dynamic = ["version", "description", "author"]
+```
+
+<br>
+
+**Poetry:** Another popular manager, this has project details within `pyproject.toml` like so:
+
+```{.bash}
+[tool.poetry]
+name = "simulation"
+version = "0.1.0"
+authors = ["Amy Heather <a.heather2@exeter.ac.uk>"]
+readme = "README.md"
+```
+:::
+
+:::{.r-content}
+The `DESCRIPTION` file can include the author full names, emails and roles using the `Authors@R` field. Example:
+
+:::{.pale-grey}
+```{.text}
+Authors@R: c(
+    person(
+      "Amy", "Heather",
+      email = "a.heather2@exeter.ac.uk",
+      role = c("aut", "cre")
+    )
+  )
+```
+:::
+
+You can also create a `CITATION` file within the `inst/` directory by running `usethis::use_citation()`. This will create a blank file:
+
+:::{.pale-grey}
+```{.text}
+bibentry(
+  bibtype  = "Article",
+  title    = ,
+  author   = ,
+  journal  = ,
+  year     = ,
+  volume   = ,
+  number   = ,
+  pages    = ,
+  doi      =
+)
+
+```
+:::
+
+We can then populate it with citation information for our project - for example:
+
+:::{.pale-grey}
+```{.text}
+bibentry(
+  bibtype    = "Manual",
+  title      = "R DES RAP Template",
+  author     = person("Amy", "Heather", email = "a.heather2@exeter.ac.uk", role = c("aut", "cre"), comment = "ORCID: 0000-0002-6596-3479"),
+  organization = "University of Exeter",
+  year       = 2025,
+  note       = "Version 0.3.0. A template for creating discrete-event simulation (DES) models in R within a reproducible analytical pipeline (RAP).",
+  url        = "https://github.com/pythonhealthdatascience/rap_template_r_des"
+)
+
+```
+:::
+
+When users run `citation("yourpackagename")`, this information gets displayed.
+
+:::{.callout-tip}
+
+The [cffr](https://github.com/ropensci/cffr) package can be handy if you are maintaining a `CITATION.cff`.
+
+* `cffr::cff_write()`: creates `CITATION.cff` based on your `DESCRIPTION` and `CITATION` files.
+* `cffr::cff_gha_update()`: installs a GitHub action which will keep the `CITATION.cff` up-to-date.
+
+:::
+
+:::
+
+<br>
+
+### ORCID iDs
+
+An ORCID iD (Open Researcher and Contributor ID) is a unique persistent identifier for researchers and contributors. It **distinguishes** you from others with similar names and ensures your work is **correctly attributed** to you, even with name changes, different name formats, or moves between institutions. You can register for an iD at <https://orcid.org/>.
+
+![Example: ORCID profile for Amy Heather](citation_resources/orcid_profile.png)
+
+You can then include the ORCID iDs of contributors to your project within your citation files (e.g. `CITATION.cff`) - and within your `README.md`. This ensures all contributors are uniquely and accurately identified, and links to their scholarly profiles.
+
+In your `README.md`, you can display ORCID iDs using badges, icons, or simple links. For example, using a badge:
+
+:::{.pale-grey}
+```{.text}
+[![ORCID](https://img.shields.io/badge/ORCID_Amy_Heather-0000--0002--6596--3479-A6CE39?style=for-the-badge&logo=orcid&logoColor=white)](https://orcid.org/0000-0002-6596-3479)
+```
+:::
+
+Which renders as:
+
+[![](https://img.shields.io/badge/ORCID_Amy_Heather-0000--0002--6596--3479-A6CE39?style=for-the-badge&logo=orcid&logoColor=white)](https://orcid.org/0000-0002-6596-3479)
+
+<br>
+
+## Using multiple citation methods
+
+We've described several ways to provide citation information to users. We recommend using several of these methods. This is because different users look for citation information in different places. For example:
+
+* GitHub users may be familiar with `CITATION.cff` files and the sidebar "Cite this repository" button.
+
+* Many people look for citation details directly in the `README.md`.
+
+:::{.r-content}
+* R users often expect a `CITATION` file.
+:::
+
+If you're concerned about duplication, you can maintain a single up-to-date source (such as `CITATION.cff`) and simply direct users to it from your `README.md` or other documentation.
+
+:::{.r-content}
+For R packages, tools like **cffr** can automate the creation and maintenance of a `CITATION.cff` file.
+:::
+
+Since many users are still unsure how (or even whether) to cite software, making citation information visible in multiple places increases the likelihood your work will be credited properly.
+
+<br>
+
+## Further information
+
+* ["What is a CITATION.cff file?"](https://citation-file-format.github.io/) from Stephan Druskat 2023.
+* ["Software citation principles"](https://doi.org/10.7717/peerj-cs.86) by Smith et al. 2016.
+* ["Making Research Objects Citable"](https://book.the-turing-way.org/communication/citable) from the Turing Way Community.
