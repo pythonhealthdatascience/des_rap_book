@@ -23,12 +23,36 @@ It is also important for **collaboration**, so that everyone working on the proj
 
 <br>
 
+## Tools for dependency management
+
+There are several tools for managing dependencies in isolated environment. Some of the most popular tools are described below...
+
 :::{.python-content}
-## Python tools for dependency management
+* **pip and venv**
+* **conda and mamba**
+* **poetry**
+* **uv**
 
-There are lots of tools available for managing dependencies in isolated environments in python. A few of the most popular tools include **venv**, **conda**, and **poetry**.
+<!--TODO: describe each, add an illustration with logos from each, add explanation of why use what... In this book, we will use **conda**, as it allows us to **specify a python version**, so each environment we create can have a different specific version of python. This is not possible with venv and poetry, which just manage the package dependencies, and will just use the system python.-->
+:::
 
-In this book, we will use **conda**, as it allows us to **specify a python version**, so each environment we create can have a different specific version of python. This is not possible with venv and poetry, which just manage the package dependencies, and will just use the system python.
+:::{.r-content}
+* **renv**
+* **rig**
+
+The most popular tool for managing dependencies in R is **renv**. This replaced and improved upon the previous tool, **Packrat**.
+
+Renv will create isolated environments with the specific packages and their versions for a project. However, it **won't manage the version of R used** - the version of R used is simply whatever is installed on your system.
+<!--TODO: add note about how to switch R versions... explain why this matters -->
+<!--TODO: had wanted to explore rig... thoughts... anything to mention here on other tools...?-->
+:::
+
+<br>
+
+## Step-by-step instructions
+
+:::{.python-content}
+In our repositories for this book, we have used **conda**.
 
 ::: {.callout-note}
 
@@ -42,21 +66,37 @@ In this book, we will use **conda**, as it allows us to **specify a python versi
 To use mamba, simply replace `conda` in all the commands below with `mamba`.
 
 :::
+:::
+
+:::{.r-content}
+In our repositories for this book, we have used **renv**.
+:::
 
 <br>
 
-## Installing conda (or mamba)
+### Installing the environment manager
 
-Refer to the conda or mamba documentation for the latest instructions on installing these for your operating system (windows, mac or linux).
+:::{.python-content}
+Refer to the conda or mamba documentation for the latest instructions on installing conda/mamba for your operating system (windows, mac or linux).
 
 * [Conda installation instructions](https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html).
 * [Mamba installation instructions](https://mamba.readthedocs.io/en/latest/installation/mamba-installation.html).
+:::
+
+:::{.r-content}
+Before getting started, you'll need to install `renv`.
+
+```{.r}
+install.packages("renv")
+```
+:::
 
 <br>
 
-## Setting up our conda environment
+### Creating the environment
 
-**1. Create an environment file.** In the project root, we create `environment.yaml`.
+:::{.python-content}
+**Create an environment file.** In the project root, we create `environment.yaml`.
 
 ```{.bash}
 touch environment.yaml
@@ -83,7 +123,7 @@ dependencies:
 
 <br>
 
-**2. Build and activate the environment**. In the command line, run the following to create your environment:
+**Build and activate the environment**. In the command line, run the following to create your environment:
 
 ```{.bash}
 conda env create --file environment.yaml
@@ -133,99 +173,10 @@ simpy                     4.1.1              pyhd8ed1ab_1    conda-forge
 tk                        8.6.13          noxft_h4845f30_101    conda-forge
 tzdata                    2025b                h78e105d_0    conda-forge
 ```
-
-<br>
-
-**3. Specify versions**. For reproducibility, it's best to specify the exact package versions in you `environment.yaml`. If you're starting from scratch, you may not know which versions you need, so you can leave them out initially, as we did in step 1.
-
-However, now that we have built our environment (which used the latest versions as none were specified), it is important to then record your versions in the `environment.yaml`. These are the versions you saw when running `conda list`. For example:
-
-```{.bash}
-name: des-example
-channels:
-  - conda-forge
-dependencies:
-  - python=3.13.3
-  - simpy=4.1.1
-```
-
-<br>
-
-**4. Setting up the full environment for this book.** When working on a project from scratch, you will often build up your environment organically and iteratively as you find more packages you want to use. However, to follow along with this book and ensure everything works as expected, you can use the full environment provided below. Copy this into your `environment.yaml` (feel free to alter the name!):
-
-```{.bash}
-name: des-example
-channels:
-  - conda-forge
-dependencies:
-  - ipykernel=6.29.5
-  - jinja2=3.1.5
-  - joblib=1.4.2
-  - nbconvert=7.16.6
-  - nbformat=5.10.4
-  - nbqa=1.9.0
-  - numpy=2.2.2
-  - pandas=2.2.3
-  - pip=25.0
-  - plotly_express=0.4.1
-  - pylint=3.3.4
-  - pytest=8.3.4
-  - pytest-xdist=3.6.1
-  - python=3.13.1
-  - rich=13.9.4
-  - simpy=4.1.1
-  - pip:
-    - kaleido==0.2.1
-    - sim-tools==0.8.0
-```
-
-Then update your environment to include these packages (after running `conda activate des-example`) with:
-
-```{.bash}
-conda env update --file environment.yaml --prune
-```
-
-
-
-<!-- either make full section explaining that need to check run etc, or remove
-::: {.callout-note}
-
-## Updating packages
-
-If want to update all your packages, you can run:
-
-```{.bash}
-conda update --all
-```
-
-If you do this, make sure to update the `environment.yaml` to reflect these changes.
-
-:::
--->
-
-<br>
-
-### Further information
-
-* ["An unbiased evaluation of environment management and packaging tools"](https://alpopkes.com/posts/python/packaging_tools/) from Anna-Lena Popkes 2024
-* ["Python dependency management is a dumpster fire"](https://nielscautaerts.xyz/python-dependency-management-is-a-dumpster-fire.html) from Niels Cautaerts 2024
-
 :::
 
 :::{.r-content}
-## R tools for dependency management
-
-The most popular tool for managing dependencies in R is **renv**. This replaced and improved upon the previous tool, **Packrat**.
-
-Renv will create isolated environments with the specific packages and their versions for a project. However, it **won't manage the version of R used** - the version of R used is simply whatever is installed on your system.
-<!--TODO: add note about how to switch R versions... explain why this matters -->
-<!--TODO: had wanted to explore rig... thoughts... anything to mention here on other tools...?-->
-
-<br>
-
-## Setting up renv
-
-**1. Create an R project**. It's best to use `renv` within an R project. In RStudio, select **File > New Project...**, and choose **Existing Directory**.
+**Create an R project**. It's best to use `renv` within an R project. In RStudio, select **File > New Project...**, and choose **Existing Directory**.
 
 ![](environment_resources/rproject1.png){fig-align="center"}
 
@@ -242,7 +193,7 @@ This creates:
 
 <br>
 
-**2. Initialise renv**. In your R console:
+**Initialise renv**. In your R console:
 
 ```{.r}
 renv::init()
@@ -286,11 +237,35 @@ Example `renv.lock`:
 }
 
 ```
+:::
 
 <br>
 
-## Adding packages to the environment
+### Adding packages to the environment
 
+:::{.python-content}
+
+Add packages to the environment by modifying the `environment.yaml` file and then running:
+
+```{.bash}
+conda env update --file environment.yaml --prune
+```
+
+You should **specify the exact package versions** in you `environment.yaml`. If you're starting from scratch, you may not know which versions you need, so you can leave them out initially, as we did in step 1.
+
+However, now that we have built our environment (which used the latest versions as none were specified), it is important to then record your versions in the `environment.yaml`. These are the versions you saw when running `conda list`. For example:
+
+```{.bash}
+name: des-example
+channels:
+  - conda-forge
+dependencies:
+  - python=3.13.3
+  - simpy=4.1.1
+```
+:::
+
+:::{.r-content}
 It is possible to simply install packages using `renv::install("packagename")` or `install.packages("packagename")`.
 
 However, we recommend using a `DESCRIPTION` file. This is because it allows you to keep a record of the main packages you installed. You'll generate a clear, readable summary of the main dependencies for your project.
@@ -306,7 +281,7 @@ However, we recommend using a `DESCRIPTION` file. This is because it allows you 
 
 <br>
 
-**1. Create DESCRIPTION file**. Run in the terminal:
+**Create a DESCRIPTION file**. Run in the terminal:
 
 ```
 touch DESCRIPTION
@@ -332,14 +307,14 @@ RoxygenNote: 7.0.0
 
 <br>
 
-**2. List dependencies**. In `DESCRIPTION`, dependencies are listed under two headings:
+**List dependencies**. In `DESCRIPTION`, dependencies are listed under two headings:
 
 * `Imports`: for required packages.
 * `Suggests`: for optional/development packages.
 
 For most projects (especially non-packages), it's fine to just list all your dependencies under `Imports` for simplicity, as - assuming you're using the implicit renv snapshot type (described below) - `renv` will only detect and install packages listed under `Imports` and used in your scripts (and not necessarily those under `Suggests`).
 
-The distinction betweeen `Imports` and `Suggests` is more relevant when [constructing your research as an R package](package.qmd), as it will distinguish between those necessary for the core simulation and those for other analysis and tests. <!--TODO: make sure there is a section in packages about this-->
+The distinction between `Imports` and `Suggests` is more relevant when [constructing your research as an R package](package.qmd), as it will distinguish between those necessary for the core simulation and those for other analysis and tests. <!--TODO: make sure there is a section in packages about this-->
 
 At the very beginning of your project, your `DESCRIPTION` file might only include a few packages. For example, if you are starting with just the `simmer` package, your Imports section would look like this:
 
@@ -382,7 +357,7 @@ Config/testthat/edition: 3
 
 <br>
 
-**3. Install packages from `DESCRIPTION`**. Run the following command in your console. This will install the packages from `DESCRIPTION`, and will determine and install the dependencies of those packages too.
+**Install packages from `DESCRIPTION`**. Run the following command in your console. This will install the packages from `DESCRIPTION`, and will determine and install the dependencies of those packages too.
 
 ```{.r}
 renv::install()
@@ -390,7 +365,7 @@ renv::install()
 
 <br>
 
-**4. Update `renv.lock`**. To take a snapshot of your environment and update your `renv.lock` file, run:
+**Update `renv.lock`**. To take a snapshot of your environment and update your `renv.lock` file, run:
 
 ```{.r}
 renv::snapshot()
@@ -421,11 +396,49 @@ renv::settings$snapshot.type("implicit")
 renv::settings$snapshot.type("explicit")
 renv::settings$snapshot.type("all")
 ```
+:::
 
 <br>
 
-## Recreate an existing environment {#subsec-recreate-env}
+### Recreating an existing environment
 
+:::{.python-content}
+When working on a project from scratch, you will often build up your environment organically and iteratively as you find more packages you want to use. However, to follow along with this book and ensure everything works as expected, you can use the full environment provided below. Copy this into your `environment.yaml` (feel free to alter the name!):
+
+```{.bash}
+name: des-example
+channels:
+  - conda-forge
+dependencies:
+  - ipykernel=6.29.5
+  - jinja2=3.1.5
+  - joblib=1.4.2
+  - nbconvert=7.16.6
+  - nbformat=5.10.4
+  - nbqa=1.9.0
+  - numpy=2.2.2
+  - pandas=2.2.3
+  - pip=25.0
+  - plotly_express=0.4.1
+  - pylint=3.3.4
+  - pytest=8.3.4
+  - pytest-xdist=3.6.1
+  - python=3.13.1
+  - rich=13.9.4
+  - simpy=4.1.1
+  - pip:
+    - kaleido==0.2.1
+    - sim-tools==0.8.0
+```
+
+Then update your environment to include these packages (after running `conda activate des-example`) with:
+
+```{.bash}
+conda env update --file environment.yaml --prune
+```
+:::
+
+:::{.r-content}
 When you want to recreate an environment—such as for an old project or when collaborating—you have two main options, depending on which files are available:
 
 | Method | What does it install? | Best for... |
@@ -471,8 +484,33 @@ Hence, using a lockfile like `renv.lock` is the only reliable way to ensure that
 
 **3. If neither file is provided**. If you have neither a `renv.lock` nor a `DESCRIPTION` file, you can try to create a `DESCRIPTION` file based on your knowledge of the project and its required packages.
 
+**Summary:**
+
+We can use `renv` to create a reproducible environment in R. In the process above, we generated two key files:
+
+* `DESCRIPTION` - lists project's primary packages with any minimum version requirements, but not exact versions.
+* `renv.lock` - complements this by recording the precise versions of all packages and their dependencies.
+
+These work together to both provide (a) a comprehensive record of your project environment, and (b) enable yourself or others to reconstruct the environment.
+
+:::
+
 <br>
 
+## Other examples
+
+<!--TODO: add explanations of other package managers-->
+
+:::{.python-content}
+
+**UV**
+
+
+:::
+
+:::{.r-content}
+
+:::{.callout-tip}
 ## System dependencies
 
 Some R packages require external system libraries. The exact requirements will depend on which packages you use, what operating system you have, and whether you have used R before.
@@ -487,23 +525,20 @@ sudo apt install libglpk-dev libxml2-dev
 ```
 
 You should list any system dependencies that you are aware of in your project's README or setup instructions.
+:::
+
+:::
 
 <br>
 
-## Summary
+### Further information
 
-We can use `renv` to create a reproducible environment in R. In the process above, we generated two key files:
+:::{.python-content}
+* ["An unbiased evaluation of environment management and packaging tools"](https://alpopkes.com/posts/python/packaging_tools/) from Anna-Lena Popkes 2024
+* ["Python dependency management is a dumpster fire"](https://nielscautaerts.xyz/python-dependency-management-is-a-dumpster-fire.html) from Niels Cautaerts 2024
+:::
 
-* `DESCRIPTION` - lists project's primary packages with any minimum version requirements, but not exact versions.
-* `renv.lock` - complements this by recording the precise versions of all packages and their dependencies.
-
-These work together to both provide (a) a comprehensive record of your project environment, and (b) enable yourself or others to reconstruct the environment.
-
-<br>
-
-## Further information
-
+:::{.r-content}
 * ["9. DESCRIPTION" from R Packages](https://r-pkgs.org/description.html) by Hadley Wickham and Jennifer Bryan.
 * ["21. Lifecycle" from R Packages](https://r-pkgs.org/lifecycle.html) by Hadley Wickham and Jennifer Bryan.
-
 :::
