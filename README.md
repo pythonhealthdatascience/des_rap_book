@@ -1,36 +1,44 @@
-<h1 align="center">
-  <a href="https://github.com/pythonhealthdatascience"><img src="images/stars_banner.png" alt="Markdownify"></a>
-  <br>
-  Reproducible Discrete-Event Simulation in Python and R
-  <br>
-</h1>
+<div align="center">
 
-<p align="center">
-  <i align="center">Step-by-step guide for building simulation models as part of a reproducible analytical pipeline (RAP).</i>
-</p>
+![](images/stars_banner.png)
 
-<p align="center">
-    <a href="#"><img src="https://img.shields.io/github/last-commit/pythonhealthdatascience/des_rap_book" alt="GitHub last commit" /></a>
-    <img src="https://img.shields.io/badge/text_licence-CC--BY--SA--4.0-lightblue.svg" alt="CC-BY-4.0 licence"/>
-    <img src="https://img.shields.io/badge/code_licence-MIT-blue.svg" alt="MIT licence"/>
-</p>
+# Reproducible Discrete-Event Simulation in Python and R
 
-🚧 🔶 **Work in progress!** 🔶 🚧
+[![Python](https://img.shields.io/badge/-Python_3.9.22-a8902b?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
+![R 4.4.1](https://img.shields.io/badge/-R_4.4.1-276DC2?style=for-the-badge&logo=r&logoColor=white)
+![Code licence](https://img.shields.io/badge/🛡️_Code_licence-MIT-8a00c2?style=for-the-badge&labelColor=gray)
+![Text licence](https://img.shields.io/badge/🛡️_Text_licence-CC--BY--SA--4.0-b100cd?style=for-the-badge&labelColor=gray)
+[![ORCID](https://img.shields.io/badge/ORCID_Amy_Heather-0000--0002--6596--3479-A6CE39?style=for-the-badge&logo=orcid&logoColor=white)](https://orcid.org/0000-0002-6596-3479)
 
-https://pythonhealthdatascience.github.io/des_rap_book/
+</div>
 
 <br>
 
-## 📖 View book locally
+Step-by-step guide for building simulation models as part of a reproducible analytical pipeline (RAP). Check it out at: **https://pythonhealthdatascience.github.io/des_rap_book/**.
 
-Build environment:
+[![](images/website_click.png)](https://pythonhealthdatascience.github.io/des_rap_book/)
+
+<br>
+
+## View locally
+
+This website is created using Quarto and hosted on GitHub pages. You can view the site locally. With quarto installed, you will need to:
+
+**1. Build the python environment**
 
 ```
 conda env create --file environment.yaml
 conda activate des-rap-book
 ```
 
-Create book:
+**2. Build the R environment**
+
+```
+renv::init()
+renv::restore()
+```
+
+**3. Create the book.**
 
 ```
 quarto render
@@ -38,8 +46,6 @@ quarto render
 
 <br>
 
-## 📝 Citation
+## Citation
 
-| Member | ORCID | GitHub |
-| --- | --- | --- |
-| Amy Heather | [![ORCID: Heather](https://img.shields.io/badge/ORCID-0000--0002--6596--3479-brightgreen)](https://orcid.org/0000-0002-6596-3479) | https://github.com/amyheather |
+See the `CITATION.cff` file in this repository for how to cite this work.
