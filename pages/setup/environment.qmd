@@ -25,34 +25,151 @@ It is also important for **collaboration**, so that everyone working on the proj
 
 ## Tools for dependency management
 
-There are several tools for managing dependencies in isolated environment. Some of the most popular tools are described below...
+::::{.python-content}
 
-:::{.python-content}
-* **pip and venv**
-* **conda and mamba**
-* **poetry**
-* **uv**
+There are several popular tools for managing Python dependencies in isolated environment. Below, we compare some of main options, and consider some of the main factors that may influence your choice:
 
-<!--TODO: describe each, add an illustration with logos from each, add explanation of why use what... In this book, we will use **conda**, as it allows us to **specify a python version**, so each environment we create can have a different specific version of python. This is not possible with venv and poetry, which just manage the package dependencies, and will just use the system python.-->
+* **Python version management:** Can the tool install and switch between different Python versions? This is crucial for projects that require specific versions.
+* **Default environment location:** Does the tool create environments in the project folder or in a central location? Central locations can be reused across multiple repositories from a single project, while repository-specific environments keep everything together.
+* **Speed:** How fast does the tool create environments and install packages?
+* **Build and publish packages:** If you are [structuring your research as a package](package.qmd), you may wish to use one tool - or separate tools - for dependency management and creation of your package.
+
+Other details like the package source (where packages come from) and config files (which files list dependencies) are also included.
+
+<br>
+
+| **venv** (2012)
+| <https://docs.python.org/3/library/venv.html>
+`venv` was introduced with Python 3.3, and quickly replaced `pyvenv` and `virtualenv` as the standard way of managing virtual environments. It is included as part of the standard Python library, and so requires no installation.
+
+::: {.table-greycol}
+| Feature | venv |
+| -- | --- |
+| Manages different python versions | No (uses the Python version it was invoked with) |
+| Default env location | Project directory (e.g. `./venv`) |
+| Customise location? | Yes |
+| Default package source | PyPI |
+| Config file | `requirements.txt` |
+| Speed | Fast |
+| Build and publish packages? | No |
 :::
 
-:::{.r-content}
-* **renv**
-* **rig**
+<br>
 
-The most popular tool for managing dependencies in R is **renv**. This replaced and improved upon the previous tool, **Packrat**.
+| **conda** (2012)
+| <https://github.com/conda/conda>
+`conda` comes with Anaconda and Miniconda or can be installed separately. It can install and manage multiple Python versions, and non-Python dependencies (e.g. R, Node.js, compilers and system libraries). `mamba` (2020) is a drop-in replacement for conda written in C++ which offers faster installs and clearer conflict messages.
 
-Renv will create isolated environments with the specific packages and their versions for a project. However, it **won't manage the version of R used** - the version of R used is simply whatever is installed on your system.
-<!--TODO: add note about how to switch R versions... explain why this matters -->
-<!--TODO: had wanted to explore rig... thoughts... anything to mention here on other tools...?-->
+::: {.table-greycol}
+| Feature | conda |
+| -- | --- |
+| Manages different python versions? | Yes (downloads and manages python versions) |
+| Default env location | Central location (e.g. `~/.conda/envs/`) |
+| Customise location? | Yes |
+| Default package source | conda channels or PyPI |
+| Config file | `environment.yaml` or `environment.yml` |
+| Speed | Slow (conda) or fast (mamba) |
+| Build and publish packages? | No |
 :::
+
+<br>
+
+| **poetry** (2019)
+| <https://github.com/python-poetry/poetry>
+`poetry` was focused on simplifying dependency management and packaging. It uses a `pyproject.toml` file to manage dependencies and create environments, and to build packages. It can use a specific Python version if installed on your system, but does not install Python itself.
+
+::: {.table-greycol}
+| Feature | poetry |
+| -- | --- |
+| Manages different python versions? | No (relies on system-installed Python, but can select among installed versions) |
+| Default env location | Central cache (e.g. `~/.cache/pypoetry/virtualenvs/`) |
+| Customise location? | Yes |
+| Default package source | PyPI |
+| Config file | `pyproject.toml` and `poetry.lock` |
+| Speed | Fast |
+| Build and publish packages? | Yes |
+:::
+
+<br>
+
+| **uv** (2024)
+| <https://github.com/astral-sh/uv>
+`uv` is a modern tool developed by the creators of Ruff and written in Rust. It is designed to be very fast - 10-100x faster than pip or conda. It combines features of pip, venv and poetry, and can be used to build and publish packages.
+
+::: {.table-greycol}
+| Feature | uv |
+| -- | --- |
+| Manages different python versions? | Yes (downloads and manages python versions) |
+| Default env location | Project directory (e.g. `./.venv`) |
+| Customise location? | No |
+| Default package source | PyPI |
+| Config file | `pyproject.toml` and `uv.lock` |
+| Speed | Very fast |
+| Build and publish packages? | Yes |
+:::
+::::
+
+::::{.r-content}
+In R, the most popular tool for managing dependencies in R is `renv`. This replaced and improved upon the previous tool, `Packrat`.
+
+However, `renv` does not manage the R version used, so we also mention `rig` (manages R version but not packages) and `rv` (a new tool that manages both).
+
+<br>
+
+| **renv** (2019)
+| <https://github.com/rstudio/renv>
+`renv` is currently the standard way for managing R package environments. It is distributed as an R package.
+
+::: {.table-greycol}
+| Feature | renv |
+| -- | --- |
+| Package manager? | Yes |
+| Manages different R versions? | No (uses the R version it was invoked with) |
+| Default env location | Project directory (e.g. `./renv`) |
+| Customise location? | Yes |
+| Config file | `renv.lock` |
+:::
+
+<br>
+
+| **rig** (2021)
+| <https://github.com/r-lib/rig>
+`rig` is a tool for managing multiple R versions on a system - but it is not a package environment manager.
+
+::: {.table-greycol}
+| Feature | rig |
+| -- | --- |
+| Package manager? | No |
+| Manages different R versions? | Yes (installs and switches between R versions) |
+| Default env location | Central location |
+| Customise location? | Yes |
+| Config file | N/A |
+:::
+
+<br>
+
+| **rv** (TBC - in development)
+| <https://github.com/A2-ai/rv>
+`rv` is a package manager currently in development which aims to control both the R version and all dependencies in an `rproject.toml file`. It requires all dependencies to be specified before installation, rather than taking snapshots as you go along like with `renv`. As of May 2025, it's still at a very early stage of development!
+
+::: {.table-greycol}
+| Feature | rig |
+| -- | --- |
+| Package manager? | Yes |
+| Manages different R versions? | Yes |
+| Default env location | Project directory (e.g. `./rv`) |
+| Customise location? | Yes |
+| Config file | `rproject.toml` plus a generated lockfile |
+:::
+
+::::
 
 <br>
 
 ## Step-by-step instructions
 
 :::{.python-content}
-In our repositories for this book, we have used **conda**.
+In this book and in our examples we have used **conda** - a popular, established tools that allows you to specify the Python version. This section walks you through setting up a conda environment - with the steps for other package managers overviewed in @sec-other.
 
 ::: {.callout-note}
 
@@ -105,7 +222,7 @@ touch environment.yaml
 Within this file, we add three sections:
 
 * **Name**. The environment name.
-* **Channels**. Where to find packages (e.g. `conda-forge`). <!--TODO: explain about options here, and why we chose conda-forge-->
+* **Channels**. Where to find packages (e.g. `conda-forge`).
 * **Dependencies**. The packages you need.
 
 When first creating our environment, we just list the dependencies we know we need at this point - we can always add more later! At the start of a project, you might only know one: python.
@@ -120,6 +237,21 @@ dependencies:
   - python
   - simpy
 ```
+
+::: {.callout-note}
+
+## Conda channels
+
+**Channels** are locations where conda stores and retrieves packages. You can choose which channel to use, and can a select a few with an order of priority.
+
+We have used `conda-forge` which is a community-maintained channel run by volunteers. It offers a wide range of packages and is a popular choice for many users.
+
+Other main channels include:
+
+* `default` and `anaconda` - Maintained by Anaconda's engineers and designed for high security and stability. Organisations with 200 or more employees have to pay to use this channel (excluding students and non-commercial research at universities)
+* `bioconda` - Volunteer-run, offers bioinformatics-related packages.
+
+:::
 
 <br>
 
@@ -265,7 +397,7 @@ dependencies:
 ```
 :::
 
-:::{.r-content}
+::::{.r-content}
 It is possible to simply install packages using `renv::install("packagename")` or `install.packages("packagename")`.
 
 However, we recommend using a `DESCRIPTION` file. This is because it allows you to keep a record of the main packages you installed. You'll generate a clear, readable summary of the main dependencies for your project.
@@ -314,7 +446,7 @@ RoxygenNote: 7.0.0
 
 For most projects (especially non-packages), it's fine to just list all your dependencies under `Imports` for simplicity, as - assuming you're using the implicit renv snapshot type (described below) - `renv` will only detect and install packages listed under `Imports` and used in your scripts (and not necessarily those under `Suggests`).
 
-The distinction between `Imports` and `Suggests` is more relevant when [constructing your research as an R package](package.qmd), as it will distinguish between those necessary for the core simulation and those for other analysis and tests. <!--TODO: make sure there is a section in packages about this-->
+The distinction between `Imports` and `Suggests` is more relevant when [constructing your research as an R package](package.qmd), as it will distinguish between those necessary for the core simulation and those for other analysis and tests.
 
 At the very beginning of your project, your `DESCRIPTION` file might only include a few packages. For example, if you are starting with just the `simmer` package, your Imports section would look like this:
 
@@ -396,7 +528,27 @@ renv::settings$snapshot.type("implicit")
 renv::settings$snapshot.type("explicit")
 renv::settings$snapshot.type("all")
 ```
+
+<br>
+
+:::{.callout-tip}
+## System dependencies
+
+Some R packages require external system libraries. The exact requirements will depend on which packages you use, what operating system you have, and whether you have used R before.
+
+If these system libraries are missing, package installation may fail, even if you have the correct R package versions.
+
+For example, working on Ubuntu, we found that we had to install the following system dependencies for `igraph`:
+
+```{.bash}
+sudo apt install build-essential gfortran
+sudo apt install libglpk-dev libxml2-dev
+```
+
+You should list any system dependencies that you are aware of in your project's README or setup instructions.
 :::
+
+::::
 
 <br>
 
@@ -448,7 +600,7 @@ When you want to recreate an environment—such as for an old project or when co
 
 <br>
 
-**1. Restoring from `renv.lock` (preferred)**. If the project includes an `renv.lock` file, use this as your first option. This file records the exact versions of all packages used, enabling you to recreate the environment as it was originally (*except for R version and operating system differences).
+**Restoring from `renv.lock` (preferred)**. If the project includes an `renv.lock` file, use this as your first option. This file records the exact versions of all packages used, enabling you to recreate the environment as it was originally (*except for R version and operating system differences).
 
 To restore the environment, run in your R console:
 
@@ -462,7 +614,7 @@ Occasionally, you may encounter issues - such as conflicts, unavailable packages
 
 <br>
 
-**2. Rebuilding from `DESCRIPTION`**. If `renv.lock` is unavailable or causes problems, you can use the `DESCRIPTION` file.  This file lists the main package dependencies, but typically does not specify exact versions (unless you have set minimum versions for specific needs).
+**Rebuilding from `DESCRIPTION`**. If `renv.lock` is unavailable or causes problems, you can use the `DESCRIPTION` file.  This file lists the main package dependencies, but typically does not specify exact versions (unless you have set minimum versions for specific needs).
 
 To install packages listed in `DESCRIPTION`, run:
 
@@ -482,7 +634,7 @@ Hence, using a lockfile like `renv.lock` is the only reliable way to ensure that
 
 <br>
 
-**3. If neither file is provided**. If you have neither a `renv.lock` nor a `DESCRIPTION` file, you can try to create a `DESCRIPTION` file based on your knowledge of the project and its required packages.
+**If neither file is provided**. If you have neither a `renv.lock` nor a `DESCRIPTION` file, you can try to create a `DESCRIPTION` file based on your knowledge of the project and its required packages.
 
 **Summary:**
 
@@ -497,45 +649,51 @@ These work together to both provide (a) a comprehensive record of your project e
 
 <br>
 
-## Other examples
+## Other examples {#sec-other}
 
-<!--TODO: add explanations of other package managers-->
+If you're interested in using one of the other tools for dependency management, we've provided some brief information on each below, and direct you to other sources for a more detailed explanation of how to use them.
 
-:::{.python-content}
+::::{.python-content}
 
-**UV**
+::: {.callout-note collapse="true"}
+## venv
 
-
+venv
 :::
 
-:::{.r-content}
+::: {.callout-note collapse="true"}
+## poetry
 
-:::{.callout-tip}
-## System dependencies
-
-Some R packages require external system libraries. The exact requirements will depend on which packages you use, what operating system you have, and whether you have used R before.
-
-If these system libraries are missing, package installation may fail, even if you have the correct R package versions.
-
-For example, working on Ubuntu, we found that we had to install the following system dependencies for `igraph`:
-
-```{.bash}
-sudo apt install build-essential gfortran
-sudo apt install libglpk-dev libxml2-dev
-```
-
-You should list any system dependencies that you are aware of in your project's README or setup instructions.
+poetry
 :::
 
+::: {.callout-note collapse="true"}
+## uv
+
+uv
 :::
+
+::::
+
+::::{.r-content}
+
+
+::: {.callout-note collapse="true"}
+## rig
+
+rig
+:::
+
+::::
 
 <br>
 
-### Further information
+## Further information
 
 :::{.python-content}
-* ["An unbiased evaluation of environment management and packaging tools"](https://alpopkes.com/posts/python/packaging_tools/) from Anna-Lena Popkes 2024
-* ["Python dependency management is a dumpster fire"](https://nielscautaerts.xyz/python-dependency-management-is-a-dumpster-fire.html) from Niels Cautaerts 2024
+* ["An unbiased evaluation of environment management and packaging tools"](https://alpopkes.com/posts/python/packaging_tools/) from Anna-Lena Popkes 2024.
+* ["Python dependency management is a dumpster fire"](https://nielscautaerts.xyz/python-dependency-management-is-a-dumpster-fire.html) from Niels Cautaerts 2024.
+* ["Is conda free"](https://www.anaconda.com/blog/is-conda-free) from Dave Clements 2023.
 :::
 
 :::{.r-content}
