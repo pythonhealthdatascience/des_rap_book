@@ -112,7 +112,7 @@ Other details like the package source (where packages come from) and config file
 ::::{.r-content}
 In R, the most popular tool for managing dependencies in R is `renv`. This replaced and improved upon the previous tool, `Packrat`.
 
-However, `renv` does not manage the R version used, so we also mention `rig` (manages R version but not packages) and `rv` (a new tool that manages both).
+However, `renv` does not manage the R version used, so we also mention manual installation of R versions (in @sec-other), `rig` (manages R version but not packages) and `rv` (a new tool that manages both).
 
 <br>
 
@@ -670,18 +670,160 @@ poetry
 ::: {.callout-note collapse="true"}
 ## uv
 
-uv
+[Install](https://docs.astral.sh/uv/getting-started/installation/) for your operating system - for example, on linux:
+
+```{.bash}
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+
+Can check it has installed by running:
+
+```{.bash}
+uv version
+```
+
+To set up your repository as a uv project, run:
+
+```{.bash}
+uv init
+```
+
+This creates:
+
+```
+.
+├── .python-version
+├── README.md
+├── main.py
+└── pyproject.toml
+```
+
+When you run the python file, it will create the environment:
+
+```{.bash}
+uv run main.py
+
+>> Using CPython 3.10.14 interpreter at: /home/amy/mambaforge/bin/python3.10
+>> Creating virtual environment at: .venv
+>> Hello from uv-test!
+```
+
+Whenever use uv run, it checks that everything is up-to-date: lockfile matches pyproject.toml, environment matches lockfile. To manually update though, can run:
+
+```{.bash}
+uv sync
+```
+
+To add packages, run `uv add`, and can specify versions:
+
+```{.bash}
+uv add simpy
+uv add nbqa==1.9.0
+```
+
+To change the python version, open the `.python-version` file (e.g. `nano .python-version`), then edit the listed version, save, and run `uv sync`.
+
+The config files are:
+
+* `pyproject.toml` - a simple list of the packages you add with `uv add`, including any specified versions.
+* `uv.lock` - full details on every package in the environment.
+
+For more guidance on using `uv`, check out the [uv documentation](https://docs.astral.sh/uv/).
 :::
 
 ::::
 
 ::::{.r-content}
 
+**Installing and managing R versions**
+
+::: {.callout-note collapse="true"}
+## Manual installation and choice of R versions
+
+The following instructions are for **Linux** systems, as used by our team. If you are using Windows or Mac, download the R installer from CRAN. To manage multiple versions on Windows, consider RSwitch utility or manually adjust your PATH environment variable. On Mac, consider RSwitch for Mac, or use Hojmebrew to install specific versions and manage symlinks.
+
+**Installation**
+
+Following instructions from [r-builds](https://github.com/rstudio/r-builds), we first specify the version of R that you want to install ([see available versions](https://cdn.posit.co/r/versions.json)).
+
+```{.bash}
+R_VERSION=4.5.0
+```
+
+Download the `.deb` package (modifying the url depending on your system - `ubuntu-2004`, `ubuntu-2204`, `ubuntu2404`, `debian-12`).
+
+```{.bash}
+curl -O https://cdn.posit.co/r/ubuntu-2204/pkgs/r-${R_VERSION}_1_amd64.deb
+```
+
+Install the package:
+
+```{.bash}
+sudo gdebi r-${R_VERSION}_1_amd64.deb
+```
+
+View installed R versions:
+
+```{.bash}
+ls /opt/R/
+```
+
+<br>
+
+**Switching between versions**
+
+To set the default R version for RStudio and the terminal, you can create symbolic links in `/usr/local/bin` pointing to the desired version under `/opt/R`.
+
+```{.bash}
+sudo ln -s /opt/R/${R_VERSION}/bin/R /usr/local/bin/R 
+sudo ln -s /opt/R/${R_VERSION}/bin/Rscript /usr/local/bin/Rscript
+```
+
+However, a better approach is to use **update-alternatives**. You have to register `R` and `Rscript` for each version of R - for example:
+
+```{.bash}
+sudo update-alternatives --install /usr/local/bin/R R /opt/R/3.6.0/bin/R 360
+sudo update-alternatives --install /usr/local/bin/Rscript Rscript /opt/R/3.6.0/bin/Rscript 360
+
+sudo update-alternatives --install /usr/local/bin/R R /opt/R/4.4.1/bin/R 441
+sudo update-alternatives --install /usr/local/bin/Rscript Rscript /opt/R/4.4.1/bin/Rscript 441
+
+sudo update-alternatives --install /usr/local/bin/R R /opt/R/4.5.0/bin/R 450
+sudo update-alternatives --install /usr/local/bin/Rscript Rscript /opt/R/4.5.0/bin/Rscript 450
+```
+
+Then run the following commands to switch versions interactively - you'll be prompted to select which version of R to use.
+
+```{.bash}
+sudo update-alternatives --config R
+sudo update-alternatives --config Rscript
+```
+
+When you open RStudio, you should find it has switched to the version of R you chose.
+
+:::
 
 ::: {.callout-note collapse="true"}
 ## rig
 
 rig
+<!--TODO: windows and mac too, right?-->
+:::
+
+::: {.callout-note collapse="true"}
+## asdf
+
+asdf
+<!--TODO: windows and mac too, right?-->
+:::
+
+**Using specific R version and packages for each project**
+
+::: {.callout-note collapse="true"}
+## rv
+
+rv
+<!--TODO: windows and mac too, right?-->
 :::
 
 ::::
