@@ -2,7 +2,7 @@
 
 ![](images/stars_banner.png)
 
-# Reproducible Discrete-Event Simulation in Python and R
+# DES RAP Book: Reproducible Discrete-Event Simulation in Python and R
 
 [![Python](https://img.shields.io/badge/-Python_3.9.22-a8902b?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
 ![R 4.4.1](https://img.shields.io/badge/-R_4.4.1-276DC2?style=for-the-badge&logo=r&logoColor=white)
@@ -48,4 +48,4 @@ quarto render
 
 ## Citation
 
-See the `CITATION.cff` file in this repository for how to cite this work.
+To cite this work, see the `CITATION.cff` file in this repository or use the "Cite this repository" button on GitHub.
