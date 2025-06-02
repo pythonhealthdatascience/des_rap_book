@@ -1,5 +1,8 @@
 ---
 title: Dependency management
+format:
+  html:
+    css: ../../styles/wrap_code.css
 ---
 
 :::{.guidelines}
@@ -113,6 +116,8 @@ Other details like the package source (where packages come from) and config file
 In R, the most popular tool for managing dependencies in R is `renv`. This replaced and improved upon the previous tool, `Packrat`.
 
 However, `renv` does not manage the R version used, so we also mention manual installation of R versions (in @sec-other), `rig` (manages R version but not packages) and `rv` (a new tool that manages both).
+
+Note: Switching between R versions is less common and more complicated than in many other languages, mainly as it is not always straightforward to install different versions, and as it may then be tricky to install compatible packages for each version of R, if no longer available on CRAN.
 
 <br>
 
@@ -658,7 +663,61 @@ If you're interested in using one of the other tools for dependency management, 
 ::: {.callout-note collapse="true"}
 ## venv
 
+As `venv` is included with the standard Python library, you do not need to install it. To create a virtual environment, we use the `python -m venv <name>` command. Typically the environment is just named `venv` - and so, we just execute:
+
+```{.bash}
+python -m venv venv
+```
+
+You should execute this from within your project folder. It will create a new folder named `venv/` to store the environment within.
+
+```
 venv
+├── bin/
+├── include/
+├── lib/
+├── lib64/
+└── pyvenv.cfg
+```
+
+It is not recommend to add `venv` to GitHub. The [default Python `.gitignore` file](https://github.com/github/gitignore/blob/main/Python.gitignore) includes `venv/` to ignore the entire folder.
+
+Activation of the virtual environment will differ depending on your operating system.
+
+```{.bash}
+# Linux or MacOS
+source venv/bin/activate
+# Windows (from cmd.exe)
+venv\Scripts\activate
+# Windows (from PowerShell)
+venv\Scripts\Activate.ps1
+```
+
+Once activated, the shell prompt changes to indicate that the environment is active - for example:
+
+```
+(venv) (base) amy@xps:~/Documents/stars/venv_test$
+```
+
+`venv` cannot control which python version is used, will just use one on system. You can check what this is by running:
+
+```{.bash}
+venv/bin/python --version
+```
+
+To add packages, create a `requirements.txt` file. Within this, list the required packages and their versions.
+
+```{.bash}
+nbqa==1.9.0
+simpy==4.1.1
+```
+
+To install these, with our environment active, run:
+
+```{.bash}
+pip install -r requirements.txt
+```
+
 :::
 
 ::: {.callout-note collapse="true"}
@@ -708,7 +767,7 @@ uv run main.py
 >> Hello from uv-test!
 ```
 
-Whenever use uv run, it checks that everything is up-to-date: lockfile matches pyproject.toml, environment matches lockfile. To manually update though, can run:
+Whenever you execute `uv run`, it checks that everything is up-to-date: lockfile matches pyproject.toml, environment matches lockfile. To manually update though, can run:
 
 ```{.bash}
 uv sync
@@ -721,12 +780,51 @@ uv add simpy
 uv add nbqa==1.9.0
 ```
 
-To change the python version, open the `.python-version` file (e.g. `nano .python-version`), then edit the listed version, save, and run `uv sync`.
+To change the python version, open the `.python-version` file (e.g. `nano .python-version`), then edit the listed version, save, and run `uv sync`. It will install the specified version of python.
 
 The config files are:
 
 * `pyproject.toml` - a simple list of the packages you add with `uv add`, including any specified versions.
 * `uv.lock` - full details on every package in the environment.
+
+Example `pyproject.toml`:
+
+```
+[project]
+name = "uv-test"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "nbqa==1.9.0",
+    "pytest>=8.3.5",
+    "simpy>=4.1.1",
+]
+```
+
+Example `uv.lock`:
+
+```
+version = 1
+revision = 2
+requires-python = ">=3.10"
+resolution-markers = [
+    "python_full_version >= '3.11'",
+    "python_full_version < '3.11'",
+]
+
+[[package]]
+name = "asttokens"
+version = "3.0.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/4a/e7/82da0a03e7ba5141f05cce0d302e6eed121ae055e0456ca228bf693984bc/asttokens-3.0.0.tar.gz", hash = "sha256:0dcd8baa8d62b0c1d118b399b2ddba3c4aff271d0d7a9e0d4c1681c79035bbc7", size = 61978, upload-time = "2024-11-30T04:30:14.439Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/25/8a/c46dcc25341b5bce5472c718902eb3d38600a903b14fa6aeecef3f21a46f/asttokens-3.0.0-py3-none-any.whl", hash = "sha256:e3078351a059199dd5138cb1c706e6430c05eff2ff136af5eb4790f9d28932e2", size = 26918, upload-time = "2024-11-30T04:30:10.946Z" },
+]
+
+...
+```
 
 For more guidance on using `uv`, check out the [uv documentation](https://docs.astral.sh/uv/).
 :::
@@ -741,6 +839,8 @@ For more guidance on using `uv`, check out the [uv documentation](https://docs.a
 ## Manual installation and choice of R versions
 
 The following instructions are for **Linux** systems, as used by our team. If you are using Windows or Mac, download the R installer from CRAN. To manage multiple versions on Windows, consider RSwitch utility or manually adjust your PATH environment variable. On Mac, consider RSwitch for Mac, or use Hojmebrew to install specific versions and manage symlinks.
+
+<br>
 
 **Installation**
 
