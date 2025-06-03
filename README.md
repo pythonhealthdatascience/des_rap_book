@@ -49,3 +49,15 @@ quarto render
 ## Citation
 
 To cite this work, see the `CITATION.cff` file in this repository or use the "Cite this repository" button on GitHub.
+
+<br>
+
+## Linting
+
+To lint active Python and R code:
+
+```{.bash}
+bash lint.sh
+```
+
+Note: inactive code (i.e. code that does not get run when building the book) will not be linted - though the R linter will enforce a terminal newline at the end of each `.qmd` file.
