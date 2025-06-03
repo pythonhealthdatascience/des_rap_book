@@ -155,13 +155,13 @@ Note: Switching between R versions is less common and more complicated than in m
 
 | **rv** (TBC - in development)
 | <https://github.com/A2-ai/rv>
-`rv` is a package manager currently in development which aims to control both the R version and all dependencies in an `rproject.toml file`. It requires all dependencies to be specified before installation, rather than taking snapshots as you go along like with `renv`. As of May 2025, it's still at a very early stage of development!
+`rv` is a package manager currently in development which aims to provide a more modern, declarative workflow. You can declare an R version up-front and, whilst it will not automate installation or switching of R versions, it will warn/error if you try to use a different version. Also, it requires all dependencies to be specified before installation, rather than taking snapshots as you go along like with `renv`. These dependencies are saved in an `rproject.toml file`.
 
 ::: {.table-greycol}
 | Feature | rig |
 | -- | --- |
 | Package manager? | Yes |
-| Manages different R versions? | Yes |
+| Manages different R versions? | Partially (relies on system-installed R, but can select among installed versions, and will warn/error if the running R version does not match the declared version) |
 | Default env location | Project directory (e.g. `./rv`) |
 | Customise location? | Yes |
 | Config file | `rproject.toml` plus a generated lockfile |
@@ -663,7 +663,13 @@ If you're interested in using one of the other tools for dependency management, 
 ::: {.callout-note collapse="true"}
 ## venv
 
-As `venv` is included with the standard Python library, you do not need to install it. To create a virtual environment, we use the `python -m venv <name>` command. Typically the environment is just named `venv` - and so, we just execute:
+**Installation**
+
+As `venv` is included with the standard Python library, you do not need to install it.
+
+**Environment creation**
+
+To create a virtual environment, we use the `python -m venv <name>` command. Typically the environment is just named `venv` - and so, we just execute:
 
 ```{.bash}
 python -m venv venv
@@ -699,11 +705,15 @@ Once activated, the shell prompt changes to indicate that the environment is act
 (venv) (base) amy@xps:~/Documents/stars/venv_test$
 ```
 
-`venv` cannot control which python version is used, will just use one on system. You can check what this is by running:
+**Choosing python version**
+
+`venv` cannot control which python version is used, it will just use one on system. You can check what this is by running:
 
 ```{.bash}
 venv/bin/python --version
 ```
+
+**Adding packages**
 
 To add packages, create a `requirements.txt` file. Within this, list the required packages and their versions.
 
@@ -718,11 +728,15 @@ To install these, with our environment active, run:
 pip install -r requirements.txt
 ```
 
+**Further information**
+
 For more guidance on using `venv`, check out the [venv documentation](https://docs.python.org/3/library/venv.html).
 :::
 
 ::: {.callout-note collapse="true"}
 ## poetry
+
+**Installation**
 
 Install poetry following the [instructions for your operating system](https://python-poetry.org/docs/). For example, on Linux:
 
@@ -735,6 +749,8 @@ After installation, check that Poetry is available:
 ```{.bash}
 poetry --version
 ```
+
+**Environment creation**
 
 From our project directory, we can create a new poetry project by running:
 
@@ -762,6 +778,21 @@ dependencies = [
 requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
 ```
+
+When first add a package, the environment will be created.
+
+**Choosing python version**
+
+To use a specific version of python:
+
+```{.bash}
+poetry env use 3.11
+poetry install
+```
+
+However, it cannot install specific versions for you - this is only choosing between versions already on your machine.
+
+**Adding packages**
 
 To add dependencies, use the `poetry add` command (rather than editing `pyproject.toml` directly). This will install the package, update `pyproject.toml` and generate a `poetry.lock` file if one does not already exist.
 
@@ -822,20 +853,15 @@ To install a specific version of a package, specify it when adding:
 poetry add nbqa==1.9.0
 ```
 
-To use a specific version of python:
-
-```{.bash}
-poetry env use 3.11
-poetry install
-```
-
-However, it cannot install specific versions for you - this is only choosing between versions already on your machine.
+**Further information**
 
 For more guidance on using `poetry`, check out the [poetry documentation](https://python-poetry.org/docs/).
 :::
 
 ::: {.callout-note collapse="true"}
 ## uv
+
+**Installation**
 
 [Install](https://docs.astral.sh/uv/getting-started/installation/) for your operating system - for example, on linux:
 
@@ -848,6 +874,8 @@ Can check it has installed by running:
 ```{.bash}
 uv version
 ```
+
+**Environment creation**
 
 To set up your repository as a uv project, run:
 
@@ -881,14 +909,18 @@ Whenever you execute `uv run`, it checks that everything is up-to-date: lockfile
 uv sync
 ```
 
+**Choosing python version**
+
+To change the python version, open the `.python-version` file (e.g. `nano .python-version`), then edit the listed version, save, and run `uv sync`. It will install the specified version of python.
+
+**Adding packages**
+
 To add packages, run `uv add`, and can specify versions:
 
 ```{.bash}
 uv add simpy
 uv add nbqa==1.9.0
 ```
-
-To change the python version, open the `.python-version` file (e.g. `nano .python-version`), then edit the listed version, save, and run `uv sync`. It will install the specified version of python.
 
 The config files are:
 
@@ -934,6 +966,8 @@ wheels = [
 ...
 ```
 
+**Further information**
+
 For more guidance on using `uv`, check out the [uv documentation](https://docs.astral.sh/uv/).
 :::
 
@@ -946,7 +980,7 @@ For more guidance on using `uv`, check out the [uv documentation](https://docs.a
 ::: {.callout-note collapse="true"}
 ## Manual installation and choice of R versions
 
-The following instructions are for **Linux** systems, as used by our team. If you are using Windows or Mac, download the R installer from CRAN. To manage multiple versions on Windows, consider RSwitch utility or manually adjust your PATH environment variable. On Mac, consider RSwitch for Mac, or use Hojmebrew to install specific versions and manage symlinks.
+The following instructions are for **Linux** systems. If you are using Windows or Mac, download the R installer from CRAN. To manage multiple versions on Windows, consider RSwitch utility or manually adjust your PATH environment variable. On Mac, consider RSwitch for Mac, or use Hojmebrew to install specific versions and manage symlinks.
 
 <br>
 
@@ -1009,6 +1043,8 @@ sudo update-alternatives --config Rscript
 
 When you open RStudio, you should find it has switched to the version of R you chose.
 
+However, if using different versions of R between projects, you will need to change this before opening RStudio for each project.
+
 :::
 
 ::: {.callout-note collapse="true"}
@@ -1030,8 +1066,162 @@ asdf
 ::: {.callout-note collapse="true"}
 ## rv
 
-rv
-<!--TODO: windows and mac too, right?-->
+**Installation**
+
+Follow the [installation instructions](https://github.com/A2-ai/rv/blob/main/docs/installation.md) for your operating system. For example, on linux:
+
+```{.bash}
+curl -sSL https://raw.githubusercontent.com/A2-ai/rv/refs/heads/main/scripts/install.sh | bash
+```
+
+We can then check it has installed by running:
+
+```{.bash}
+rv --version
+```
+
+**Setting up the project with a particular version of R**
+
+To set up rv project, execute from terminal `rv init`. However, if you wish to use a particular version of R, you should also specify this when setting up the project.
+
+Whilst rv will not install new versions of R for you, you can fix each project to a particular version of R, and it will then warn/error if the running version of R does not match this.
+
+For example, setting up a project fixed to R 4.5:
+
+```{.bash}
+rv init --r-version 4.5
+```
+
+This will create:
+
+```
+.
+├── .Rprofile
+├── rproject.toml
+└── rv/
+    ├── .gitignore
+    └── scripts/
+        ├── activate.R
+        └── rvr.R
+```
+
+You can view a summary of the environment by running:
+
+```{.bash}
+rv summary
+```
+
+If you try to do this without that version of R installed, the project will initialise successfully, but running `rv summary` you will see an error message similar to:
+
+```
+Failed to get R version
+
+Caused by:
+    Specified R version (4.5) does not match any available versions found on the system (3.6.0, 4.2.2, 4.3.1, 4.4.1)
+```
+
+**Setting repositories**
+
+When we ran `rv init`, we got an error message:
+
+```
+WARNING: Could not set default repositories. Set with your company preferred package URL or public url (i.e. `https://packagemanager.posit.co/cran/latest`)
+```
+
+To resolve this, we opened `rproject.toml` and amended the repositories section to list CRAN:
+
+```
+repositories = [
+    {alias = "CRAN", url = "https://cran.r-project.org", force_source = true}
+]
+```
+
+Without this change, it was not possible to install packages (would "fail to resolve all dependencies").
+
+**Adding packages**
+
+To add packages, simply run `rv add <package>`. This will install the specified package, and update the `rproject.toml` file to list it as a dependency, and add all installed packages to an `rv.lock` file. For example, if we run:
+
+```{.bash}
+rv add simmer
+```
+
+The `rproject.toml` dependencies section updates to:
+
+```
+dependencies = [
+    "simmer",
+]
+```
+
+An `rv.lock` file is created:
+
+```
+# This file is automatically @generated by rv.
+# It is not intended for manual editing.
+version = 2
+r_version = "4.5"
+
+[[packages]]
+name = "Rcpp"
+version = "1.0.14"
+source = { repository = "https://cran.r-project.org/" }
+force_source = true
+dependencies = []
+
+[[packages]]
+name = "codetools"
+version = "0.2-20"
+source = { builtin = true }
+force_source = false
+dependencies = []
+
+[[packages]]
+name = "magrittr"
+version = "2.0.3"
+source = { repository = "https://cran.r-project.org/" }
+force_source = true
+dependencies = []
+
+[[packages]]
+name = "simmer"
+version = "4.4.7"
+source = { repository = "https://cran.r-project.org/" }
+force_source = true
+dependencies = [
+    "Rcpp",
+    "magrittr",
+    "codetools",
+    { name = "Rcpp", requirement = "(>= 0.12.9)" },
+]
+```
+
+**Adding specific versions of packages**
+
+Currently, `rv` requires this is done by editing the `rproject.toml` file and then running:
+
+```{.bash}
+rv sync
+```
+
+I found this a bit hit-or-miss - several packages I tried failed to install due to issues fetching dependencies like `glue`. However, these two examples of using simmer 4.4.6.4 (instead of the latest 4.4.7) worked fine - either installing from CRAN or GitHub:
+
+```
+dependencies = [
+    {name = "simmer", url = "https://cran.r-project.org/src/contrib/Archive/simmer/simmer_4.4.6.4.tar.gz"},
+]
+```
+
+```
+dependencies = [
+    {name = "simmer", git = "https://github.com/r-simmer/simmer.git", tag = "v4.4.6.4"},
+]
+```
+
+**Further information**
+
+Check out the [rv GitHub repository](https://github.com/A2-ai/rv/tree/main) for more advice on using this tool, and the latest instructions (as this package is still in active development).
+
 :::
 
 ::::
