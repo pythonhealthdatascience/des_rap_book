@@ -667,6 +667,8 @@ If you're interested in using one of the other tools for dependency management, 
 
 As `venv` is included with the standard Python library, you do not need to install it.
 
+<br>
+
 **Environment creation**
 
 To create a virtual environment, we use the `python -m venv <name>` command. Typically the environment is just named `venv` - and so, we just execute:
@@ -705,6 +707,8 @@ Once activated, the shell prompt changes to indicate that the environment is act
 (venv) (base) amy@xps:~/Documents/stars/venv_test$
 ```
 
+<br>
+
 **Choosing python version**
 
 `venv` cannot control which python version is used, it will just use one on system. You can check what this is by running:
@@ -712,6 +716,8 @@ Once activated, the shell prompt changes to indicate that the environment is act
 ```{.bash}
 venv/bin/python --version
 ```
+
+<br>
 
 **Adding packages**
 
@@ -727,6 +733,8 @@ To install these, with our environment active, run:
 ```{.bash}
 pip install -r requirements.txt
 ```
+
+<br>
 
 **Further information**
 
@@ -749,6 +757,8 @@ After installation, check that Poetry is available:
 ```{.bash}
 poetry --version
 ```
+
+<br>
 
 **Environment creation**
 
@@ -781,6 +791,8 @@ build-backend = "poetry.core.masonry.api"
 
 When first add a package, the environment will be created.
 
+<br>
+
 **Choosing python version**
 
 To use a specific version of python:
@@ -791,6 +803,8 @@ poetry install
 ```
 
 However, it cannot install specific versions for you - this is only choosing between versions already on your machine.
+
+<br>
 
 **Adding packages**
 
@@ -853,6 +867,8 @@ To install a specific version of a package, specify it when adding:
 poetry add nbqa==1.9.0
 ```
 
+<br>
+
 **Further information**
 
 For more guidance on using `poetry`, check out the [poetry documentation](https://python-poetry.org/docs/).
@@ -874,6 +890,8 @@ Can check it has installed by running:
 ```{.bash}
 uv version
 ```
+
+<br>
 
 **Environment creation**
 
@@ -909,9 +927,13 @@ Whenever you execute `uv run`, it checks that everything is up-to-date: lockfile
 uv sync
 ```
 
+<br>
+
 **Choosing python version**
 
 To change the python version, open the `.python-version` file (e.g. `nano .python-version`), then edit the listed version, save, and run `uv sync`. It will install the specified version of python.
+
+<br>
 
 **Adding packages**
 
@@ -966,6 +988,8 @@ wheels = [
 ...
 ```
 
+<br>
+
 **Further information**
 
 For more guidance on using `uv`, check out the [uv documentation](https://docs.astral.sh/uv/).
@@ -978,7 +1002,7 @@ For more guidance on using `uv`, check out the [uv documentation](https://docs.a
 **Installing and managing R versions**
 
 ::: {.callout-note collapse="true"}
-## Manual installation and choice of R versions
+## Manual installation and switching with update-alternatives
 
 The following instructions are for **Linux** systems. If you are using Windows or Mac, download the R installer from CRAN. To manage multiple versions on Windows, consider RSwitch utility or manually adjust your PATH environment variable. On Mac, consider RSwitch for Mac, or use Hojmebrew to install specific versions and manage symlinks.
 
@@ -1050,15 +1074,79 @@ However, if using different versions of R between projects, you will need to cha
 ::: {.callout-note collapse="true"}
 ## rig
 
-rig
-<!--TODO: windows and mac too, right?-->
-:::
+**Installation**
 
-::: {.callout-note collapse="true"}
-## asdf
+Follow [installation instructions](https://github.com/r-lib/rig) for your operating system. For example, on Linux Ubuntu:
 
-asdf
-<!--TODO: windows and mac too, right?-->
+```{.bash}
+`which sudo` curl -L https://rig.r-pkg.org/deb/rig.gpg -o /etc/apt/trusted.gpg.d/rig.gpg
+`which sudo` sh -c 'echo "deb http://rig.r-pkg.org/deb rig main" > /etc/apt/sources.list.d/rig.list'
+`which sudo` apt update
+`which sudo` apt install r-rig
+```
+
+Then, to confirm it has installed:
+
+```{.bash}
+rig --version
+```
+
+<br>
+
+**See current R versions**
+
+To see all R versions installed on machine:
+
+```{.bash}
+rig list
+```
+
+Example output:
+
+```
+* name   version  aliases
+------------------------------------------
+  3.6.0           
+  4.2.2           
+  4.3.1           
+  4.4.1           
+  4.5.0  
+```
+
+<br>
+
+**Add new R versions**
+
+Can add specific versions:
+
+```{.bash}
+rig add 4.1.2
+```
+
+Or just the latest version:
+
+```{.bash}
+rig add
+```
+
+<br>
+
+**Choose which R version to use**
+
+Use the `rig default` command to choose an R version - when you open RStudio, it will be active. It will override the version you have set manually - but redoing that (e.g. with `update-alternatives`) will override it back.
+
+Example:
+
+```{.bash}
+rig default 4.1.2
+```
+
+<br>
+
+**Further information**
+
+See the [rig GitHub repository](https://github.com/r-lib/rig) for further information on using it.
+
 :::
 
 **Using specific R version and packages for each project**
@@ -1079,6 +1167,8 @@ We can then check it has installed by running:
 ```{.bash}
 rv --version
 ```
+
+<br>
 
 **Setting up the project with a particular version of R**
 
@@ -1120,6 +1210,8 @@ Caused by:
     Specified R version (4.5) does not match any available versions found on the system (3.6.0, 4.2.2, 4.3.1, 4.4.1)
 ```
 
+<br>
+
 **Setting repositories**
 
 When we ran `rv init`, we got an error message:
@@ -1137,6 +1229,8 @@ repositories = [
 ```
 
 Without this change, it was not possible to install packages (would "fail to resolve all dependencies").
+
+<br>
 
 **Adding packages**
 
@@ -1196,6 +1290,8 @@ dependencies = [
 ]
 ```
 
+<br>
+
 **Adding specific versions of packages**
 
 Currently, `rv` requires this is done by editing the `rproject.toml` file and then running:
@@ -1217,6 +1313,8 @@ dependencies = [
     {name = "simmer", git = "https://github.com/r-simmer/simmer.git", tag = "v4.4.6.4"},
 ]
 ```
+
+<br>
 
 **Further information**
 
