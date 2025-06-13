@@ -4,4 +4,227 @@ title: Parameters from file
 
 :::{.guidelines}
 * Heather et al. 2025: Avoid hard-coded parameters.
+* NHS Levels of RAP (🥈): Data is handled and output in a Tidy data format.
 :::
+
+Discrete-event simulations (DES) require many parameters - like arrival rates, resource times, and probabilities - which often need to be changed for different scenarios and analyses. **Managing these parameters well makes your simulations easier to update, track, and reuse**.
+
+This page focuses on the storage of parameters within a file. If you want to see how to store parameters within a script, see the [parameters from script](parameters_script.qmd) page.
+
+<br>
+
+## Why use external parameter files?
+
+External parameter files can offer some advantages over storing parameters directly in scripts:
+
+* Easier for non-programmers to modify parameters.
+* Can easily share your simulation with different parameters versions (e.g. real parameters for internal use, synthetic parameters for external sharing, as discussed in [input data management](input_data.qmd)) without editing the code itself.
+* Less hard coding as parameters are completely separate.
+
+Though storing parameters within a script is commonplace - particularly for simpler models - due to its simplicity.
+
+<br>
+
+## Create parameter file
+
+There are several file types you could consider for storing parameters. CSV files are often a good choice - particularly better than Excel - because they are:
+
+* Open and non-proprietary format.
+* Compatible with version-control systems (being text-based).
+* Readable in wide range of spreadsheet software (Excel, LibreOffice), text editors, and programming environments
+* Easy to import and parse in major programming languages.
+
+The parameter file should be structured following tidy data principles. This means each row represents a single observation and each column represents a variable. Avoid using merged cells or stacked headers as these make the data harder to process programmatically.
+
+:::{.python-content}
+
+```{python}
+import pandas as pd
+
+# Import and preview parameter file
+df = pd.read_csv("parameters_file_resources/example_parameters.csv")
+df
+```
+
+:::
+
+<br>
+
+## Create data dictionary
+
+As discussed on the [input data management page](input_data.qmd), you should include a data dictionary or documentation describing each parameter. This documentation should explain the parameter's meaning, units, and any abbreviations or codes used.
+
+For example:
+
+{{< include parameters_file_resources/example_data_dictionary.md >}}
+
+<br>
+
+## Import parameters into function or class
+
+The [parameters from script page](parameters_script.qmd) provides detailed guidance on how parameters should be structured within your simulation. The key principles are:
+
+1. **Group parameters into a dedicated object**.
+2. **Pass these objects explicitly to your model**.
+
+These same principles apply when importing parameters from files.  We recommend using **structured parameter objects** rather than passing raw CSV data directly to your simulation functions because:
+
+* Your files might contain baseline parameters plus scenario-specific overrides, but your simulation needs **one complete object** with all parameters merged together. Having all required parameters for a run in one object also makes it clear exactly what's being used.
+* Classes allow you to incorporate parameter **validation** (e.g. ranges, types) before running the simulation.
+* With an object, you can keep **consistent parameter names** in your code, while allowing names or file formats to change, as helper functions can translate between the file and parameter object.
+
+However, there is one major difference when working with parameters from files: **you should not include default values in your parameter classes**. All values should come explicitly from your data sources. This ensures your parameter choices are intentional and missing parameters fail clearly instead of silently using unexpected defaults.
+
+<br>
+
+### Define parameter function or class
+
+Parameters can be stored using one or multiple functions or classes (see the [parameters from script page](parameters_script.qmd) for detailed discussion).
+
+:::{.python-content}
+
+Here, we show a single class approach:
+
+```{python}
+class Parameters:
+    def __init__(
+        self,
+        adult_interarrival, adult_consultation, adult_transfer,
+        child_interarrival, child_consultation, child_transfer,
+        elderly_interarrival, elderly_consultation, elderly_transfer
+    ):
+        # Adult parameters
+        self.adult_interarrival = adult_interarrival
+        self.adult_consultation = adult_consultation
+        self.adult_transfer = adult_transfer
+        # Child parameters
+        self.child_interarrival = child_interarrival
+        self.child_consultation = child_consultation
+        self.child_transfer = child_transfer
+        # Elderly parameters
+        self.elderly_interarrival = elderly_interarrival
+        self.elderly_consultation = elderly_consultation
+        self.elderly_transfer = elderly_transfer
+```
+
+:::
+
+<br>
+
+### Write helper function to import parameters
+
+Create helper functions to load parameters from your CSV file into your functions/classes. How you write this function will depend on your parameter class structure and how your parameter files are organised.
+
+For example:
+
+:::{.python-content}
+
+```{python}
+def setup_param_from_csv(csv_path):
+    """
+    Create a Parameters instance using parameter values loaded from a CSV file.
+
+    Parameters
+    ----------
+    csv_path : str
+        Path to CSV file containing the parameters. Should have columns
+        "patient", "metric", and "value".
+
+    Returns
+    -------
+    Parameters
+        Instance of Parameters initialised with parameters from the CSV file.
+    """
+    df = pd.read_csv(csv_path)
+    
+    # Create a pivot table to reorganise data
+    pivot_df = df.pivot(index="patient", columns="metric", values="value")
+    
+    # Extract parameters directly from the pivot table
+    params = Parameters(
+        adult_interarrival=pivot_df.loc["adult", "interarrival"],
+        adult_consultation=pivot_df.loc["adult", "consultation"],
+        adult_transfer=pivot_df.loc["adult", "transfer"],
+        child_interarrival=pivot_df.loc["child", "interarrival"],
+        child_consultation=pivot_df.loc["child", "consultation"],
+        child_transfer=pivot_df.loc["child", "transfer"],
+        elderly_interarrival=pivot_df.loc["elderly", "interarrival"],
+        elderly_consultation=pivot_df.loc["elderly", "consultation"],
+        elderly_transfer=pivot_df.loc["elderly", "transfer"]
+    )
+    
+    return params
+```
+
+:::
+
+<br>
+
+### Load and use parameters
+
+:::{.python-content}
+
+```{python}
+# Import parameters
+params = setup_param_from_csv(
+    "parameters_file_resources/example_parameters.csv")
+
+# View object
+display(params.__dict__)
+```
+
+:::
+
+## Examples
+
+The following [examples](../intro/examples.qmd)...
+
+---
+
+<details>
+<summary>Show/Hide example 1: Nurse visit simulation</summary>
+
+<br>
+
+:::{.python-content}
+
+```{.python}
+```
+
+:::
+
+:::{.r-content}
+
+```{.r}
+```
+
+:::
+
+</details>
+
+---
+
+<details>
+<summary>Show/Hide example 2: stroke pathway simulation</summary>
+
+<br>
+
+:::{.python-content}
+
+```{.python}
+```
+
+:::
+
+:::{.r-content}
+
+```{.r}
+```
+
+:::
+
+</details>
+
+---
+
+<br>
