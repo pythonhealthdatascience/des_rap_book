@@ -1,36 +1,166 @@
 ---
 title: Parameter validation
+format: html
+filters:
+  - line-highlight
 ---
-
-<!--TODO: i feel like this could be moved onto its own page, labelled optional there... but then run into issue with full code, and where put that full code... do i show full code without validation on param management, then add validation on param validation page? think about how i'm going to maintain all this too... changes to the full code source code... etc.-->
 
 > This is not necessary to reproducibility or a reproducible analytical pipeline, but is good practice when working, and may help avoid mistakes.
 
-Accidental parameter changes or typos can **silently** invalidate your results.
+<br>
 
-For example, mistyping `transfer_prob` as `transfer_probs` in a dictionary creates a **new, unused parameter** instead of raising an error.
+## Introduction
 
-When you use function or class, they will prevent this error during set up (i.e. when provide arguments to both), but you can still run into this issue, if you alter the dictionary from function, or alter the class attributes.
+**Parameter validation** refers to checking that inputs provided to functions or classes are correct and as expected.
 
-in each of examples below, have just add a new param called transfer_probs, and `transfer_prob` remains 0.3.
-we dont get an error message, but unbenownst to us, simulation still uses 0.3.
+This page focuses on preventing a dangerous but common mistake in discrete-event simulation (DES): accidentally creating new parameters through typos instead of modifying existing ones.
 
-```{.python}
-# Function example
-params = create_params()
-params["transfer_probs"] = 0.4
-
-# Class example
-params = Parameters()
-params.transfer_probs = 0.4
+:::{.r-content}
+```{r}
+# Import required packages
+library(R6)
 ```
+:::
 
-There are two solutions to this, depending on whether you use functions or classes:
+<br>
 
-* For functions, parameter validation within simulation functions
-* For classes, parameter validation within class
+### The problem
 
-Validation in class preferable as at point of defining param, all in one place. But both good options
+When defining your parameters in a function, if you mistype a parameter name, an error won't be raised. Instead, a **new, unused parameter** is created. This can **silently** invalidate your results, as you may not realise that your parameter is unchanged.
+
+:::{.r-content}
+**Note:** This parameter typo issue doesn't occur when using R6 classes directly (as on the right), as they prevent adding new fields by default. However, if you extract the parameter list from an R6 class and modify that list separately, you'll encounter the same silent error problem. For this reason, it's better to modify parameters through the class interface rather than extracting and modifying the underlying list.
+:::
+
+::::: {.columns}
+
+:::: {.column width="47.5%"}
+
+:::{.python-content}
+```{python}
+# Function-based example
+
+def param_function(transfer_prob=0.3):
+    """
+    Returns transfer_prob for validation example.
+
+    Parameters
+    ----------
+    transfer_prob : float
+        Transfer probability (0-1).
+
+    Returns
+    -------
+    Dictionary containing the transfer_prob parameter.
+    """
+    return {"transfer_prob": transfer_prob}
+
+# Use function to create params dict
+params = param_function()
+
+# Mistype transfer_prob
+params["transfer_probs"] = 0.4
+params
+```
+:::
+
+:::{.r-content}
+```{r}
+# Function-based example
+
+#' Returns transfer_prob for validation example.
+#' 
+#' @param transfer_prob Numeric. Transfer probability (0-1).
+#' 
+#' @return A named list containing the transfer_prob parameter.
+
+param_function <- function(transfer_prob = 0.3) {
+    list(transfer_prob = transfer_prob)
+}
+
+# Use function to create params list
+params <- param_function()
+
+# Mistype transfer_prob
+params$transfer_probs <- 0.4
+params
+```
+:::
+
+::::
+
+:::: {.column width="5%"}
+::::
+
+:::: {.column width="47.5%"}
+
+:::{.python-content}
+```{python}
+# Class-based example
+
+class ParamClass:
+    """
+    Returns transfer_prob for validation example.
+    """
+    def __init__(self, transfer_prob=0.3):
+        """
+        Initialise ParamClass instance.
+
+        Parameters
+        ----------
+        transfer_prob : float
+            Transfer probability (0-1).
+        """
+        self.transfer_prob = transfer_prob
+
+# Create instance of ParamClass
+params = ParamClass()
+
+# Mistype transfer_prob
+params.transfer_probs = 0.4
+params.__dict__
+```
+:::
+
+:::{.r-content}
+```{r}
+# Class-based example
+
+{{< include parameters_validation_resources/ParamClass.R >}}
+```
+:::
+
+::::
+
+:::::
+
+<br>
+
+### The solution
+
+::::{.python-content}
+There are two main approaches to prevent these silent failures:
+
+:::{.pale-blue}
+* **When using functions:** Implement parameter validation within your model functions.
+* **When using classes:** Build validation directly into the class structure.
+:::
+::::
+
+::::{.r-content}
+There are two main approaches to prevent these silent failures **when using functions**:
+
+:::{.pale-blue}
+* Implement parameter validation within your model functions.
+* Switch to using R6 classes.
+:::
+::::
+
+Class-based validation is often preferable as it catches errors at the point when parameters are defined - but both approaches are effective!
+
+:::{.r-content}
+Functions are more commonly used in R than classes, so you may prefer to stick with the function-based approach for consistency with R conventions.
+:::
 
 <br>
 
@@ -41,6 +171,8 @@ for functions, this is done in model code, as if you did it in function, changes
 <br>
 
 ## Parameter validation within the class
+
+:::{.python-content}
 
 Prevent typos and unauthorised changes by locking down classes after initialisation.
 
@@ -134,5 +266,186 @@ class RestrictAttributes(metaclass=RestrictAttributesMeta):
         # If checks pass, set the attribute using the standard method
         object.__setattr__(self, name, value)
 ```
+
+:::
+
+:::::{.r-content}
+
+By default, **R6 classes prevent the addition of new fields**. However, there are ways you can override this behavior or set up your classes differently that would not have this protection for your parameters. These include:
+
+* Setting `lock_objects = FALSE`.
+* Setting parameters within a list.
+
+<br>
+
+**Setting `lock_objects = FALSE`**
+
+The prevention of new fields is thanks to the default `lock_objects = TRUE` setting. If we override this and set `lock_objects = FALSE`, it will not raise an error when new fields are added. Therefore, it's important not to override this default behavior.
+
+:::: {.columns}
+
+::: {.column width="47.5%"}
+Original class with `lock_objects = TRUE`:
+```{r}
+{{< include parameters_validation_resources/ParamClass.R >}}
+```
+:::
+
+::: {.column width="5%"}
+:::
+
+::: {.column width="47.5%"}
+Same class with `lock_objects = TRUE`:
+```{r}
+#' @title Returns transfer_prob for validation example.
+#'
+#' @field transfer_prob Numeric. Transfer probability (0-1).
+
+ParamClass <- R6Class(
+  lock_objects = FALSE, #<<
+  public = list(
+    transfer_prob = NULL,
+
+    #' @description
+    #' Initialises the R6 object.
+
+    initialize = function(
+        transfer_prob = 0.3
+    ) {
+      self$transfer_prob <- transfer_prob
+    }
+  )
+)
+
+# Create instance of ParamClass
+params <- ParamClass$new()
+
+# Mistype transfer_prob
+try(params$transfer_probs <- 0.4)
+params #<<
+```
+:::
+
+::::
+
+<br>
+
+**Setting parameters within a list**
+
+If you set up your R6 class with each parameter as a class field, then by default, it will have validation to prevent the addition of new fields.
+
+You may choose to store parameters in a list instead, to make it easier to access them all at once - but, if you do this, the validation won't apply.
+
+:::: {.columns}
+
+::: {.column width="47.5%"}
+Original class with individual fields:
+```{r}
+{{< include parameters_validation_resources/ParamClass.R >}}
+```
+:::
+
+::: {.column width="5%"}
+:::
+
+::: {.column width="47.5%"}
+Class with parameters in a list:
+```{r}
+#' @title Returns transfer_prob for validation example.
+#'
+#' @field transfer_prob Numeric. Transfer probability (0-1).
+
+ParamClass <- R6Class(
+  public = list(
+    parameters = NULL, #<<
+
+    #' @description
+    #' Initialises the R6 object.
+
+    initialize = function(
+        transfer_prob = 0.3
+    ) {
+      self$parameters <- list( #<<
+        transfer_prob = transfer_prob #<<
+      ) #<<
+    }
+  )
+)
+
+# Create instance of ParamClass
+params <- ParamClass$new()
+
+# Mistype transfer_prob
+try(params$parameters$transfer_probs <- 0.4)
+params$parameters #<<
+```
+:::
+
+::::
+
+<br>
+
+However, there is a clean solution that allows you to access parameters easily while maintaining individual fields with built-in validation. By adding a `get_params()` method, you can extract parameters without storing them in a list.
+
+:::: {.columns}
+
+::: {.column width="47.5%"}
+Original class with individual fields:
+```{r}
+{{< include parameters_validation_resources/ParamClass.R >}}
+```
+:::
+
+::: {.column width="5%"}
+:::
+
+::: {.column width="47.5%"}
+Same class with added `get_params()` method:
+```{r}
+#' @title Returns transfer_prob for validation example.
+#'
+#' @field transfer_prob Numeric. Transfer probability (0-1).
+
+ParamClass <- R6Class(
+  public = list(
+    transfer_prob = NULL,
+
+    #' @description
+    #' Initialises the R6 object.
+
+    initialize = function(
+        transfer_prob = 0.3
+    ) {
+      self$transfer_prob <- transfer_prob
+    },
+
+    #' @description #<<
+    #' Returns parameters as a named list. #<<
+
+    get_params = function() { #<<
+      # Get all non-function fields #<<
+      all_names <- ls(self) #<<
+      param_names <- all_names[ #<<
+        !sapply(all_names, function(x) is.function(self[[x]])) #<<
+      ] #<<
+      mget(param_names, envir = self) #<<
+    } #<<
+  )
+)
+
+# Create instance of ParamClass
+params <- ParamClass$new()
+
+# Mistype transfer_prob
+try(params$transfer_probs <- 0.4)
+
+# Get all parameters #<<
+params$get_params() #<<
+```
+:::
+
+::::
+
+:::::
 
 <br>
