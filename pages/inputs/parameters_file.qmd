@@ -2,6 +2,8 @@
 title: Parameters from file
 ---
 
+{{< include ../../scripts/_reticulate-setup.md >}}
+
 :::{.guidelines}
 * Heather et al. 2025: Avoid hard-coded parameters.
 * NHS Levels of RAP (🥈): Data is handled and output in a Tidy data format.
@@ -39,11 +41,21 @@ The parameter file should be structured following tidy data principles. This mea
 :::{.python-content}
 
 ```{python}
+# pylint: disable=missing-module-docstring
+# Import required packages
 import pandas as pd
 
 # Import and preview parameter file
-df = pd.read_csv("parameters_file_resources/example_parameters.csv")
-df
+pd.read_csv("parameters_file_resources/example_parameters.csv")
+```
+
+:::
+
+:::{.r-content}
+
+```{r}
+# Import and preview parameter file
+read.csv(file.path("parameters_file_resources", "example_parameters.csv"))
 ```
 
 :::
@@ -87,12 +99,39 @@ Here, we show a single class approach:
 
 ```{python}
 class Parameters:
+    """
+    Container for simulation parameters across patient demographics.
+    """
     def __init__(
         self,
         adult_interarrival, adult_consultation, adult_transfer,
         child_interarrival, child_consultation, child_transfer,
         elderly_interarrival, elderly_consultation, elderly_transfer
     ):
+        """
+        Initialise Parameters instance.
+
+        Parameters
+        ----------
+        adult_interarrival : float
+            Time between adult patient arrivals (e.g., in minutes or hours).
+        adult_consultation : float  
+            Duration of consultation time for adult patients.
+        adult_transfer : float
+            Time required to transfer adult patients between stages.
+        child_interarrival : float
+            Time between child patient arrivals (e.g., in minutes or hours).
+        child_consultation : float
+            Duration of consultation time for child patients.
+        child_transfer : float
+            Time required to transfer child patients between stages.
+        elderly_interarrival : float
+            Time between elderly patient arrivals (e.g., in minutes or hours).
+        elderly_consultation : float
+            Duration of consultation time for elderly patients.
+        elderly_transfer : float
+            Time required to transfer elderly patients between stages.
+        """
         # Adult parameters
         self.adult_interarrival = adult_interarrival
         self.adult_consultation = adult_consultation
@@ -105,6 +144,60 @@ class Parameters:
         self.elderly_interarrival = elderly_interarrival
         self.elderly_consultation = elderly_consultation
         self.elderly_transfer = elderly_transfer
+```
+
+:::
+
+:::{.r-content}
+
+Here, we show a single function approach:
+
+```{r}
+#' Create parameter list for simulation
+#'
+#' @param adult_interarrival Numeric. Time between adult patient arrivals 
+#'   (e.g. in minutes or hours).
+#' @param adult_consultation Numeric. Duration of consultation time for 
+#'   adult patients.
+#' @param adult_transfer Numeric. Time required to transfer adult patients 
+#'   between stages.
+#' @param child_interarrival Numeric. Time between child patient arrivals 
+#'   (e.g. in minutes or hours).
+#' @param child_consultation Numeric. Duration of consultation time for 
+#'   child patients.
+#' @param child_transfer Numeric. Time required to transfer child patients 
+#'   between stages.
+#' @param elderly_interarrival Numeric. Time between elderly patient arrivals 
+#'   (e.g. in minutes or hours).
+#' @param elderly_consultation Numeric. Duration of consultation time for 
+#'   elderly patients.
+#' @param elderly_transfer Numeric. Time required to transfer elderly patients 
+#'   between stages.
+#'
+#' @return A named list containing all simulation parameters organised by 
+#'   patient demographic groups (adult, child, elderly). Each group contains
+#'   interarrival, consultation, and transfer time parameters.
+
+create_params <- function(
+  adult_interarrival, adult_consultation, adult_transfer,
+  child_interarrival, child_consultation, child_transfer,
+  elderly_interarrival, elderly_consultation, elderly_transfer
+) {
+  list(
+    # Adult parameters
+    adult_interarrival = adult_interarrival,
+    adult_consultation = adult_consultation,
+    adult_transfer = adult_transfer,
+    # Child parameters
+    child_interarrival = child_interarrival,
+    child_consultation = child_consultation,
+    child_transfer = child_transfer,
+    # Elderly parameters
+    elderly_interarrival = elderly_interarrival,
+    elderly_consultation = elderly_consultation,
+    elderly_transfer = elderly_transfer
+  )
+}
 ```
 
 :::
@@ -135,25 +228,52 @@ def setup_param_from_csv(csv_path):
     Parameters
         Instance of Parameters initialised with parameters from the CSV file.
     """
-    df = pd.read_csv(csv_path)
-    
-    # Create a pivot table to reorganise data
-    pivot_df = df.pivot(index="patient", columns="metric", values="value")
-    
-    # Extract parameters directly from the pivot table
-    params = Parameters(
-        adult_interarrival=pivot_df.loc["adult", "interarrival"],
-        adult_consultation=pivot_df.loc["adult", "consultation"],
-        adult_transfer=pivot_df.loc["adult", "transfer"],
-        child_interarrival=pivot_df.loc["child", "interarrival"],
-        child_consultation=pivot_df.loc["child", "consultation"],
-        child_transfer=pivot_df.loc["child", "transfer"],
-        elderly_interarrival=pivot_df.loc["elderly", "interarrival"],
-        elderly_consultation=pivot_df.loc["elderly", "consultation"],
-        elderly_transfer=pivot_df.loc["elderly", "transfer"]
-    )
-    
-    return params
+
+    # Import the parameters
+    param_file = pd.read_csv(csv_path)
+
+    # Create name-value mappings
+    values = {
+      f"{row.patient}_{row.metric}": row.value
+      for row in param_file.itertuples()
+    }
+
+    # Pass these values to the Parameters class
+    return Parameters(**values)
+```
+
+:::
+
+:::{.r-content}
+
+```{r}
+#' Create parameter list from CSV file
+#' 
+#' @param csv_path Character. Path to CSV file containing the parameters. 
+#'   The CSV file should have columns "patient", "metric", and "value".
+#'   The "patient" column should contain demographic groups (e.g., "adult", 
+#'   "child", "elderly"), the "metric" column should contain parameter types
+#'   (e.g., "interarrival", "consultation", "transfer"), and the "value" 
+#'   column should contain the numeric parameter values.
+#'
+#' @return A named list containing all simulation parameters organized by 
+#'   patient demographic groups, identical to the output of
+#'   \code{create_params()}. The list contains interarrival, consultation, and 
+#'   transfer time parameters for each patient group.
+
+setup_param_from_csv <- function(csv_path) {
+
+  # Import the parameters
+  param_file <- read.csv(csv_path)
+
+  # Create named vector where names match function arguments
+  values <- setNames(
+    param_file$value, paste(param_file$patient, param_file$metric, sep = "_")
+  )
+
+  # Pass the named list to create_params
+  do.call(create_params, as.list(values))
+}
 ```
 
 :::
@@ -170,7 +290,21 @@ params = setup_param_from_csv(
     "parameters_file_resources/example_parameters.csv")
 
 # View object
-display(params.__dict__)
+params.__dict__
+```
+
+:::
+
+:::{.r-content}
+
+```{r}
+# Import parameters
+params <- setup_param_from_csv(
+  file.path("parameters_file_resources", "example_parameters.csv")
+)
+
+# View objects
+params
 ```
 
 :::
@@ -228,3 +362,13 @@ The following [examples](../intro/examples.qmd)...
 ---
 
 <br>
+
+## Further information
+
+:::{.python-content}
+The `sim-tools` package provides a class for managing probability distributions stored within JSON files - check it out: https://tommonks.github.io/sim-tools/01_sampling/03_distributions_registry.html. 
+:::
+
+:::{.r-content}
+-
+:::
