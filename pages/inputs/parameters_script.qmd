@@ -6,6 +6,8 @@ title: Parameters from script
 * Heather et al. 2025: Avoid hard-coded parameters.
 :::
 
+## Introduction
+
 Discrete-event simulations (DES) require many parameters - like arrival rates, resource times, and probabilities - which often need to be changed for different scenarios and analyses. **Managing these parameters well makes your simulations easier to update, track, and reuse**.
 
 This page focuses on the storage of parameters within  your scripts. If you want to see how to store parameters in a separate file, see the [parameters from file](parameters_file.qmd) page.
@@ -15,6 +17,17 @@ On this page, we explain:
 * The **limitations** with hardcoding parameters or global variables.
 * **Two recommended practices**: grouping parameters into a dedicated object and passing that object explicitly to your model.
 * Strategies for handling a **large number** of parameters as your model grows.
+
+:::{.pale-blue}
+
+📋 **Examples used on this page:**
+
+* Main sections use simple set of parameters for demonstration, not from any specific model.
+* Expandable section at the end has:
+    * 🩺 Example from the nurse M/M/s model.
+    * 🧠 Example from the stroke model.
+
+:::
 
 <br>
 
@@ -534,55 +547,191 @@ class Parameters():
 
 ## Examples
 
-The following [examples](../intro/examples.qmd) demonstrate practical implementations of structured parameter management in real simulation projects. Both use class-based approaches but scale differently based on model complexity.
+This section contains full code examples for our [example conceptual models](../intro/examples.qmd).
 
 ---
 
 <details>
-<summary>Show/Hide example 1: Nurse visit simulation</summary>
-
+<summary>Show/Hide example 1: 🩺 Nurse visit simulation</summary>
 <br>
-
-This basic queueing model shows:
 
 :::{.python-content}
 
-* A single `Param` class containing all parameters.
-* Direct validation within the class constructor.
-* Prevention of accidental attribute creation through `__setattr__` override.
-* Clear separation between configuration (parameters) and logic (model).
+This example is from `simulation/model.py` in [rap_template_python_des](https://github.com/pythonhealthdatascience/rap_template_python_des).
+
+**If you're building the nurse M/M/s model:** Create a file called `model.py` within your `simulation` folder, and copy this code into that file. It will need the `SimLogger` class created on the [logging page](../verification_validation/logs.qmd).
 
 ```{.python}
+from simulation.logging import SimLogger
+
+
+class Param:
+    """
+    Default parameters for simulation.
+
+    Attributes are described in initialisation docstring.
+    """
+    # pylint: disable=too-many-arguments,too-many-positional-arguments
+    def __init__(
+        self,
+        patient_inter=4,
+        mean_n_consult_time=10,
+        number_of_nurses=5,
+        warm_up_period=1440*27,  # 27 days
+        data_collection_period=1440*30,  # 30 days
+        number_of_runs=31,
+        audit_interval=120,  # every 2 hours
+        scenario_name=0,
+        cores=-1,
+        logger=SimLogger(log_to_console=False, log_to_file=False)
+    ):
+        """
+        Initalise instance of parameters class.
+
+        Arguments:
+            patient_inter (float):
+                Mean inter-arrival time between patients in minutes.
+            mean_n_consult_time (float):
+                Mean nurse consultation time in minutes.
+            number_of_nurses (float):
+                Number of available nurses.
+            warm_up_period (int):
+                Duration of the warm-up period in minutes - running simulation
+                but not yet collecting results.
+            data_collection_period (int):
+                Duration of data collection period in minutes (also known as
+                measurement interval) - which begins after any warm-up period.
+            number_of_runs (int):
+                The number of runs (i.e. replications), defining how many
+                times to re-run the simulation (with different random numbers).
+            audit_interval (int):
+                How frequently to audit resource utilisation, in minutes.
+            scenario_name (int|float|string):
+                Label for the scenario.
+            cores (int):
+                Number of CPU cores to use for parallel execution. Set to
+                desired number, or to -1 to use all available cores. For
+                sequential execution, set to 1 (default).
+            logger (logging.Logger):
+                The logging instance used for logging messages.
+        """
+        # Disable restriction on attribute modification during initialisation
+        object.__setattr__(self, '_initialising', True)
+
+        self.patient_inter = patient_inter
+        self.mean_n_consult_time = mean_n_consult_time
+        self.number_of_nurses = number_of_nurses
+        self.warm_up_period = warm_up_period
+        self.data_collection_period = data_collection_period
+        self.number_of_runs = number_of_runs
+        self.audit_interval = audit_interval
+        self.scenario_name = scenario_name
+        self.cores = cores
+        self.logger = logger
+
+        # Re-enable attribute checks after initialisation
+        object.__setattr__(self, '_initialising', False)
+
+    def __setattr__(self, name, value):
+        """
+        Prevent addition of new attributes.
+
+        This method overrides the default `__setattr__` behavior to restrict
+        the addition of new attributes to the instance. It allows modification
+        of existing attributes but raises an `AttributeError` if an attempt is
+        made to create a new attribute. This ensures that accidental typos in
+        attribute names do not silently create new attributes.
+
+        Arguments:
+            name (str):
+                The name of the attribute to set.
+            value (Any):
+                The value to assign to the attribute.
+
+        Raises:
+            AttributeError:
+                If `name` is not an existing attribute and an attempt is made
+                to add it to the instance.
+        """
+        # Skip the check if the object is still initialising
+        # pylint: disable=maybe-no-member
+        if hasattr(self, '_initialising') and self._initialising:
+            super().__setattr__(name, value)
+        else:
+            # Check if attribute of that name is already present
+            if name in self.__dict__:
+                super().__setattr__(name, value)
+            else:
+                raise AttributeError(
+                    f'Cannot add new attribute "{name}" - only possible to ' +
+                    f'modify existing attributes: {self.__dict__.keys()}')
 ```
 
 :::
 
 :::{.r-content}
 
+This example is from `R/parameters.R` in [rap_template_r_des](https://github.com/pythonhealthdatascience/rap_template_r_des).
+
+**If you're building the nurse M/M/s model:** Create a file called `parameters.R` within your `R` folder, and copy this code into that file.
+
 ```{.r}
+#' Create a named list of default model parameters (which can be altered).
+#'
+#' When input to model(), valid_inputs() will fetch the inputs to this
+#' function and compare them against the provided list, to ensure no
+#' new keys have been add to the list.
+#'
+#' @param patient_inter Mean inter-arrival time between patients in minutes.
+#' @param mean_n_consult_time Mean nurse consultation time in minutes.
+#' @param number_of_nurses Number of available nurses (int).
+#' @param warm_up_period Duration of warm-up period in minutes.
+#' @param data_collection_period Duration of data collection period in
+#' minutes.
+#' @param number_of_runs Number of simulation runs (int).
+#' @param scenario_name Label for the scenario (int|float|string).
+#' @param cores Number of cores to use for parallel execution (int).
+#' @param log_to_console Whether to print activity log to console.
+#' @param log_to_file Whether to save activity log to file.
+#' @param file_path Path to save log to file.
+#'
+#' @return A named list containing the parameters for the model.
+#' @export
+
+parameters <- function(
+  patient_inter = 4L,
+  mean_n_consult_time = 10L,
+  number_of_nurses = 5L,
+  warm_up_period = 0L,
+  data_collection_period = 80L,
+  number_of_runs = 100L,
+  scenario_name = NULL,
+  cores = 1L,
+  log_to_console = FALSE,
+  log_to_file = FALSE,
+  file_path = NULL
+) {
+  return(as.list(environment()))
+}
 ```
 
 :::
 
+<br>
 </details>
 
 ---
 
 <details>
-<summary>Show/Hide example 2: stroke pathway simulation</summary>
-
+<summary>Show/Hide example 2: 🧠 Stroke pathway simulation</summary>
 <br>
-
-This stroke pathway simulation has:
 
 :::{.python-content}
 
-* Multiple nested classes (`ASUArrivals`, `RehabLOS`, etc.).
-* Shared `Restrict Attributes` superclass for validation.
-* Three-layer structure: department --> patient type --> parameters.
-* Separate validation logic from parameter storage.
+This example is from `simulation/parameters.py` in [stroke_rap_python](https://github.com/pythonhealthdatascience/stroke_rap_python).
 
 ```{.python}
+{{< include ../../examples/stroke_rap_python/simulation/parameters.py >}}
 ```
 
 :::
@@ -594,6 +743,7 @@ This stroke pathway simulation has:
 
 :::
 
+<br>
 </details>
 
 ---
