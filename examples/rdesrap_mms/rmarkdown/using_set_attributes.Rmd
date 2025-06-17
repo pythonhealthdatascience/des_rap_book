@@ -1,0 +1,116 @@
+---
+title: "Using `set_attributes()`"
+author: "Amy Heather"
+date: "`r Sys.Date()`"
+output:
+  github_document:
+      toc: true
+      html_preview: false
+---
+
+In `model.R`, we use the `simmer` functions `set_attributes()` and `get_attributes()` to record additional information on each patient from the model run - specifically:
+
+1. When the are allocated a nurse resource (ie. after any queueing).
+2. The length time sampled to spend with the nurse resource.
+
+This is important, as otherwise the result returned by `get_mon_arrivals()` only includes information on the start time (arrival) and end time (finished with resource) for each patient, and those who are with a resource but do not finish before simulation end are excluded.
+
+This document explains how the first attribute has no change on the model results, but how the second attribute does impact them. This isn't bad! It is just important if you are transitioning between not recording this attribute and to then recording this attribute, that it will have altered the order of random number generation, so the exact results now differ from before.
+
+```{r}
+# nolint start: undesirable_function_linter.
+library(simmer)
+# nolint end
+```
+
+## Original model
+
+```{r}
+param <- list(
+  patient_inter = 6L,
+  mean_n_consult_time = 8L,
+  number_of_nurses = 1L,
+  warm_up_period = 0L,
+  data_collection_period = 20L
+)
+
+run_number <- 0L
+verbose <- TRUE
+```
+
+```{r}
+set.seed(run_number)
+
+env <- simmer("simulation", verbose = verbose)
+
+patient <- trajectory("appointment") %>%
+  seize("nurse", 1L) %>%
+  timeout(function() {
+    rexp(n = 1L, rate = 1L / param[["mean_n_consult_time"]])
+  }) %>%
+  release("nurse", 1L)
+
+env <- env %>%
+  add_resource("nurse", param[["number_of_nurses"]]) %>%
+  add_generator("patient", patient, function() {
+    rexp(n = 1L, rate = 1L / param[["patient_inter"]])
+  }) %>%
+  simmer::run(param[["warm_up_period"]] + param[["data_collection_period"]])
+```
+
+
+## Model with record of allocation to a nurse resource
+
+Exactly the same results...
+
+```{r}
+set.seed(run_number)
+
+env <- simmer("simulation", verbose = verbose)
+
+patient <- trajectory("appointment") %>%
+  seize("nurse", 1L) %>%
+  # NEW LINE:
+  # --------------------------------------------------------------
+  set_attribute("nurse_serve_start", function() now(env)) %>%
+  # --------------------------------------------------------------
+  timeout(function() {
+    rexp(n = 1L, rate = 1L / param[["mean_n_consult_time"]])
+  }) %>%
+  release("nurse", 1L)
+
+env <- env %>%
+  add_resource("nurse", param[["number_of_nurses"]]) %>%
+  add_generator("patient", patient, function() {
+    rexp(n = 1L, rate = 1L / param[["patient_inter"]])
+  }) %>%
+  simmer::run(param[["warm_up_period"]] + param[["data_collection_period"]])
+```
+
+## Model with length of time sampled to spend with a nurse resource
+
+Same time for first arrival, but subsequently different sampling results...
+
+```{r}
+set.seed(run_number)
+
+env <- simmer("simulation", verbose = verbose)
+
+patient <- trajectory("appointment") %>%
+  seize("nurse", 1L) %>%
+  # NEW LINES:
+  # --------------------------------------------------------------
+  set_attribute("nurse_serve_length", function() {
+    rexp(n = 1L, rate = 1L / param[["mean_n_consult_time"]])
+  }) %>%
+  timeout(function() get_attribute(env, "nurse_serve_length")) %>%
+  # --------------------------------------------------------------
+  release("nurse", 1L)
+
+env <- env %>%
+  add_resource("nurse", param[["number_of_nurses"]]) %>%
+  add_generator("patient", patient, function() {
+    rexp(n = 1L, rate = 1L / param[["patient_inter"]])
+  }) %>%
+  simmer::run(param[["warm_up_period"]] + param[["data_collection_period"]])
+```
