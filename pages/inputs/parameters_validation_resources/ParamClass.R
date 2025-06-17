@@ -9,16 +9,8 @@ ParamClass <- R6Class(
     #' @description
     #' Initialises the R6 object.
 
-    initialize = function(
-        transfer_prob = 0.3
-    ) {
+    initialize = function(transfer_prob = 0.3) {
       self$transfer_prob <- transfer_prob
     }
   )
 )
-
-# Create instance of ParamClass
-params <- ParamClass$new()
-
-# Mistype transfer_prob
-try(params$transfer_probs <- 0.4)
