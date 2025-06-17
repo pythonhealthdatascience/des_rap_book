@@ -18,15 +18,11 @@ On this page, we explain:
 * **Two recommended practices**: grouping parameters into a dedicated object and passing that object explicitly to your model.
 * Strategies for handling a **large number** of parameters as your model grows.
 
-:::{.pale-blue}
-
-📋 **Examples used on this page:**
-
-* Main sections use simple set of parameters for demonstration, not from any specific model.
-* Expandable section at the end has:
-    * 🩺 Example from the nurse M/M/s model.
-    * 🧠 Example from the stroke model.
-
+:::{.r-content}
+```{r}
+# Import required packages
+library(R6)
+```
 :::
 
 <br>
@@ -156,7 +152,9 @@ However, there are still several disadvantages:
 
 <br>
 
-## Managing parameters in DES: two critical practices
+## Recommendation for managing parameters in DES
+
+### Two critical practices
 
 To manage parameters effectively, you need to:
 
@@ -221,6 +219,8 @@ simulate <- function(interarrival_time, consultation_time, transfer_prob, ...) {
 
 <br>
 
+### Three implementation options
+
 ::: {.python-content}
 
 There are three implementation options: **dictionary**, **function** or **class**.
@@ -229,61 +229,94 @@ There are three implementation options: **dictionary**, **function** or **class*
 
 **Using a dictionary**
 
-```{.python}
+```{python}
+# Base case
 base_params = {
     "interarrival_time": 5,
     "consultation_time": 20,
     "transfer_prob": 0.3,
 }
+print(base_params)
 
 # Create a scenario by copying and tweaking only what's needed
 scenario1 = base_params.copy()
 scenario1["interarrival_time"] = 6
-scenario2 = base_params.copy()
-scenario2["transfer_prob"] = 0.4
+print(scenario1)
 ```
 
 <br>
 
 **Using a function**
 
-```{.python}
+```{python}
 def create_params(interarrival_time=5, consultation_time=20, transfer_prob=0.3):
+    """
+    Generate parameter dictionary.
+
+    Parameters
+    ----------
+    interarrival_time : float
+        Time between arrivals (minutes).
+    consultation_time : float
+        Length of consultation (minutes).
+    transfer_prob : float
+        Transfer probability (0-1).
+
+    Returns
+    -------
+    Dictionary containing parameters.
+    """
     return {
         "interarrival_time": interarrival_time,
         "consultation_time": consultation_time,
         "transfer_prob": transfer_prob
     }
 
+
+# Base case
 base_params = create_params()
+print(base_params)
+
+# Create a scenario with altered inter-arrival time
 scenario1 = create_params(interarrival_time=6)
-scenario2 = create_params(transfer_prob=0.4)
+print(scenario1)
 ```
 
 <br>
 
 **Using a class**
 
-```{.python}
+```{python}
 class Parameters:
-    def __init__(self, interarrival_time=5, consultation_time=20, transfer_prob=0.3):
+    """
+    Parameter class.
+    """
+    def __init__(
+        self, interarrival_time=5, consultation_time=20, transfer_prob=0.3
+    ):
+        """
+        Initialise Parameters instance.
+
+        Parameters
+        ----------
+        interarrival_time : float
+            Time between arrivals (minutes).
+        consultation_time : float
+            Length of consultation (minutes).
+        transfer_prob : float
+            Transfer probability (0-1).
+        """
         self.interarrival_time = interarrival_time
         self.consultation_time = consultation_time
         self.transfer_prob = transfer_prob
 
-    def __repr__(self):
-        return (f"Parameters(interarrival_time={self.interarrival_time}, "
-                f"consultation_time={self.consultation_time}, "
-                f"transfer_prob={self.transfer_prob})")
-
 # Base case
 base_params = Parameters()
+print(base_params.__dict__)
 
-# Scenario 1: Only change interarrival_time
+# Create a scenario with altered inter-arrival time
 scenario1 = Parameters(interarrival_time=6)
-
-# Scenario 2: Only change transfer_prob
-scenario2 = Parameters(transfer_prob=0.4)
+print(scenario1.__dict__)
 ```
 :::
 
@@ -294,26 +327,34 @@ There are three implementation options: **list**, **function** or **R6 class**.
 
 **Using a list**
 
-```{.r}
+```{r}
+# Base case
 base_params <- list(
   interarrival_time = 5L,
   consultation_time = 20L,
   transfer_prob = 0.3
 )
+base_params
 
 # Create a scenario by copying and tweaking only what's needed
 scenario1 <- base_params
 scenario1$interarrival_time <- 6L
-
-scenario2 <- base_params
-scenario2$transfer_prob <- 0.4
+scenario1
 ```
 
 <br>
 
 **Using a function**
 
-```{.r}
+```{r}
+#' Generate parameter list.
+#' 
+#' @param interarrival_time Numeric. Time between arrivals (minutes).
+#' @param consultation_time Numeric. Length of consultation (minutes).
+#' @param transfer_prob Numeric. Transfer probability (0-1).
+#' 
+#' @return A named list of parameters.
+
 create_params <- function(interarrival_time = 5L,
                           consultation_time = 20L,
                           transfer_prob = 0.3) {
@@ -324,17 +365,25 @@ create_params <- function(interarrival_time = 5L,
   )
 }
 
+# Base case
 base_params <- create_params()
-scenario1   <- create_params(interarrival_time = 6L)
-scenario2   <- create_params(transfer_prob = 0.4)
+base_params
+
+# Create a scenario with altered inter-arrival time
+scenario1 <- create_params(interarrival_time = 6L)
+scenario1
 ```
 
 <br>
 
-**Using a R6 class**
+**Using a R6 class** (include a `get_params` method to easily return a list of parameters).
 
-```{.r}
-library(R6)
+```{r}
+#' @title Parameter class.
+#' 
+#' @field interarrival_time Numeric. Time between arrivals (minutes).
+#' @field consultation_time Numeric. Length of consultation (minutes).
+#' @field transfer_prob Numeric. Transfer probability (0-1).
 
 Parameters <- R6Class(
   classname = "Parameters",
@@ -350,18 +399,29 @@ Parameters <- R6Class(
       self$interarrival_time <- interarrival_time
       self$consultation_time <- consultation_time
       self$transfer_prob <- transfer_prob
+    },
+
+    #' @description
+    #' Returns parameters as a named list.
+
+    get_params = function() {
+      # Get all non-function fields
+      all_names <- ls(self)
+      param_names <- all_names[
+        !sapply(all_names, function(x) is.function(self[[x]]))
+      ]
+      mget(param_names, envir = self)
     }
   )
 )
 
 # Base case
 base_params <- Parameters$new()
+base_params$get_params()
 
-# Scenario 1: Only change interarrival_time
+# Create a scenario with altered inter-arrival time
 scenario1 <- Parameters$new(interarrival_time = 6L)
-
-# Scenario 2: Only change transfer_prob
-scenario2 <- Parameters$new(transfer_prob = 0.4)
+scenario1$get_params()
 ```
 
 :::
@@ -384,7 +444,7 @@ The **most robust** approach is to use a **function or class** to manage your pa
 Your choice may be further informed by options for parameter validation, where classes can be superior as you can incorporate validation within the class, as discussed on the [parameter validation](parameters_validation.qmd) page.
 
 :::{.r-content}
-It's worth noting though that, while R does support object-oriented programming (i.e. using classes), these are less commonly used in typical R code. For most R users, sticking with functions is the standard and most straightforward approach.
+It's worth noting though that, while R does support object-oriented programming (i.e. using classes), these are less commonly used in typical R code.
 :::
 
 <br>
@@ -399,17 +459,47 @@ We have suggested a few strategies you could use...
 
 ### Using a single function or class for all parameters
 
-This can be convenient for smaller models, though can get unwieldly as the number of parameters grow, including potentially quick long parameter names!
-
-Function example:
+This can be convenient for smaller models, though can get unwieldly as the number of parameters grow, including potentially quite long parameter names! Although you could return a nested object to address this.
 
 ::: {.python-content}
-```{.python}
+
+Function example (with nested dictionaries):
+
+```{python}
 def create_params(
     adult_interarrival=5, adult_consultation=20, adult_transfer=0.3,
     child_interarrival=7, child_consultation=15, child_transfer=0.2,
     elderly_interarrival=10, elderly_consultation=30, elderly_transfer=0.5
 ):
+    """
+    Generate parameter dictionary.
+
+    Parameters
+    ----------
+    adult_interarrival : float
+        Time between adult patient arrivals (minutes).
+    adult_consultation : float
+        Length of adult patient consultation (minutes).
+    adult_transfer : float
+        Adult patient transfer probability (0-1).
+    child_interarrival : float
+        Time between child patient arrivals (minutes).
+    child_consultation : float
+        Length of child patient consultation (minutes).
+    child_transfer : float
+        Child patient transfer probability (0-1).
+    elderly_interarrival : float
+        Time between elderly patient arrivals (minutes).
+    elderly_consultation : float
+        Length of elderly patient consultation (minutes).
+    elderly_transfer : float
+        Elderly patient transfer probability (0-1).
+
+    Returns
+    -------
+    Dictionary with three keys ("adult", "child", "elderly"), each containing a
+    dictionary of parameters.
+    """
     return {
         "adult": {
             "interarrival_time": adult_interarrival,
@@ -427,20 +517,50 @@ def create_params(
             "transfer_prob": elderly_transfer
         }
     }
+
+
+# Example usage
+base_params = create_params()
+print(base_params)
 ```
-:::
 
 Class example:
 
-::: {.python-content}
-```{.python}
+```{python}
 class Parameters:
+    """
+    Parameter class.
+    """
     def __init__(
         self,
         adult_interarrival=5, adult_consultation=20, adult_transfer=0.3,
         child_interarrival=7, child_consultation=15, child_transfer=0.2,
         elderly_interarrival=10, elderly_consultation=30, elderly_transfer=0.5
     ):
+        """
+        Initialise Parameters instance.
+
+        Parameters
+        ----------
+        adult_interarrival : float
+            Time between adult patient arrivals (minutes).
+        adult_consultation : float
+            Length of adult patient consultation (minutes).
+        adult_transfer : float
+            Adult patient transfer probability (0-1).
+        child_interarrival : float
+            Time between child patient arrivals (minutes).
+        child_consultation : float
+            Length of child patient consultation (minutes).
+        child_transfer : float
+            Child patient transfer probability (0-1).
+        elderly_interarrival : float
+            Time between elderly patient arrivals (minutes).
+        elderly_consultation : float
+            Length of elderly patient consultation (minutes).
+        elderly_transfer : float
+            Elderly patient transfer probability (0-1).
+        """
         # Adult parameters
         self.adult_interarrival = adult_interarrival
         self.adult_consultation = adult_consultation
@@ -453,24 +573,175 @@ class Parameters:
         self.elderly_interarrival = elderly_interarrival
         self.elderly_consultation = elderly_consultation
         self.elderly_transfer = elderly_transfer
+
+
+# Example usage
+base_params = Parameters()
+print(base_params.__dict__)
 ```
+:::
+
+:::{.r-content}
+
+Function example (with nested lists):
+
+```{r}
+#' Generate parameter list.
+#' 
+#' @param adult_interarrival Numeric. Time between adult patient arrivals (minutes).
+#' @param adult_consultation Numeric. Length of adult patient consultation (minutes).
+#' @param adult_transfer Numeric. Adult patient transfer probability (0-1).
+#' @param child_interarrival Numeric. Time between child patient arrivals (minutes).
+#' @param child_consultation Numeric. Length of child patient consultation (minutes).
+#' @param child_transfer Numeric. Child patient transfer probability (0-1).
+#' @param elderly_interarrival Numeric. Time between elderly patient arrivals (minutes).
+#' @param elderly_consultation Numeric. Length of elderly patient consultation (minutes).
+#' @param elderly_transfer Numeric. Elderly patient transfer probability (0-1).
+#' 
+#' @return A named list with three keys ("adult", "child", "elderly"), each containing a
+#'   list of parameters.
+
+create_params <- function(
+    adult_interarrival = 5, adult_consultation = 20, adult_transfer = 0.3,
+    child_interarrival = 7, child_consultation = 15, child_transfer = 0.2,
+    elderly_interarrival = 10, elderly_consultation = 30,
+    elderly_transfer = 0.5
+) {
+  list(
+    adult = list(
+      interarrival_time = adult_interarrival,
+      consultation_time = adult_consultation,
+      transfer_prob = adult_transfer
+    ),
+    child = list(
+      interarrival_time = child_interarrival,
+      consultation_time = child_consultation,
+      transfer_prob = child_transfer
+    ),
+    elderly = list(
+      interarrival_time = elderly_interarrival,
+      consultation_time = elderly_consultation,
+      transfer_prob = elderly_transfer
+    )
+  )
+}
+
+
+# Example usage
+base_params <- create_params()
+base_params
+```
+
+R6 class example:
+
+```{r}
+#' @title Parameter class.
+#' 
+#' @field adult_interarrival Numeric. Time between adult patient arrivals (minutes).
+#' @field adult_consultation Numeric. Length of adult patient consultation (minutes).
+#' @field adult_transfer Numeric. Adult patient transfer probability (0-1).
+#' @field child_interarrival Numeric. Time between child patient arrivals (minutes).
+#' @field child_consultation Numeric. Length of child patient consultation (minutes).
+#' @field child_transfer Numeric. Child patient transfer probability (0-1).
+#' @field elderly_interarrival Numeric. Time between elderly patient arrivals (minutes).
+#' @field elderly_consultation Numeric. Length of elderly patient consultation (minutes).
+#' @field elderly_transfer Numeric. Elderly patient transfer probability (0-1).
+
+Parameters <- R6Class(
+  classname = "Parameters",
+  public = list(
+    # Adult parameters
+    adult_interarrival = NULL,
+    adult_consultation = NULL,
+    adult_transfer = NULL,
+    
+    # Child parameters
+    child_interarrival = NULL,
+    child_consultation = NULL,
+    child_transfer = NULL,
+    
+    # Elderly parameters
+    elderly_interarrival = NULL,
+    elderly_consultation = NULL,
+    elderly_transfer = NULL,
+    
+    #' @description
+    #' Initialise Parameters instance.
+
+    initialize = function(
+        adult_interarrival = 5, adult_consultation = 20, adult_transfer = 0.3,
+        child_interarrival = 7, child_consultation = 15, child_transfer = 0.2,
+        elderly_interarrival = 10, elderly_consultation = 30, elderly_transfer = 0.5
+    ) {
+      # Adult parameters
+      self$adult_interarrival <- adult_interarrival
+      self$adult_consultation <- adult_consultation
+      self$adult_transfer <- adult_transfer
+      
+      # Child parameters
+      self$child_interarrival <- child_interarrival
+      self$child_consultation <- child_consultation
+      self$child_transfer <- child_transfer
+      
+      # Elderly parameters
+      self$elderly_interarrival <- elderly_interarrival
+      self$elderly_consultation <- elderly_consultation
+      self$elderly_transfer <- elderly_transfer
+    },
+    
+    #' @description
+    #' Returns parameters as a named list.
+    #'
+    #' @return A named list containing all parameter values.
+
+    get_params = function() {
+      # Get all non-function fields
+      all_names <- ls(self)
+      param_names <- all_names[
+        !sapply(all_names, function(x) is.function(self[[x]]))
+      ]
+      mget(param_names, envir = self)
+    }
+  )
+)
+
+
+# Example usage
+base_params <- Parameters$new()
+base_params$get_params()
+```
+
 :::
 
 <br>
 
 ### Using multiple functions or classes
 
-Alternatively, you can split parameters into logical groups (e.g. patient type, parameter type), each with it's own function or class. These are then combined into single parameter set.
+Alternatively, parameters can be split into logical groups (e.g., patient type, parameter type), with each group having its own function or class. These groups are then combined into a single parameter set.
 
-With a large number of parameters, this keeps each individual function/class simpler.
-seperate means its simpler with the inputs and stuff, just adult child elderly
-also, if doing validation, can do for each subclass
-
-Function example:
+For simulations with a large number of parameters, this approach simplifies input management. It also enables validation to be performed for each individual function/class.
 
 ::: {.python-content}
-```{.python}
+Function example:
+
+```{python}
 def create_arrivals(adult=5, child=7, elderly=10):
+    """
+    Generate dictionary of inter-arrival times (minutes).
+
+    Parameters
+    ----------
+    adult : float
+        Time between arrivals for adults.
+    child : float
+        Time between arrivals for children.
+    elderly : float
+        Time between arrivals for elderly people.
+
+    Returns
+    -------
+    Dictionary of inter-arrival times for each patient type.
+    """
     return {
         "adult": adult,
         "child": child,
@@ -478,6 +749,22 @@ def create_arrivals(adult=5, child=7, elderly=10):
     }
 
 def create_consultations(adult=20, child=15, elderly=30):
+    """
+    Generate dictionary of consultation times (minutes).
+
+    Parameters
+    ----------
+    adult : float
+        Consultation duration for adults.
+    child : float
+        Consultation duration for children.
+    elderly : float
+        Consultation duration for elderly people.
+
+    Returns
+    -------
+    Dictionary of consultation times for each patient type.
+    """
     return {
         "adult": adult,
         "child": child,
@@ -485,6 +772,22 @@ def create_consultations(adult=20, child=15, elderly=30):
     }
 
 def create_transfers(adult=0.3, child=0.2, elderly=0.5):
+    """
+    Generate dictionary of transfer probabilities.
+
+    Parameters
+    ----------
+    adult : float
+        Transfer probability for adults.
+    child : float
+        Transfer probability for children.
+    elderly : float
+        Transfer probability for elderly people.
+
+    Returns
+    -------
+    Dictionary of transfer probabilities for each patient type.
+    """
     return {
         "adult": adult,
         "child": child,
@@ -496,52 +799,361 @@ def create_parameters(
     consultations=create_consultations(),
     transfers=create_transfers()
 ):
+    """
+    Generate complete parameter dictionary for simulation.
+
+    Parameters
+    ----------
+    arrivals : dict
+        Dictionary of inter-arrival times (minutes) for each patient type.
+    consultations : dict
+        Dictionary of consultation durations (minutes) for each patient type.
+    transfers : dict
+        Dictionary of transfer probabilities (0-1) for each patient type.
+
+    Returns
+    -------
+    Nested dictionary with three keys ("arrivals", "consultations",
+    "transfers"), each containing a dictionary of parameters.
+    """
     return {
         "arrivals": arrivals,
         "consultations": consultations,
         "transfers": transfers
     }
+
+
+# Example usage
+base_params = create_parameters()
+print(base_params)
 ```
-:::
 
 Class example:
 
-::: {.python-content}
-:::
-
-```{.python}
+```{python}
 class Arrivals:
+    """
+    Inter-arrival times (minutes).
+    """
     def __init__(self, adult=5, child=7, elderly=10):
+        """
+        Initialise Arrivals instance.
+
+        Parameters
+        ----------
+        adult : float
+            Time between arrivals for adults.
+        child : float
+            Time between arrivals for children.
+        elderly : float
+            Time between arrivals for elderly people.
+        """
         self.adult = adult
         self.child = child
         self.elderly = elderly
 
 
 class Consultations:
+    """
+    Consultation times (minutes).
+    """
     def __init__(self, adult=20, child=15, elderly=30):
+        """
+        Initialise Consultations instance.
+
+        Parameters
+        ----------
+        adult : float
+            Consultation duration for adults.
+        child : float
+            Consultation duration for children.
+        elderly : float
+            Consultation duration for elderly people.
+        """
         self.adult = adult
         self.child = child
         self.elderly = elderly
 
 
 class Transfers:
+    """
+    Transfer probabilities (0-1).
+    """
     def __init__(self, adult=0.3, child=0.2, elderly=0.5):
+        """
+        Initialise Transfers instance.
+
+        Parameters
+        ----------
+        adult : float
+            Transfer probability for adults (0-1).
+        child : float
+            Transfer probability for children (0-1).
+        elderly : float
+            Transfer probability for elderly people  (0-1).
+        """
         self.adult = adult
         self.child = child
         self.elderly = elderly
 
 
 class Parameters():
+    """
+    Complete parameter class.
+    """
     def __init__(
         self,
         arrivals=Arrivals(),
         consultations=Consultations(),
         transfers=Transfers()
     ):
+        """
+        Initialise Parameters instance.
+
+        Parameters
+        ----------
+        arrivals : dict
+            Class with inter-arrival times (minutes) for each patient type.
+        consultations : dict
+            Class with consultation durations (minutes) for each patient type.
+        transfers : dict
+            Class with transfer probabilities (0-1) for each patient type.
+        """
         self.arrivals = arrivals
         self.consultations = consultations
         self.transfers = transfers
+
+
+# Example usage
+base_params = Parameters()
+print(base_params.arrivals.__dict__)
+print(base_params.consultations.__dict__)
+print(base_params.transfers.__dict__)
 ```
+:::
+
+:::{.r-content}
+Function example:
+
+```{r}
+#' Generate list of inter-arrival times (minutes).
+#' 
+#' @param adult Numeric. Time between adult patient arrivals. 
+#' @param child Numeric. Time between child patient arrivals.
+#' @param elderly Numeric. Time between elderly patient arrivals.
+#' 
+#' @return A named list of inter-arrival times for each patient type.
+create_arrivals <- function(adult = 5, child = 7, elderly = 10) {
+  list(
+    adult = adult,
+    child = child,
+    elderly = elderly
+  )
+}
+
+#' Generate list of consultation times (minutes).
+#' 
+#' @param adult Numeric. Consultation duration for adults.
+#' @param child Numeric. Consultation duration for children.
+#' @param elderly Numeric. Consultation duration for elderly people.
+#' 
+#' @return A named list of consultation times for each patient type.
+create_consultations <- function(adult = 20, child = 15, elderly = 30) {
+  list(
+    adult = adult,
+    child = child,
+    elderly = elderly
+  )
+}
+
+#' Generate list of transfer probabilities (0-1).
+#' 
+#' @param adult Numeric. Transfer probability for adults.
+#' @param child Numeric. Transfer probability for children.
+#' @param elderly Numeric. Transfer probability for elderly people.
+#' 
+#' @return A named list of transfer probabilities for each patient type.
+create_transfers <- function(adult = 0.3, child = 0.2, elderly = 0.5) {
+  list(
+    adult = adult,
+    child = child,
+    elderly = elderly
+  )
+}
+
+#' Generate complete parameter list for simulation.
+#' 
+#' @param arrivals List. Named list of inter-arrival times (minutes) for each
+#' patient type.
+#' @param consultations List. Named list of consultation durations (minutes)
+#' for each patient type.
+#' @param transfers List. Named list of transfer probabilities (0-1) for each
+#' patient type.
+#' 
+#' @return A named list with three keys ("arrivals", "consultations",
+#' "transfers"), each containing a list of parameters for each patient type.
+create_parameters <- function(
+    arrivals = create_arrivals(),
+    consultations = create_consultations(),
+    transfers = create_transfers()
+) {
+  list(
+    arrivals = arrivals,
+    consultations = consultations,
+    transfers = transfers
+  )
+}
+
+
+# Example usage
+base_params <- create_parameters()
+base_params
+```
+
+R6 class example (with modified `get_params()` method to extract fields from each component class):
+
+```{r}
+#' @title Arrivals class.
+#' @description Inter-arrival times (minutes).
+#' 
+#' @field adult Numeric. Time between adult patient arrivals (minutes).
+#' @field child Numeric. Time between child patient arrivals (minutes).
+#' @field elderly Numeric. Time between elderly patient arrivals (minutes).
+
+Arrivals <- R6Class(
+  classname = "Arrivals",
+  public = list(
+    adult = NULL,
+    child = NULL,
+    elderly = NULL,
+    
+    #' @description
+    #' Initialise Arrivals instance.
+
+    initialize = function(adult = 5, child = 7, elderly = 10) {
+      self$adult <- adult
+      self$child <- child
+      self$elderly <- elderly
+    }
+  )
+)
+
+#' @title Consultations class.
+#' @description Consultation times (minutes).
+#' 
+#' @field adult Numeric. Length of adult patient consultation (minutes).
+#' @field child Numeric. Length of child patient consultation (minutes).
+#' @field elderly Numeric. Length of elderly patient consultation (minutes).
+
+Consultations <- R6Class(
+  classname = "Consultations",
+  public = list(
+    adult = NULL,
+    child = NULL,
+    elderly = NULL,
+    
+    #' @description
+    #' Initialise Consultations instance.
+    
+    initialize = function(adult = 20, child = 15, elderly = 30) {
+      self$adult <- adult
+      self$child <- child
+      self$elderly <- elderly
+    }
+  )
+)
+
+#' @title Transfers class.
+#' @description Transfer probabilities (0-1).
+#' 
+#' @field adult Numeric. Adult patient transfer probability (0-1).
+#' @field child Numeric. Child patient transfer probability (0-1).
+#' @field elderly Numeric. Elderly patient transfer probability (0-1).
+
+Transfers <- R6Class(
+  classname = "Transfers",
+  public = list(
+    adult = NULL,
+    child = NULL,
+    elderly = NULL,
+    
+    #' @description
+    #' Initialise Transfers instance.
+    
+    initialize = function(adult = 0.3, child = 0.2, elderly = 0.5) {
+      self$adult <- adult
+      self$child <- child
+      self$elderly <- elderly
+    }
+  )
+)
+
+#' @title Parameters class.
+#' @description Complete parameter class for simulation.
+#' 
+#' @field arrivals Arrivals. Instance with inter-arrival times for each patient type.
+#' @field consultations Consultations. Instance with consultation durations for each patient type.
+#' @field transfers Transfers. Instance with transfer probabilities for each patient type.
+
+Parameters <- R6Class(
+  classname = "Parameters",
+  public = list(
+    arrivals = NULL,
+    consultations = NULL,
+    transfers = NULL,
+    
+    #' @description
+    #' Initialise Parameters instance.
+    
+    initialize = function(
+        arrivals = Arrivals$new(),
+        consultations = Consultations$new(),
+        transfers = Transfers$new()
+    ) {
+      self$arrivals <- arrivals
+      self$consultations <- consultations
+      self$transfers <- transfers
+    },
+    
+    #' @description
+    #' Returns parameters as a named list.
+    #'
+    #' @return A named list containing all parameter values organised by type.
+    
+    get_params = function() {
+      # Get all non-function fields from self
+      all_names <- ls(self)
+      instance_names <- all_names[
+        !sapply(all_names, function(x) is.function(self[[x]]))
+      ]
+      
+      # Get the instances
+      instances <- mget(instance_names, envir = self)
+      
+      # Apply parameter extraction to each instance using lapply
+      lapply(instances, function(instance) {
+        if (inherits(instance, "R6")) {
+          # Extract non-function fields from R6 instance
+          all_fields <- ls(instance)
+          param_fields <- all_fields[
+            !sapply(all_fields, function(x) is.function(instance[[x]]))
+          ]
+          mget(param_fields, envir = instance)
+        } else {
+          # Return non-R6 objects as-is
+          instance
+        }
+      })
+    }
+  )
+)
+
+
+# Example usage
+base_params = Parameters$new()
+base_params$get_params()
+```
+:::
 
 <br>
 
@@ -676,43 +1288,7 @@ This example is from `R/parameters.R` in [rdesrap_mms](https://github.com/python
 **If you're building the nurse M/M/s model:** Create a file called `parameters.R` within your `R` folder, and copy this code into that file.
 
 ```{.r}
-#' Create a named list of default model parameters (which can be altered).
-#'
-#' When input to model(), valid_inputs() will fetch the inputs to this
-#' function and compare them against the provided list, to ensure no
-#' new keys have been add to the list.
-#'
-#' @param patient_inter Mean inter-arrival time between patients in minutes.
-#' @param mean_n_consult_time Mean nurse consultation time in minutes.
-#' @param number_of_nurses Number of available nurses (int).
-#' @param warm_up_period Duration of warm-up period in minutes.
-#' @param data_collection_period Duration of data collection period in
-#' minutes.
-#' @param number_of_runs Number of simulation runs (int).
-#' @param scenario_name Label for the scenario (int|float|string).
-#' @param cores Number of cores to use for parallel execution (int).
-#' @param log_to_console Whether to print activity log to console.
-#' @param log_to_file Whether to save activity log to file.
-#' @param file_path Path to save log to file.
-#'
-#' @return A named list containing the parameters for the model.
-#' @export
-
-parameters <- function(
-  patient_inter = 4L,
-  mean_n_consult_time = 10L,
-  number_of_nurses = 5L,
-  warm_up_period = 0L,
-  data_collection_period = 80L,
-  number_of_runs = 100L,
-  scenario_name = NULL,
-  cores = 1L,
-  log_to_console = FALSE,
-  log_to_file = FALSE,
-  file_path = NULL
-) {
-  return(as.list(environment()))
-}
+{{< include ../../examples/rdesrap_mms/R/parameters.R >}}
 ```
 
 :::
@@ -738,8 +1314,7 @@ This example is from `simulation/parameters.py` in [pydesrap_stroke](https://git
 
 :::{.r-content}
 
-```{.r}
-```
+TODO.
 
 :::
 
