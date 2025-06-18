@@ -27,7 +27,7 @@ import inspect
 :::{.r-content}
 ```{r}
 # Import required packages
-library(R6)
+library(R6) # nolint: undesirable_function_linter
 ```
 :::
 
@@ -63,11 +63,11 @@ params
 :::
 
 :::{.r-content}
+
+```{r file="parameters_validation_resources/param_function.R"}
+```
+
 ```{r}
-# Function-based example
-
-{{< include parameters_validation_resources/param_function.R >}}
-
 # Use function to create params list
 params <- param_function()
 
@@ -100,16 +100,17 @@ params.__dict__
 :::
 
 :::{.r-content}
+```{r file="parameters_validation_resources/ParamClass.R"}
+``` 
+
 ```{r}
-# Class-based example
-
-{{< include parameters_validation_resources/ParamClass.R >}}
-
 # Create instance of ParamClass
 params <- ParamClass$new()
 
 # Mistype transfer_prob
-try(params$transfer_probs <- 0.4)
+try({
+  params$transfer_probs <- 0.4
+})
 ```
 :::
 
@@ -163,15 +164,18 @@ When calling the function, you are restricted to the defined arguments - so extr
 As a reminder, this is our parameter function:
 
 :::{.python-content}
+
 ```{python}
 {{< include parameters_validation_resources/param_function.py >}}
 ```
+
 :::
 
 :::{.r-content}
-```{r}
-{{< include parameters_validation_resources/param_function.R >}}
-```
+
+```{r file="parameters_validation_resources/param_function.R"}
+``` 
+
 :::
 
 We can write a validation function which checks that **all the required parameters are present**, and that **no extra parameters** are provided:
@@ -209,9 +213,11 @@ def check_param_names(param, param_function):
             f"Extra keys: {', '.join(extra)}" if extra else ""
         ]).strip("; "))
 ```
+
 :::
 
 :::{.r-content}
+
 ```{r}
 #' Validate parameter names.
 #'
@@ -253,6 +259,7 @@ check_param_names <- function(param, param_function) {
   }
 }
 ```
+
 :::
 
 Then, in our **model function**, we call the validation function to check all inputs before proceeding with the simulation:
@@ -293,14 +300,13 @@ except ValueError as e:
 :::{.r-content}
 ```{r}
 #' Run simulation after validating parameter names.
-#' 
+#'
 #' @param param Named list of model parameters.
 #' @param param_function Function used to generate parameter list.
-
 model <- function(param, param_function) {
 
   # Check all inputs are valid
-  check_param_names(param=param, param_function=param_function)
+  check_param_names(param = param, param_function = param_function)
 
   # Simulation code...
 }
@@ -510,14 +516,18 @@ The prevention of new fields is thanks to the default `lock_objects = TRUE` sett
 
 ::: {.column width="47.5%"}
 Original class with `lock_objects = TRUE`:
-```{r}
-{{< include parameters_validation_resources/ParamClass.R >}}
 
+```{r file="parameters_validation_resources/ParamClass.R"}
+``` 
+
+```{r}
 # Create instance of ParamClass
 params <- ParamClass$new()
 
 # Mistype transfer_prob
-try(params$transfer_probs <- 0.4)
+try({
+  params$transfer_probs <- 0.4
+})
 ```
 :::
 
@@ -526,12 +536,13 @@ try(params$transfer_probs <- 0.4)
 
 ::: {.column width="47.5%"}
 Same class with `lock_objects = TRUE`:
+
 ```{r}
 #' @title Returns transfer_prob for validation example.
 #'
 #' @field transfer_prob Numeric. Transfer probability (0-1).
 
-ParamClass <- R6Class(
+ParamClass <- R6Class( # nolint: object_name_linter
   lock_objects = FALSE, #<<
   public = list(
     transfer_prob = NULL,
@@ -539,19 +550,21 @@ ParamClass <- R6Class(
     #' @description
     #' Initialises the R6 object.
 
-    initialize = function(
-        transfer_prob = 0.3
-    ) {
+    initialize = function(transfer_prob = 0.3) {
       self$transfer_prob <- transfer_prob
     }
   )
 )
+```
 
+```{r}
 # Create instance of ParamClass
 params <- ParamClass$new()
 
 # Mistype transfer_prob
-try(params$transfer_probs <- 0.4)
+try({
+  params$transfer_probs <- 0.4
+})
 params #<<
 ```
 :::
@@ -570,14 +583,18 @@ You may choose to store parameters in a list instead, to make it easier to acces
 
 ::: {.column width="47.5%"}
 Original class with individual fields:
-```{r}
-{{< include parameters_validation_resources/ParamClass.R >}}
 
+```{r file="parameters_validation_resources/ParamClass.R"}
+``` 
+
+```{r}
 # Create instance of ParamClass
 params <- ParamClass$new()
 
 # Mistype transfer_prob
-try(params$transfer_probs <- 0.4)
+try({
+  params$transfer_probs <- 0.4
+})
 ```
 :::
 
@@ -591,28 +608,30 @@ Class with parameters in a list:
 #'
 #' @field transfer_prob Numeric. Transfer probability (0-1).
 
-ParamClass <- R6Class(
+ParamClass <- R6Class( # nolint: object_name_linter
   public = list(
     parameters = NULL, #<<
 
     #' @description
     #' Initialises the R6 object.
 
-    initialize = function(
-        transfer_prob = 0.3
-    ) {
+    initialize = function(transfer_prob = 0.3) {
       self$parameters <- list( #<<
         transfer_prob = transfer_prob #<<
       ) #<<
     }
   )
 )
+```
 
+```{r}
 # Create instance of ParamClass
 params <- ParamClass$new()
 
 # Mistype transfer_prob
-try(params$parameters$transfer_probs <- 0.4)
+try({
+  params$parameters$transfer_probs <- 0.4
+})
 params$parameters #<<
 ```
 :::
@@ -627,14 +646,18 @@ However, there is a clean solution that allows you to access parameters easily w
 
 ::: {.column width="47.5%"}
 Original class with individual fields:
-```{r}
-{{< include parameters_validation_resources/ParamClass.R >}}
 
+```{r file="parameters_validation_resources/ParamClass.R"}
+``` 
+
+```{r}
 # Create instance of ParamClass
 params <- ParamClass$new()
 
 # Mistype transfer_prob
-try(params$transfer_probs <- 0.4)
+try({
+  params$transfer_probs <- 0.4
+})
 ```
 :::
 
@@ -648,16 +671,14 @@ Same class with added `get_params()` method:
 #'
 #' @field transfer_prob Numeric. Transfer probability (0-1).
 
-ParamClass <- R6Class(
+ParamClass <- R6Class( # nolint: object_name_linter
   public = list(
     transfer_prob = NULL,
 
     #' @description
     #' Initialises the R6 object.
 
-    initialize = function(
-        transfer_prob = 0.3
-    ) {
+    initialize = function(transfer_prob = 0.3) {
       self$transfer_prob <- transfer_prob
     },
 
@@ -667,19 +688,26 @@ ParamClass <- R6Class(
     get_params = function() { #<<
       # Get all non-function fields #<<
       all_names <- ls(self) #<<
-      param_names <- all_names[ #<<
-        !sapply(all_names, function(x) is.function(self[[x]])) #<<
-      ] #<<
+      is_not_function <- vapply( #<<
+        all_names, #<<
+        function(x) !is.function(self[[x]]), #<<
+        FUN.VALUE = logical(1L) #<<
+      ) #<<
+      param_names <- all_names[is_not_function] #<<
       mget(param_names, envir = self) #<<
     } #<<
   )
 )
+```
 
+```{r}
 # Create instance of ParamClass
 params <- ParamClass$new()
 
 # Mistype transfer_prob
-try(params$transfer_probs <- 0.4)
+try({
+  params$transfer_probs <- 0.4
+})
 
 # Get all parameters #<<
 params$get_params() #<<
@@ -718,9 +746,8 @@ As a reminder, this is our parameter function:
 :::
 
 :::{.r-content}
-```{r}
-{{< include parameters_validation_resources/param_function.R >}}
-```
+```{r file="parameters_validation_resources/param_function.R"}
+``` 
 :::
 
 We can write a validation function which checks that the provided transfer probability is between 0 and 1.
@@ -747,17 +774,18 @@ def validate_param(parameters):
 :::{.r-content}
 ```{r}
 #' @title Check that the transfer probability is between 0 and 1.
-#' 
+#'
 #' @param parameters Named list of model parameters.
 
 validate_param <- function(parameters) {
   transfer_prob <- parameters$transfer_prob
-  if (transfer_prob < 0 || transfer_prob > 1) { 
-    stop(paste0(
-      "transfer_prob must be between 0 and 1, but is: ", transfer_prob
-    )) 
-  } 
-} 
+  if (transfer_prob < 0L || transfer_prob > 1L) {
+    stop(
+      "transfer_prob must be between 0 and 1, but is: ", transfer_prob,
+      call. = FALSE
+    )
+  }
+}
 ```
 :::
 
@@ -793,13 +821,13 @@ except ValueError as e:
 :::{.r-content}
 ```{r}
 #' Run simulation.
-#' 
+#'
 #' @param param Named list of model parameters.
 
 model <- function(param) {
 
   # Check all inputs are valid
-  validate_param(parameters=param)
+  validate_param(parameters = param)
 
   # Simulation code...
 }
@@ -807,7 +835,9 @@ model <- function(param) {
 
 # Example usage
 # Run model() invalid transfer_prob - raises an error
-params <- param_function(transfer_prob = 1.4)
+params <- param_function({
+  transfer_prob <- 1.4
+})
 try(model(params))
 ```
 :::
@@ -837,9 +867,11 @@ param = ParamClass(transfer_prob = 1.4)
 :::
 
 :::{.r-content}
-```{r}
-{{< include parameters_validation_resources/ParamClass.R >}}
 
+```{r file="parameters_validation_resources/ParamClass.R"}
+```
+
+```{r}
 # Create instance with invalid transfer_prob - no error raised
 param <- ParamClass$new(transfer_prob = 1.4)
 ```
@@ -896,7 +928,7 @@ except ValueError as e: #<<
 #'
 #' @field transfer_prob Numeric. Transfer probability (0-1).
 
-ParamClass <- R6Class(
+ParamClass <- R6Class( # nolint: object_name_linter
   public = list(
     transfer_prob = NULL,
 
@@ -912,16 +944,18 @@ ParamClass <- R6Class(
     #' @return No return value; throws an error if invalid. #<<
 
     validate_param = function() { #<<
-      if (self$transfer_prob < 0 || self$transfer_prob > 1) { #<<
-        stop(paste0( #<<
-          "transfer_prob must be between 0 and 1, but is: ", self$transfer_prob #<<
-        )) #<<
+      if (self$transfer_prob < 0L || self$transfer_prob > 1L) { #<<
+        stop( #<<
+          "transfer_prob must be between 0 and 1, but is: ", #<<
+          self$transfer_prob, call. = FALSE #<<
+        ) #<<
       } #<<
     } #<<
   )
 )
+```
 
-
+```{r}
 # Create instance with invalid transfer_prob and run method
 param <- ParamClass$new(transfer_prob = 1.4)
 try(param$validate_param()) #<<

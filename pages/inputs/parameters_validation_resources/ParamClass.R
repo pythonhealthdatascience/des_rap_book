@@ -2,7 +2,7 @@
 #'
 #' @field transfer_prob Numeric. Transfer probability (0-1).
 
-ParamClass <- R6Class(
+ParamClass <- R6Class( # nolint: object_name_linter
   public = list(
     transfer_prob = NULL,
 

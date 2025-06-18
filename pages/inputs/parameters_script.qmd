@@ -20,8 +20,8 @@ On this page, we explain:
 
 :::{.r-content}
 ```{r}
-# Import required packages
-library(R6)
+# Load required packages
+library(R6) # nolint: undesirable_function_linter
 ```
 :::
 
@@ -348,11 +348,11 @@ scenario1
 
 ```{r}
 #' Generate parameter list.
-#' 
+#'
 #' @param interarrival_time Numeric. Time between arrivals (minutes).
 #' @param consultation_time Numeric. Length of consultation (minutes).
 #' @param transfer_prob Numeric. Transfer probability (0-1).
-#' 
+#'
 #' @return A named list of parameters.
 
 create_params <- function(interarrival_time = 5L,
@@ -380,21 +380,21 @@ scenario1
 
 ```{r}
 #' @title Parameter class.
-#' 
+#'
 #' @field interarrival_time Numeric. Time between arrivals (minutes).
 #' @field consultation_time Numeric. Length of consultation (minutes).
 #' @field transfer_prob Numeric. Transfer probability (0-1).
 
-Parameters <- R6Class(
+Parameters <- R6Class( # nolint: object_name_linter
   classname = "Parameters",
   public = list(
     interarrival_time = NULL,
     consultation_time = NULL,
     transfer_prob = NULL,
     initialize = function(
-        interarrival_time = 5L,
-        consultation_time = 20L,
-        transfer_prob = 0.3
+      interarrival_time = 5L,
+      consultation_time = 20L,
+      transfer_prob = 0.3
     ) {
       self$interarrival_time <- interarrival_time
       self$consultation_time <- consultation_time
@@ -407,9 +407,12 @@ Parameters <- R6Class(
     get_params = function() {
       # Get all non-function fields
       all_names <- ls(self)
-      param_names <- all_names[
-        !sapply(all_names, function(x) is.function(self[[x]]))
-      ]
+      is_not_function <- vapply(
+        all_names,
+        function(x) !is.function(self[[x]]),
+        FUN.VALUE = logical(1L)
+      )
+      param_names <- all_names[is_not_function]
       mget(param_names, envir = self)
     }
   )
@@ -587,25 +590,31 @@ Function example (with nested lists):
 
 ```{r}
 #' Generate parameter list.
-#' 
-#' @param adult_interarrival Numeric. Time between adult patient arrivals (minutes).
-#' @param adult_consultation Numeric. Length of adult patient consultation (minutes).
+#'
+#' @param adult_interarrival Numeric. Time between adult patient arrivals
+#' (minutes).
+#' @param adult_consultation Numeric. Length of adult patient consultation
+#' (minutes).
 #' @param adult_transfer Numeric. Adult patient transfer probability (0-1).
-#' @param child_interarrival Numeric. Time between child patient arrivals (minutes).
-#' @param child_consultation Numeric. Length of child patient consultation (minutes).
+#' @param child_interarrival Numeric. Time between child patient arrivals
+#' (minutes).
+#' @param child_consultation Numeric. Length of child patient consultation
+#' (minutes).
 #' @param child_transfer Numeric. Child patient transfer probability (0-1).
-#' @param elderly_interarrival Numeric. Time between elderly patient arrivals (minutes).
-#' @param elderly_consultation Numeric. Length of elderly patient consultation (minutes).
+#' @param elderly_interarrival Numeric. Time between elderly patient arrivals
+#' (minutes).
+#' @param elderly_consultation Numeric. Length of elderly patient consultation
+#' (minutes).
 #' @param elderly_transfer Numeric. Elderly patient transfer probability (0-1).
-#' 
-#' @return A named list with three keys ("adult", "child", "elderly"), each containing a
-#'   list of parameters.
+#'
+#' @return A named list with three keys ("adult", "child", "elderly"), each
+#' containing a list of parameters.
 
 create_params <- function(
-    adult_interarrival = 5, adult_consultation = 20, adult_transfer = 0.3,
-    child_interarrival = 7, child_consultation = 15, child_transfer = 0.2,
-    elderly_interarrival = 10, elderly_consultation = 30,
-    elderly_transfer = 0.5
+  adult_interarrival = 5L, adult_consultation = 20L, adult_transfer = 0.3,
+  child_interarrival = 7L, child_consultation = 15L, child_transfer = 0.2,
+  elderly_interarrival = 10L, elderly_consultation = 30L,
+  elderly_transfer = 0.5
 ) {
   list(
     adult = list(
@@ -636,59 +645,67 @@ R6 class example:
 
 ```{r}
 #' @title Parameter class.
-#' 
-#' @field adult_interarrival Numeric. Time between adult patient arrivals (minutes).
-#' @field adult_consultation Numeric. Length of adult patient consultation (minutes).
+#'
+#' @field adult_interarrival Numeric. Time between adult patient arrivals
+#' (minutes).
+#' @field adult_consultation Numeric. Length of adult patient consultation
+#' (minutes).
 #' @field adult_transfer Numeric. Adult patient transfer probability (0-1).
-#' @field child_interarrival Numeric. Time between child patient arrivals (minutes).
-#' @field child_consultation Numeric. Length of child patient consultation (minutes).
+#' @field child_interarrival Numeric. Time between child patient arrivals
+#' (minutes).
+#' @field child_consultation Numeric. Length of child patient consultation
+#' (minutes).
 #' @field child_transfer Numeric. Child patient transfer probability (0-1).
-#' @field elderly_interarrival Numeric. Time between elderly patient arrivals (minutes).
-#' @field elderly_consultation Numeric. Length of elderly patient consultation (minutes).
+#' @field elderly_interarrival Numeric. Time between elderly patient arrivals
+#' (minutes).
+#' @field elderly_consultation Numeric. Length of elderly patient consultation
+#' (minutes).
 #' @field elderly_transfer Numeric. Elderly patient transfer probability (0-1).
 
-Parameters <- R6Class(
+Parameters <- R6Class( # nolint: object_name_linter
   classname = "Parameters",
   public = list(
     # Adult parameters
     adult_interarrival = NULL,
     adult_consultation = NULL,
     adult_transfer = NULL,
-    
+
     # Child parameters
     child_interarrival = NULL,
     child_consultation = NULL,
     child_transfer = NULL,
-    
+
     # Elderly parameters
     elderly_interarrival = NULL,
     elderly_consultation = NULL,
     elderly_transfer = NULL,
-    
+
     #' @description
     #' Initialise Parameters instance.
 
     initialize = function(
-        adult_interarrival = 5, adult_consultation = 20, adult_transfer = 0.3,
-        child_interarrival = 7, child_consultation = 15, child_transfer = 0.2,
-        elderly_interarrival = 10, elderly_consultation = 30, elderly_transfer = 0.5
+      adult_interarrival = 5L, adult_consultation = 20L,
+      adult_transfer = 0.3, child_interarrival = 7L,
+      child_consultation = 15L, child_transfer = 0.2,
+      elderly_interarrival = 10L, elderly_consultation = 30L,
+      elderly_transfer = 0.5
     ) {
       # Adult parameters
       self$adult_interarrival <- adult_interarrival
       self$adult_consultation <- adult_consultation
       self$adult_transfer <- adult_transfer
-      
+
       # Child parameters
       self$child_interarrival <- child_interarrival
       self$child_consultation <- child_consultation
       self$child_transfer <- child_transfer
-      
+
       # Elderly parameters
       self$elderly_interarrival <- elderly_interarrival
       self$elderly_consultation <- elderly_consultation
       self$elderly_transfer <- elderly_transfer
     },
-    
+
     #' @description
     #' Returns parameters as a named list.
     #'
@@ -697,9 +714,12 @@ Parameters <- R6Class(
     get_params = function() {
       # Get all non-function fields
       all_names <- ls(self)
-      param_names <- all_names[
-        !sapply(all_names, function(x) is.function(self[[x]]))
-      ]
+      is_not_function <- vapply(
+        all_names,
+        function(x) !is.function(self[[x]]),
+        FUN.VALUE = logical(1L)
+      )
+      param_names <- all_names[is_not_function]
       mget(param_names, envir = self)
     }
   )
@@ -937,13 +957,13 @@ Function example:
 
 ```{r}
 #' Generate list of inter-arrival times (minutes).
-#' 
-#' @param adult Numeric. Time between adult patient arrivals. 
+#'
+#' @param adult Numeric. Time between adult patient arrivals.
 #' @param child Numeric. Time between child patient arrivals.
 #' @param elderly Numeric. Time between elderly patient arrivals.
-#' 
+#'
 #' @return A named list of inter-arrival times for each patient type.
-create_arrivals <- function(adult = 5, child = 7, elderly = 10) {
+create_arrivals <- function(adult = 5L, child = 7L, elderly = 10L) {
   list(
     adult = adult,
     child = child,
@@ -952,13 +972,13 @@ create_arrivals <- function(adult = 5, child = 7, elderly = 10) {
 }
 
 #' Generate list of consultation times (minutes).
-#' 
+#'
 #' @param adult Numeric. Consultation duration for adults.
 #' @param child Numeric. Consultation duration for children.
 #' @param elderly Numeric. Consultation duration for elderly people.
-#' 
+#'
 #' @return A named list of consultation times for each patient type.
-create_consultations <- function(adult = 20, child = 15, elderly = 30) {
+create_consultations <- function(adult = 20L, child = 15L, elderly = 30L) {
   list(
     adult = adult,
     child = child,
@@ -967,11 +987,11 @@ create_consultations <- function(adult = 20, child = 15, elderly = 30) {
 }
 
 #' Generate list of transfer probabilities (0-1).
-#' 
+#'
 #' @param adult Numeric. Transfer probability for adults.
 #' @param child Numeric. Transfer probability for children.
 #' @param elderly Numeric. Transfer probability for elderly people.
-#' 
+#'
 #' @return A named list of transfer probabilities for each patient type.
 create_transfers <- function(adult = 0.3, child = 0.2, elderly = 0.5) {
   list(
@@ -982,20 +1002,20 @@ create_transfers <- function(adult = 0.3, child = 0.2, elderly = 0.5) {
 }
 
 #' Generate complete parameter list for simulation.
-#' 
+#'
 #' @param arrivals List. Named list of inter-arrival times (minutes) for each
 #' patient type.
 #' @param consultations List. Named list of consultation durations (minutes)
 #' for each patient type.
 #' @param transfers List. Named list of transfer probabilities (0-1) for each
 #' patient type.
-#' 
+#'
 #' @return A named list with three keys ("arrivals", "consultations",
 #' "transfers"), each containing a list of parameters for each patient type.
 create_parameters <- function(
-    arrivals = create_arrivals(),
-    consultations = create_consultations(),
-    transfers = create_transfers()
+  arrivals = create_arrivals(),
+  consultations = create_consultations(),
+  transfers = create_transfers()
 ) {
   list(
     arrivals = arrivals,
@@ -1015,22 +1035,22 @@ R6 class example (with modified `get_params()` method to extract fields from eac
 ```{r}
 #' @title Arrivals class.
 #' @description Inter-arrival times (minutes).
-#' 
+#'
 #' @field adult Numeric. Time between adult patient arrivals (minutes).
 #' @field child Numeric. Time between child patient arrivals (minutes).
 #' @field elderly Numeric. Time between elderly patient arrivals (minutes).
 
-Arrivals <- R6Class(
+Arrivals <- R6Class( # nolint: object_name_linter
   classname = "Arrivals",
   public = list(
     adult = NULL,
     child = NULL,
     elderly = NULL,
-    
+
     #' @description
     #' Initialise Arrivals instance.
 
-    initialize = function(adult = 5, child = 7, elderly = 10) {
+    initialize = function(adult = 5L, child = 7L, elderly = 10L) {
       self$adult <- adult
       self$child <- child
       self$elderly <- elderly
@@ -1040,22 +1060,22 @@ Arrivals <- R6Class(
 
 #' @title Consultations class.
 #' @description Consultation times (minutes).
-#' 
+#'
 #' @field adult Numeric. Length of adult patient consultation (minutes).
 #' @field child Numeric. Length of child patient consultation (minutes).
 #' @field elderly Numeric. Length of elderly patient consultation (minutes).
 
-Consultations <- R6Class(
+Consultations <- R6Class( # nolint: object_name_linter
   classname = "Consultations",
   public = list(
     adult = NULL,
     child = NULL,
     elderly = NULL,
-    
+
     #' @description
     #' Initialise Consultations instance.
-    
-    initialize = function(adult = 20, child = 15, elderly = 30) {
+
+    initialize = function(adult = 20L, child = 15L, elderly = 30L) {
       self$adult <- adult
       self$child <- child
       self$elderly <- elderly
@@ -1065,21 +1085,21 @@ Consultations <- R6Class(
 
 #' @title Transfers class.
 #' @description Transfer probabilities (0-1).
-#' 
+#'
 #' @field adult Numeric. Adult patient transfer probability (0-1).
 #' @field child Numeric. Child patient transfer probability (0-1).
 #' @field elderly Numeric. Elderly patient transfer probability (0-1).
 
-Transfers <- R6Class(
+Transfers <- R6Class( # nolint: object_name_linter
   classname = "Transfers",
   public = list(
     adult = NULL,
     child = NULL,
     elderly = NULL,
-    
+
     #' @description
     #' Initialise Transfers instance.
-    
+
     initialize = function(adult = 0.3, child = 0.2, elderly = 0.5) {
       self$adult <- adult
       self$child <- child
@@ -1090,55 +1110,64 @@ Transfers <- R6Class(
 
 #' @title Parameters class.
 #' @description Complete parameter class for simulation.
-#' 
-#' @field arrivals Arrivals. Instance with inter-arrival times for each patient type.
-#' @field consultations Consultations. Instance with consultation durations for each patient type.
-#' @field transfers Transfers. Instance with transfer probabilities for each patient type.
+#'
+#' @field arrivals Arrivals. Instance with inter-arrival times for each patient
+#' type.
+#' @field consultations Consultations. Instance with consultation durations for
+#' each patient type.
+#' @field transfers Transfers. Instance with transfer probabilities for each
+#' patient type.
 
-Parameters <- R6Class(
+Parameters <- R6Class( # nolint: object_name_linter
   classname = "Parameters",
   public = list(
     arrivals = NULL,
     consultations = NULL,
     transfers = NULL,
-    
+
     #' @description
     #' Initialise Parameters instance.
-    
+
     initialize = function(
-        arrivals = Arrivals$new(),
-        consultations = Consultations$new(),
-        transfers = Transfers$new()
+      arrivals = Arrivals$new(),
+      consultations = Consultations$new(),
+      transfers = Transfers$new()
     ) {
       self$arrivals <- arrivals
       self$consultations <- consultations
       self$transfers <- transfers
     },
-    
+
     #' @description
     #' Returns parameters as a named list.
     #'
     #' @return A named list containing all parameter values organised by type.
-    
+
     get_params = function() {
       # Get all non-function fields from self
       all_names <- ls(self)
-      instance_names <- all_names[
-        !sapply(all_names, function(x) is.function(self[[x]]))
-      ]
-      
+      is_not_function <- vapply(
+        all_names,
+        function(x) !is.function(self[[x]]),
+        FUN.VALUE = logical(1L)
+      )
+      instance_names <- all_names[is_not_function]
+
       # Get the instances
       instances <- mget(instance_names, envir = self)
-      
+
       # Apply parameter extraction to each instance using lapply
       lapply(instances, function(instance) {
         if (inherits(instance, "R6")) {
           # Extract non-function fields from R6 instance
           all_fields <- ls(instance)
-          param_fields <- all_fields[
-            !sapply(all_fields, function(x) is.function(instance[[x]]))
-          ]
-          mget(param_fields, envir = instance)
+          is_not_function <- vapply(
+            all_fields,
+            function(x) !is.function(instance[[x]]),
+            FUN.VALUE = logical(1L)
+          )
+          field_names <- all_fields[is_not_function]
+          mget(field_names, envir = instance)
         } else {
           # Return non-R6 objects as-is
           instance
@@ -1150,7 +1179,7 @@ Parameters <- R6Class(
 
 
 # Example usage
-base_params = Parameters$new()
+base_params <- Parameters$new()
 base_params$get_params()
 ```
 :::
