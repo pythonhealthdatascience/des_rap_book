@@ -1,0 +1,167 @@
+Choosing warm-up length
+================
+Amy Heather
+2025-06-04
+
+- [Set-up](#set-up)
+- [Determining appropriate warm-up
+  length](#determining-appropriate-warm-up-length)
+- [Run time](#run-time)
+
+A suitable length for the warm-up period can be determined using the
+**time series inspection approach**. This involves looking at
+performance measures over time to identify when the system is exhibiting
+**steady state behaviour** (even though the system will never truly
+reach a “steady state”).
+
+If we simply plot the mean result over time, this would vary too much.
+Therefore, we plot the **cumulative mean** of the performance measure,
+and look for the point at which this **smoothes out and stabilises**.
+This indicates the point for the warm-up period to end.
+
+This should be assessed when running the model using the base case
+parameters. If these change, you should reassess the appropriate warm-up
+period.
+
+We should:
+
+- Run the model with **multiple replications** (e.g. at least five).
+- Use a **long run length** (i.e. 5-10 times actual planned run length).
+
+The run time is provided at the end of the document.
+
+Some of these figures are used in the paper (`mock_paper.md`) - see
+below:
+
+- **Figure B.1:** `outputs/choose_param_time_series.png`
+
+## Set-up
+
+Install the latest version of the local simulation package. If running
+sequentially, `devtools::load_all()` is sufficient. If running in
+parallel, you must use `devtools::install()`.
+
+``` r
+devtools::load_all()
+```
+
+    ## ℹ Loading simulation
+
+Load required packages.
+
+``` r
+# nolint start: undesirable_function_linter.
+library(knitr)
+library(simulation)
+
+options(data.table.summarise.inform = FALSE)
+options(dplyr.summarise.inform = FALSE)
+# nolint end
+```
+
+Start timer.
+
+``` r
+start_time <- Sys.time()
+```
+
+Define path to outputs folder.
+
+``` r
+output_dir <- file.path("..", "outputs")
+```
+
+## Determining appropriate warm-up length
+
+Run the model, ensuring multiple replications and a sufficient data
+collection period are used.
+
+``` r
+data_collection_period <- 50000L
+
+# Use default parameters, but with no warm-up, five replications, and the
+# specified data collection period
+param <- parameters(
+  warm_up_period = 0L,
+  data_collection_period = data_collection_period,
+  number_of_runs = 5L
+)
+print(param)
+```
+
+    ## $patient_inter
+    ## [1] 4
+    ## 
+    ## $mean_n_consult_time
+    ## [1] 10
+    ## 
+    ## $number_of_nurses
+    ## [1] 5
+    ## 
+    ## $warm_up_period
+    ## [1] 0
+    ## 
+    ## $data_collection_period
+    ## [1] 50000
+    ## 
+    ## $number_of_runs
+    ## [1] 5
+    ## 
+    ## $scenario_name
+    ## NULL
+    ## 
+    ## $cores
+    ## [1] 1
+    ## 
+    ## $log_to_console
+    ## [1] FALSE
+    ## 
+    ## $log_to_file
+    ## [1] FALSE
+    ## 
+    ## $file_path
+    ## NULL
+
+``` r
+# Run model
+result <- runner(param)
+```
+
+Use the `time_series_inspection` function, which will find the
+cumulative mean over time (for each replication, and overall) and plot
+it, for three metrics:
+
+- Mean wait time
+- Mean service length
+- Utilisation
+
+``` r
+path <- file.path(output_dir, "choose_param_time_series.png")
+
+time_series_inspection(
+  result = result,
+  file_path = path,
+  warm_up = 10000L
+)
+```
+
+``` r
+include_graphics(path)
+```
+
+![](../outputs/choose_param_time_series.png)<!-- -->
+
+## Run time
+
+``` r
+# Get run time in seconds
+end_time <- Sys.time()
+runtime <- as.numeric(end_time - start_time, units = "secs")
+
+# Display converted to minutes and seconds
+minutes <- as.integer(runtime / 60L)
+seconds <- as.integer(runtime %% 60L)
+cat(sprintf("Notebook run time: %dm %ds", minutes, seconds))
+```
+
+    ## Notebook run time: 0m 3s

@@ -2,6 +2,465 @@
 title: Parameters from file
 ---
 
+{{< include ../../scripts/_reticulate-setup.md >}}
+
 :::{.guidelines}
 * Heather et al. 2025: Avoid hard-coded parameters.
+* NHS Levels of RAP (🥈): Data is handled and output in a Tidy data format.
+:::
+
+## Introduction
+
+Discrete-event simulations (DES) require many parameters - like arrival rates, resource times, and probabilities - which often need to be changed for different scenarios and analyses. **Managing these parameters well makes your simulations easier to update, track, and reuse**.
+
+This page focuses on the **storage of parameters within a file**. If you want to see how to store parameters within a script, see the [parameters from script](parameters_script.qmd) page.
+
+<br>
+
+## Why use external parameter files?
+
+External parameter files can offer some advantages over storing parameters directly in scripts:
+
+* Easier for non-programmers to modify parameters.
+* Can easily share your simulation with different parameters versions (e.g. real parameters for internal use, synthetic parameters for external sharing, as discussed in [input data management](input_data.qmd)) without editing the code itself.
+* Less hard coding as parameters are completely separate.
+
+Though storing parameters within a script is commonplace - particularly for simpler models - due to its simplicity.
+
+<br>
+
+## Create parameter file
+
+There are several file types you could consider for storing parameters. CSV files are often a good choice - particularly better than Excel - because they are:
+
+* Open and non-proprietary format.
+* Compatible with version-control systems (being text-based).
+* Readable in wide range of spreadsheet software (Excel, LibreOffice), text editors, and programming environments
+* Easy to import and parse in major programming languages.
+
+The parameter file should be structured following tidy data principles. This means each row represents a single observation and each column represents a variable. Avoid using merged cells or stacked headers as these make the data harder to process programmatically.
+
+:::{.python-content}
+
+```{python}
+# pylint: disable=missing-module-docstring
+# Import required packages
+import pandas as pd
+
+# Import and preview parameter file
+pd.read_csv("parameters_file_resources/example_parameters.csv")
+```
+
+:::
+
+:::{.r-content}
+
+```{r}
+# Import and preview parameter file
+read.csv(file.path("parameters_file_resources", "example_parameters.csv"))
+```
+
+:::
+
+<br>
+
+## Create data dictionary
+
+As discussed on the [input data management page](input_data.qmd), you should include a data dictionary or documentation describing each parameter. This documentation should explain the parameter's meaning, units, and any abbreviations or codes used.
+
+For example:
+
+{{< include parameters_file_resources/example_data_dictionary.md >}}
+
+<br>
+
+## Import parameters into function or class
+
+The [parameters from script page](parameters_script.qmd) provides detailed guidance on how parameters should be structured within your simulation. The key principles are:
+
+1. **Group parameters into a dedicated object**.
+2. **Pass these objects explicitly to your model**.
+
+These same principles apply when importing parameters from files.  We recommend using **structured parameter objects** rather than passing raw CSV data directly to your simulation functions because:
+
+* Your files might contain baseline parameters plus scenario-specific overrides, but your simulation needs **one complete object** with all parameters merged together. Having all required parameters for a run in one object also makes it clear exactly what's being used.
+* Classes allow you to incorporate parameter **validation** (e.g. ranges, types) before running the simulation.
+* With an object, you can keep **consistent parameter names** in your code, while allowing names or file formats to change, as helper functions can translate between the file and parameter object.
+
+However, there is one major difference when working with parameters from files: **you should not include default values in your parameter classes**. All values should come explicitly from your data sources. This ensures your parameter choices are intentional and missing parameters fail clearly instead of silently using unexpected defaults.
+
+<br>
+
+### Define parameter function or class
+
+Parameters can be stored using one or multiple functions or classes (see the [parameters from script page](parameters_script.qmd) for detailed discussion).
+
+:::{.python-content}
+
+Here, we show a single class approach:
+
+```{python}
+class Parameters:  # pylint: disable=too-many-instance-attributes, too-many-arguments, too-many-positional-arguments, too-few-public-methods
+    """
+    Container for simulation parameters across patient demographics.
+    """
+    def __init__(
+        self,
+        adult_interarrival, adult_consultation, adult_transfer,
+        child_interarrival, child_consultation, child_transfer,
+        elderly_interarrival, elderly_consultation, elderly_transfer
+    ):
+        """
+        Initialise Parameters instance.
+
+        Parameters
+        ----------
+        adult_interarrival : float
+            Time between adult patient arrivals (e.g., in minutes or hours).
+        adult_consultation : float  
+            Duration of consultation time for adult patients.
+        adult_transfer : float
+            Time required to transfer adult patients between stages.
+        child_interarrival : float
+            Time between child patient arrivals (e.g., in minutes or hours).
+        child_consultation : float
+            Duration of consultation time for child patients.
+        child_transfer : float
+            Time required to transfer child patients between stages.
+        elderly_interarrival : float
+            Time between elderly patient arrivals (e.g., in minutes or hours).
+        elderly_consultation : float
+            Duration of consultation time for elderly patients.
+        elderly_transfer : float
+            Time required to transfer elderly patients between stages.
+        """
+        # Adult parameters
+        self.adult_interarrival = adult_interarrival
+        self.adult_consultation = adult_consultation
+        self.adult_transfer = adult_transfer
+        # Child parameters
+        self.child_interarrival = child_interarrival
+        self.child_consultation = child_consultation
+        self.child_transfer = child_transfer
+        # Elderly parameters
+        self.elderly_interarrival = elderly_interarrival
+        self.elderly_consultation = elderly_consultation
+        self.elderly_transfer = elderly_transfer
+```
+
+:::
+
+:::{.r-content}
+
+Here, we show a single function approach:
+
+```{r}
+#' Create parameter list for simulation
+#'
+#' @param adult_interarrival Numeric. Time between adult patient arrivals
+#'   (e.g. in minutes or hours).
+#' @param adult_consultation Numeric. Duration of consultation time for
+#'   adult patients.
+#' @param adult_transfer Numeric. Time required to transfer adult patients
+#'   between stages.
+#' @param child_interarrival Numeric. Time between child patient arrivals
+#'   (e.g. in minutes or hours).
+#' @param child_consultation Numeric. Duration of consultation time for
+#'   child patients.
+#' @param child_transfer Numeric. Time required to transfer child patients
+#'   between stages.
+#' @param elderly_interarrival Numeric. Time between elderly patient arrivals
+#'   (e.g. in minutes or hours).
+#' @param elderly_consultation Numeric. Duration of consultation time for
+#'   elderly patients.
+#' @param elderly_transfer Numeric. Time required to transfer elderly patients
+#'   between stages.
+#'
+#' @return A named list containing all simulation parameters organised by
+#'   patient demographic groups (adult, child, elderly). Each group contains
+#'   interarrival, consultation, and transfer time parameters.
+
+create_params <- function(
+  adult_interarrival, adult_consultation, adult_transfer,
+  child_interarrival, child_consultation, child_transfer,
+  elderly_interarrival, elderly_consultation, elderly_transfer
+) {
+  list(
+    # Adult parameters
+    adult_interarrival = adult_interarrival,
+    adult_consultation = adult_consultation,
+    adult_transfer = adult_transfer,
+    # Child parameters
+    child_interarrival = child_interarrival,
+    child_consultation = child_consultation,
+    child_transfer = child_transfer,
+    # Elderly parameters
+    elderly_interarrival = elderly_interarrival,
+    elderly_consultation = elderly_consultation,
+    elderly_transfer = elderly_transfer
+  )
+}
+```
+
+:::
+
+<br>
+
+### Write helper function to import parameters
+
+Create helper functions to load parameters from your CSV file into your functions/classes. How you write this function will depend on your parameter class structure and how your parameter files are organised.
+
+For example:
+
+:::{.python-content}
+
+```{python}
+def setup_param_from_csv(csv_path):
+    """
+    Create a Parameters instance using parameter values loaded from a CSV file.
+
+    Parameters
+    ----------
+    csv_path : str
+        Path to CSV file containing the parameters. Should have columns
+        "patient", "metric", and "value".
+
+    Returns
+    -------
+    Parameters
+        Instance of Parameters initialised with parameters from the CSV file.
+    """
+
+    # Import the parameters
+    param_file = pd.read_csv(csv_path)
+
+    # Create name-value mappings
+    values = {
+      f"{row.patient}_{row.metric}": row.value
+      for row in param_file.itertuples()
+    }
+
+    # Pass these values to the Parameters class
+    return Parameters(**values)
+```
+
+:::
+
+:::{.r-content}
+
+```{r}
+#' Create parameter list from CSV file
+#'
+#' @param csv_path Character. Path to CSV file containing the parameters.
+#'   The CSV file should have columns "patient", "metric", and "value".
+#'   The "patient" column should contain demographic groups (e.g., "adult",
+#'   "child", "elderly"), the "metric" column should contain parameter types
+#'   (e.g., "interarrival", "consultation", "transfer"), and the "value"
+#'   column should contain the numeric parameter values.
+#'
+#' @return A named list containing all simulation parameters organised by
+#'   patient demographic groups, identical to the output of
+#'   \code{create_params()}. The list contains interarrival, consultation, and
+#'   transfer time parameters for each patient group.
+
+setup_param_from_csv <- function(csv_path) {
+
+  # Import the parameters
+  param_file <- read.csv(csv_path)
+
+  # Create named vector where names match function arguments
+  values <- setNames(
+    param_file$value, paste(param_file$patient, param_file$metric, sep = "_")
+  )
+
+  # Pass the named list to create_params
+  do.call(create_params, as.list(values))
+}
+```
+
+:::
+
+<br>
+
+### Load and use parameters
+
+:::{.python-content}
+
+```{python}
+# Import parameters
+params = setup_param_from_csv(
+    "parameters_file_resources/example_parameters.csv")
+
+# View object
+print(params.__dict__)
+```
+
+:::
+
+:::{.r-content}
+
+```{r}
+# Import parameters
+params <- setup_param_from_csv(
+  file.path("parameters_file_resources", "example_parameters.csv")
+)
+
+# View objects
+params
+```
+
+:::
+
+## Examples
+
+This section contains full code examples for our [example conceptual models](../intro/examples.qmd).
+
+---
+
+<details>
+<summary>Show/Hide example 1: 🩺 Nurse visit simulation</summary>
+<br>
+
+We didn't create a file-based example for the nurse M/M/s model due to its simplicity with only a few parameters.
+
+<br>
+</details>
+
+---
+
+<details>
+<summary>Show/Hide example 2: 🧠 Stroke pathway simulation</summary>
+<br>
+
+:::{.python-content}
+This example is from `notebooks/parameters_csv.ipynb` in [pydesrap_stroke](https://github.com/pythonhealthdatascience/pydesrap_stroke).
+:::
+:::{.r-content}
+This example is from `rmarkdown/parameters_csv.Rmd` in [rdesrap_stroke](https://github.com/pythonhealthdatascience/rdesrap_stroke).
+:::
+
+**If you're building the stroke model:** Use the code from [parameters from script](parameters_script.qmd) - you don't need this file-based example. This is because we have actually used script-based parameters - this code was just created to demonstrate how file-based parameters could work instead.
+
+<br>
+
+:::{.python-content}
+
+```{.python}
+from IPython.display import display
+import pandas as pd
+
+from simulation.parameters import (
+    ASUArrivals, RehabArrivals, ASULOS, RehabLOS,
+    ASURouting, RehabRouting, Param
+)
+
+def init_param_class(df, unit, parameter, param_class):
+    """
+    Instantiate a parameter class using values from a DataFrame.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Dataframe with columns "unit", "parameter", "type", "mean" and "sd".
+    unit : str
+        Unit name to filter by ("asu" or "rehab").
+    parameter : str
+        Parameter name to filter by ("iat", "los" or "routing").
+    param_class: class
+        Class to instantiate.
+
+    Returns
+    -------
+    object
+        An instance of param_class initialised with parameters from the
+        DataFrame.
+    """
+    # Filter data to the specified unit and parameter
+    df_subset = df[(df["unit"] == unit) & (df["parameter"] == parameter)]
+
+    # If all SD values are missing, create a dict: {type: mean}
+    if df_subset["sd"].isnull().all():
+        param_dict = df_subset.set_index("type")["mean"].to_dict()
+    # Otherwise, create a nested dict with mean and SD for each type
+    else:
+        param_dict = {}
+        for _, row in df_subset.iterrows():
+            param_dict[f"{row["type"]}_mean"] = row["mean"]
+            param_dict[f"{row["type"]}_sd"] = row["sd"]
+
+    # Instantiate parameter class using dict
+    return param_class(**param_dict)
+
+
+
+def setup_param_from_csv(csv_path):
+    """
+    Create a Param instance using parameter values loaded from a CSV file.
+
+    Parameters
+    ----------
+    csv_path : str
+        Path to csv file containing the parameters. Should have columns "unit",
+        "parameter", "type", "mean" and "sd". Missing values should be marked
+        as "NA".
+
+    Returns
+    -------
+    Param
+        An instance of Param initialised with the parameters from the CSV file.
+    """
+    # Load parameter data from CSV, treating "NA" as missing values
+    df = pd.read_csv(csv_path, na_values=["NA"])
+
+    # Specify mapping of Param() arguments to their corresponding units,
+    # parameter types, and parameter classes
+    param_specs = [
+        ("asu_arrivals", "asu", "iat", ASUArrivals),
+        ("rehab_arrivals", "rehab", "iat", RehabArrivals),
+        ("asu_los", "asu", "los", ASULOS),
+        ("rehab_los", "rehab", "los", RehabLOS),
+        ("asu_routing", "asu", "routing", ASURouting),
+        ("rehab_routing", "rehab", "routing", RehabRouting),
+    ]
+
+    # Instantiate each parameter class and store in a dictionary
+    param_kwargs = {
+        name: init_param_class(
+            df=df, unit=unit, parameter=parameter, param_class=param_class)
+        for name, unit, parameter, param_class in param_specs
+    }
+
+    # Return a Param instance initialised with all parameter classes
+    return Param(**param_kwargs)
+
+
+display(setup_param_from_csv(csv_path="../inputs/parameters.csv").__dict__)
+```
+
+:::
+
+:::{.r-content}
+
+TBC.
+
+```{.r}
+```
+
+:::
+
+<br>
+</details>
+
+---
+
+<br>
+
+## Further information
+
+:::{.python-content}
+The `sim-tools` package provides a class for managing probability distributions stored within JSON files - check it out: <https://tommonks.github.io/sim-tools/01_sampling/03_distributions_registry.html>. 
+:::
+
+:::{.r-content}
+N/A
 :::

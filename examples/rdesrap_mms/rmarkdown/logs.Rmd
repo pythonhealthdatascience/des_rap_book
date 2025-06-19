@@ -1,0 +1,163 @@
+---
+title: "Logs"
+author: "Amy Heather"
+date: "`r Sys.Date()`"
+output:
+  github_document:
+      toc: true
+      html_preview: false
+---
+
+Logs will describe events during the simulation. Simmer has built-in functionality to generate logs, which can be activated by setting `verbose` as TRUE.
+
+Logs will output lots of information, so they are best used when running the simulation for a short time with few patients. For example, to illustrate how a simulation work, or to support debugging.
+
+## Set up
+
+Install the latest version of the local simulation package. If running sequentially, `devtools::load_all()` is sufficient. If running in parallel, you must use `devtools::install()`.
+
+```{r}
+devtools::load_all()
+```
+
+Start timer.
+
+```{r}
+start_time <- Sys.time()
+```
+
+## Simulation run with logs printed to the console
+
+We use the built-in simmer logging functionality. Within our `model` function, we accept the parameters:
+
+* `log_to_console` - whether to print the activity log to the console.
+* `log_to_file` - whether to save the activity log to a file.
+* `file_path` - path to save log to file.
+
+Here, we will print to console and save to file:
+
+```{r}
+log_file <- file.path("..", "outputs", "logs", "log_example.log")
+
+param <- parameters(
+  patient_inter = 6L,
+  mean_n_consult_time = 8L,
+  number_of_nurses = 1L,
+  data_collection_period = 30L,
+  number_of_runs = 1L,
+  cores = 1L,
+  log_to_console = TRUE,
+  log_to_file = TRUE,
+  file_path = log_file
+)
+
+verbose_run <- model(run_number = 0L, param = param)
+```
+
+If we import the log file, we'll see it contains the same output:
+
+```{r}
+log_contents <- readLines(log_file)
+print(log_contents, sep = "\n")
+```
+
+### Interpreting the simmer log messages
+
+#### Example A: `patient0`
+
+The patient arrives at 1.10422 and requests a nurse. There is one available (`SERVE`) so the consultation begins (`Timeout`).
+
+```
+[5] "  1.10422 |   arrival: patient0         |  activity: Seize            | nurse, 1, 0 paths"
+[6] "  1.10422 |  resource: nurse            |   arrival: patient0         | SERVE"
+...
+[10] " 1.10422 |   arrival: patient0         |  activity: Timeout          | function()"  
+```
+
+The consultation finishes at 2.26987, and the patient leaves:
+
+```
+[14] "   2.26987 |   arrival: patient0         |  activity: Release          | nurse, 1"
+[15] "   2.26987 |  resource: nurse            |   arrival: patient0         | DEPART"
+[16] "   2.26987 |      task: Post-Release     |          :                  | "
+```
+
+#### Example B: `patient2`
+
+The patient arrives at 4.5594, requests a nurse and enters a queue (`ENQUEUE`).
+
+```
+[13] "   1.94299 |    source: patient          |       new: patient2         | 4.5594"             
+...
+[21] "    4.5594 |   arrival: patient2         |  activity: Seize            | nurse, 1, 0 paths"
+[22] "    4.5594 |  resource: nurse            |   arrival: patient2         | ENQUEUE"
+```
+
+A nurse becomes available at 25.3823 (`SERVE`) so consultation begins (`Timeout`).
+
+```
+[39] "   25.4296 |  resource: nurse            |   arrival: patient2         | SERVE"
+...                                                                                          
+[42] "   25.4296 |   arrival: patient2         |  activity: Timeout          | function()"
+```
+
+However, there are no further entries for that patient as the simulation ends before the consultation ends.
+
+### Compare with recorded results
+
+The logs will align with the recorded results of each patient.
+
+```{r}
+arrange(verbose_run[["arrivals"]], start_time)
+```
+
+## Customising the log messages
+
+The `simmer` package allows us to add additional log messages using the `_log()` function.
+
+Here, we take our simmer code from `model.R` but set `verbose = TRUE`. We can then add additional `_log()` messages within the patient trajectory.
+
+You may find this helpful for interpreting the log messages (for example, with the addition of emojis to make different activities more distinct).
+
+```{r}
+# Set the seed
+set.seed(0L)
+
+env <- simmer("simulation", verbose = FALSE)
+
+# Define the patient trajectory
+patient <- trajectory("appointment") %>%
+  simmer::log_("🚶 Arrives.") %>%
+  seize("nurse", 1L) %>%
+  set_attribute("nurse_serve_start", function() now(env)) %>%
+  set_attribute("nurse_serve_length", function() {
+    rexp(n = 1L, rate = 1L / param[["mean_n_consult_time"]])
+  }) %>%
+  simmer::log_(function() {
+    paste0("🩺 Nurse consultation begins (length: ",
+           round(get_attribute(env, "nurse_serve_length"), 5L), ")")
+  }) %>%
+  timeout(function() get_attribute(env, "nurse_serve_length")) %>%
+  release("nurse", 1L) %>%
+  simmer::log_("🚪 Leaves.")
+
+env <- env %>%
+  add_resource("nurse", param[["number_of_nurses"]]) %>%
+  add_generator("patient", patient, function() {
+    rexp(n = 1L, rate = 1L / param[["patient_inter"]])
+  }) %>%
+  simmer::run(param[["data_collection_period"]])
+```
+
+## Calculate run time
+
+```{r end_timer}
+# Get run time in seconds
+end_time <- Sys.time()
+runtime <- as.numeric(end_time - start_time, units = "secs")
+
+# Display converted to minutes and seconds
+minutes <- as.integer(runtime / 60L)
+seconds <- as.integer(runtime %% 60L)
+cat(sprintf("Notebook run time: %dm %ds", minutes, seconds))
+```

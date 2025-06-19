@@ -1,82 +1,447 @@
 ---
 title: Parameter validation
+format: html
+filters:
+  - line-highlight
 ---
-
-<!--TODO: i feel like this could be moved onto its own page, labelled optional there... but then run into issue with full code, and where put that full code... do i show full code without validation on param management, then add validation on param validation page? think about how i'm going to maintain all this too... changes to the full code source code... etc.-->
 
 > This is not necessary to reproducibility or a reproducible analytical pipeline, but is good practice when working, and may help avoid mistakes.
 
-Accidental parameter changes or typos can **silently** invalidate your results.
+<br>
 
-For example, mistyping `transfer_prob` as `transfer_probs` in a dictionary creates a **new, unused parameter** instead of raising an error.
+## Introduction
 
-When you use function or class, they will prevent this error during set up (i.e. when provide arguments to both), but you can still run into this issue, if you alter the dictionary from function, or alter the class attributes.
+**Parameter validation** refers to checking that inputs provided to functions or classes are correct and as expected.
 
-in each of examples below, have just add a new param called transfer_probs, and `transfer_prob` remains 0.3.
-we dont get an error message, but unbenownst to us, simulation still uses 0.3.
+This page focuses on two examples of validation we can perform:
 
-```{.python}
-# Function example
-params = create_params()
-params["transfer_probs"] = 0.4
+1. Preventing a dangerous but common mistake in discrete-event simulation (DES): **accidentally creating new parameters through typos** instead of modifying existing ones.
+2. **Validating parameter values** to ensure they fall within the expected range.
 
-# Class example
-params = Parameters()
-params.transfer_probs = 0.4
+:::{.python-content}
+```{python}
+# pylint: disable=missing-module-docstring
+# Import required packages
+import inspect
+```
+:::
+:::{.r-content}
+```{r}
+# Import required packages
+library(R6) # nolint: undesirable_function_linter
+```
+:::
+
+<br>
+
+## Accidental creation of new parameters
+
+### The problem
+
+When defining your parameters in a function, if you mistype a parameter name, an error won't be raised. Instead, a **new, unused parameter** is created. This can **silently** invalidate your results, as you may not realise that your parameter is unchanged.
+
+:::{.r-content}
+**Note:** This parameter typo issue doesn't occur when using R6 classes directly (as on the right), as they prevent adding new fields by default. However, if you extract the parameter list from an R6 class and modify that list separately, you'll encounter the same silent error problem. For this reason, it's better to modify parameters through the class interface rather than extracting and modifying the underlying list.
+:::
+
+::::: {.columns}
+
+:::: {.column width="47.5%"}
+
+Function-based example:
+
+:::{.python-content}
+```{python}
+#| file: parameters_validation_resources/param_function.py
 ```
 
-There are two solutions to this, depending on whether you use functions or classes:
+```{python}
+# pylint: disable=undefined-variable
+# Use function to create params dict
+params = param_function()
 
-* For functions, parameter validation within simulation functions
-* For classes, parameter validation within class
+# Mistype transfer_prob
+params["transfer_probs"] = 0.4
+print(params)
+```
 
-Validation in class preferable as at point of defining param, all in one place. But both good options
+:::
+
+:::{.r-content}
+
+```{r}
+#| file: parameters_validation_resources/param_function.R
+```
+
+```{r}
+# Use function to create params list
+params <- param_function()
+
+# Mistype transfer_prob
+params$transfer_probs <- 0.4
+params
+```
+
+:::
+
+::::
+
+:::: {.column width="5%"}
+::::
+
+:::: {.column width="47.5%"}
+
+Class-based example:
+
+:::{.python-content}
+
+```{python}
+#| file: parameters_validation_resources/ParamClass.py
+```
+
+```{python}
+# pylint: disable=used-before-assignment
+# Create instance of ParamClass
+params = ParamClass()
+
+# Mistype transfer_prob
+params.transfer_probs = 0.4
+print(params.__dict__)
+```
+
+:::
+
+:::{.r-content}
+```{r}
+#| file: parameters_validation_resources/ParamClass.R
+``` 
+
+```{r}
+# Create instance of ParamClass
+params <- ParamClass$new()
+
+# Mistype transfer_prob
+try({
+  params$transfer_probs <- 0.4
+})
+```
+:::
+
+::::
+
+:::::
 
 <br>
 
-## Parameter validation within the simulation functions
+### The solution
 
-for functions, this is done in model code, as if you did it in function, changes could be made to dict between making it with function and using it
+::::{.python-content}
+There are two main approaches to prevent these silent failures:
+
+:::{.pale-blue}
+* **When using functions:** Implement parameter validation within your model functions.
+* **When using classes:** Build validation directly into the class structure.
+:::
+::::
+
+::::{.r-content}
+There are two main approaches to prevent these silent failures **when using functions**:
+
+:::{.pale-blue}
+* Implement parameter validation within your model functions.
+* Switch to using R6 classes.
+:::
+::::
+
+Class-based validation is often preferable as it catches errors at the point when parameters are defined - but both approaches are effective!
+
+:::{.r-content}
+Functions are more commonly used in R than classes, so you may prefer to stick with the function-based approach for consistency with R conventions.
+:::
 
 <br>
 
-## Parameter validation within the class
+### Parameter validation within the model functions
 
-Prevent typos and unauthorised changes by locking down classes after initialisation.
+:::{.python-content}
+Our parameter function returns a dictionary. While you could validate arguments within the parameter function, this would not prevent accidental modification after the dictionary is returned.
 
-for classes, can do it direct in class, anytime try to update an attribute, which is preferable approach
-you then have two options:
-- directly in class
+When calling the function, you are restricted to the defined arguments - so extra entries cannot be added at that stage. However, once the collection is dictionary, it can be altered by adding or removing entries. For this reason, we incorporate validation into the model function (rather than the parameter function).
+:::
+:::{.r-content}
+Our parameter function returns a list. While you could validate arguments within the parameter function, this would not prevent accidental modification after the list is returned.
 
-```{.python}
+When calling the function, you are restricted to the defined arguments - so extra entries cannot be added at that stage. However, once the collection is list, it can be altered by adding or removing entries. For this reason, we incorporate validation into the model function (rather than the parameter function).
+:::
+
+As a reminder, this is our parameter function:
+
+:::{.python-content}
+
+```{python}
+#| file: "parameters_validation_resources/param_function.py"
+```
+
+:::
+
+:::{.r-content}
+
+```{r}
+#| file: "parameters_validation_resources/param_function.R"
+```
+
+:::
+
+We can write a validation function which checks that **all the required parameters are present**, and that **no extra parameters** are provided:
+
+:::{.python-content}
+```{python}
+def check_param_names(param_dict, param_function):
+    """
+    Validate parameter names.
+
+    Ensure that all required parameters are present, and no extra parameters
+    are provided.
+
+    Parameters
+    ----------
+    param_dict : dict
+        Dictionary containing parameters for the simulation.
+    param_function : function
+        Function used to generate the parameter dictionary.
+    """
+    # Get the set of valid parameter names from the function signature
+    valid_params = set(inspect.signature(param_function).parameters)
+
+    # Get the set of input parameter names from the provided dictionary
+    input_params = set(param_dict)
+
+    # Identify missing and extra parameters
+    missing = valid_params - input_params
+    extra = input_params - valid_params
+
+    # If there are any missing or extra parameters, raise an error message
+    if missing or extra:
+        raise ValueError("; ".join([
+            f"Missing keys: {', '.join(missing)}" if missing else "",
+            f"Extra keys: {', '.join(extra)}" if extra else ""
+        ]).strip("; "))
+```
+
+:::
+
+:::{.r-content}
+
+```{r}
+#' Validate parameter names.
+#'
+#' Ensure that all required parameters are present, and no extra parameters are
+#' provided.
+#'
+#' @param param List containing parameters for the simulation.
+#' @param param_function Function used to generate parameter list.
+#'
+#' @return Throws an error if there are missing or extra parameters.
+
+check_param_names <- function(param, param_function) {
+
+  # Get valid argument names from the function
+  valid_names <- names(formals(param_function))
+
+  # Get names from input parameter list
+  input_names <- names(param)
+
+  # Find missing keys (i.e. are there things in valid_names not in input)
+  # and extra keys (i.e. are there things in input not in valid_names)
+  missing_keys <- setdiff(valid_names, input_names)
+  extra_keys <- setdiff(input_names, valid_names)
+
+  # If there are any missing or extra keys, throw an error
+  if (length(missing_keys) > 0L || length(extra_keys) > 0L) {
+    error_message <- ""
+    if (length(missing_keys) > 0L) {
+      error_message <- paste0(
+        error_message, "Missing keys: ", toString(missing_keys), ". "
+      )
+    }
+    if (length(extra_keys) > 0L) {
+      error_message <- paste0(
+        error_message, "Extra keys: ", toString(extra_keys), ". "
+      )
+    }
+    stop(error_message, call. = FALSE)
+  }
+}
+```
+
+:::
+
+Then, in our **model function**, we call the validation function to check all inputs before proceeding with the simulation:
+
+:::{.python-content}
+```{python}
+def model(param_dict, param_function):
+    """
+    Run simulation after validating parameter names.
+
+    Parameters
+    ----------
+    param_dict : dict
+        Dictionary of parameters.
+    param_function : function
+        Function used to generate the parameter dictionary.
+    """
+    # Check all inputs are valid
+    check_param_names(param_dict=param_dict, param_function=param_function)
+
+    # Simulation code...
+
+
+# Example usage
+# No extra or missing parameters - model runs without issue
+params = param_function()
+model(params, param_function)
+
+# Mistype transfer_prob - model returns an error
+params["transfer_probs"] = 0.4
+try:
+    model(params, param_function)
+except ValueError as e:
+    print(e)
+```
+:::
+
+:::{.r-content}
+```{r}
+#' Run simulation after validating parameter names.
+#'
+#' @param param Named list of model parameters.
+#' @param param_function Function used to generate parameter list.
+model <- function(param, param_function) {
+
+  # Check all inputs are valid
+  check_param_names(param = param, param_function = param_function)
+
+  # Simulation code...
+}
+
+
+# Example usage
+# No extra or missing parameters - model runs without issue
+params <- param_function()
+model(params, param_function)
+
+# Mistype transfer_prob - model returns an error
+params$transfer_probs <- 0.4
+try(model(params, param_function))
+```
+:::
+
+<br>
+
+### Parameter validation within the class
+
+:::{.python-content}
+
+We can add logic to prevent the addition of new attributes to our Python classes. This can be implemented either:
+
+* Directly within the class, or-
+* Using class inheritance.
+
+<br>
+
+**Direct implementation within the class:**
+
+This approach implements validation logic directly within the class using a custom `__setattr__` method.
+
+```{python}
+# pylint: disable=too-few-public-methods
 class Param:
-    def __init__(self, ...):
-        # Disable restriction on attribute modification during initialisation
-        object.__setattr__(self, '_initialising', True)
+    """
+    Parameter class with validation to prevent the addition of new attributes.
+    """
+    def __init__(self, param1="test", param2=42):
+        """
+        Initialise Param instance.
+        """
+        # Disable restriction during initialisation
+        object.__setattr__(self, "_initialising", True)
 
-        ...
+        # Set the attributes
+        self.param1 = param1
+        self.param2 = param2
 
         # Re-enable attribute checks after initialisation
-        object.__setattr__(self, '_initialising', False)
+        object.__setattr__(self, "_initialising", False)
 
     def __setattr__(self, name, value):
-        # Skip the check if the object is still initialising
+        """
+        Prevent addition of new attributes.
+
+        This method overrides the default `__setattr__` behavior to restrict
+        the addition of new attributes to the instance. It allows modification
+        of existing attributes but raises an `AttributeError` if an attempt is
+        made to create a new attribute. This ensures that accidental typos in
+        attribute names do not silently create new attributes.
+
+        Parameters
+        ----------
+        name : str
+          The name of the attribute to set.
+        value : Any
+          The value to assign to the attribute.
+
+        Raises
+        -------
+        AttributeError:
+            If `name` is not an existing attribute and an attempt is made
+            to add it to the instance.
+        """
+        # Skip validation if still initialising
         # pylint: disable=maybe-no-member
-        if hasattr(self, '_initialising') and self._initialising:
+        if hasattr(self, "_initialising") and self._initialising:
             super().__setattr__(name, value)
         else:
-            # Check if attribute of that name is already present
+            # Check if attribute already exists
             if name in self.__dict__:
                 super().__setattr__(name, value)
             else:
                 raise AttributeError(
-                    f'Cannot add new attribute "{name}" - only possible to ' +
-                    f'modify existing attributes: {self.__dict__.keys()}')
+                    f"Cannot add new attribute '{name}' - only possible to "
+                    f"modify existing attributes: {self.__dict__.keys()}"
+                )
+
+
+# Example usage...
+
+# Create an instance of the class
+params = Param()
+
+# Successfully modify an existing attribute
+params.param1 = "newtest"
+
+# Attempts to add new attributes should raise an error
+try:
+    params.new_attribute = 3  # pylint: disable=attribute-defined-outside-init
+except AttributeError as e:
+    print(f"Error: {e}")
 ```
 
-- super class
+<br>
 
-```{.python}
+**Using class inheritance:**
+
+**Class inheritance** allows a class to serve as a blueprint for another, passing down attributes and methods. This approach is useful for sharing logic - such as restricting new attribute creation—across multiple classes - **reducing code duplication and making each class simpler**.
+
+Here, we have three classes, with each subsequent class inheriting from those above:
+
+1. `RestrictAttributesMeta` (metaclass).
+2. `RestrictAttributes` (parent/base class).
+3. `Param` (child/derived class).
+
+`RestrictAttributesMeta` (metaclass): A metaclass controls how classes and instances are created. In this case, it adds an `_initialised` flag after `__init__` completes.
+
+```{python}
 class RestrictAttributesMeta(type):
     """
     Metaclass for attribute restriction.
@@ -91,8 +456,12 @@ class RestrictAttributesMeta(type):
         # Set the "_initialised" flag to True, marking end of initialisation
         instance.__dict__["_initialised"] = True
         return instance
+```
 
+`RestrictAttributes` (parent/base class):  A parent or base class controls the behaviour (but doesn't impact initialisation). Here, the class inherits from `RestrictAttributesMeta`, and adds a new method which prevents the addition of new attributes after initialisation.
 
+```{python}
+# pylint: disable=too-few-public-methods
 class RestrictAttributes(metaclass=RestrictAttributesMeta):
     """
     Base class that prevents the addition of new attributes after
@@ -135,4 +504,567 @@ class RestrictAttributes(metaclass=RestrictAttributesMeta):
         object.__setattr__(self, name, value)
 ```
 
+As a child or derived class, `Param` inherits behavior from `RestrictAttributes` (and, by extension, its metaclass `RestrictAttributesMeta`). This means `Param` automatically gains the validation logic defined in its parent classes.
+
+```{python}
+# pylint: disable=too-few-public-methods,function-redefined
+class Param(RestrictAttributes):
+    """
+    Parameter class with validation to prevent the addition of new attributes.
+    """
+    def __init__(self, param1="test", param2=42):
+        """
+        Initialise Param instance.
+        """
+        self.param1 = param1
+        self.param2 = param2
+
+
+# Example usage...
+
+# Create an instance of the class
+params = Param()
+
+# Successfully modify an existing attribute
+params.param1 = "newtest"
+
+# Attempts to add new attributes should raise an error
+try:
+    params.new_attribute = 3
+except AttributeError as e:
+    print(f"Error: {e}")
+```
+
+:::
+
+:::::{.r-content}
+
+By default, **R6 classes prevent the addition of new fields**. However, there are ways you can override this behavior or set up your classes differently that would not have this protection for your parameters. These include:
+
+* Setting `lock_objects = FALSE`.
+* Setting parameters within a list.
+
 <br>
+
+**Setting `lock_objects = FALSE`**
+
+The prevention of new fields is thanks to the default `lock_objects = TRUE` setting. If we override this and set `lock_objects = FALSE`, it will not raise an error when new fields are added. Therefore, it's important not to override this default behavior.
+
+:::: {.columns}
+
+::: {.column width="47.5%"}
+Original class with `lock_objects = TRUE`:
+
+```{r}
+#| file = "parameters_validation_resources/ParamClass.R"
+``` 
+
+```{r}
+# Create instance of ParamClass
+params <- ParamClass$new()
+
+# Mistype transfer_prob
+try({
+  params$transfer_probs <- 0.4
+})
+```
+:::
+
+::: {.column width="5%"}
+:::
+
+::: {.column width="47.5%"}
+Same class with `lock_objects = TRUE`:
+
+```{r}
+#' @title Returns transfer_prob for validation example.
+#'
+#' @field transfer_prob Numeric. Transfer probability (0-1).
+
+ParamClass <- R6Class( # nolint: object_name_linter
+  lock_objects = FALSE, #<<
+  public = list(
+    transfer_prob = NULL,
+
+    #' @description
+    #' Initialises the R6 object.
+
+    initialize = function(transfer_prob = 0.3) {
+      self$transfer_prob <- transfer_prob
+    }
+  )
+)
+```
+
+```{r}
+# Create instance of ParamClass
+params <- ParamClass$new()
+
+# Mistype transfer_prob
+try({
+  params$transfer_probs <- 0.4
+})
+params #<<
+```
+:::
+
+::::
+
+<br>
+
+**Setting parameters within a list**
+
+If you set up your R6 class with each parameter as a class field, then by default, it will have validation to prevent the addition of new fields.
+
+You may choose to store parameters in a list instead, to make it easier to access them all at once - but, if you do this, the validation won't apply.
+
+:::: {.columns}
+
+::: {.column width="47.5%"}
+Original class with individual fields:
+
+```{r}
+#| file: parameters_validation_resources/ParamClass.R
+``` 
+
+```{r}
+# Create instance of ParamClass
+params <- ParamClass$new()
+
+# Mistype transfer_prob
+try({
+  params$transfer_probs <- 0.4
+})
+```
+:::
+
+::: {.column width="5%"}
+:::
+
+::: {.column width="47.5%"}
+Class with parameters in a list:
+```{r}
+#' @title Returns transfer_prob for validation example.
+#'
+#' @field transfer_prob Numeric. Transfer probability (0-1).
+
+ParamClass <- R6Class( # nolint: object_name_linter
+  public = list(
+    parameters = NULL, #<<
+
+    #' @description
+    #' Initialises the R6 object.
+
+    initialize = function(transfer_prob = 0.3) {
+      self$parameters <- list( #<<
+        transfer_prob = transfer_prob #<<
+      ) #<<
+    }
+  )
+)
+```
+
+```{r}
+# Create instance of ParamClass
+params <- ParamClass$new()
+
+# Mistype transfer_prob
+try({
+  params$parameters$transfer_probs <- 0.4
+})
+params$parameters #<<
+```
+:::
+
+::::
+
+<br>
+
+However, there is a clean solution that allows you to access parameters easily while maintaining individual fields with built-in validation. By adding a `get_params()` method, you can extract parameters without storing them in a list.
+
+:::: {.columns}
+
+::: {.column width="47.5%"}
+Original class with individual fields:
+
+```{r}
+#| file: parameters_validation_resources/ParamClass.R
+``` 
+
+```{r}
+# Create instance of ParamClass
+params <- ParamClass$new()
+
+# Mistype transfer_prob
+try({
+  params$transfer_probs <- 0.4
+})
+```
+:::
+
+::: {.column width="5%"}
+:::
+
+::: {.column width="47.5%"}
+Same class with added `get_params()` method:
+```{r}
+#' @title Returns transfer_prob for validation example.
+#'
+#' @field transfer_prob Numeric. Transfer probability (0-1).
+
+ParamClass <- R6Class( # nolint: object_name_linter
+  public = list(
+    transfer_prob = NULL,
+
+    #' @description
+    #' Initialises the R6 object.
+
+    initialize = function(transfer_prob = 0.3) {
+      self$transfer_prob <- transfer_prob
+    },
+
+    #' @description #<<
+    #' Returns parameters as a named list. #<<
+
+    get_params = function() { #<<
+      # Get all non-function fields #<<
+      all_names <- ls(self) #<<
+      is_not_function <- vapply( #<<
+        all_names, #<<
+        function(x) !is.function(self[[x]]), #<<
+        FUN.VALUE = logical(1L) #<<
+      ) #<<
+      param_names <- all_names[is_not_function] #<<
+      mget(param_names, envir = self) #<<
+    } #<<
+  )
+)
+```
+
+```{r}
+# Create instance of ParamClass
+params <- ParamClass$new()
+
+# Mistype transfer_prob
+try({
+  params$transfer_probs <- 0.4
+})
+
+# Get all parameters #<<
+params$get_params() #<<
+```
+:::
+
+::::
+
+:::::
+
+<br>
+
+## Validating parameter values (e.g. range)
+
+<!--TODO: mention that there are several examples in stroke python Param class below... but also, is there also for R?-->
+
+You can check that the provided inputs are valid - expected format, range, etc.
+
+This can either be:
+
+:::{.pale-blue}
+* **When using functions:** Implement parameter validation within your model functions.
+* **When using classes:** Build validation directly into the class structure.
+:::
+
+<br>
+
+### Parameter validation within the model functions
+
+As a reminder, this is our parameter function:
+
+:::{.python-content}
+```{python}
+#| file: parameters_validation_resources/param_function.py
+```
+
+:::
+
+:::{.r-content}
+```{r}
+#| file: parameters_validation_resources/param_function.R
+```
+
+:::
+
+We can write a validation function which checks that the provided transfer probability is between 0 and 1.
+
+:::{.python-content}
+```{python}
+def validate_param(parameters):
+    """ 
+    Check that the transfer probability is between 0 and 1.
+
+    Parameters
+    ----------
+    parameters : dict
+      Dictionary of parameters.
+    """
+    transfer_prob = parameters["transfer_prob"]
+    if transfer_prob < 0 or transfer_prob > 1:
+        raise ValueError(
+          f"transfer_prob must be between 0 and 1, but is: {transfer_prob}"
+        )
+```
+:::
+
+:::{.r-content}
+```{r}
+#' @title Check that the transfer probability is between 0 and 1.
+#'
+#' @param parameters Named list of model parameters.
+
+validate_param <- function(parameters) {
+  transfer_prob <- parameters$transfer_prob
+  if (transfer_prob < 0L || transfer_prob > 1L) {
+    stop(
+      "transfer_prob must be between 0 and 1, but is: ", transfer_prob,
+      call. = FALSE
+    )
+  }
+}
+```
+:::
+
+Then, in our **model function**, we call the validation function to check all inputs before proceeding with the simulation:
+
+:::{.python-content}
+```{python}
+def model(param_dict):
+    """
+    Run simulation.
+
+    Parameters
+    ----------
+    param_dict : dict
+        Dictionary of parameters.
+    """
+    # Check all inputs are valid
+    validate_param(parameters=param_dict)
+
+    # Simulation code...
+
+
+# Example usage
+# Run model() invalid transfer_prob - raises an error
+param = param_function(transfer_prob = 1.4)
+try:
+    model(param)
+except ValueError as e:
+    print(e)
+```
+:::
+
+:::{.r-content}
+```{r}
+#' Run simulation.
+#'
+#' @param param Named list of model parameters.
+
+model <- function(param) {
+
+  # Check all inputs are valid
+  validate_param(parameters = param)
+
+  # Simulation code...
+}
+
+
+# Example usage
+# Run model() invalid transfer_prob - raises an error
+params <- param_function({
+  transfer_prob <- 1.4
+})
+try(model(params))
+```
+:::
+
+<br>
+
+### Parameter validation within the class
+
+The new `validate_param()` method checks whether `transfer_prob` is between 0 and 1.
+
+Although this is defined within the class, it could also be called from within the model function, so that all parameters are checked before the simulation runs.
+
+::::: {.columns}
+
+:::: {.column width="47.5%"}
+
+Original `ParamClass`:
+
+:::{.python-content}
+
+```{python}
+#| file: parameters_validation_resources/ParamClass.py
+```
+
+```{python}
+# Create instance with invalid transfer_prob - no error raised
+param = ParamClass(transfer_prob = 1.4)
+```
+
+:::
+
+:::{.r-content}
+
+```{r}
+#| file: parameters_validation_resources/ParamClass.R
+```
+
+```{r}
+# Create instance with invalid transfer_prob - no error raised
+param <- ParamClass$new(transfer_prob = 1.4)
+```
+
+:::
+
+::::
+
+:::: {.column width="5%"}
+::::
+
+:::: {.column width="47.5%"}
+
+Same class with added `validate_param()` method:
+
+:::{.python-content}
+```{python}
+class ParamClass:
+    """
+    Returns transfer_prob for validation example.
+    """
+    def __init__(self, transfer_prob=0.3):
+        """
+        Initialise ParamClass instance.
+
+        Parameters
+        ----------
+        transfer_prob : float
+            Transfer probability (0-1).
+        """
+        self.transfer_prob = transfer_prob
+
+    def validate_param(self): #<<
+        """ #<<
+        Check that transfer_prob is between 0 and 1. #<<
+        """ #<<
+        if self.transfer_prob < 0 or self.transfer_prob > 1: #<<
+            raise ValueError("transfer_prob must be between 0 and 1" + #<<
+                             f", but is: {self.transfer_prob}") #<<
+```
+
+```{python}
+# Create instance of ParamClass with invalid transfer_prob and run method
+param = ParamClass(transfer_prob = 1.4)
+try: #<<
+    param.validate_param() #<<
+except ValueError as e: #<<
+    print(f"Error: {e}") #<<
+```
+:::
+
+:::{.r-content}
+```{r}
+#' @title Returns transfer_prob for validation example.
+#'
+#' @field transfer_prob Numeric. Transfer probability (0-1).
+
+ParamClass <- R6Class( # nolint: object_name_linter
+  public = list(
+    transfer_prob = NULL,
+
+    #' @description
+    #' Initialises the R6 object.
+
+    initialize = function(transfer_prob = 0.3) {
+      self$transfer_prob <- transfer_prob
+    },
+
+    #' @description #<<
+    #' Check that transfer_prob is between 0 and 1. #<<
+    #' @return No return value; throws an error if invalid. #<<
+
+    validate_param = function() { #<<
+      if (self$transfer_prob < 0L || self$transfer_prob > 1L) { #<<
+        stop( #<<
+          "transfer_prob must be between 0 and 1, but is: ", #<<
+          self$transfer_prob, call. = FALSE #<<
+        ) #<<
+      } #<<
+    } #<<
+  )
+)
+```
+
+```{r}
+# Create instance with invalid transfer_prob and run method
+param <- ParamClass$new(transfer_prob = 1.4)
+try(param$validate_param()) #<<
+```
+:::
+
+::::
+
+:::::
+
+<br>
+
+## Examples
+
+This section contains full code examples for our [example conceptual models](../intro/examples.qmd).
+
+---
+
+<details>
+<summary>Show/Hide example 1: 🩺 Nurse visit simulation</summary>
+<br>
+
+:::{.python-content}
+This example is from `simulation/model.py` in [pydesrap_mms](https://github.com/pythonhealthdatascience/pydesrap_mms).
+
+TODO
+:::
+
+:::{.r-content}
+This example is from `R/validate_model_inputs.R` in [rdesrap_mms](https://github.com/pythonhealthdatascience/rdesrap_mms).
+
+```{.r}
+{{< include ../../examples/rdesrap_mms/R/validate_model_inputs.R >}}
+```
+:::
+
+<br>
+</details>
+
+---
+
+<details>
+<summary>Show/Hide example 2: 🧠 Stroke pathway simulation</summary>
+<br>
+
+:::{.python-content}
+
+This example is from `simulation/parameters.py` in [pydesrap_stroke](https://github.com/pythonhealthdatascience/pydesrap_stroke).
+
+```{.python}
+{{< include ../../examples/pydesrap_stroke/simulation/parameters.py >}}
+```
+
+:::
+
+:::{.r-content}
+TODO
+:::
+
+<br>
+</details>
+
+---
