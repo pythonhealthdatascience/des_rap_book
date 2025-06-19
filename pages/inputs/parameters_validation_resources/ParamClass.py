@@ -1,3 +1,4 @@
+# pylint: disable=missing-module-docstring, invalid-name, too-few-public-methods
 class ParamClass:
     """
     Returns transfer_prob for validation example.

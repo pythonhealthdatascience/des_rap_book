@@ -230,6 +230,7 @@ There are three implementation options: **dictionary**, **function** or **class*
 **Using a dictionary**
 
 ```{python}
+# pylint: disable=missing-module-docstring
 # Base case
 base_params = {
     "interarrival_time": 5,
@@ -249,7 +250,9 @@ print(scenario1)
 **Using a function**
 
 ```{python}
-def create_params(interarrival_time=5, consultation_time=20, transfer_prob=0.3):
+def create_params(
+  interarrival_time=5, consultation_time=20, transfer_prob=0.3
+):
     """
     Generate parameter dictionary.
 
@@ -287,7 +290,7 @@ print(scenario1)
 **Using a class**
 
 ```{python}
-class Parameters:
+class Parameters: # pylint: disable=too-few-public-methods
     """
     Parameter class.
     """
@@ -469,7 +472,7 @@ This can be convenient for smaller models, though can get unwieldly as the numbe
 Function example (with nested dictionaries):
 
 ```{python}
-def create_params(
+def create_params( # pylint: disable=function-redefined, too-many-arguments, too-many-positional-arguments
     adult_interarrival=5, adult_consultation=20, adult_transfer=0.3,
     child_interarrival=7, child_consultation=15, child_transfer=0.2,
     elderly_interarrival=10, elderly_consultation=30, elderly_transfer=0.5
@@ -530,7 +533,7 @@ print(base_params)
 Class example:
 
 ```{python}
-class Parameters:
+class Parameters:  # pylint: disable=function-redefined, too-many-instance-attributes, too-many-arguments, too-many-positional-arguments, too-few-public-methods
     """
     Parameter class.
     """
@@ -815,12 +818,16 @@ def create_transfers(adult=0.3, child=0.2, elderly=0.5):
     }
 
 def create_parameters(
-    arrivals=create_arrivals(),
-    consultations=create_consultations(),
-    transfers=create_transfers()
+    arrivals=None,
+    consultations=None,
+    transfers=None
 ):
     """
     Generate complete parameter dictionary for simulation.
+
+    Uses None as default argument, as setting e.g. arrivals=create_arrivals()
+    is dangerous, since it creates a single dictionary shared by subsequent
+    calls.
 
     Parameters
     ----------
@@ -836,6 +843,12 @@ def create_parameters(
     Nested dictionary with three keys ("arrivals", "consultations",
     "transfers"), each containing a dictionary of parameters.
     """
+    # Create the individual dictionaries if none provided
+    arrivals = create_arrivals() if arrivals is None else arrivals
+    consultations = (
+      create_consultations() if consultations is None else consultations)
+    transfers = create_transfers() if transfers is None else transfers
+    # Create dictionary
     return {
         "arrivals": arrivals,
         "consultations": consultations,
@@ -851,7 +864,7 @@ print(base_params)
 Class example:
 
 ```{python}
-class Arrivals:
+class Arrivals:  # pylint: disable=too-few-public-methods
     """
     Inter-arrival times (minutes).
     """
@@ -873,7 +886,7 @@ class Arrivals:
         self.elderly = elderly
 
 
-class Consultations:
+class Consultations:  # pylint: disable=too-few-public-methods
     """
     Consultation times (minutes).
     """
@@ -895,7 +908,7 @@ class Consultations:
         self.elderly = elderly
 
 
-class Transfers:
+class Transfers:  # pylint: disable=too-few-public-methods
     """
     Transfer probabilities (0-1).
     """
@@ -917,7 +930,7 @@ class Transfers:
         self.elderly = elderly
 
 
-class Parameters():
+class Parameters():  # pylint: disable=function-redefined, too-few-public-methods
     """
     Complete parameter class.
     """

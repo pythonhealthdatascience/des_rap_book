@@ -1,3 +1,4 @@
+# pylint: disable=missing-module-docstring
 def param_function(transfer_prob=0.3):
     """
     Returns transfer_prob for validation example.

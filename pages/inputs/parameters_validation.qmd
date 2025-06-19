@@ -20,6 +20,7 @@ This page focuses on two examples of validation we can perform:
 
 :::{.python-content}
 ```{python}
+# pylint: disable=missing-module-docstring
 # Import required packages
 import inspect
 ```
@@ -47,24 +48,29 @@ When defining your parameters in a function, if you mistype a parameter name, an
 
 :::: {.column width="47.5%"}
 
+Function-based example:
+
 :::{.python-content}
 ```{python}
-# Function-based example
+#| file: parameters_validation_resources/param_function.py
+```
 
-{{< include parameters_validation_resources/param_function.py >}}
-
+```{python}
+# pylint: disable=undefined-variable
 # Use function to create params dict
 params = param_function()
 
 # Mistype transfer_prob
 params["transfer_probs"] = 0.4
-params
+print(params)
 ```
+
 :::
 
 :::{.r-content}
 
-```{r file="parameters_validation_resources/param_function.R"}
+```{r}
+#| file: parameters_validation_resources/param_function.R
 ```
 
 ```{r}
@@ -75,6 +81,7 @@ params <- param_function()
 params$transfer_probs <- 0.4
 params
 ```
+
 :::
 
 ::::
@@ -84,23 +91,29 @@ params
 
 :::: {.column width="47.5%"}
 
+Class-based example:
+
 :::{.python-content}
+
 ```{python}
-# Class-based example
+#| file: parameters_validation_resources/ParamClass.py
+```
 
-{{< include parameters_validation_resources/ParamClass.py >}}
-
+```{python}
+# pylint: disable=used-before-assignment
 # Create instance of ParamClass
 params = ParamClass()
 
 # Mistype transfer_prob
 params.transfer_probs = 0.4
-params.__dict__
+print(params.__dict__)
 ```
+
 :::
 
 :::{.r-content}
-```{r file="parameters_validation_resources/ParamClass.R"}
+```{r}
+#| file: parameters_validation_resources/ParamClass.R
 ``` 
 
 ```{r}
@@ -166,15 +179,16 @@ As a reminder, this is our parameter function:
 :::{.python-content}
 
 ```{python}
-{{< include parameters_validation_resources/param_function.py >}}
+#| file: "parameters_validation_resources/param_function.py"
 ```
 
 :::
 
 :::{.r-content}
 
-```{r file="parameters_validation_resources/param_function.R"}
-``` 
+```{r}
+#| file: "parameters_validation_resources/param_function.R"
+```
 
 :::
 
@@ -182,7 +196,7 @@ We can write a validation function which checks that **all the required paramete
 
 :::{.python-content}
 ```{python}
-def check_param_names(param, param_function):
+def check_param_names(param_dict, param_function):
     """
     Validate parameter names.
 
@@ -191,7 +205,7 @@ def check_param_names(param, param_function):
 
     Parameters
     ----------
-    param : dict
+    param_dict : dict
         Dictionary containing parameters for the simulation.
     param_function : function
         Function used to generate the parameter dictionary.
@@ -200,7 +214,7 @@ def check_param_names(param, param_function):
     valid_params = set(inspect.signature(param_function).parameters)
 
     # Get the set of input parameter names from the provided dictionary
-    input_params = set(param)
+    input_params = set(param_dict)
 
     # Identify missing and extra parameters
     missing = valid_params - input_params
@@ -266,19 +280,19 @@ Then, in our **model function**, we call the validation function to check all in
 
 :::{.python-content}
 ```{python}
-def model(param, param_function):
+def model(param_dict, param_function):
     """
     Run simulation after validating parameter names.
 
     Parameters
     ----------
-    param : dict
+    param_dict : dict
         Dictionary of parameters.
     param_function : function
         Function used to generate the parameter dictionary.
     """
     # Check all inputs are valid
-    check_param_names(param=param, param_function=param_function)
+    check_param_names(param_dict=param_dict, param_function=param_function)
 
     # Simulation code...
 
@@ -341,6 +355,7 @@ We can add logic to prevent the addition of new attributes to our Python classes
 This approach implements validation logic directly within the class using a custom `__setattr__` method.
 
 ```{python}
+# pylint: disable=too-few-public-methods
 class Param:
     """
     Parameter class with validation to prevent the addition of new attributes.
@@ -351,18 +366,39 @@ class Param:
         """
         # Disable restriction during initialisation
         object.__setattr__(self, "_initialising", True)
-        
+
         # Set the attributes
         self.param1 = param1
         self.param2 = param2
-        
+
         # Re-enable attribute checks after initialisation
         object.__setattr__(self, "_initialising", False)
 
     def __setattr__(self, name, value):
         """
+        Prevent addition of new attributes.
+
+        This method overrides the default `__setattr__` behavior to restrict
+        the addition of new attributes to the instance. It allows modification
+        of existing attributes but raises an `AttributeError` if an attempt is
+        made to create a new attribute. This ensures that accidental typos in
+        attribute names do not silently create new attributes.
+
+        Parameters
+        ----------
+        name : str
+          The name of the attribute to set.
+        value : Any
+          The value to assign to the attribute.
+
+        Raises
+        -------
+        AttributeError:
+            If `name` is not an existing attribute and an attempt is made
+            to add it to the instance.
         """
         # Skip validation if still initialising
+        # pylint: disable=maybe-no-member
         if hasattr(self, "_initialising") and self._initialising:
             super().__setattr__(name, value)
         else:
@@ -386,9 +422,9 @@ params.param1 = "newtest"
 
 # Attempts to add new attributes should raise an error
 try:
-  params.new_attribute = 3
+    params.new_attribute = 3  # pylint: disable=attribute-defined-outside-init
 except AttributeError as e:
-  print(f"Error: {e}")
+    print(f"Error: {e}")
 ```
 
 <br>
@@ -425,6 +461,7 @@ class RestrictAttributesMeta(type):
 `RestrictAttributes` (parent/base class):  A parent or base class controls the behaviour (but doesn't impact initialisation). Here, the class inherits from `RestrictAttributesMeta`, and adds a new method which prevents the addition of new attributes after initialisation.
 
 ```{python}
+# pylint: disable=too-few-public-methods
 class RestrictAttributes(metaclass=RestrictAttributesMeta):
     """
     Base class that prevents the addition of new attributes after
@@ -470,6 +507,7 @@ class RestrictAttributes(metaclass=RestrictAttributesMeta):
 As a child or derived class, `Param` inherits behavior from `RestrictAttributes` (and, by extension, its metaclass `RestrictAttributesMeta`). This means `Param` automatically gains the validation logic defined in its parent classes.
 
 ```{python}
+# pylint: disable=too-few-public-methods,function-redefined
 class Param(RestrictAttributes):
     """
     Parameter class with validation to prevent the addition of new attributes.
@@ -492,9 +530,9 @@ params.param1 = "newtest"
 
 # Attempts to add new attributes should raise an error
 try:
-  params.new_attribute = 3
+    params.new_attribute = 3
 except AttributeError as e:
-  print(f"Error: {e}")
+    print(f"Error: {e}")
 ```
 
 :::
@@ -517,7 +555,8 @@ The prevention of new fields is thanks to the default `lock_objects = TRUE` sett
 ::: {.column width="47.5%"}
 Original class with `lock_objects = TRUE`:
 
-```{r file="parameters_validation_resources/ParamClass.R"}
+```{r}
+#| file = "parameters_validation_resources/ParamClass.R"
 ``` 
 
 ```{r}
@@ -584,7 +623,8 @@ You may choose to store parameters in a list instead, to make it easier to acces
 ::: {.column width="47.5%"}
 Original class with individual fields:
 
-```{r file="parameters_validation_resources/ParamClass.R"}
+```{r}
+#| file: parameters_validation_resources/ParamClass.R
 ``` 
 
 ```{r}
@@ -647,7 +687,8 @@ However, there is a clean solution that allows you to access parameters easily w
 ::: {.column width="47.5%"}
 Original class with individual fields:
 
-```{r file="parameters_validation_resources/ParamClass.R"}
+```{r}
+#| file: parameters_validation_resources/ParamClass.R
 ``` 
 
 ```{r}
@@ -741,33 +782,36 @@ As a reminder, this is our parameter function:
 
 :::{.python-content}
 ```{python}
-{{< include parameters_validation_resources/param_function.py >}}
+#| file: parameters_validation_resources/param_function.py
 ```
+
 :::
 
 :::{.r-content}
-```{r file="parameters_validation_resources/param_function.R"}
-``` 
+```{r}
+#| file: parameters_validation_resources/param_function.R
+```
+
 :::
 
 We can write a validation function which checks that the provided transfer probability is between 0 and 1.
 
 :::{.python-content}
 ```{python}
-def validate_param(parameters): 
-  """ 
-  Check that the transfer probability is between 0 and 1.
+def validate_param(parameters):
+    """ 
+    Check that the transfer probability is between 0 and 1.
 
-  Parameters
-  ----------
-  parameters : dict
-    Dictionary of parameters.
-  """ 
-  transfer_prob = parameters["transfer_prob"]
-  if transfer_prob < 0 or transfer_prob > 1: 
-      raise ValueError(
-        f"transfer_prob must be between 0 and 1, but is: {transfer_prob}"
-      ) 
+    Parameters
+    ----------
+    parameters : dict
+      Dictionary of parameters.
+    """
+    transfer_prob = parameters["transfer_prob"]
+    if transfer_prob < 0 or transfer_prob > 1:
+        raise ValueError(
+          f"transfer_prob must be between 0 and 1, but is: {transfer_prob}"
+        )
 ```
 :::
 
@@ -793,17 +837,17 @@ Then, in our **model function**, we call the validation function to check all in
 
 :::{.python-content}
 ```{python}
-def model(param):
+def model(param_dict):
     """
     Run simulation.
 
     Parameters
     ----------
-    param : dict
+    param_dict : dict
         Dictionary of parameters.
     """
     # Check all inputs are valid
-    validate_param(parameters=param)
+    validate_param(parameters=param_dict)
 
     # Simulation code...
 
@@ -857,24 +901,29 @@ Although this is defined within the class, it could also be called from within t
 Original `ParamClass`:
 
 :::{.python-content}
+
 ```{python}
-{{< include parameters_validation_resources/ParamClass.py >}}
+#| file: parameters_validation_resources/ParamClass.py
+```
 
-
+```{python}
 # Create instance with invalid transfer_prob - no error raised
 param = ParamClass(transfer_prob = 1.4)
 ```
+
 :::
 
 :::{.r-content}
 
-```{r file="parameters_validation_resources/ParamClass.R"}
+```{r}
+#| file: parameters_validation_resources/ParamClass.R
 ```
 
 ```{r}
 # Create instance with invalid transfer_prob - no error raised
 param <- ParamClass$new(transfer_prob = 1.4)
 ```
+
 :::
 
 ::::
@@ -902,7 +951,7 @@ class ParamClass:
             Transfer probability (0-1).
         """
         self.transfer_prob = transfer_prob
-  
+
     def validate_param(self): #<<
         """ #<<
         Check that transfer_prob is between 0 and 1. #<<
@@ -910,9 +959,9 @@ class ParamClass:
         if self.transfer_prob < 0 or self.transfer_prob > 1: #<<
             raise ValueError("transfer_prob must be between 0 and 1" + #<<
                              f", but is: {self.transfer_prob}") #<<
-        
+```
 
-
+```{python}
 # Create instance of ParamClass with invalid transfer_prob and run method
 param = ParamClass(transfer_prob = 1.4)
 try: #<<
