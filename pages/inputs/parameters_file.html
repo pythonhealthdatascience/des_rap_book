@@ -20,6 +20,41 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -40,7 +75,7 @@ ul.task-list li input[type="checkbox"] {
 <link href="../../site_libs/quarto-html/quarto-syntax-highlighting-e1a5c8363afafaef2c763b6775fbf3ca.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../site_libs/bootstrap/bootstrap-ecd7484abd448711fd8810a5eeb38bee.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-293e81bb0733230b9e755d5a7d46e87a.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -162,7 +197,7 @@ ul.task-list li input[type="checkbox"] {
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../../pages/intro/examples.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Example conceptual models</span></a>
+ <span class="menu-text">Example conceptual models 🩺🧠</span></a>
   </div>
 </li>
       </ul>
@@ -486,8 +521,25 @@ ul.task-list li input[type="checkbox"] {
 </nav>
 <div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction"><span class="header-section-number">1</span> Introduction</a></li>
+  <li><a href="#why-use-external-parameter-files" id="toc-why-use-external-parameter-files" class="nav-link" data-scroll-target="#why-use-external-parameter-files"><span class="header-section-number">2</span> Why use external parameter files?</a></li>
+  <li><a href="#create-parameter-file" id="toc-create-parameter-file" class="nav-link" data-scroll-target="#create-parameter-file"><span class="header-section-number">3</span> Create parameter file</a></li>
+  <li><a href="#create-data-dictionary" id="toc-create-data-dictionary" class="nav-link" data-scroll-target="#create-data-dictionary"><span class="header-section-number">4</span> Create data dictionary</a></li>
+  <li><a href="#import-parameters-into-function-or-class" id="toc-import-parameters-into-function-or-class" class="nav-link" data-scroll-target="#import-parameters-into-function-or-class"><span class="header-section-number">5</span> Import parameters into function or class</a>
+  <ul class="collapse">
+  <li><a href="#define-parameter-function-or-class" id="toc-define-parameter-function-or-class" class="nav-link" data-scroll-target="#define-parameter-function-or-class"><span class="header-section-number">5.1</span> Define parameter function or class</a></li>
+  <li><a href="#write-helper-function-to-import-parameters" id="toc-write-helper-function-to-import-parameters" class="nav-link" data-scroll-target="#write-helper-function-to-import-parameters"><span class="header-section-number">5.2</span> Write helper function to import parameters</a></li>
+  <li><a href="#load-and-use-parameters" id="toc-load-and-use-parameters" class="nav-link" data-scroll-target="#load-and-use-parameters"><span class="header-section-number">5.3</span> Load and use parameters</a></li>
+  </ul></li>
+  <li><a href="#examples" id="toc-examples" class="nav-link" data-scroll-target="#examples"><span class="header-section-number">6</span> Examples</a></li>
+  <li><a href="#further-information" id="toc-further-information" class="nav-link" data-scroll-target="#further-information"><span class="header-section-number">7</span> Further information</a></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
@@ -511,14 +563,511 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
+<!--
+When a Quarto document contains R and Python code blocks, it will use the knitr engine (from R) to render the document. This means we need to load the reticulate package, which allows us to execute Python code within the R session, within the conda environment specified.
+
+Note: When a Quarto document just contains Python code blocks (and no R code), Quarto uses the Jupyter engine to render the document.
+-->
 <div class="guidelines">
 <p><a href="../../pages/intro/guidelines.html">🔗</a> <strong>Reproducibility guidelines:</strong></p>
 <ul>
 <li>Heather et al.&nbsp;2025: Avoid hard-coded parameters.</li>
+<li>NHS Levels of RAP (🥈): Data is handled and output in a Tidy data format.</li>
 </ul>
+</div>
+<section id="introduction" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="introduction"><span class="header-section-number">1</span> Introduction</h2>
+<p>Discrete-event simulations (DES) require many parameters - like arrival rates, resource times, and probabilities - which often need to be changed for different scenarios and analyses. <strong>Managing these parameters well makes your simulations easier to update, track, and reuse</strong>.</p>
+<p>This page focuses on the <strong>storage of parameters within a file</strong>. If you want to see how to store parameters within a script, see the <a href="../../pages/inputs/parameters_script.html">parameters from script</a> page.</p>
+<p><br></p>
+</section>
+<section id="why-use-external-parameter-files" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="why-use-external-parameter-files"><span class="header-section-number">2</span> Why use external parameter files?</h2>
+<p>External parameter files can offer some advantages over storing parameters directly in scripts:</p>
+<ul>
+<li>Easier for non-programmers to modify parameters.</li>
+<li>Can easily share your simulation with different parameters versions (e.g.&nbsp;real parameters for internal use, synthetic parameters for external sharing, as discussed in <a href="../../pages/inputs/input_data.html">input data management</a>) without editing the code itself.</li>
+<li>Less hard coding as parameters are completely separate.</li>
+</ul>
+<p>Though storing parameters within a script is commonplace - particularly for simpler models - due to its simplicity.</p>
+<p><br></p>
+</section>
+<section id="create-parameter-file" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="create-parameter-file"><span class="header-section-number">3</span> Create parameter file</h2>
+<p>There are several file types you could consider for storing parameters. CSV files are often a good choice - particularly better than Excel - because they are:</p>
+<ul>
+<li>Open and non-proprietary format.</li>
+<li>Compatible with version-control systems (being text-based).</li>
+<li>Readable in wide range of spreadsheet software (Excel, LibreOffice), text editors, and programming environments</li>
+<li>Easy to import and parse in major programming languages.</li>
+</ul>
+<p>The parameter file should be structured following tidy data principles. This means each row represents a single observation and each column represents a variable. Avoid using merged cells or stacked headers as these make the data harder to process programmatically.</p>
+<div class="python-content">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># pylint: disable=missing-module-docstring</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Import required packages</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Import and preview parameter file</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>pd.read_csv(<span class="st">"parameters_file_resources/example_parameters.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   patient        metric  value
+0    adult  interarrival    5.0
+1    adult  consultation   20.0
+2    adult      transfer    0.3
+3    child  interarrival    7.0
+4    child  consultation   15.0
+5    child      transfer    0.2
+6  elderly  interarrival   10.0
+7  elderly  consultation   30.0
+8  elderly      transfer    0.5</code></pre>
+</div>
+</div>
+</div>
+<div class="r-content">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Import and preview parameter file</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">read.csv</span>(<span class="fu">file.path</span>(<span class="st">"parameters_file_resources"</span>, <span class="st">"example_parameters.csv"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  patient       metric value
+1   adult interarrival   5.0
+2   adult consultation  20.0
+3   adult     transfer   0.3
+4   child interarrival   7.0
+5   child consultation  15.0
+6   child     transfer   0.2
+7 elderly interarrival  10.0
+8 elderly consultation  30.0
+9 elderly     transfer   0.5</code></pre>
+</div>
+</div>
+</div>
+<p><br></p>
+</section>
+<section id="create-data-dictionary" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="create-data-dictionary"><span class="header-section-number">4</span> Create data dictionary</h2>
+<p>As discussed on the <a href="../../pages/inputs/input_data.html">input data management page</a>, you should include a data dictionary or documentation describing each parameter. This documentation should explain the parameter’s meaning, units, and any abbreviations or codes used.</p>
+<p>For example:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Column</th>
+<th>Data type</th>
+<th>Description</th>
+<th>Possible values</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>patient</td>
+<td>str</td>
+<td>Patient type</td>
+<td><code>adult</code>, <code>child</code> or <code>elderly</code></td>
+</tr>
+<tr class="even">
+<td>metric</td>
+<td>str</td>
+<td>Metric</td>
+<td><code>interarrival</code>: Inter-arrival time (time between patient admissions)<br><code>consultation</code>: Length of consultation<br><code>transfer</code>: Transfer probability</td>
+</tr>
+<tr class="odd">
+<td>value</td>
+<td>float</td>
+<td>Value of the metric</td>
+<td>Times or probabilities</td>
+</tr>
+</tbody>
+</table>
+<p><br></p>
+</section>
+<section id="import-parameters-into-function-or-class" class="level2" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="import-parameters-into-function-or-class"><span class="header-section-number">5</span> Import parameters into function or class</h2>
+<p>The <a href="../../pages/inputs/parameters_script.html">parameters from script page</a> provides detailed guidance on how parameters should be structured within your simulation. The key principles are:</p>
+<ol type="1">
+<li><strong>Group parameters into a dedicated object</strong>.</li>
+<li><strong>Pass these objects explicitly to your model</strong>.</li>
+</ol>
+<p>These same principles apply when importing parameters from files. We recommend using <strong>structured parameter objects</strong> rather than passing raw CSV data directly to your simulation functions because:</p>
+<ul>
+<li>Your files might contain baseline parameters plus scenario-specific overrides, but your simulation needs <strong>one complete object</strong> with all parameters merged together. Having all required parameters for a run in one object also makes it clear exactly what’s being used.</li>
+<li>Classes allow you to incorporate parameter <strong>validation</strong> (e.g.&nbsp;ranges, types) before running the simulation.</li>
+<li>With an object, you can keep <strong>consistent parameter names</strong> in your code, while allowing names or file formats to change, as helper functions can translate between the file and parameter object.</li>
+</ul>
+<p>However, there is one major difference when working with parameters from files: <strong>you should not include default values in your parameter classes</strong>. All values should come explicitly from your data sources. This ensures your parameter choices are intentional and missing parameters fail clearly instead of silently using unexpected defaults.</p>
+<p><br></p>
+<section id="define-parameter-function-or-class" class="level3" data-number="5.1">
+<h3 data-number="5.1" class="anchored" data-anchor-id="define-parameter-function-or-class"><span class="header-section-number">5.1</span> Define parameter function or class</h3>
+<p>Parameters can be stored using one or multiple functions or classes (see the <a href="../../pages/inputs/parameters_script.html">parameters from script page</a> for detailed discussion).</p>
+<div class="python-content">
+<p>Here, we show a single class approach:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Parameters:  <span class="co"># pylint: disable=too-many-instance-attributes, too-many-arguments, too-many-positional-arguments, too-few-public-methods</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co">    Container for simulation parameters across patient demographics.</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>,</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>        adult_interarrival, adult_consultation, adult_transfer,</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>        child_interarrival, child_consultation, child_transfer,</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>        elderly_interarrival, elderly_consultation, elderly_transfer</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>    ):</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="co">        Initialise Parameters instance.</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="co">        Parameters</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a><span class="co">        ----------</span></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a><span class="co">        adult_interarrival : float</span></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a><span class="co">            Time between adult patient arrivals (e.g., in minutes or hours).</span></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a><span class="co">        adult_consultation : float  </span></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a><span class="co">            Duration of consultation time for adult patients.</span></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a><span class="co">        adult_transfer : float</span></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a><span class="co">            Time required to transfer adult patients between stages.</span></span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a><span class="co">        child_interarrival : float</span></span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a><span class="co">            Time between child patient arrivals (e.g., in minutes or hours).</span></span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a><span class="co">        child_consultation : float</span></span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a><span class="co">            Duration of consultation time for child patients.</span></span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a><span class="co">        child_transfer : float</span></span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a><span class="co">            Time required to transfer child patients between stages.</span></span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a><span class="co">        elderly_interarrival : float</span></span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a><span class="co">            Time between elderly patient arrivals (e.g., in minutes or hours).</span></span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a><span class="co">        elderly_consultation : float</span></span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a><span class="co">            Duration of consultation time for elderly patients.</span></span>
+<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a><span class="co">        elderly_transfer : float</span></span>
+<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a><span class="co">            Time required to transfer elderly patients between stages.</span></span>
+<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a><span class="co">        """</span></span>
+<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Adult parameters</span></span>
+<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.adult_interarrival <span class="op">=</span> adult_interarrival</span>
+<span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.adult_consultation <span class="op">=</span> adult_consultation</span>
+<span id="cb5-38"><a href="#cb5-38" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.adult_transfer <span class="op">=</span> adult_transfer</span>
+<span id="cb5-39"><a href="#cb5-39" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Child parameters</span></span>
+<span id="cb5-40"><a href="#cb5-40" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.child_interarrival <span class="op">=</span> child_interarrival</span>
+<span id="cb5-41"><a href="#cb5-41" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.child_consultation <span class="op">=</span> child_consultation</span>
+<span id="cb5-42"><a href="#cb5-42" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.child_transfer <span class="op">=</span> child_transfer</span>
+<span id="cb5-43"><a href="#cb5-43" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Elderly parameters</span></span>
+<span id="cb5-44"><a href="#cb5-44" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.elderly_interarrival <span class="op">=</span> elderly_interarrival</span>
+<span id="cb5-45"><a href="#cb5-45" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.elderly_consultation <span class="op">=</span> elderly_consultation</span>
+<span id="cb5-46"><a href="#cb5-46" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.elderly_transfer <span class="op">=</span> elderly_transfer</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+<div class="r-content">
+<p>Here, we show a single function approach:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co">#' Create parameter list for simulation</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="co">#'</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="co">#' @param adult_interarrival Numeric. Time between adult patient arrivals</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="co">#'   (e.g. in minutes or hours).</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="co">#' @param adult_consultation Numeric. Duration of consultation time for</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="co">#'   adult patients.</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="co">#' @param adult_transfer Numeric. Time required to transfer adult patients</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="co">#'   between stages.</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="co">#' @param child_interarrival Numeric. Time between child patient arrivals</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="co">#'   (e.g. in minutes or hours).</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="co">#' @param child_consultation Numeric. Duration of consultation time for</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="co">#'   child patients.</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a><span class="co">#' @param child_transfer Numeric. Time required to transfer child patients</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a><span class="co">#'   between stages.</span></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a><span class="co">#' @param elderly_interarrival Numeric. Time between elderly patient arrivals</span></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a><span class="co">#'   (e.g. in minutes or hours).</span></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a><span class="co">#' @param elderly_consultation Numeric. Duration of consultation time for</span></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a><span class="co">#'   elderly patients.</span></span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a><span class="co">#' @param elderly_transfer Numeric. Time required to transfer elderly patients</span></span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a><span class="co">#'   between stages.</span></span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a><span class="co">#'</span></span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a><span class="co">#' @return A named list containing all simulation parameters organised by</span></span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a><span class="co">#'   patient demographic groups (adult, child, elderly). Each group contains</span></span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a><span class="co">#'   interarrival, consultation, and transfer time parameters.</span></span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>create_params <span class="ot">&lt;-</span> <span class="cf">function</span>(</span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>  adult_interarrival, adult_consultation, adult_transfer,</span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>  child_interarrival, child_consultation, child_transfer,</span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a>  elderly_interarrival, elderly_consultation, elderly_transfer</span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>) {</span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(</span>
+<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Adult parameters</span></span>
+<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a>    <span class="at">adult_interarrival =</span> adult_interarrival,</span>
+<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a>    <span class="at">adult_consultation =</span> adult_consultation,</span>
+<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a>    <span class="at">adult_transfer =</span> adult_transfer,</span>
+<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Child parameters</span></span>
+<span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a>    <span class="at">child_interarrival =</span> child_interarrival,</span>
+<span id="cb6-38"><a href="#cb6-38" aria-hidden="true" tabindex="-1"></a>    <span class="at">child_consultation =</span> child_consultation,</span>
+<span id="cb6-39"><a href="#cb6-39" aria-hidden="true" tabindex="-1"></a>    <span class="at">child_transfer =</span> child_transfer,</span>
+<span id="cb6-40"><a href="#cb6-40" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Elderly parameters</span></span>
+<span id="cb6-41"><a href="#cb6-41" aria-hidden="true" tabindex="-1"></a>    <span class="at">elderly_interarrival =</span> elderly_interarrival,</span>
+<span id="cb6-42"><a href="#cb6-42" aria-hidden="true" tabindex="-1"></a>    <span class="at">elderly_consultation =</span> elderly_consultation,</span>
+<span id="cb6-43"><a href="#cb6-43" aria-hidden="true" tabindex="-1"></a>    <span class="at">elderly_transfer =</span> elderly_transfer</span>
+<span id="cb6-44"><a href="#cb6-44" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb6-45"><a href="#cb6-45" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+<p><br></p>
+</section>
+<section id="write-helper-function-to-import-parameters" class="level3" data-number="5.2">
+<h3 data-number="5.2" class="anchored" data-anchor-id="write-helper-function-to-import-parameters"><span class="header-section-number">5.2</span> Write helper function to import parameters</h3>
+<p>Create helper functions to load parameters from your CSV file into your functions/classes. How you write this function will depend on your parameter class structure and how your parameter files are organised.</p>
+<p>For example:</p>
+<div class="python-content">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> setup_param_from_csv(csv_path):</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="co">    Create a Parameters instance using parameter values loaded from a CSV file.</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="co">    Parameters</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="co">    ----------</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="co">    csv_path : str</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="co">        Path to CSV file containing the parameters. Should have columns</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="co">        "patient", "metric", and "value".</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="co">    Returns</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="co">    -------</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="co">    Parameters</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a><span class="co">        Instance of Parameters initialised with parameters from the CSV file.</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Import the parameters</span></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>    param_file <span class="op">=</span> pd.read_csv(csv_path)</span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Create name-value mappings</span></span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>    values <span class="op">=</span> {</span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>      <span class="ss">f"</span><span class="sc">{</span>row<span class="sc">.</span>patient<span class="sc">}</span><span class="ss">_</span><span class="sc">{</span>row<span class="sc">.</span>metric<span class="sc">}</span><span class="ss">"</span>: row.value</span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>      <span class="cf">for</span> row <span class="kw">in</span> param_file.itertuples()</span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Pass these values to the Parameters class</span></span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> Parameters(<span class="op">**</span>values)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+<div class="r-content">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co">#' Create parameter list from CSV file</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="co">#'</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="co">#' @param csv_path Character. Path to CSV file containing the parameters.</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="co">#'   The CSV file should have columns "patient", "metric", and "value".</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="co">#'   The "patient" column should contain demographic groups (e.g., "adult",</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="co">#'   "child", "elderly"), the "metric" column should contain parameter types</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="co">#'   (e.g., "interarrival", "consultation", "transfer"), and the "value"</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="co">#'   column should contain the numeric parameter values.</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="co">#'</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="co">#' @return A named list containing all simulation parameters organised by</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="co">#'   patient demographic groups, identical to the output of</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="co">#'   \code{create_params()}. The list contains interarrival, consultation, and</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a><span class="co">#'   transfer time parameters for each patient group.</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>setup_param_from_csv <span class="ot">&lt;-</span> <span class="cf">function</span>(csv_path) {</span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Import the parameters</span></span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>  param_file <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(csv_path)</span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Create named vector where names match function arguments</span></span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>  values <span class="ot">&lt;-</span> <span class="fu">setNames</span>(</span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>    param_file<span class="sc">$</span>value, <span class="fu">paste</span>(param_file<span class="sc">$</span>patient, param_file<span class="sc">$</span>metric, <span class="at">sep =</span> <span class="st">"_"</span>)</span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Pass the named list to create_params</span></span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">do.call</span>(create_params, <span class="fu">as.list</span>(values))</span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+<p><br></p>
+</section>
+<section id="load-and-use-parameters" class="level3" data-number="5.3">
+<h3 data-number="5.3" class="anchored" data-anchor-id="load-and-use-parameters"><span class="header-section-number">5.3</span> Load and use parameters</h3>
+<div class="python-content">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Import parameters</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>params <span class="op">=</span> setup_param_from_csv(</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"parameters_file_resources/example_parameters.csv"</span>)</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="co"># View object</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(params.__dict__)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>{'adult_interarrival': 5.0, 'adult_consultation': 20.0, 'adult_transfer': 0.3, 'child_interarrival': 7.0, 'child_consultation': 15.0, 'child_transfer': 0.2, 'elderly_interarrival': 10.0, 'elderly_consultation': 30.0, 'elderly_transfer': 0.5}</code></pre>
+</div>
+</div>
+</div>
+<div class="r-content">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Import parameters</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>params <span class="ot">&lt;-</span> <span class="fu">setup_param_from_csv</span>(</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">file.path</span>(<span class="st">"parameters_file_resources"</span>, <span class="st">"example_parameters.csv"</span>)</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="co"># View objects</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>params</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>$adult_interarrival
+[1] 5
+
+$adult_consultation
+[1] 20
+
+$adult_transfer
+[1] 0.3
+
+$child_interarrival
+[1] 7
+
+$child_consultation
+[1] 15
+
+$child_transfer
+[1] 0.2
+
+$elderly_interarrival
+[1] 10
+
+$elderly_consultation
+[1] 30
+
+$elderly_transfer
+[1] 0.5</code></pre>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="examples" class="level2" data-number="6">
+<h2 data-number="6" class="anchored" data-anchor-id="examples"><span class="header-section-number">6</span> Examples</h2>
+<p>This section contains full code examples for our <a href="../../pages/intro/examples.html">example conceptual models</a>.</p>
+<hr>
+<details>
+<summary>
+Show/Hide example 1: 🩺 Nurse visit simulation
+</summary>
+<p><br></p>
+<p>We didn’t create a file-based example for the nurse M/M/s model due to its simplicity with only a few parameters.</p>
+<br>
+</details>
+<hr>
+<details>
+<summary>
+Show/Hide example 2: 🧠 Stroke pathway simulation
+</summary>
+<p><br></p>
+<div class="python-content">
+<p>This example is from <code>notebooks/parameters_csv.ipynb</code> in <a href="https://github.com/pythonhealthdatascience/pydesrap_stroke">pydesrap_stroke</a>.</p>
+</div>
+<div class="r-content">
+<p>This example is from <code>rmarkdown/parameters_csv.Rmd</code> in <a href="https://github.com/pythonhealthdatascience/rdesrap_stroke">rdesrap_stroke</a>.</p>
+</div>
+<p><strong>If you’re building the stroke model:</strong> Use the code from <a href="../../pages/inputs/parameters_script.html">parameters from script</a> - you don’t need this file-based example. This is because we have actually used script-based parameters - this code was just created to demonstrate how file-based parameters could work instead.</p>
+<p><br></p>
+<div class="python-content">
+<div class="sourceCode" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> IPython.display <span class="im">import</span> display</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> simulation.parameters <span class="im">import</span> (</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>    ASUArrivals, RehabArrivals, ASULOS, RehabLOS,</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    ASURouting, RehabRouting, Param</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> init_param_class(df, unit, parameter, param_class):</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a><span class="co">    Instantiate a parameter class using values from a DataFrame.</span></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a><span class="co">    Parameters</span></span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a><span class="co">    ----------</span></span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a><span class="co">    df : pd.DataFrame</span></span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a><span class="co">        Dataframe with columns "unit", "parameter", "type", "mean" and "sd".</span></span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a><span class="co">    unit : str</span></span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a><span class="co">        Unit name to filter by ("asu" or "rehab").</span></span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a><span class="co">    parameter : str</span></span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a><span class="co">        Parameter name to filter by ("iat", "los" or "routing").</span></span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a><span class="co">    param_class: class</span></span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a><span class="co">        Class to instantiate.</span></span>
+<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a><span class="co">    Returns</span></span>
+<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a><span class="co">    -------</span></span>
+<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a><span class="co">    object</span></span>
+<span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a><span class="co">        An instance of param_class initialised with parameters from the</span></span>
+<span id="cb13-28"><a href="#cb13-28" aria-hidden="true" tabindex="-1"></a><span class="co">        DataFrame.</span></span>
+<span id="cb13-29"><a href="#cb13-29" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb13-30"><a href="#cb13-30" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Filter data to the specified unit and parameter</span></span>
+<span id="cb13-31"><a href="#cb13-31" aria-hidden="true" tabindex="-1"></a>    df_subset <span class="op">=</span> df[(df[<span class="st">"unit"</span>] <span class="op">==</span> unit) <span class="op">&amp;</span> (df[<span class="st">"parameter"</span>] <span class="op">==</span> parameter)]</span>
+<span id="cb13-32"><a href="#cb13-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-33"><a href="#cb13-33" aria-hidden="true" tabindex="-1"></a>    <span class="co"># If all SD values are missing, create a dict: {type: mean}</span></span>
+<span id="cb13-34"><a href="#cb13-34" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> df_subset[<span class="st">"sd"</span>].isnull().<span class="bu">all</span>():</span>
+<span id="cb13-35"><a href="#cb13-35" aria-hidden="true" tabindex="-1"></a>        param_dict <span class="op">=</span> df_subset.set_index(<span class="st">"type"</span>)[<span class="st">"mean"</span>].to_dict()</span>
+<span id="cb13-36"><a href="#cb13-36" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Otherwise, create a nested dict with mean and SD for each type</span></span>
+<span id="cb13-37"><a href="#cb13-37" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
+<span id="cb13-38"><a href="#cb13-38" aria-hidden="true" tabindex="-1"></a>        param_dict <span class="op">=</span> {}</span>
+<span id="cb13-39"><a href="#cb13-39" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> _, row <span class="kw">in</span> df_subset.iterrows():</span>
+<span id="cb13-40"><a href="#cb13-40" aria-hidden="true" tabindex="-1"></a>            param_dict[<span class="ss">f"</span><span class="sc">{</span>row[<span class="st">"type"</span>]<span class="sc">}</span><span class="ss">_mean"</span>] <span class="op">=</span> row[<span class="st">"mean"</span>]</span>
+<span id="cb13-41"><a href="#cb13-41" aria-hidden="true" tabindex="-1"></a>            param_dict[<span class="ss">f"</span><span class="sc">{</span>row[<span class="st">"type"</span>]<span class="sc">}</span><span class="ss">_sd"</span>] <span class="op">=</span> row[<span class="st">"sd"</span>]</span>
+<span id="cb13-42"><a href="#cb13-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-43"><a href="#cb13-43" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Instantiate parameter class using dict</span></span>
+<span id="cb13-44"><a href="#cb13-44" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> param_class(<span class="op">**</span>param_dict)</span>
+<span id="cb13-45"><a href="#cb13-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-46"><a href="#cb13-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-47"><a href="#cb13-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-48"><a href="#cb13-48" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> setup_param_from_csv(csv_path):</span>
+<span id="cb13-49"><a href="#cb13-49" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
+<span id="cb13-50"><a href="#cb13-50" aria-hidden="true" tabindex="-1"></a><span class="co">    Create a Param instance using parameter values loaded from a CSV file.</span></span>
+<span id="cb13-51"><a href="#cb13-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-52"><a href="#cb13-52" aria-hidden="true" tabindex="-1"></a><span class="co">    Parameters</span></span>
+<span id="cb13-53"><a href="#cb13-53" aria-hidden="true" tabindex="-1"></a><span class="co">    ----------</span></span>
+<span id="cb13-54"><a href="#cb13-54" aria-hidden="true" tabindex="-1"></a><span class="co">    csv_path : str</span></span>
+<span id="cb13-55"><a href="#cb13-55" aria-hidden="true" tabindex="-1"></a><span class="co">        Path to csv file containing the parameters. Should have columns "unit",</span></span>
+<span id="cb13-56"><a href="#cb13-56" aria-hidden="true" tabindex="-1"></a><span class="co">        "parameter", "type", "mean" and "sd". Missing values should be marked</span></span>
+<span id="cb13-57"><a href="#cb13-57" aria-hidden="true" tabindex="-1"></a><span class="co">        as "NA".</span></span>
+<span id="cb13-58"><a href="#cb13-58" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-59"><a href="#cb13-59" aria-hidden="true" tabindex="-1"></a><span class="co">    Returns</span></span>
+<span id="cb13-60"><a href="#cb13-60" aria-hidden="true" tabindex="-1"></a><span class="co">    -------</span></span>
+<span id="cb13-61"><a href="#cb13-61" aria-hidden="true" tabindex="-1"></a><span class="co">    Param</span></span>
+<span id="cb13-62"><a href="#cb13-62" aria-hidden="true" tabindex="-1"></a><span class="co">        An instance of Param initialised with the parameters from the CSV file.</span></span>
+<span id="cb13-63"><a href="#cb13-63" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb13-64"><a href="#cb13-64" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Load parameter data from CSV, treating "NA" as missing values</span></span>
+<span id="cb13-65"><a href="#cb13-65" aria-hidden="true" tabindex="-1"></a>    df <span class="op">=</span> pd.read_csv(csv_path, na_values<span class="op">=</span>[<span class="st">"NA"</span>])</span>
+<span id="cb13-66"><a href="#cb13-66" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-67"><a href="#cb13-67" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Specify mapping of Param() arguments to their corresponding units,</span></span>
+<span id="cb13-68"><a href="#cb13-68" aria-hidden="true" tabindex="-1"></a>    <span class="co"># parameter types, and parameter classes</span></span>
+<span id="cb13-69"><a href="#cb13-69" aria-hidden="true" tabindex="-1"></a>    param_specs <span class="op">=</span> [</span>
+<span id="cb13-70"><a href="#cb13-70" aria-hidden="true" tabindex="-1"></a>        (<span class="st">"asu_arrivals"</span>, <span class="st">"asu"</span>, <span class="st">"iat"</span>, ASUArrivals),</span>
+<span id="cb13-71"><a href="#cb13-71" aria-hidden="true" tabindex="-1"></a>        (<span class="st">"rehab_arrivals"</span>, <span class="st">"rehab"</span>, <span class="st">"iat"</span>, RehabArrivals),</span>
+<span id="cb13-72"><a href="#cb13-72" aria-hidden="true" tabindex="-1"></a>        (<span class="st">"asu_los"</span>, <span class="st">"asu"</span>, <span class="st">"los"</span>, ASULOS),</span>
+<span id="cb13-73"><a href="#cb13-73" aria-hidden="true" tabindex="-1"></a>        (<span class="st">"rehab_los"</span>, <span class="st">"rehab"</span>, <span class="st">"los"</span>, RehabLOS),</span>
+<span id="cb13-74"><a href="#cb13-74" aria-hidden="true" tabindex="-1"></a>        (<span class="st">"asu_routing"</span>, <span class="st">"asu"</span>, <span class="st">"routing"</span>, ASURouting),</span>
+<span id="cb13-75"><a href="#cb13-75" aria-hidden="true" tabindex="-1"></a>        (<span class="st">"rehab_routing"</span>, <span class="st">"rehab"</span>, <span class="st">"routing"</span>, RehabRouting),</span>
+<span id="cb13-76"><a href="#cb13-76" aria-hidden="true" tabindex="-1"></a>    ]</span>
+<span id="cb13-77"><a href="#cb13-77" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-78"><a href="#cb13-78" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Instantiate each parameter class and store in a dictionary</span></span>
+<span id="cb13-79"><a href="#cb13-79" aria-hidden="true" tabindex="-1"></a>    param_kwargs <span class="op">=</span> {</span>
+<span id="cb13-80"><a href="#cb13-80" aria-hidden="true" tabindex="-1"></a>        name: init_param_class(</span>
+<span id="cb13-81"><a href="#cb13-81" aria-hidden="true" tabindex="-1"></a>            df<span class="op">=</span>df, unit<span class="op">=</span>unit, parameter<span class="op">=</span>parameter, param_class<span class="op">=</span>param_class)</span>
+<span id="cb13-82"><a href="#cb13-82" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> name, unit, parameter, param_class <span class="kw">in</span> param_specs</span>
+<span id="cb13-83"><a href="#cb13-83" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb13-84"><a href="#cb13-84" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-85"><a href="#cb13-85" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Return a Param instance initialised with all parameter classes</span></span>
+<span id="cb13-86"><a href="#cb13-86" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> Param(<span class="op">**</span>param_kwargs)</span>
+<span id="cb13-87"><a href="#cb13-87" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-88"><a href="#cb13-88" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-89"><a href="#cb13-89" aria-hidden="true" tabindex="-1"></a>display(setup_param_from_csv(csv_path<span class="op">=</span><span class="st">"../inputs/parameters.csv"</span>).__dict__)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="r-content">
+<p>TBC.</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<br>
+</details>
+<hr>
+<p><br></p>
+</section>
+<section id="further-information" class="level2" data-number="7">
+<h2 data-number="7" class="anchored" data-anchor-id="further-information"><span class="header-section-number">7</span> Further information</h2>
+<div class="python-content">
+<p>The <code>sim-tools</code> package provides a class for managing probability distributions stored within JSON files - check it out: <a href="https://tommonks.github.io/sim-tools/01_sampling/03_distributions_registry.html" class="uri">https://tommonks.github.io/sim-tools/01_sampling/03_distributions_registry.html</a>.</p>
+</div>
+<div class="r-content">
+<p>N/A</p>
 </div>
 
 
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
