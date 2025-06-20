@@ -16,8 +16,8 @@ echo "------------------------------------------------------------------"
 echo "Linting Python code..."
 
 # qmd files
-bash pylintqmd.sh index.qmd
-bash pylintqmd.sh pages
+pylintqmd index.qmd
+pylintqmd pages
 
 # python code in tests/
 bash pylint tests
