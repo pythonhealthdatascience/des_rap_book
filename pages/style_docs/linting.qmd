@@ -2,6 +2,282 @@
 title: Linting
 ---
 
+{{< include ../../scripts/_reticulate-setup.md >}}
+
 :::{.guidelines}
 * NHS Levels of RAP (🥈): Code adheres to agreed coding standards (e.g PEP8, style guide for Pyspark).
+:::
+
+```{python}
+#| echo: false
+
+# Imported required packages
+import subprocess
+from ansi2html import Ansi2HTMLConverter
+from IPython.display import HTML
+import re
+```
+
+Writing **clean and consistent** code is important: it makes code easier to **read, debug and maintain**. There are established conventions and tools to help you write high-quality code, including style guides, linters and code formatters.
+
+<br>
+
+## Style guides
+
+A **style guide** is a set of rules and conventions for writing code. They cover topics like naming, code layout, syntax, docstrings, indentation. They help standardise code and improve readability.
+
+:::{.python-content}
+Popular python style guides include:
+
+* [**PEP-8**](https://peps.python.org/pep-0008/) - the **official style guide** for Python.
+    * This is supported by other Python Enhancement Proposal (PEP) documents, like [**PEP-257**](https://peps.python.org/pep-0257/) which outlines [docstring](docstrings.qmd) conventions.
+
+* [**Google Python Style Guide**](https://google.github.io/styleguide/pyguide.html) - used at google.
+:::
+
+:::{.r-content}
+Popular R style guides include:
+
+* [**Tidyverse style guide**](https://style.tidyverse.org/) - developed by the tidyverse team (creators of packages like `dplyr`).
+
+* [**Google style guide**](https://google.github.io/styleguide/Rguide.html) - adapted from the tidyverse guide for used at google.
+:::
+
+![](linting_resources/style_guides.png)
+
+<br>
+
+## Linters
+
+**Linters** are tools that analyse code for possible errors and style issues.
+
+![](linting_resources/linting.png){width=60%}
+
+<br>
+
+## Style guides
+
+:::{.pale-blue}
+**Style guides** = outline how code should be structured and formatted, helping to **standardise** code and improve **readability**.
+:::
+
+:::{.python-content}
+The official style guide for Python is [**PEP-8**](https://peps.python.org/pep-0008/). PEP stands for "Python Enhancement Proposal", which are a series of documents describing new features, processes, or providing guidance. PEP-8 provides guidance on code style, including (but not limited to):
+
+* Naming conventions:
+    * Variables use snake_case (e.g. `variable_name`).
+    * Classes use CamelCase (e.g. `ClassName`).
+* Code layout:
+    * Maximum line length is 79 characters.
+* Indention:
+    * Use 4 spaces per indentation level.
+
+[**Docstrings**](docstrings.qmd) are covered in [**PEP-257**](https://peps.python.org/pep-0257/) which recommends, for example: that all functions, classes and methods should have docstrings; that docstrings are enclosed in triple quotes (`"""`).
+:::
+
+:::{.r-content}
+R does not have an official style guide, but two widely used guides are:
+
+[**Tidyverse style guide**](https://style.tidyverse.org/) - developed by the tidyverse team (creators of packages like `dplyr`). Recommendations include:
+
+* Snake case for function names (e.g. `function_name`).
+* Spaces after commands (e.g. `x[, 1]`).
+* Maximum line length of 80 characters.
+
+[**Google style guide**](https://google.github.io/styleguide/Rguide.html) - derived from the tidyverse guide but with some differences - for example:
+
+* Uses CamelCase for function names (e.g. `FunctionName`).
+* Recommends explicit namespaces for external functions (e.g. `purrr::map()` instead of using `@import`).
+
+:::
+
+You are not required to follow style guides, but they are highly recommended for writing clear, maintainable, and consistent code. However, linters may sometimes flag code you've written intentionally, and it's okay to disagree with their suggestions.
+
+<br>
+
+## Tools for code style
+
+### Linters
+
+:::{.pale-blue}
+**Linters** = tools that analyse code for possible errors and style issues.
+:::
+
+:::{.python-content}
+
+In Python, the main linters are [**pylint**](https://pypi.org/project/pylint/) and [**flake8**](https://pypi.org/project/flake8/).
+
+**Pylint** checks for a wide range of problems include code correctness, best practices, and some style issues. It enforces many rules and can catch things like missing docstrings, improper naming, and unused variables.
+
+**Flake8** focuses mainly on enforcing style guidelines, especially PEP-8. It is stricter about formatting and whitespace but checks fewer aspects of code correctness.
+
+You can use both linters together, but many projects choose just one based on their needs.
+
+<br>
+
+**Example comparing pylint and flake8:**
+
+```{.python}
+{{< include linting_resources/bad_code.py >}}
+```
+
+Pylint:
+
+```{.python}
+pylint linting_resources/bad_code.py
+```
+
+```{python}
+#| echo: false
+
+result = subprocess.run(
+    ["pylint", "linting_resources/bad_code.py"],
+    capture_output=True, text=True
+)
+print(result.stdout)
+```
+
+Flake8:
+
+```{.python}
+flake8 linting_resources/bad_code.py
+```
+
+```{python}
+#| echo: false
+
+result = subprocess.run(
+    ["flake8", "linting_resources/bad_code.py"],
+    capture_output=True, text=True
+)
+print(result.stdout)
+```
+
+:::
+
+:::{.r-content}
+<!--TODO: r - lintr - implements tidyverse style guide-->
+:::
+
+<br>
+
+### Code formatters
+
+:::{.pale-blue}
+**Code formatters** = tools that automatically format your code.
+:::
+
+:::{.python-content}
+When using linters, you get a list of issues flagged, you manually address. code formatters automatically make changes to code to meet guidelines. two main examples in python are [**black**](https://github.com/psf/black) and [**ruff**](https://github.com/astral-sh/ruff).
+
+
+Black... popular
+
+ruff... drop in replacement... they state should have near identical output... main aim is speed...
+
+**Example:**
+
+```{.python}
+{{< include linting_resources/bad_code.py >}}
+```
+
+Running either:
+
+```{.python}
+black linting_resources/bad_code.py
+```
+
+```{.python}
+ruff format linting_resources/bad_code.py
+```
+
+Will produce a file with these changes:
+
+```{python}
+#| echo: false
+
+result = subprocess.run(
+    ["black", "--diff", "--color", "linting_resources/bad_code.py"],
+    capture_output=True, text=True
+)
+
+# Convert ANSI-coloured output to html
+conv = Ansi2HTMLConverter(dark_bg=False)
+html_output = conv.convert(result.stdout)
+
+# Remove datetime
+html_output = re.sub(
+    r'(<span class="ansi1">[-+]{3}\s[^\s]+)\s+\d{4}-\d{2}-\d{2}.*?</span>',
+    r'\1</span>',
+    html_output
+)
+
+# Remove <body> tags, background-color styles, global font and margin settings
+# (as they will alter the quarto page)
+html_output = re.sub(r'<body.*?>', '', html_output, flags=re.DOTALL)
+html_output = html_output.replace('</body>', '')
+html_output = re.sub(r'background-color: ?#[0-9a-fA-F]{6};?', '', html_output)
+html_output = re.sub(r'margin: ?0;?', '', html_output)
+html_output = re.sub(r'font-family:.*?;', '', html_output)
+
+# Display
+HTML(html_output)
+```
+
+:::
+
+:::{.r-content}
+<!--TODO: air, styler-->
+:::
+
+<br>
+
+## Using linters
+
+this provides more details on using pylint.
+why?
+- we like to be in control
+- we like to get more detailed feedback than flake8
+- its popular/main
+- support for linting multiple file types (py, ipynb, qmd) via supporting packages
+
+### Linting different file types
+
+### Disabling lint messages
+
+### Customising linter settings for project
+
+e.g. pylint line length
+
+
+**Using pylint on `.py` files**
+
+**Ignoring issues**
+
+**Cistomising settings**
+
+**Using pylint on `.ipynb` files**
+
+**Using pylint on `.qmd` files**
+
+python - step by step to lint: py, ipynb, qmd
+
+r - step by step to lint them all!
+
+<br>
+
+## Bash scripts
+
+about bash and how to write a bash script which can automate linting
+
+<br>
+
+## Further information
+
+:::{.python-content}
+* ["PEP and the Evolution of Python"](https://www.linkedin.com/pulse/pep-evolution-python-nuno-bispo-eytqe/) from Nuno Bispo 2024.
+:::
+
+:::{.r-content}
+N/A
 :::
