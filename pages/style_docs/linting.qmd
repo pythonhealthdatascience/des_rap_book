@@ -8,6 +8,13 @@ title: Linting
 * NHS Levels of RAP (🥈): Code adheres to agreed coding standards (e.g PEP8, style guide for Pyspark).
 :::
 
+<style>
+.cell-output-stdout code {
+word-break: break-wor !important;
+white-space: pre-wrap !important;
+}
+</style>
+
 ```{python}
 #| echo: false
 
@@ -18,7 +25,31 @@ from IPython.display import HTML
 import re
 ```
 
-Writing **clean and consistent** code is important: it makes code easier to **read, debug and maintain**. There are established conventions and tools to help you write high-quality code, including style guides, linters and code formatters.
+Writing **clean and consistent** code is important: it makes code easier to **read, debug and maintain**. There are established conventions and tools to help you write high-quality code:
+
+::::{.columns}
+:::{.column width="5%"}
+:::
+:::{.column width="15%"}
+<p><center>Style guides</center></p>
+
+![](linting_resources/style_guides.png)
+:::
+:::{.column width="5%"}
+:::
+:::{.column width="25%"}
+<p><center>Linters</center></p>
+
+![](linting_resources/linting.png)
+:::
+:::{.column width="5%"}
+:::
+:::{.column width="35%"}
+<p><center>Code formatters</center></p>
+
+![](linting_resources/code_formatters.png)
+:::
+::::
 
 <br>
 
@@ -26,11 +57,12 @@ Writing **clean and consistent** code is important: it makes code easier to **re
 
 A **style guide** is a set of rules and conventions for writing code. They cover topics like naming, code layout, syntax, docstrings, indentation. They help standardise code and improve readability.
 
+![](linting_resources/style_guides.png){width=40% fig-align="center"}
+
 :::{.python-content}
 Popular python style guides include:
 
-* [**PEP-8**](https://peps.python.org/pep-0008/) - the **official style guide** for Python.
-    * This is supported by other Python Enhancement Proposal (PEP) documents, like [**PEP-257**](https://peps.python.org/pep-0257/) which outlines [docstring](docstrings.qmd) conventions.
+* [**PEP-8**](https://peps.python.org/pep-0008/) - the **official style guide** for Python. This is supported by other Python Enhancement Proposal (PEP) documents, like [PEP-257](https://peps.python.org/pep-0257/) which outlines [docstring](docstrings.qmd) conventions.
 
 * [**Google Python Style Guide**](https://google.github.io/styleguide/pyguide.html) - used at google.
 :::
@@ -43,161 +75,124 @@ Popular R style guides include:
 * [**Google style guide**](https://google.github.io/styleguide/Rguide.html) - adapted from the tidyverse guide for used at google.
 :::
 
-![](linting_resources/style_guides.png)
+You are not required to follow style guides, but they are recommended for writing clear, maintainable, and consistent code. The easiest way to enforce their requirements is using linters or code formatters.
 
 <br>
 
 ## Linters
 
-**Linters** are tools that analyse code for possible errors and style issues.
+**Linters** are tools that analyse code for:
 
-![](linting_resources/linting.png){width=60%}
+* **Possible errors** - looking for issues like unused variables and code complexity.
+* **Style issues** - enforcing requirements from style guides.
 
-<br>
+They are often run from the command line, and return a list of suggestions for you to address. Sometimes, they might flag code that you have intentionally written, and it's okay to disagree with their suggestion to change it!
 
-## Style guides
+![](linting_resources/linting.png){width=60% fig-align="center"}
 
-:::{.pale-blue}
-**Style guides** = outline how code should be structured and formatted, helping to **standardise** code and improve **readability**.
-:::
+:::::{.python-content}
 
-:::{.python-content}
-The official style guide for Python is [**PEP-8**](https://peps.python.org/pep-0008/). PEP stands for "Python Enhancement Proposal", which are a series of documents describing new features, processes, or providing guidance. PEP-8 provides guidance on code style, including (but not limited to):
+Popular linters in Python include:
 
-* Naming conventions:
-    * Variables use snake_case (e.g. `variable_name`).
-    * Classes use CamelCase (e.g. `ClassName`).
-* Code layout:
-    * Maximum line length is 79 characters.
-* Indention:
-    * Use 4 spaces per indentation level.
+* [**pylint**](https://pypi.org/project/pylint/) - checks for a **wide range of problems** include code correctness, best practices, and some style issues.
 
-[**Docstrings**](docstrings.qmd) are covered in [**PEP-257**](https://peps.python.org/pep-0257/) which recommends, for example: that all functions, classes and methods should have docstrings; that docstrings are enclosed in triple quotes (`"""`).
-:::
+* [**flake8**](https://pypi.org/project/flake8/) - focuses mainly on enforcing **style guidelines, especially PEP-8**. It is stricter about formatting and whitespace but checks fewer aspects of code correctness.
 
-:::{.r-content}
-R does not have an official style guide, but two widely used guides are:
+You can use both linters together, or choose one that suits you best.
 
-[**Tidyverse style guide**](https://style.tidyverse.org/) - developed by the tidyverse team (creators of packages like `dplyr`). Recommendations include:
+To better understand their differences, let's run them on a some poor quality code. We can see that:
 
-* Snake case for function names (e.g. `function_name`).
-* Spaces after commands (e.g. `x[, 1]`).
-* Maximum line length of 80 characters.
+* Both identify the trailing whitespace.
+* Pylint identifies the missing module and function docstrings, and the function name.
+* Flake8 identifies the missing whitespace around an operator.
 
-[**Google style guide**](https://google.github.io/styleguide/Rguide.html) - derived from the tidyverse guide but with some differences - for example:
-
-* Uses CamelCase for function names (e.g. `FunctionName`).
-* Recommends explicit namespaces for external functions (e.g. `purrr::map()` instead of using `@import`).
-
-:::
-
-You are not required to follow style guides, but they are highly recommended for writing clear, maintainable, and consistent code. However, linters may sometimes flag code you've written intentionally, and it's okay to disagree with their suggestions.
-
-<br>
-
-## Tools for code style
-
-### Linters
-
-:::{.pale-blue}
-**Linters** = tools that analyse code for possible errors and style issues.
-:::
-
-:::{.python-content}
-
-In Python, the main linters are [**pylint**](https://pypi.org/project/pylint/) and [**flake8**](https://pypi.org/project/flake8/).
-
-**Pylint** checks for a wide range of problems include code correctness, best practices, and some style issues. It enforces many rules and can catch things like missing docstrings, improper naming, and unused variables.
-
-**Flake8** focuses mainly on enforcing style guidelines, especially PEP-8. It is stricter about formatting and whitespace but checks fewer aspects of code correctness.
-
-You can use both linters together, but many projects choose just one based on their needs.
-
-<br>
-
-**Example comparing pylint and flake8:**
+`code.py`:
 
 ```{.python}
-{{< include linting_resources/bad_code.py >}}
+{{< include linting_resources/code.py >}}
 ```
 
+::::{.columns}
+:::{.column width="47.5%"}
 Pylint:
 
 ```{.python}
-pylint linting_resources/bad_code.py
+pylint linting_resources/code.py
 ```
 
 ```{python}
 #| echo: false
 
 result = subprocess.run(
-    ["pylint", "linting_resources/bad_code.py"],
-    capture_output=True, text=True
-)
-print(result.stdout)
-```
-
-Flake8:
-
-```{.python}
-flake8 linting_resources/bad_code.py
-```
-
-```{python}
-#| echo: false
-
-result = subprocess.run(
-    ["flake8", "linting_resources/bad_code.py"],
+    ["pylint", "linting_resources/code.py"],
     capture_output=True, text=True
 )
 print(result.stdout)
 ```
 
 :::
+:::{.column width="5%"}
+:::
+:::{.column width="47.5%"}
+Flake8:
+
+```{.python}
+flake8 linting_resources/code.py
+```
+
+```{python}
+#| echo: false
+
+result = subprocess.run(
+    ["flake8", "linting_resources/code.py"],
+    capture_output=True, text=True
+)
+print(result.stdout)
+```
+:::
+::::
+
+:::::
 
 :::{.r-content}
-<!--TODO: r - lintr - implements tidyverse style guide-->
+In R, the most popular and main option for linting is  [**lintr**](https://lintr.r-lib.org/). It enforces the tidyverse style guide, along with identifying some other wider issues like around efficiency and robustness. 
+
+As an example, we can run lintr on some poor quality code:
+
+```{.R}
+{{< include linting_resources/code.R >}}
+```
+
+Lintr is executed from the R console:
+
+```{r}
+lintr::lint("linting_resources/code.R")
+```
+
 :::
 
 <br>
 
-### Code formatters
+## Code formatters
 
-:::{.pale-blue}
-**Code formatters** = tools that automatically format your code.
-:::
+**Code formatters** are tools that automatically format your code. They are typically designed to address **code style** (e.g. following style guidelines), rather than some of the wider issues that might be flagged by linters.
+
+![](linting_resources/code_formatters.png){width=90% fig-align="center"}
 
 :::{.python-content}
-When using linters, you get a list of issues flagged, you manually address. code formatters automatically make changes to code to meet guidelines. two main examples in python are [**black**](https://github.com/psf/black) and [**ruff**](https://github.com/astral-sh/ruff).
+Popular code formatters in Python include:
 
+* [**black**](https://github.com/psf/black) - very popular code formatter.
 
-Black... popular
+* [**ruff**](https://github.com/astral-sh/ruff) - designed to be a drop-in replacement for `black` that should have a near identical output, but runs faster.
 
-ruff... drop in replacement... they state should have near identical output... main aim is speed...
-
-**Example:**
-
-```{.python}
-{{< include linting_resources/bad_code.py >}}
-```
-
-Running either:
-
-```{.python}
-black linting_resources/bad_code.py
-```
-
-```{.python}
-ruff format linting_resources/bad_code.py
-```
-
-Will produce a file with these changes:
+As an example, if we ran either of these code formatters on our example by executing `black linting_resources/code.py` or `ruff format linting_resources/code.py`, they would alter the file as follows:
 
 ```{python}
 #| echo: false
 
 result = subprocess.run(
-    ["black", "--diff", "--color", "linting_resources/bad_code.py"],
+    ["black", "--diff", "--color", "linting_resources/code.py"],
     capture_output=True, text=True
 )
 
@@ -227,7 +222,13 @@ HTML(html_output)
 :::
 
 :::{.r-content}
-<!--TODO: air, styler-->
+Code formatters in R include:
+
+* [**styler**](https://styler.r-lib.org/) - implements the tidyverse style guide (or can be customised to a different style).
+
+* [**formatR**](https://yihui.org/formatr/) - designed to improve readability (e.g. addressing spaces, indentation, line breaks).
+
+* [**air**](https://posit-dev.github.io/air/) - faster, modern code formatter (in beta as of June 2025).
 :::
 
 <br>
@@ -248,7 +249,7 @@ why?
 ### Customising linter settings for project
 
 e.g. pylint line length
-
+e.g. lintr all linters full or narrower
 
 **Using pylint on `.py` files**
 
