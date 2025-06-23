@@ -15,12 +15,12 @@ echo "------------------------------------------------------------------"
 
 echo "Linting Python code..."
 
-# qmd files
+# Lint .qmd files
 pylintqmd index.qmd
 pylintqmd pages
 
-# python code in tests/
-bash pylint tests
+# Lint .py files in tests/
+pylint tests
 
-# .py files in pages/
-bash find pages -type f -name "*.py" | xargs pylint
+# Lint .py files in pages/
+pylint pages
