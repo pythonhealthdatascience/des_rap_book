@@ -16,11 +16,11 @@ echo "------------------------------------------------------------------"
 echo "Linting Python code..."
 
 # Lint .qmd files
-pylintqmd index.qmd
-pylintqmd pages
+lintquarto pylint index.qmd
+lintquarto pylint pages
 
 # Lint .py files in tests/
-pylint tests
+lintquarto pylint tests
 
 # Lint .py files in pages/
-pylint pages
+lintquarto pylint pages
