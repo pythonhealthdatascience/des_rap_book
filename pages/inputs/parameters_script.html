@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.7.31">
+<meta name="generator" content="quarto-1.7.32">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -72,7 +72,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-e1a5c8363afafaef2c763b6775fbf3ca.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="../../site_libs/bootstrap/bootstrap-293e81bb0733230b9e755d5a7d46e87a.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
@@ -1898,111 +1898,132 @@ Show/Hide example 1: 🩺 Nurse visit simulation
 </summary>
 <p><br></p>
 <div class="python-content">
-<p>This example is from <code>simulation/model.py</code> in <a href="https://github.com/pythonhealthdatascience/pydesrap_mms">pydesrap_mms</a>.</p>
-<p><strong>If you’re building the nurse M/M/s model:</strong> Create a file called <code>model.py</code> within your <code>simulation</code> folder, and copy this code into that file. It will need the <code>SimLogger</code> class created on the <a href="../../pages/verification_validation/logs.html">logging page</a>.</p>
-<div class="sourceCode" id="cb58"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> simulation.logging <span class="im">import</span> SimLogger</span>
-<span id="cb58-2"><a href="#cb58-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb58-3"><a href="#cb58-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb58-4"><a href="#cb58-4" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Param:</span>
-<span id="cb58-5"><a href="#cb58-5" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
-<span id="cb58-6"><a href="#cb58-6" aria-hidden="true" tabindex="-1"></a><span class="co">    Default parameters for simulation.</span></span>
+<p>This example is from <code>simulation/param.py</code> in <a href="https://github.com/pythonhealthdatascience/pydesrap_mms">pydesrap_mms</a>.</p>
+<div class="sourceCode" id="cb58"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a><span class="co">"""</span></span>
+<span id="cb58-2"><a href="#cb58-2" aria-hidden="true" tabindex="-1"></a><span class="co">Param.</span></span>
+<span id="cb58-3"><a href="#cb58-3" aria-hidden="true" tabindex="-1"></a><span class="co">"""</span></span>
+<span id="cb58-4"><a href="#cb58-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb58-5"><a href="#cb58-5" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> .simlogger <span class="im">import</span> SimLogger</span>
+<span id="cb58-6"><a href="#cb58-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb58-7"><a href="#cb58-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb58-8"><a href="#cb58-8" aria-hidden="true" tabindex="-1"></a><span class="co">    Attributes are described in initialisation docstring.</span></span>
-<span id="cb58-9"><a href="#cb58-9" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
-<span id="cb58-10"><a href="#cb58-10" aria-hidden="true" tabindex="-1"></a>    <span class="co"># pylint: disable=too-many-arguments,too-many-positional-arguments</span></span>
-<span id="cb58-11"><a href="#cb58-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(</span>
-<span id="cb58-12"><a href="#cb58-12" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>,</span>
-<span id="cb58-13"><a href="#cb58-13" aria-hidden="true" tabindex="-1"></a>        patient_inter<span class="op">=</span><span class="dv">4</span>,</span>
-<span id="cb58-14"><a href="#cb58-14" aria-hidden="true" tabindex="-1"></a>        mean_n_consult_time<span class="op">=</span><span class="dv">10</span>,</span>
-<span id="cb58-15"><a href="#cb58-15" aria-hidden="true" tabindex="-1"></a>        number_of_nurses<span class="op">=</span><span class="dv">5</span>,</span>
-<span id="cb58-16"><a href="#cb58-16" aria-hidden="true" tabindex="-1"></a>        warm_up_period<span class="op">=</span><span class="dv">1440</span><span class="op">*</span><span class="dv">27</span>,  <span class="co"># 27 days</span></span>
-<span id="cb58-17"><a href="#cb58-17" aria-hidden="true" tabindex="-1"></a>        data_collection_period<span class="op">=</span><span class="dv">1440</span><span class="op">*</span><span class="dv">30</span>,  <span class="co"># 30 days</span></span>
-<span id="cb58-18"><a href="#cb58-18" aria-hidden="true" tabindex="-1"></a>        number_of_runs<span class="op">=</span><span class="dv">31</span>,</span>
-<span id="cb58-19"><a href="#cb58-19" aria-hidden="true" tabindex="-1"></a>        audit_interval<span class="op">=</span><span class="dv">120</span>,  <span class="co"># every 2 hours</span></span>
-<span id="cb58-20"><a href="#cb58-20" aria-hidden="true" tabindex="-1"></a>        scenario_name<span class="op">=</span><span class="dv">0</span>,</span>
-<span id="cb58-21"><a href="#cb58-21" aria-hidden="true" tabindex="-1"></a>        cores<span class="op">=-</span><span class="dv">1</span>,</span>
-<span id="cb58-22"><a href="#cb58-22" aria-hidden="true" tabindex="-1"></a>        logger<span class="op">=</span>SimLogger(log_to_console<span class="op">=</span><span class="va">False</span>, log_to_file<span class="op">=</span><span class="va">False</span>)</span>
-<span id="cb58-23"><a href="#cb58-23" aria-hidden="true" tabindex="-1"></a>    ):</span>
-<span id="cb58-24"><a href="#cb58-24" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""</span></span>
-<span id="cb58-25"><a href="#cb58-25" aria-hidden="true" tabindex="-1"></a><span class="co">        Initalise instance of parameters class.</span></span>
-<span id="cb58-26"><a href="#cb58-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb58-27"><a href="#cb58-27" aria-hidden="true" tabindex="-1"></a><span class="co">        Arguments:</span></span>
-<span id="cb58-28"><a href="#cb58-28" aria-hidden="true" tabindex="-1"></a><span class="co">            patient_inter (float):</span></span>
-<span id="cb58-29"><a href="#cb58-29" aria-hidden="true" tabindex="-1"></a><span class="co">                Mean inter-arrival time between patients in minutes.</span></span>
-<span id="cb58-30"><a href="#cb58-30" aria-hidden="true" tabindex="-1"></a><span class="co">            mean_n_consult_time (float):</span></span>
-<span id="cb58-31"><a href="#cb58-31" aria-hidden="true" tabindex="-1"></a><span class="co">                Mean nurse consultation time in minutes.</span></span>
-<span id="cb58-32"><a href="#cb58-32" aria-hidden="true" tabindex="-1"></a><span class="co">            number_of_nurses (float):</span></span>
-<span id="cb58-33"><a href="#cb58-33" aria-hidden="true" tabindex="-1"></a><span class="co">                Number of available nurses.</span></span>
-<span id="cb58-34"><a href="#cb58-34" aria-hidden="true" tabindex="-1"></a><span class="co">            warm_up_period (int):</span></span>
-<span id="cb58-35"><a href="#cb58-35" aria-hidden="true" tabindex="-1"></a><span class="co">                Duration of the warm-up period in minutes - running simulation</span></span>
-<span id="cb58-36"><a href="#cb58-36" aria-hidden="true" tabindex="-1"></a><span class="co">                but not yet collecting results.</span></span>
-<span id="cb58-37"><a href="#cb58-37" aria-hidden="true" tabindex="-1"></a><span class="co">            data_collection_period (int):</span></span>
-<span id="cb58-38"><a href="#cb58-38" aria-hidden="true" tabindex="-1"></a><span class="co">                Duration of data collection period in minutes (also known as</span></span>
-<span id="cb58-39"><a href="#cb58-39" aria-hidden="true" tabindex="-1"></a><span class="co">                measurement interval) - which begins after any warm-up period.</span></span>
-<span id="cb58-40"><a href="#cb58-40" aria-hidden="true" tabindex="-1"></a><span class="co">            number_of_runs (int):</span></span>
-<span id="cb58-41"><a href="#cb58-41" aria-hidden="true" tabindex="-1"></a><span class="co">                The number of runs (i.e. replications), defining how many</span></span>
-<span id="cb58-42"><a href="#cb58-42" aria-hidden="true" tabindex="-1"></a><span class="co">                times to re-run the simulation (with different random numbers).</span></span>
-<span id="cb58-43"><a href="#cb58-43" aria-hidden="true" tabindex="-1"></a><span class="co">            audit_interval (int):</span></span>
-<span id="cb58-44"><a href="#cb58-44" aria-hidden="true" tabindex="-1"></a><span class="co">                How frequently to audit resource utilisation, in minutes.</span></span>
-<span id="cb58-45"><a href="#cb58-45" aria-hidden="true" tabindex="-1"></a><span class="co">            scenario_name (int|float|string):</span></span>
-<span id="cb58-46"><a href="#cb58-46" aria-hidden="true" tabindex="-1"></a><span class="co">                Label for the scenario.</span></span>
-<span id="cb58-47"><a href="#cb58-47" aria-hidden="true" tabindex="-1"></a><span class="co">            cores (int):</span></span>
-<span id="cb58-48"><a href="#cb58-48" aria-hidden="true" tabindex="-1"></a><span class="co">                Number of CPU cores to use for parallel execution. Set to</span></span>
-<span id="cb58-49"><a href="#cb58-49" aria-hidden="true" tabindex="-1"></a><span class="co">                desired number, or to -1 to use all available cores. For</span></span>
-<span id="cb58-50"><a href="#cb58-50" aria-hidden="true" tabindex="-1"></a><span class="co">                sequential execution, set to 1 (default).</span></span>
-<span id="cb58-51"><a href="#cb58-51" aria-hidden="true" tabindex="-1"></a><span class="co">            logger (logging.Logger):</span></span>
-<span id="cb58-52"><a href="#cb58-52" aria-hidden="true" tabindex="-1"></a><span class="co">                The logging instance used for logging messages.</span></span>
-<span id="cb58-53"><a href="#cb58-53" aria-hidden="true" tabindex="-1"></a><span class="co">        """</span></span>
-<span id="cb58-54"><a href="#cb58-54" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Disable restriction on attribute modification during initialisation</span></span>
-<span id="cb58-55"><a href="#cb58-55" aria-hidden="true" tabindex="-1"></a>        <span class="bu">object</span>.<span class="fu">__setattr__</span>(<span class="va">self</span>, <span class="st">'_initialising'</span>, <span class="va">True</span>)</span>
+<span id="cb58-8"><a href="#cb58-8" aria-hidden="true" tabindex="-1"></a><span class="co"># pylint: disable=too-many-instance-attributes,too-few-public-methods</span></span>
+<span id="cb58-9"><a href="#cb58-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb58-10"><a href="#cb58-10" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Param:</span>
+<span id="cb58-11"><a href="#cb58-11" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
+<span id="cb58-12"><a href="#cb58-12" aria-hidden="true" tabindex="-1"></a><span class="co">    Default parameters for simulation.</span></span>
+<span id="cb58-13"><a href="#cb58-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb58-14"><a href="#cb58-14" aria-hidden="true" tabindex="-1"></a><span class="co">    Attributes</span></span>
+<span id="cb58-15"><a href="#cb58-15" aria-hidden="true" tabindex="-1"></a><span class="co">    ----------</span></span>
+<span id="cb58-16"><a href="#cb58-16" aria-hidden="true" tabindex="-1"></a><span class="co">    _initialising : bool</span></span>
+<span id="cb58-17"><a href="#cb58-17" aria-hidden="true" tabindex="-1"></a><span class="co">        Whether the object is currently initialising.</span></span>
+<span id="cb58-18"><a href="#cb58-18" aria-hidden="true" tabindex="-1"></a><span class="co">    patient_inter : float</span></span>
+<span id="cb58-19"><a href="#cb58-19" aria-hidden="true" tabindex="-1"></a><span class="co">        Mean inter-arrival time between patients in minutes.</span></span>
+<span id="cb58-20"><a href="#cb58-20" aria-hidden="true" tabindex="-1"></a><span class="co">    mean_n_consult_time : float</span></span>
+<span id="cb58-21"><a href="#cb58-21" aria-hidden="true" tabindex="-1"></a><span class="co">        Mean nurse consultation time in minutes.</span></span>
+<span id="cb58-22"><a href="#cb58-22" aria-hidden="true" tabindex="-1"></a><span class="co">    number_of_nurses : float</span></span>
+<span id="cb58-23"><a href="#cb58-23" aria-hidden="true" tabindex="-1"></a><span class="co">        Number of available nurses.</span></span>
+<span id="cb58-24"><a href="#cb58-24" aria-hidden="true" tabindex="-1"></a><span class="co">    warm_up_period : int</span></span>
+<span id="cb58-25"><a href="#cb58-25" aria-hidden="true" tabindex="-1"></a><span class="co">        Duration of the warm-up period in minutes.</span></span>
+<span id="cb58-26"><a href="#cb58-26" aria-hidden="true" tabindex="-1"></a><span class="co">    data_collection_period : int</span></span>
+<span id="cb58-27"><a href="#cb58-27" aria-hidden="true" tabindex="-1"></a><span class="co">        Duration of data collection period in minutes.</span></span>
+<span id="cb58-28"><a href="#cb58-28" aria-hidden="true" tabindex="-1"></a><span class="co">    number_of_runs : int</span></span>
+<span id="cb58-29"><a href="#cb58-29" aria-hidden="true" tabindex="-1"></a><span class="co">        The number of runs (i.e. replications).</span></span>
+<span id="cb58-30"><a href="#cb58-30" aria-hidden="true" tabindex="-1"></a><span class="co">    audit_interval : int</span></span>
+<span id="cb58-31"><a href="#cb58-31" aria-hidden="true" tabindex="-1"></a><span class="co">        How frequently to audit resource utilisation, in minutes.</span></span>
+<span id="cb58-32"><a href="#cb58-32" aria-hidden="true" tabindex="-1"></a><span class="co">    scenario_name : int|float|str</span></span>
+<span id="cb58-33"><a href="#cb58-33" aria-hidden="true" tabindex="-1"></a><span class="co">        Label for the scenario.</span></span>
+<span id="cb58-34"><a href="#cb58-34" aria-hidden="true" tabindex="-1"></a><span class="co">    cores : int</span></span>
+<span id="cb58-35"><a href="#cb58-35" aria-hidden="true" tabindex="-1"></a><span class="co">        Number of CPU cores to use for parallel execution. For all</span></span>
+<span id="cb58-36"><a href="#cb58-36" aria-hidden="true" tabindex="-1"></a><span class="co">        available cores, set to -1. For sequential execution, set to 1.</span></span>
+<span id="cb58-37"><a href="#cb58-37" aria-hidden="true" tabindex="-1"></a><span class="co">    logger : logging.Logger</span></span>
+<span id="cb58-38"><a href="#cb58-38" aria-hidden="true" tabindex="-1"></a><span class="co">        The logging instance used for logging messages.</span></span>
+<span id="cb58-39"><a href="#cb58-39" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb58-40"><a href="#cb58-40" aria-hidden="true" tabindex="-1"></a>    <span class="co"># pylint: disable=too-many-arguments,too-many-positional-arguments</span></span>
+<span id="cb58-41"><a href="#cb58-41" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(</span>
+<span id="cb58-42"><a href="#cb58-42" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>,</span>
+<span id="cb58-43"><a href="#cb58-43" aria-hidden="true" tabindex="-1"></a>        patient_inter<span class="op">=</span><span class="dv">4</span>,</span>
+<span id="cb58-44"><a href="#cb58-44" aria-hidden="true" tabindex="-1"></a>        mean_n_consult_time<span class="op">=</span><span class="dv">10</span>,</span>
+<span id="cb58-45"><a href="#cb58-45" aria-hidden="true" tabindex="-1"></a>        number_of_nurses<span class="op">=</span><span class="dv">5</span>,</span>
+<span id="cb58-46"><a href="#cb58-46" aria-hidden="true" tabindex="-1"></a>        warm_up_period<span class="op">=</span><span class="dv">1440</span><span class="op">*</span><span class="dv">27</span>,  <span class="co"># 27 days</span></span>
+<span id="cb58-47"><a href="#cb58-47" aria-hidden="true" tabindex="-1"></a>        data_collection_period<span class="op">=</span><span class="dv">1440</span><span class="op">*</span><span class="dv">30</span>,  <span class="co"># 30 days</span></span>
+<span id="cb58-48"><a href="#cb58-48" aria-hidden="true" tabindex="-1"></a>        number_of_runs<span class="op">=</span><span class="dv">31</span>,</span>
+<span id="cb58-49"><a href="#cb58-49" aria-hidden="true" tabindex="-1"></a>        audit_interval<span class="op">=</span><span class="dv">120</span>,  <span class="co"># Every 2 hours</span></span>
+<span id="cb58-50"><a href="#cb58-50" aria-hidden="true" tabindex="-1"></a>        scenario_name<span class="op">=</span><span class="dv">0</span>,</span>
+<span id="cb58-51"><a href="#cb58-51" aria-hidden="true" tabindex="-1"></a>        cores<span class="op">=-</span><span class="dv">1</span>,</span>
+<span id="cb58-52"><a href="#cb58-52" aria-hidden="true" tabindex="-1"></a>        logger<span class="op">=</span>SimLogger(log_to_console<span class="op">=</span><span class="va">False</span>, log_to_file<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb58-53"><a href="#cb58-53" aria-hidden="true" tabindex="-1"></a>    ):</span>
+<span id="cb58-54"><a href="#cb58-54" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""</span></span>
+<span id="cb58-55"><a href="#cb58-55" aria-hidden="true" tabindex="-1"></a><span class="co">        Initialise instance of parameters class.</span></span>
 <span id="cb58-56"><a href="#cb58-56" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb58-57"><a href="#cb58-57" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.patient_inter <span class="op">=</span> patient_inter</span>
-<span id="cb58-58"><a href="#cb58-58" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.mean_n_consult_time <span class="op">=</span> mean_n_consult_time</span>
-<span id="cb58-59"><a href="#cb58-59" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.number_of_nurses <span class="op">=</span> number_of_nurses</span>
-<span id="cb58-60"><a href="#cb58-60" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.warm_up_period <span class="op">=</span> warm_up_period</span>
-<span id="cb58-61"><a href="#cb58-61" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.data_collection_period <span class="op">=</span> data_collection_period</span>
-<span id="cb58-62"><a href="#cb58-62" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.number_of_runs <span class="op">=</span> number_of_runs</span>
-<span id="cb58-63"><a href="#cb58-63" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.audit_interval <span class="op">=</span> audit_interval</span>
-<span id="cb58-64"><a href="#cb58-64" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.scenario_name <span class="op">=</span> scenario_name</span>
-<span id="cb58-65"><a href="#cb58-65" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.cores <span class="op">=</span> cores</span>
-<span id="cb58-66"><a href="#cb58-66" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.logger <span class="op">=</span> logger</span>
-<span id="cb58-67"><a href="#cb58-67" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb58-68"><a href="#cb58-68" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Re-enable attribute checks after initialisation</span></span>
-<span id="cb58-69"><a href="#cb58-69" aria-hidden="true" tabindex="-1"></a>        <span class="bu">object</span>.<span class="fu">__setattr__</span>(<span class="va">self</span>, <span class="st">'_initialising'</span>, <span class="va">False</span>)</span>
-<span id="cb58-70"><a href="#cb58-70" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb58-71"><a href="#cb58-71" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__setattr__</span>(<span class="va">self</span>, name, value):</span>
-<span id="cb58-72"><a href="#cb58-72" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""</span></span>
-<span id="cb58-73"><a href="#cb58-73" aria-hidden="true" tabindex="-1"></a><span class="co">        Prevent addition of new attributes.</span></span>
-<span id="cb58-74"><a href="#cb58-74" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb58-75"><a href="#cb58-75" aria-hidden="true" tabindex="-1"></a><span class="co">        This method overrides the default `__setattr__` behavior to restrict</span></span>
-<span id="cb58-76"><a href="#cb58-76" aria-hidden="true" tabindex="-1"></a><span class="co">        the addition of new attributes to the instance. It allows modification</span></span>
-<span id="cb58-77"><a href="#cb58-77" aria-hidden="true" tabindex="-1"></a><span class="co">        of existing attributes but raises an `AttributeError` if an attempt is</span></span>
-<span id="cb58-78"><a href="#cb58-78" aria-hidden="true" tabindex="-1"></a><span class="co">        made to create a new attribute. This ensures that accidental typos in</span></span>
-<span id="cb58-79"><a href="#cb58-79" aria-hidden="true" tabindex="-1"></a><span class="co">        attribute names do not silently create new attributes.</span></span>
-<span id="cb58-80"><a href="#cb58-80" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb58-81"><a href="#cb58-81" aria-hidden="true" tabindex="-1"></a><span class="co">        Arguments:</span></span>
-<span id="cb58-82"><a href="#cb58-82" aria-hidden="true" tabindex="-1"></a><span class="co">            name (str):</span></span>
-<span id="cb58-83"><a href="#cb58-83" aria-hidden="true" tabindex="-1"></a><span class="co">                The name of the attribute to set.</span></span>
-<span id="cb58-84"><a href="#cb58-84" aria-hidden="true" tabindex="-1"></a><span class="co">            value (Any):</span></span>
-<span id="cb58-85"><a href="#cb58-85" aria-hidden="true" tabindex="-1"></a><span class="co">                The value to assign to the attribute.</span></span>
-<span id="cb58-86"><a href="#cb58-86" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb58-87"><a href="#cb58-87" aria-hidden="true" tabindex="-1"></a><span class="co">        Raises:</span></span>
-<span id="cb58-88"><a href="#cb58-88" aria-hidden="true" tabindex="-1"></a><span class="co">            AttributeError:</span></span>
-<span id="cb58-89"><a href="#cb58-89" aria-hidden="true" tabindex="-1"></a><span class="co">                If `name` is not an existing attribute and an attempt is made</span></span>
-<span id="cb58-90"><a href="#cb58-90" aria-hidden="true" tabindex="-1"></a><span class="co">                to add it to the instance.</span></span>
-<span id="cb58-91"><a href="#cb58-91" aria-hidden="true" tabindex="-1"></a><span class="co">        """</span></span>
-<span id="cb58-92"><a href="#cb58-92" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Skip the check if the object is still initialising</span></span>
-<span id="cb58-93"><a href="#cb58-93" aria-hidden="true" tabindex="-1"></a>        <span class="co"># pylint: disable=maybe-no-member</span></span>
-<span id="cb58-94"><a href="#cb58-94" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="bu">hasattr</span>(<span class="va">self</span>, <span class="st">'_initialising'</span>) <span class="kw">and</span> <span class="va">self</span>._initialising:</span>
-<span id="cb58-95"><a href="#cb58-95" aria-hidden="true" tabindex="-1"></a>            <span class="bu">super</span>().<span class="fu">__setattr__</span>(name, value)</span>
-<span id="cb58-96"><a href="#cb58-96" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:</span>
-<span id="cb58-97"><a href="#cb58-97" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Check if attribute of that name is already present</span></span>
-<span id="cb58-98"><a href="#cb58-98" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> name <span class="kw">in</span> <span class="va">self</span>.__dict__:</span>
-<span id="cb58-99"><a href="#cb58-99" aria-hidden="true" tabindex="-1"></a>                <span class="bu">super</span>().<span class="fu">__setattr__</span>(name, value)</span>
-<span id="cb58-100"><a href="#cb58-100" aria-hidden="true" tabindex="-1"></a>            <span class="cf">else</span>:</span>
-<span id="cb58-101"><a href="#cb58-101" aria-hidden="true" tabindex="-1"></a>                <span class="cf">raise</span> <span class="pp">AttributeError</span>(</span>
-<span id="cb58-102"><a href="#cb58-102" aria-hidden="true" tabindex="-1"></a>                    <span class="ss">f'Cannot add new attribute "</span><span class="sc">{</span>name<span class="sc">}</span><span class="ss">" - only possible to '</span> <span class="op">+</span></span>
-<span id="cb58-103"><a href="#cb58-103" aria-hidden="true" tabindex="-1"></a>                    <span class="ss">f'modify existing attributes: </span><span class="sc">{</span><span class="va">self</span><span class="sc">.</span>__dict__<span class="sc">.</span>keys()<span class="sc">}</span><span class="ss">'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb58-57"><a href="#cb58-57" aria-hidden="true" tabindex="-1"></a><span class="co">        Parameters</span></span>
+<span id="cb58-58"><a href="#cb58-58" aria-hidden="true" tabindex="-1"></a><span class="co">        ----------</span></span>
+<span id="cb58-59"><a href="#cb58-59" aria-hidden="true" tabindex="-1"></a><span class="co">        patient_inter : float, optional</span></span>
+<span id="cb58-60"><a href="#cb58-60" aria-hidden="true" tabindex="-1"></a><span class="co">            Mean inter-arrival time between patients in minutes.</span></span>
+<span id="cb58-61"><a href="#cb58-61" aria-hidden="true" tabindex="-1"></a><span class="co">        mean_n_consult_time : float, optional</span></span>
+<span id="cb58-62"><a href="#cb58-62" aria-hidden="true" tabindex="-1"></a><span class="co">            Mean nurse consultation time in minutes.</span></span>
+<span id="cb58-63"><a href="#cb58-63" aria-hidden="true" tabindex="-1"></a><span class="co">        number_of_nurses : float, optional</span></span>
+<span id="cb58-64"><a href="#cb58-64" aria-hidden="true" tabindex="-1"></a><span class="co">            Number of available nurses.</span></span>
+<span id="cb58-65"><a href="#cb58-65" aria-hidden="true" tabindex="-1"></a><span class="co">        warm_up_period : int, optional</span></span>
+<span id="cb58-66"><a href="#cb58-66" aria-hidden="true" tabindex="-1"></a><span class="co">            Duration of the warm-up period in minutes.</span></span>
+<span id="cb58-67"><a href="#cb58-67" aria-hidden="true" tabindex="-1"></a><span class="co">        data_collection_period : int, optional</span></span>
+<span id="cb58-68"><a href="#cb58-68" aria-hidden="true" tabindex="-1"></a><span class="co">            Duration of data collection period in minutes.</span></span>
+<span id="cb58-69"><a href="#cb58-69" aria-hidden="true" tabindex="-1"></a><span class="co">        number_of_runs : int, optional</span></span>
+<span id="cb58-70"><a href="#cb58-70" aria-hidden="true" tabindex="-1"></a><span class="co">            The number of runs (i.e. replications).</span></span>
+<span id="cb58-71"><a href="#cb58-71" aria-hidden="true" tabindex="-1"></a><span class="co">        audit_interval : int, optional</span></span>
+<span id="cb58-72"><a href="#cb58-72" aria-hidden="true" tabindex="-1"></a><span class="co">            How frequently to audit resource utilisation, in minutes.</span></span>
+<span id="cb58-73"><a href="#cb58-73" aria-hidden="true" tabindex="-1"></a><span class="co">        scenario_name : int|float|str, optional</span></span>
+<span id="cb58-74"><a href="#cb58-74" aria-hidden="true" tabindex="-1"></a><span class="co">            Label for the scenario.</span></span>
+<span id="cb58-75"><a href="#cb58-75" aria-hidden="true" tabindex="-1"></a><span class="co">        cores : int, optional</span></span>
+<span id="cb58-76"><a href="#cb58-76" aria-hidden="true" tabindex="-1"></a><span class="co">            Number of CPU cores to use for parallel execution.</span></span>
+<span id="cb58-77"><a href="#cb58-77" aria-hidden="true" tabindex="-1"></a><span class="co">        logger : logging.Logger, optional</span></span>
+<span id="cb58-78"><a href="#cb58-78" aria-hidden="true" tabindex="-1"></a><span class="co">            The logging instance used for logging messages.</span></span>
+<span id="cb58-79"><a href="#cb58-79" aria-hidden="true" tabindex="-1"></a><span class="co">        """</span></span>
+<span id="cb58-80"><a href="#cb58-80" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Disable restriction on attribute modification during initialisation</span></span>
+<span id="cb58-81"><a href="#cb58-81" aria-hidden="true" tabindex="-1"></a>        <span class="bu">object</span>.<span class="fu">__setattr__</span>(<span class="va">self</span>, <span class="st">"_initialising"</span>, <span class="va">True</span>)</span>
+<span id="cb58-82"><a href="#cb58-82" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.patient_inter <span class="op">=</span> patient_inter</span>
+<span id="cb58-83"><a href="#cb58-83" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.mean_n_consult_time <span class="op">=</span> mean_n_consult_time</span>
+<span id="cb58-84"><a href="#cb58-84" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.number_of_nurses <span class="op">=</span> number_of_nurses</span>
+<span id="cb58-85"><a href="#cb58-85" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.warm_up_period <span class="op">=</span> warm_up_period</span>
+<span id="cb58-86"><a href="#cb58-86" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.data_collection_period <span class="op">=</span> data_collection_period</span>
+<span id="cb58-87"><a href="#cb58-87" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.number_of_runs <span class="op">=</span> number_of_runs</span>
+<span id="cb58-88"><a href="#cb58-88" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.audit_interval <span class="op">=</span> audit_interval</span>
+<span id="cb58-89"><a href="#cb58-89" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.scenario_name <span class="op">=</span> scenario_name</span>
+<span id="cb58-90"><a href="#cb58-90" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.cores <span class="op">=</span> cores</span>
+<span id="cb58-91"><a href="#cb58-91" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.logger <span class="op">=</span> logger</span>
+<span id="cb58-92"><a href="#cb58-92" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb58-93"><a href="#cb58-93" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Re-enable attribute checks after initialisation</span></span>
+<span id="cb58-94"><a href="#cb58-94" aria-hidden="true" tabindex="-1"></a>        <span class="bu">object</span>.<span class="fu">__setattr__</span>(<span class="va">self</span>, <span class="st">"_initialising"</span>, <span class="va">False</span>)</span>
+<span id="cb58-95"><a href="#cb58-95" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb58-96"><a href="#cb58-96" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__setattr__</span>(<span class="va">self</span>, name, value):</span>
+<span id="cb58-97"><a href="#cb58-97" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""</span></span>
+<span id="cb58-98"><a href="#cb58-98" aria-hidden="true" tabindex="-1"></a><span class="co">        Prevent addition of new attributes.</span></span>
+<span id="cb58-99"><a href="#cb58-99" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb58-100"><a href="#cb58-100" aria-hidden="true" tabindex="-1"></a><span class="co">        Parameters</span></span>
+<span id="cb58-101"><a href="#cb58-101" aria-hidden="true" tabindex="-1"></a><span class="co">        ----------</span></span>
+<span id="cb58-102"><a href="#cb58-102" aria-hidden="true" tabindex="-1"></a><span class="co">        name : str</span></span>
+<span id="cb58-103"><a href="#cb58-103" aria-hidden="true" tabindex="-1"></a><span class="co">            The name of the attribute to set.</span></span>
+<span id="cb58-104"><a href="#cb58-104" aria-hidden="true" tabindex="-1"></a><span class="co">        value : Any</span></span>
+<span id="cb58-105"><a href="#cb58-105" aria-hidden="true" tabindex="-1"></a><span class="co">            The value to assign to the attribute.</span></span>
+<span id="cb58-106"><a href="#cb58-106" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb58-107"><a href="#cb58-107" aria-hidden="true" tabindex="-1"></a><span class="co">        Raises</span></span>
+<span id="cb58-108"><a href="#cb58-108" aria-hidden="true" tabindex="-1"></a><span class="co">        ------</span></span>
+<span id="cb58-109"><a href="#cb58-109" aria-hidden="true" tabindex="-1"></a><span class="co">        AttributeError</span></span>
+<span id="cb58-110"><a href="#cb58-110" aria-hidden="true" tabindex="-1"></a><span class="co">            If `name` is not an existing attribute and an attempt is made</span></span>
+<span id="cb58-111"><a href="#cb58-111" aria-hidden="true" tabindex="-1"></a><span class="co">            to add it to the instance.</span></span>
+<span id="cb58-112"><a href="#cb58-112" aria-hidden="true" tabindex="-1"></a><span class="co">        """</span></span>
+<span id="cb58-113"><a href="#cb58-113" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Skip the check if the object is still initialising</span></span>
+<span id="cb58-114"><a href="#cb58-114" aria-hidden="true" tabindex="-1"></a>        <span class="co"># pylint: disable=maybe-no-member</span></span>
+<span id="cb58-115"><a href="#cb58-115" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="bu">hasattr</span>(<span class="va">self</span>, <span class="st">"_initialising"</span>) <span class="kw">and</span> <span class="va">self</span>._initialising:</span>
+<span id="cb58-116"><a href="#cb58-116" aria-hidden="true" tabindex="-1"></a>            <span class="bu">super</span>().<span class="fu">__setattr__</span>(name, value)</span>
+<span id="cb58-117"><a href="#cb58-117" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:</span>
+<span id="cb58-118"><a href="#cb58-118" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Check if attribute of that name is already present</span></span>
+<span id="cb58-119"><a href="#cb58-119" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> name <span class="kw">in</span> <span class="va">self</span>.__dict__:</span>
+<span id="cb58-120"><a href="#cb58-120" aria-hidden="true" tabindex="-1"></a>                <span class="bu">super</span>().<span class="fu">__setattr__</span>(name, value)</span>
+<span id="cb58-121"><a href="#cb58-121" aria-hidden="true" tabindex="-1"></a>            <span class="cf">else</span>:</span>
+<span id="cb58-122"><a href="#cb58-122" aria-hidden="true" tabindex="-1"></a>                <span class="cf">raise</span> <span class="pp">AttributeError</span>(</span>
+<span id="cb58-123"><a href="#cb58-123" aria-hidden="true" tabindex="-1"></a>                    <span class="ss">f"Cannot add new attribute '</span><span class="sc">{</span>name<span class="sc">}</span><span class="ss">' - only possible to "</span></span>
+<span id="cb58-124"><a href="#cb58-124" aria-hidden="true" tabindex="-1"></a>                    <span class="ss">f"modify existing attributes: </span><span class="sc">{</span><span class="va">self</span><span class="sc">.</span>__dict__<span class="sc">.</span>keys()<span class="sc">}</span><span class="ss">"</span></span>
+<span id="cb58-125"><a href="#cb58-125" aria-hidden="true" tabindex="-1"></a>                )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="r-content">
 <p>This example is from <code>R/parameters.R</code> in <a href="https://github.com/pythonhealthdatascience/rdesrap_mms">rdesrap_mms</a>.</p>

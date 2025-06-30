@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.7.31">
+<meta name="generator" content="quarto-1.7.32">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -19,6 +19,41 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -37,7 +72,7 @@ ul.task-list li input[type="checkbox"] {
 <script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-e1a5c8363afafaef2c763b6775fbf3ca.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="../../site_libs/bootstrap/bootstrap-293e81bb0733230b9e755d5a7d46e87a.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
@@ -486,8 +521,24 @@ ul.task-list li input[type="checkbox"] {
 </nav>
 <div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#style-guides" id="toc-style-guides" class="nav-link active" data-scroll-target="#style-guides"><span class="header-section-number">1</span> Style guides</a></li>
+  <li><a href="#linters" id="toc-linters" class="nav-link" data-scroll-target="#linters"><span class="header-section-number">2</span> Linters</a></li>
+  <li><a href="#code-formatters" id="toc-code-formatters" class="nav-link" data-scroll-target="#code-formatters"><span class="header-section-number">3</span> Code formatters</a></li>
+  <li><a href="#using-linters" id="toc-using-linters" class="nav-link" data-scroll-target="#using-linters"><span class="header-section-number">4</span> Using linters</a>
+  <ul class="collapse">
+  <li><a href="#linting-different-file-types" id="toc-linting-different-file-types" class="nav-link" data-scroll-target="#linting-different-file-types"><span class="header-section-number">4.1</span> Linting different file types</a></li>
+  <li><a href="#disabling-lint-messages" id="toc-disabling-lint-messages" class="nav-link" data-scroll-target="#disabling-lint-messages"><span class="header-section-number">4.2</span> Disabling lint messages</a></li>
+  <li><a href="#customising-linter-settings-for-project" id="toc-customising-linter-settings-for-project" class="nav-link" data-scroll-target="#customising-linter-settings-for-project"><span class="header-section-number">4.3</span> Customising linter settings for project</a></li>
+  <li><a href="#bash-scripts" id="toc-bash-scripts" class="nav-link" data-scroll-target="#bash-scripts"><span class="header-section-number">4.4</span> Bash scripts</a></li>
+  </ul></li>
+  <li><a href="#further-information" id="toc-further-information" class="nav-link" data-scroll-target="#further-information"><span class="header-section-number">5</span> Further information</a></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
@@ -511,14 +562,436 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
+<!--
+When a Quarto document contains R and Python code blocks, it will use the knitr engine (from R) to render the document. This means we need to load the reticulate package, which allows us to execute Python code within the R session, within the conda environment specified.
+
+Note: When a Quarto document just contains Python code blocks (and no R code), Quarto uses the Jupyter engine to render the document.
+-->
 <div class="guidelines">
 <p><a href="../../pages/intro/guidelines.html">🔗</a> <strong>Reproducibility guidelines:</strong></p>
 <ul>
 <li>NHS Levels of RAP (🥈): Code adheres to agreed coding standards (e.g PEP8, style guide for Pyspark).</li>
 </ul>
 </div>
+<style>
+.cell-output-stdout code {
+word-break: break-wor !important;
+white-space: pre-wrap !important;
+}
+</style>
+<p>Writing <strong>clean and consistent</strong> code is important: it makes code easier to <strong>read, debug and maintain</strong>. There are established conventions and tools to help you write high-quality code:</p>
+<div class="columns">
+<div class="column" style="width:5%;">
+
+</div><div class="column" style="width:15%;">
+<p>
+</p><center>
+Style guides
+</center>
+<p></p>
+<p><img src="linting_resources/style_guides.png" class="img-fluid"></p>
+</div><div class="column" style="width:5%;">
+
+</div><div class="column" style="width:25%;">
+<p>
+</p><center>
+Linters
+</center>
+<p></p>
+<p><img src="linting_resources/linting.png" class="img-fluid"></p>
+</div><div class="column" style="width:5%;">
+
+</div><div class="column" style="width:35%;">
+<p>
+</p><center>
+Code formatters
+</center>
+<p></p>
+<p><img src="linting_resources/code_formatters.png" class="img-fluid"></p>
+</div>
+</div>
+<p><br></p>
+<section id="style-guides" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="style-guides"><span class="header-section-number">1</span> Style guides</h2>
+<p>A <strong>style guide</strong> is a set of rules and conventions for writing code. They cover topics like naming, code layout, syntax, docstrings, indentation. They help standardise code and improve readability.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="linting_resources/style_guides.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:40.0%"></p>
+</figure>
+</div>
+<div class="python-content">
+<p>Popular python style guides include:</p>
+<ul>
+<li><p><a href="https://peps.python.org/pep-0008/"><strong>PEP-8</strong></a> - the <strong>official style guide</strong> for Python. This is supported by other Python Enhancement Proposal (PEP) documents, like <a href="https://peps.python.org/pep-0257/">PEP-257</a> which outlines <a href="../../pages/style_docs/docstrings.html">docstring</a> conventions.</p></li>
+<li><p><a href="https://google.github.io/styleguide/pyguide.html"><strong>Google Python Style Guide</strong></a> - used at google.</p></li>
+</ul>
+</div>
+<div class="r-content">
+<p>Popular R style guides include:</p>
+<ul>
+<li><p><a href="https://style.tidyverse.org/"><strong>Tidyverse style guide</strong></a> - developed by the tidyverse team (creators of packages like <code>dplyr</code>).</p></li>
+<li><p><a href="https://google.github.io/styleguide/Rguide.html"><strong>Google style guide</strong></a> - adapted from the tidyverse guide for used at google.</p></li>
+</ul>
+</div>
+<p>You are not required to follow style guides, but they are recommended for writing clear, maintainable, and consistent code. The easiest way to enforce their requirements is using linters or code formatters.</p>
+<p><br></p>
+</section>
+<section id="linters" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="linters"><span class="header-section-number">2</span> Linters</h2>
+<p><strong>Linters</strong> are tools that analyse code for:</p>
+<ul>
+<li><strong>Possible errors</strong> - looking for issues like unused variables and code complexity.</li>
+<li><strong>Style issues</strong> - enforcing requirements from style guides.</li>
+</ul>
+<p>They are often run from the terminal/command line, and return a list of suggestions for you to address. Sometimes, they might flag code that you have intentionally written, and it’s okay to disagree with their suggestion to change it!</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="linting_resources/linting.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:60.0%"></p>
+</figure>
+</div>
+<div class="python-content">
+<p>Popular linters in Python include:</p>
+<ul>
+<li><p><a href="https://pypi.org/project/pylint/"><strong>pylint</strong></a> - detailed linter that detects errors, bugs, variable naming issues, and other code problems.</p></li>
+<li><p><a href="https://pypi.org/project/flake8/"><strong>flake8</strong></a> - lightweight tool focused on PEP-8 style, basic errors, and code complexity.</p></li>
+<li><p><a href="https://pypi.org/project/ruff/"><strong>ruff</strong></a> - modern, ultra-fast linter that implements checks from Flake8 and some other popular plugins. It is also a code formatter (see below) - though note: the linter does not report every issue that can be fixed by the formatter. Stylistic issues are handled silently by the formatter and not surfaced as lint errors - so the linter is intentionally more restricted in scope than the formatter.</p></li>
+</ul>
+<p>You can use several linters, or choose one that suits you best.</p>
+<p>To better understand their differences, let’s run them on a some poor quality code. We can see that:</p>
+<ul>
+<li>Both identify the trailing whitespace.</li>
+<li>Pylint identifies the missing module and function docstrings, and the function name.</li>
+<li>Flake8 identifies the missing whitespace around an operator.</li>
+<li>Ruff did not identify any issues! This is because the linter incorporates some - but not all - of Flake8’s checks - and it doesn’t check whitespace by default.</li>
+</ul>
+<p><code>code.py</code>:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> MyFunction(a, b):</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    x<span class="op">=</span><span class="dv">1</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    y <span class="op">=</span> <span class="dv">2</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"Sum is:"</span>, a<span class="op">+</span>b) </span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> x <span class="op">+</span> y</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Pylint:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>pylint linting_resources<span class="op">/</span>code.py</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>************* Module code
+linting_resources/code.py:4:25: C0303: Trailing whitespace (trailing-whitespace)
+linting_resources/code.py:1:0: C0114: Missing module docstring (missing-module-docstring)
+linting_resources/code.py:1:0: C0116: Missing function or method docstring (missing-function-docstring)
+linting_resources/code.py:1:0: C0103: Function name "MyFunction" doesn't conform to snake_case naming style (invalid-name)
+
+-----------------------------------
+Your code has been rated at 2.00/10</code></pre>
+</div>
+</div>
+<p>Flake8:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>flake8 linting_resources<span class="op">/</span>code.py</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>linting_resources/code.py:2:6: E225 missing whitespace around operator
+linting_resources/code.py:4:26: W291 trailing whitespace</code></pre>
+</div>
+</div>
+<p>Ruff:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>ruff check linting_resources<span class="op">/</span>code.py</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>All checks passed!</code></pre>
+</div>
+</div>
+</div>
+<div class="r-content">
+<p>In R, the most popular and main option for linting is <a href="https://lintr.r-lib.org/"><strong>lintr</strong></a>. It enforces the tidyverse style guide, along with identifying some other wider issues like around efficiency and robustness.</p>
+<p>As an example, we can run lintr on some poor quality code:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode R code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>MyFunction <span class="ot">&lt;-</span> <span class="cf">function</span>(a, b) {</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  x <span class="ot">=</span> <span class="dv">1</span>L</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  y <span class="ot">&lt;-</span> <span class="dv">2</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">"Sum is:"</span>, a <span class="sc">+</span> b)</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  x <span class="sc">+</span> y</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Lintr is executed from the R console:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>lintr<span class="sc">::</span><span class="fu">lint</span>(<span class="st">"linting_resources/code.R"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>::warning file=/__w/des_rap_book/des_rap_book/pages/style_docs/linting_resources/code.R,line=1,col=1::file=/__w/des_rap_book/des_rap_book/pages/style_docs/linting_resources/code.R,line=1,col=1,[object_name_linter] Variable and function name style should match snake_case or symbols.
+::warning file=/__w/des_rap_book/des_rap_book/pages/style_docs/linting_resources/code.R,line=2,col=5::file=/__w/des_rap_book/des_rap_book/pages/style_docs/linting_resources/code.R,line=2,col=5,[assignment_linter] Use one of &lt;-, &lt;&lt;- for assignment, not =.
+::warning file=/__w/des_rap_book/des_rap_book/pages/style_docs/linting_resources/code.R,line=3,col=9::file=/__w/des_rap_book/des_rap_book/pages/style_docs/linting_resources/code.R,line=3,col=9,[implicit_integer_linter] Use 2L or 2.0 to avoid implicit integers.</code></pre>
+</div>
+</div>
+</div>
+<p><br></p>
+</section>
+<section id="code-formatters" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="code-formatters"><span class="header-section-number">3</span> Code formatters</h2>
+<p><strong>Code formatters</strong> are tools that automatically format your code. They are typically designed to address <strong>code style</strong> (e.g.&nbsp;following style guidelines), rather than some of the wider issues that might be flagged by linters.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="linting_resources/code_formatters.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:90.0%"></p>
+</figure>
+</div>
+<div class="python-content">
+<p>Popular code formatters in Python include:</p>
+<ul>
+<li><p><a href="https://github.com/psf/black"><strong>black</strong></a> - very popular code formatter.</p></li>
+<li><p><a href="https://github.com/astral-sh/ruff"><strong>ruff</strong></a> - designed to be a drop-in replacement for <code>black</code> that should have a near identical output, but runs faster.</p></li>
+</ul>
+<p>As an example, if we ran either of these code formatters on our example by executing <code>black linting_resources/code.py</code> or <code>ruff format linting_resources/code.py</code>, they would alter the file as follows:</p>
+<div class="cell">
+<div class="cell-output-display">
 
 
+
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title></title>
+<style type="text/css">
+.ansi2html-content { display: inline; white-space: pre-wrap; word-wrap: break-word; }
+.body_foreground { color: #000000; }
+.body_background {  }
+.inv_foreground { color: #AAAAAA; }
+.inv_background {  }
+.ansi1 { font-weight: bold; }
+.ansi31 { color: #aa0000; }
+.ansi32 { color: #00aa00; }
+.ansi36 { color: #00aaaa; }
+</style>
+
+
+<pre class="ansi2html-content"><span class="ansi1">--- linting_resources/code.py</span>
+<span class="ansi1">+++ linting_resources/code.py</span>
+<span class="ansi36">@@ -1,5 +1,5 @@</span>
+ def MyFunction(a, b):
+<span class="ansi31">-    x=1</span>
+<span class="ansi32">+    x = 1</span>
+     y = 2
+<span class="ansi31">-    print("Sum is:", a+b) </span>
+<span class="ansi32">+    print("Sum is:", a + b)</span>
+     return x + y
+
+</pre>
+
+
+
+</div>
+</div>
+</div>
+<div class="r-content">
+<p>Code formatters in R include:</p>
+<ul>
+<li><p><a href="https://styler.r-lib.org/"><strong>styler</strong></a> - implements the tidyverse style guide (or can be customised to a different style).</p></li>
+<li><p><a href="https://yihui.org/formatr/"><strong>formatR</strong></a> - designed to improve readability (e.g.&nbsp;addressing spaces, indentation, line breaks).</p></li>
+<li><p><a href="https://posit-dev.github.io/air/"><strong>air</strong></a> - faster, modern code formatter (in beta as of June 2025).</p></li>
+</ul>
+<p>As an example, if we ran styler on our example by executing <code>styler  linting_resources/code.R</code>:</p>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>&lt; original_code                   &gt; styled_code                   
+@@ 1,4 @@                         @@ 1,4 @@                       
+  MyFunction &lt;- function(a, b) {    MyFunction &lt;- function(a, b) {
+&lt;   x = 1L                        &gt;   x &lt;- 1L                     
+    y &lt;- 2                            y &lt;- 2                      
+    cat("Sum is:", a + b)             cat("Sum is:", a + b)       </code></pre>
+</div>
+</div>
+</div>
+<p><br></p>
+</section>
+<section id="using-linters" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="using-linters"><span class="header-section-number">4</span> Using linters</h2>
+<div class="python-content">
+<p>This section takes a closer look at how to use linters in practice, focusing on <strong><code>pylint</code></strong> as a widely used example.</p>
+</div>
+<div class="r-content">
+<p>This section takes a closer look at how to use linters (specifically, <strong><code>lintr</code></strong>) in practice.</p>
+</div>
+<p><br></p>
+<section id="linting-different-file-types" class="level3" data-number="4.1">
+<h3 data-number="4.1" class="anchored" data-anchor-id="linting-different-file-types"><span class="header-section-number">4.1</span> Linting different file types</h3>
+<div class="python-content">
+<p><br></p>
+<p>First, make sure <code>pylint</code> is <a href="../../pages/setup/environment.html">installed into your environment</a>. It can be installed from conda or PyPI:</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="ex">conda</span> install pylint</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install pylint</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><br></p>
+<p><strong>Using <code>pylint</code> on <code>.py</code> files</strong></p>
+<p>Commands are executed from the terminal.</p>
+<p>To lint a single file:</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pylint</span> file.py</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>To lint multiple specific files:</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pylint</span> file1.py file2.py</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>To lint all files in a directory (including subdirectories):</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Current working directory</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="ex">pylint</span> .</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Specific directory called `dir/`</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="ex">pylint</span> dir</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><br></p>
+<p><strong>Using <code>pylint</code> on <code>.ipynb</code> files</strong></p>
+<p>The popular <a href="https://github.com/nbQA-dev/nbQA"><strong><code>nbqa</code></strong></a> package is required to run <code>pylint</code> on Jupyter notebooks.</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="ex">conda</span> install nbqa</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb19"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install nbqa</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>To run it, the commands are the same above, except that they are prefixed by <code>nbqa</code> - for example:</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="ex">nbqa</span> pylint file.ipynb</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><br></p>
+<p><strong>Using <code>pylint</code> on <code>.qmd</code> files</strong></p>
+<p>The <a href="https://github.com/lintquarto/lintquarto"><strong><code>lintquarto</code></strong></a> package can be used to run linters on quarto files.</p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Install lintquarto from PyPI</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install lintquarto</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>To run it, follow this format:</p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lintquarto</span> <span class="pp">[</span><span class="ss">linter</span><span class="pp">]</span> [files or folders] [-k <span class="kw">|</span> <span class="ex">--keep-temp]</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<ul>
+<li><p><strong>[linter]</strong> - Choose one of the supported linters: <code>pylint</code>, <code>flake8</code>, <code>pyflakes</code>, <code>ruff</code>, <code>pylama</code>, <code>vulture</code>, <code>radon</code>, <code>pycodestyle</code>, <code>mypy</code>, <code>pyright</code>, <code>pyrefly</code>, or <code>pytype</code></p></li>
+<li><p><strong>[files or folders]</strong> - One or more <code>.qmd</code> files or directories to lint.</p></li>
+<li><p><strong>-k, –keep-temp</strong> - Keep the temporary <code>.py</code> files created during linting (for debugging).</p></li>
+</ul>
+<p>So, for example, to run <code>pylint</code>:</p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lintquarto</span> pylint file.qmd</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="r-content">
+<p>First, make sure <code>lintr</code> is <a href="../../pages/setup/environment.html">installed into your environment</a>. It can be installed from CRAN:</p>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="st">"lintr"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><br></p>
+<p><strong>Using <code>lintr</code> on <code>.r</code> files</strong></p>
+<p>Commands are executed from the R console.</p>
+<p>To lint a single file:</p>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">lint</span>(<span class="st">"file.R"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>To lint multiple specific files:</p>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">lapply</span>(<span class="fu">c</span>(<span class="st">"file1.R"</span>, <span class="st">"file2.R"</span>), lint)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>To lint all files in a directory (include subdirectories):</p>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Lints all .R, .Rmd, .qmd, etc. in 'R' directory</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="fu">lint_dir</span>(<span class="at">path =</span> <span class="st">"R"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Lints all supported files in current directory</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="fu">lint_dir</span>(<span class="at">path =</span> <span class="st">"."</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><br></p>
+<p><strong>Using <code>lintr</code> on <code>.Rmd</code> and <code>.qmd</code> files</strong></p>
+<p><code>lintr</code> supports linting R markdown (<code>.Rmd</code>) and Quarto (<code>.qmd</code>) files by default. You do not need an extra package.</p>
+<p>The commands are the same as above. For example, to lint a single <code>.Rmd</code> or <code>.qmd</code> file:</p>
+<div class="sourceCode" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">lint</span>(<span class="st">"file.Rmd"</span>)</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="fu">lint</span>(<span class="st">"file.qmd"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><br></p>
+</section>
+<section id="disabling-lint-messages" class="level3" data-number="4.2">
+<h3 data-number="4.2" class="anchored" data-anchor-id="disabling-lint-messages"><span class="header-section-number">4.2</span> Disabling lint messages</h3>
+<div class="python-content">
+<p>Linters will sometimes flag things that you don’t want to change. For example:</p>
+<ul>
+<li><p>In Jupyter notebooks (<code>.ipynb</code>) or Quarto markdown (<code>.qmd</code>), you wouldn’t typically have a module docstring, and so will likely see:</p>
+<pre><code>C0116: Missing module docstring (missing-module-docstring)</code></pre></li>
+<li><p>For a class with only a few methods:</p>
+<pre><code>R0903: Too few public methods (too-few-public-methods)</code></pre></li>
+<li><p>For a function with many argumnets:</p>
+<pre><code>R0913: Too many arguments (too-many-arguments)</code></pre></li>
+</ul>
+<p>If you want to ignore these warnings, you can disable them in your code <strong>using comments</strong>. For example:</p>
+<div class="sourceCode" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="co"># pylint: disable=wrong-import-position</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>You can place this comment:</p>
+<ul>
+<li>At the top of a code cell or file to disable the warning for everything below it.</li>
+<li>Directory above a line or block of code to apply it only there.</li>
+<li>At the end of a specific line to disable it just for that line.</li>
+</ul>
+<p>You can also disable multiple warnings at once by listing them, separated by commas:</p>
+<div class="sourceCode" id="cb34"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="co"># pylint: disable=too-many-arguments,missing-module-docstring</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="r-content">
+<p>Linters will sometimes flag things that you don’t want to change. For example, for an R6 class, though the convention is to use CamelCase, the linter will return an error:</p>
+<pre><code>style: [object_name_linter] Variable and function names should be all lowercase and use snake_case.</code></pre>
+<p>If you want to ignore warnings, you can disable them in your code <strong>using comments</strong>. For example:</p>
+<div class="sourceCode" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>MyClass <span class="ot">&lt;-</span> R6<span class="sc">::</span><span class="fu">R6Class</span>(<span class="st">"MyClass"</span>) <span class="co"># nolint: object_name_linter</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>You can disable the warning across several lines by using <code>nolint start</code> and <code>nolint end</code>:</p>
+<div class="sourceCode" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="co"># nolint start: object_name_linter</span></span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>MyClass <span class="ot">&lt;-</span> R6<span class="sc">::</span><span class="fu">R6Class</span>(<span class="st">"MyClass"</span>,</span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">public =</span> <span class="fu">list</span>(</span>
+<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">MyMethod =</span> <span class="cf">function</span>(x) {</span>
+<span id="cb37-6"><a href="#cb37-6" aria-hidden="true" tabindex="-1"></a>      x <span class="sc">+</span> <span class="dv">1</span></span>
+<span id="cb37-7"><a href="#cb37-7" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb37-8"><a href="#cb37-8" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb37-9"><a href="#cb37-9" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb37-10"><a href="#cb37-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-11"><a href="#cb37-11" aria-hidden="true" tabindex="-1"></a><span class="co"># nolint end</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><br></p>
+</section>
+<section id="customising-linter-settings-for-project" class="level3" data-number="4.3">
+<h3 data-number="4.3" class="anchored" data-anchor-id="customising-linter-settings-for-project"><span class="header-section-number">4.3</span> Customising linter settings for project</h3>
+<div class="python-content">
+<p>You can customise how <code>pylint</code> checks the code by creating a <code>.pylintrc</code> file in the project directory.</p>
+<div class="sourceCode" id="cb38"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="fu">touch</span> .pylintrc</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Pylint will automatically use this file when linting the project.</p>
+<p>Some common customisations include…</p>
+<ul>
+<li><p><strong>Line length</strong>: by default, pylint allows up to 100 or 120 characters. To match the PEP-8 standard (79 characters), add this to your <code>.pylintrc</code>:</p>
+<pre><code>[FORMAT]
+max-line-length=79</code></pre></li>
+<li><p><strong>Disable specific warnings</strong>: you can turn off certain warnings for the whole project (although this can hide important issues, so use it carefully!). For example, if you have several long files that you don’t want to split up:</p>
+<pre><code>C0302: Too many lines in module (too-many-lines)</code></pre>
+<p>Then add this to <code>.pylintrc</code>:</p>
+<pre><code>[MESSAGES CONTROL]
+disable=too-many-lines</code></pre></li>
+</ul>
+</div>
+<div class="r-content">
+<p>You can customise how <code>lintr</code> checks the code by creating a <code>.lintr</code> config file.</p>
+<div class="sourceCode" id="cb42"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="fu">touch</span> .lintr</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><code>Lintr</code> will automatically use this file when linting the project.</p>
+<p>Some common customisations include…</p>
+<ul>
+<li><p><strong>Linters:</strong> by default, lintr enables a set of linters that broadly follows the tidyverse style guide. Lintr has many more linters that can be enabled - to use them, add this to the <code>.lintr</code> file:</p>
+<div class="sourceCode" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>linters<span class="sc">:</span> lintr<span class="sc">::</span><span class="fu">all_linters</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+<li><p><strong>Disable specific warnings:</strong> you can turn off certain warnings for the (although this can hide important issues, so use it carefully!). For example, to disable the object name linter, add this to the <code>.lintr</code> file:</p>
+<div class="sourceCode" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>linters<span class="sc">:</span> lintr<span class="sc">::</span><span class="fu">linters_with_defaults</span>(</span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a><span class="at">object_name_linter =</span> <span class="cn">NULL</span></span>
+<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+</ul>
+</div>
+<p><br></p>
+</section>
+<section id="bash-scripts" class="level3" data-number="4.4">
+<h3 data-number="4.4" class="anchored" data-anchor-id="bash-scripts"><span class="header-section-number">4.4</span> Bash scripts</h3>
+<p>If you need to lint different file types or multiple directories, creating a Bash script can save time and ensure everyone on your team lints the project in the same way.</p>
+<p>First, create the script file:</p>
+<div class="sourceCode" id="cb45"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="fu">touch</span> lint.sh</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Then write your linting commands in <code>lint.sh</code>. These are simply a list of terminal commands to run in the provided order. For example:</p>
+<div class="python-content">
+<div class="sourceCode" id="cb46"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="co">#!/bin/bash</span></span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Lint .qmd files</span></span>
+<span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a><span class="ex">lintquarto</span> pylint docs</span>
+<span id="cb46-5"><a href="#cb46-5" aria-hidden="true" tabindex="-1"></a><span class="ex">lintquarto</span> flake8 docs</span>
+<span id="cb46-6"><a href="#cb46-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-7"><a href="#cb46-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Lint .py files</span></span>
+<span id="cb46-8"><a href="#cb46-8" aria-hidden="true" tabindex="-1"></a><span class="ex">pylint</span> tests src</span>
+<span id="cb46-9"><a href="#cb46-9" aria-hidden="true" tabindex="-1"></a><span class="ex">flake8</span> tests src</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="r-content">
+<div class="sourceCode" id="cb47"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="co">#!/bin/bash</span></span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a><span class="ex">Rscript</span> <span class="at">-e</span> <span class="st">'lintr::lint_dir("docs")'</span></span>
+<span id="cb47-4"><a href="#cb47-4" aria-hidden="true" tabindex="-1"></a><span class="ex">Rscript</span> <span class="at">-e</span> <span class="st">'lintr::lint_dir("tests")'</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>To run the script, execute from the terminal:</p>
+<div class="sourceCode" id="cb48"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> lint.sh</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Alternatively, you can make the script executable:</p>
+<div class="sourceCode" id="cb49"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="fu">chmod</span> +x lint.sh</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>And then just run:</p>
+<div class="sourceCode" id="cb50"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="ex">lint.sh</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><br></p>
+</section>
+</section>
+<section id="further-information" class="level2" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="further-information"><span class="header-section-number">5</span> Further information</h2>
+<div class="python-content">
+<ul>
+<li><a href="https://www.linkedin.com/pulse/pep-evolution-python-nuno-bispo-eytqe/">“PEP and the Evolution of Python”</a> from Nuno Bispo 2024.</li>
+</ul>
+</div>
+<div class="r-content">
+<p>N/A</p>
+</div>
+
+
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
