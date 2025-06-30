@@ -16,8 +16,6 @@
 
 Step-by-step guide for building simulation models as part of a reproducible analytical pipeline (RAP). Check it out at: **https://pythonhealthdatascience.github.io/des_rap_book/**.
 
-[![](images/website_click.png)](https://pythonhealthdatascience.github.io/des_rap_book/)
-
 <br>
 
 ## View locally
