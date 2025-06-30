@@ -18,9 +18,9 @@ echo "Linting Python code..."
 # Lint .qmd files
 lintquarto pylint index.qmd
 lintquarto pylint pages
+lintquarto flake8 index.qmd
+lintquarto flake8 pages
 
-# Lint .py files in tests/
-lintquarto pylint tests
-
-# Lint .py files in pages/
-lintquarto pylint pages
+# Lint .py files in pages/ and tests/
+pylint pages tests
+flake8 pages tests
