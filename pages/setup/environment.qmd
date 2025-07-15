@@ -14,6 +14,7 @@ format:
 This page will guide you through the essentials of managing Python environments.
 
 * 🌎 **Environments:** What python environments are and why they matter.
+* 🧰 **Tools**: Comparison of tools for managing environments.
 * 🔄 **Version:** Switching between versions of python.
 * 📦 **Packages:** Dependency management using `conda`.
 * 🛠️ **Recreate & troubleshoot:** Restoring environments and common fixes.
@@ -27,6 +28,7 @@ This page will guide you through the essentials of managing Python environments.
 This page will guide you through the essentials of managing R environments.
 
 * 🌎 **Environments:** What R environments are and why they matter.
+* 🧰 **Tools**: Comparison of tools for managing environments.
 * 🔄 **Version:** Switching between versions of R.
 * 📦 **Packages:** Dependency management using `renv`.
 * ⚙️ **Other:** Handling system libraries and project settings.
@@ -78,11 +80,184 @@ Consistent environments are important for collaboration. Ensuring everyone on th
 
 ![](environment_resources/collaborate.png){fig-align="center" width=70%}
 
+## 🧰 Tools
+
+:::: {.python-content}
+
+In Python, there are several popular tools for environment management. We'd recommend using a tool that can both:
+
+* **Install and switch between different versions of Python**, and-
+* **Install required packages and dependencies**.
+
+As outlined in the table below, there are several tools that can achieve this - `conda`, `mamba` and `uv`. However, there are other factors to consider - for example:
+
+* **Environment location** - by default, are environments created in the project folder (local) or in a central cache (shared across projects)? Can the location be customised?
+* **Dependency files** - does the tool maintain a list of top-level packages (i.e. those you explicitly request) or a fully snapshot (i.e. including all transitive dependencies and pinned versions)?
+* **Packaging** - can the tool build Python packages for distribution? If you are [structuring your research as a package](package.qmd), you may wish to use one tool - or separate tools - for dependency management and creation of your package.
+
+::: {.table-greycol}
+| Tool | Python versions | Env location | Custom location | Package source | Config file | Speed | Build + publish package |
+| - | - | - | - | - | - | - | - |
+| `venv` | ❌ No | Project folder | ✅ Yes | PyPI | `requirements.txt` *(top-level only)* | ⚡ Fast | ❌ No |
+| `conda` | ✅ Yes | Central | ✅ Yes | Conda / PyPI | `environment.yml` *(top-level or snapshot)* | 🐢 Slow | ❌ No |
+| `mamba` | ✅ Yes | Central | ✅ Yes | Conda / PyPI | `environment.yml` *(top-level or snapshot)* | ⚡ Fast | ❌ No |
+| `poetry` | ⚠️ Partial | Central | ✅ Yes | PyPI | `pyproject.toml` *(top-level)* + `poetry.lock` *(snapshot)* | ⚡ Fast | ✅ Yes |
+| `uv` | 	✅ Yes | Project folder | ❌ No | PyPI | `pyproject.toml` *(top-level)* + `uv.lock` *(snapshot)* | 🚀 Very fast | ✅ Yes |
+:::
+
+⚠️ Partial: `Poetry` can select among installed versions of Python, but cannot install new Python versions itself
+
+::: {.callout-note collapse="true" title="Find out more about each tool"}
+
+| **venv** (2012)
+| 🔗 <https://docs.python.org/3/library/venv.html>
+Part of Python's standard library (from 3.3+), `venv` quickly replaced `pyvenv` and `virtualenv` as the standard way of managing virtual environments. It is included as part of the standard Python library, and so requires no installation. No support for Python version switching.
+
+| **conda** (2012)
+| 🔗 <https://github.com/conda/conda>
+Comes with Anaconda/Miniconda or can be installed separately. It can install and manage multiple Python versions, and non-Python dependencies (e.g. R, Node.js, compilers and system libraries).
+
+| **mamba** (2020)
+| 🔗 <https://github.com/mamba-org/mamba>
+A drop-in replacement for `conda` written in C++. It offers faster installs and clearer conflict messages.
+
+| **poetry** (2019)
+| 🔗 <https://github.com/python-poetry/poetry>
+An all-in-one tool for dependency management and packaging. Supports reproducible environments via `poetry.lock`, and can build/distribute your project as a Python package. Cannot install Python versions itself, but allows selecting from those available on your system.
+
+| **uv** (2024)
+| 🔗 <https://github.com/astral-sh/uv>
+A modern tool written in Rust. It is designed to be very fast - 10-100x faster than `pip` or `conda`. It combines features of `pip`, `venv` and `poetry`, managing python versions and supporting packaging. It is an emerging all-in-one solution.
+
+:::
+
+::::
+
+:::: {.r-content}
+
+In R, managing your project environment typically requires multiple, specialised tools rather than a single all-in-one solution. The current solutions are:
+
+::: {.table-greycol}
+| Tool | Install + switch between R versions? | Package management? | Description |
+| - | - | - |
+| `rig` | ✅ Yes | ❌ No |
+| `renv` | ❌ No | ✅ Yes |
+| `rv` (in development) | ❌ No | ✅ Yes |
+:::
+
+### Legacy tools
+
+**R version management:** Before `rig`, users had to install and switch R versions using platform-specific tools (e.g. RSwitch on Mac, CRAN installer on Windows, Homebrew or manual compilation on Linux). These approaches are more involved and prone to inconsistencies.
+
+**R package management:** `packrat` used to be the most popular package manager, but was superseded by `renv` which is simpler to use and more robust.
+
+::::
+
 ## 🔄 Version
 
 :::: {.python-content}
 
-TODO
+This book and its examples use `conda`/`mamba`, as they are established tools for package management that can also install specific versions of Python, enabling you to easily switch between versions for different projects.
+
+You can choose between them - `mamba` is just a drop-in replacement for `conda` that is faster and has clearer error messages.
+
+### Install `conda`/`mamba`
+
+Refer to the documentation for the latest instructions on installing `conda`/`mamba` for your operating system:
+
+* [Conda installation instructions](https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html).
+* [Mamba installation instructions](https://mamba.readthedocs.io/en/latest/installation/mamba-installation.html).
+
+### Create an environment file
+
+In the project root, we create a file called `environment.yaml`. Within this file, we add three sections:
+
+* **Name**. The environment name.
+* **Channels**. Where to find packages (e.g. `conda-forge`).
+* **Dependencies**. The packages you need.
+
+When first creating our environment, we just want to specify the version of python used. For example:
+
+```{.bash}
+name: des-example
+channels:
+  - conda-forge
+dependencies:
+  - python=3.13
+```
+
+::: {.callout-note}
+
+## Conda channels
+
+**Channels** are locations where conda stores and retrieves packages. You can choose which channel to use, and can a select a few with an order of priority.
+
+We have used `conda-forge` which is a community-maintained channel run by volunteers. It offers a wide range of packages and is a popular choice for many users.
+
+Other main channels include:
+
+* `default` and `anaconda` - Maintained by Anaconda's engineers and designed for high security and stability. Organisations with 200 or more employees have to pay to use this channel (excluding students and non-commercial research at universities)
+* `bioconda` - Volunteer-run, offers bioinformatics-related packages.
+
+:::
+
+### Build and activate the environment
+
+In the command line, run either set of commands to:
+
+* Create your environment.
+* Activate it (replacing `des-example` with your environment name).
+* List the packages in your environment.
+
+Using `conda`:
+
+```{.bash}
+conda env create --file environment.yaml
+conda activate des-example
+conda list
+```
+
+Using `mamba`:
+
+```{.bash}
+mamba env create --file environment.yaml
+mamba activate des-example
+mamba list
+```
+
+When you run the `list` command, you should see a list of packages, versions, builds and channels, similar to:
+
+```
+# packages in environment at /home/amy/mambaforge/envs/testenv:
+#
+# Name                    Version                   Build  Channel
+_libgcc_mutex             0.1                 conda_forge    conda-forge
+_openmp_mutex             4.5                       2_gnu    conda-forge
+bzip2                     1.0.8                h4bc722e_7    conda-forge
+ca-certificates           2025.7.14            hbd8a1cb_0    conda-forge
+icu                       75.1                 he02047a_0    conda-forge
+ld_impl_linux-64          2.44                 h1423503_1    conda-forge
+libexpat                  2.7.0                h5888daf_0    conda-forge
+libffi                    3.4.6                h2dba641_1    conda-forge
+libgcc                    15.1.0               h767d61c_3    conda-forge
+libgcc-ng                 15.1.0               h69a702a_3    conda-forge
+libgomp                   15.1.0               h767d61c_3    conda-forge
+liblzma                   5.8.1                hb9d3cd8_2    conda-forge
+libmpdec                  4.0.0                hb9d3cd8_0    conda-forge
+libsqlite                 3.50.2               hee844dc_2    conda-forge
+libstdcxx                 15.1.0               h8f9b012_3    conda-forge
+libstdcxx-ng              15.1.0               h4852527_3    conda-forge
+libuuid                   2.38.1               h0b41bf4_0    conda-forge
+libzlib                   1.3.1                hb9d3cd8_2    conda-forge
+ncurses                   6.5                  h2d0b736_3    conda-forge
+openssl                   3.5.1                h7b32b05_0    conda-forge
+pip                       25.1.1             pyh145f28c_0    conda-forge
+python                    3.13.5          hec9711d_102_cp313    conda-forge
+python_abi                3.13                    7_cp313    conda-forge
+readline                  8.2                  h8c095d6_2    conda-forge
+tk                        8.6.13          noxft_hd72426e_102    conda-forge
+tzdata                    2025b                h78e105d_0    conda-forge
+```
 
 ::::
 
@@ -142,81 +317,6 @@ rig default 4.1.2
 
 This makes the selected version the default for new R sessions. (**Note:** If you later change versions manually or with other tools, you may need to reset this.)
 
-### Legacy methods
-
-If you need to know about older or alternative approaches, here are some legacy methods:
-
-* **Mac:** RSwitch, Homebrew
-* **Windows:** CRAN installer
-* **Linux:** Manual installation, symbolic links
-
-**Note:** These methods can be inconsistent and are generally more complex than rig.
-
-::: {.callout-note collapse="true" title="Manually switching R versions on Linux"}
-
-These are additional instructions on how to manually switch R versions on Linux.
-
-**Installation**
-
-Following instructions from [r-builds](https://github.com/rstudio/r-builds), we first specify the version of R that you want to install ([see available versions](https://cdn.posit.co/r/versions.json)).
-
-```{.bash}
-R_VERSION=4.5.0
-```
-
-Download the `.deb` package (modifying the url depending on your system - `ubuntu-2004`, `ubuntu-2204`, `ubuntu2404`, `debian-12`).
-
-```{.bash}
-curl -O https://cdn.posit.co/r/ubuntu-2204/pkgs/r-${R_VERSION}_1_amd64.deb
-```
-
-Install the package:
-
-```{.bash}
-sudo gdebi r-${R_VERSION}_1_amd64.deb
-```
-
-View installed R versions:
-
-```{.bash}
-ls /opt/R/
-```
-
-**Switching between versions**
-
-To set the default R version for RStudio and the terminal, you can create symbolic links in `/usr/local/bin` pointing to the desired version under `/opt/R`.
-
-```{.bash}
-sudo ln -s /opt/R/${R_VERSION}/bin/R /usr/local/bin/R 
-sudo ln -s /opt/R/${R_VERSION}/bin/Rscript /usr/local/bin/Rscript
-```
-
-However, a better approach is to use **update-alternatives**. You have to register `R` and `Rscript` for each version of R - for example:
-
-```{.bash}
-sudo update-alternatives --install /usr/local/bin/R R /opt/R/3.6.0/bin/R 360
-sudo update-alternatives --install /usr/local/bin/Rscript Rscript /opt/R/3.6.0/bin/Rscript 360
-
-sudo update-alternatives --install /usr/local/bin/R R /opt/R/4.4.1/bin/R 441
-sudo update-alternatives --install /usr/local/bin/Rscript Rscript /opt/R/4.4.1/bin/Rscript 441
-
-sudo update-alternatives --install /usr/local/bin/R R /opt/R/4.5.0/bin/R 450
-sudo update-alternatives --install /usr/local/bin/Rscript Rscript /opt/R/4.5.0/bin/Rscript 450
-```
-
-Then run the following commands to switch versions interactively - you'll be prompted to select which version of R to use.
-
-```{.bash}
-sudo update-alternatives --config R
-sudo update-alternatives --config Rscript
-```
-
-When you open RStudio, you should find it has switched to the version of R you chose.
-
-However, if using different versions of R between projects, you will need to change this before opening RStudio for each project.
-
-:::
-
 ::::
 
 ## 📦 Packages
@@ -225,175 +325,36 @@ The processing of tracking and controlling the packages your project uses, inclu
 
 :::: {.python-content}
 
-There are several popular tools for managing Python dependencies. Each tool varies in how it handles Python versions, dependency installation, environment isolation, and packaging workflows.
-
-### Comparison of dependency management tools
+### Using `conda`/`mamba`
 
 <div class="h4-tight"></div>
 
-#### Comparison factors
+#### Setup environment
 
-* **Python versions** - can it install and switch between different python versions?
-* **Env location** - by default, are environments created in the project folder (local) or in a central cache (shared across projects)?
-* **Custom location** - can you manually choose where the environment is stored?
-* **Package source**
-* **Dependency files** - does the tool maintain a list of top-level packages (i.e. those you explicitly request) or a fully snapshot (i.e. including all transitive dependencies and pinned versions)?
-* **Speed**
-* **Packaging** - can the tool build Python packages for distribution? If you are [structuring your research as a package](package.qmd), you may wish to use one tool - or separate tools - for dependency management and creation of your package.
+This book and its examples use `conda`/`mamba`. If you haven't already, follow the instructions in **🔄 Version** to set-up an environment with just your chosen version of python.
 
-#### Tool comparison table
+#### Adding packages to the environment
 
-::: {.table-greycol}
-| Tool | Python versions | Env location | Custom location | Package source | Config file | Speed | Build + publish package |
-| - | - | - | - | - | - | - | - |
-| `venv` | ❌ No | Project folder | ✅ Yes | PyPI | `requirements.txt` *(top-level only)* | ⚡ Fast | ❌ No |
-| `conda` | ✅ Yes | Central | ✅ Yes | Conda / PyPI | `environment.yml` *(top-level or snapshot)* | 🐢 Slow | ❌ No |
-| `mamba` | ✅ Yes | Central | ✅ Yes | Conda / PyPI | `environment.yml` *(top-level or snapshot)* | ⚡ Fast | ❌ No |
-| `poetry` | ⚠️ Partial | Central | ✅ Yes | PyPI | `pyproject.toml` *(top-level)* + `poetry.lock` *(snapshot)* | ⚡ Fast | ✅ Yes |
-| `uv` | 	✅ Yes | Project folder | ❌ No | PyPI | `pyproject.toml` *(top-level)* + `uv.lock` *(snapshot)* | 🚀 Very fast | ✅ Yes |
-:::
-
-⚠️ Partial: `Poetry` can select among installed versions of Python, but cannot install new Python versions itself
-
-#### Tool summaries
-
-| **venv** (2012)
-| 🔗 <https://docs.python.org/3/library/venv.html>
-Part of Python's standard library (from 3.3+), `venv` quickly replaced `pyvenv` and `virtualenv` as the standard way of managing virtual environments. It is included as part of the standard Python library, and so requires no installation. No support for Python version switching.
-
-| **conda** (2012)
-| 🔗 <https://github.com/conda/conda>
-Comes with Anaconda/Miniconda or can be installed separately. It can install and manage multiple Python versions, and non-Python dependencies (e.g. R, Node.js, compilers and system libraries).
-
-| **mamba** (2020)
-| 🔗 <https://github.com/mamba-org/mamba>
-A drop-in replacement for `conda` written in C++. It offers faster installs and clearer conflict messages.
-
-| **poetry** (2019)
-| 🔗 <https://github.com/python-poetry/poetry>
-An all-in-one tool for dependency management and packaging. Supports reproducible environments via `poetry.lock`, and can build/distribute your project as a Python package. Cannot install Python versions itself, but allows selecting from those available on your system.
-
-| **uv** (2024)
-| 🔗 <https://github.com/astral-sh/uv>
-A modern tool written in Rust. It is designed to be very fast - 10-100x faster than `pip` or `conda`. It combines features of `pip`, `venv` and `poetry`, managing python versions and supporting packaging. It is an emerging all-in-one solution.
-
-### `conda`/`mamba`: step-by-step usage
-
-This book and its examples use `conda`/`mamba`, as they are established tools and allow Python version management.
-
-#### Install `conda`/`mamba`
-
-Refer to the documentation for the latest instructions on installing `conda`/`mamba` for your operating system (windows, mac or linux).
-
-* [Conda installation instructions](https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html).
-* [Mamba installation instructions](https://mamba.readthedocs.io/en/latest/installation/mamba-installation.html).
-
-#### Create an environment file
-
-In the project root, we create `environment.yaml`.
-
-```{.bash}
-touch environment.yaml
-```
-
-Within this file, we add three sections:
-
-* **Name**. The environment name.
-* **Channels**. Where to find packages (e.g. `conda-forge`).
-* **Dependencies**. The packages you need.
-
-When first creating our environment, we just list the dependencies we know we need at this point - we can always add more later! At the start of a project, you might only know one: python.
-
-As an example, we will add `simpy` and python.
+Add packages to the environment by modifying the `environment.yaml` file. For example, to add `simpy`:
 
 ```{.bash}
 name: des-example
 channels:
   - conda-forge
 dependencies:
-  - python
+  - python=3.13
   - simpy
 ```
 
-::: {.callout-note}
-
-## Conda channels
-
-**Channels** are locations where conda stores and retrieves packages. You can choose which channel to use, and can a select a few with an order of priority.
-
-We have used `conda-forge` which is a community-maintained channel run by volunteers. It offers a wide range of packages and is a popular choice for many users.
-
-Other main channels include:
-
-* `default` and `anaconda` - Maintained by Anaconda's engineers and designed for high security and stability. Organisations with 200 or more employees have to pay to use this channel (excluding students and non-commercial research at universities)
-* `bioconda` - Volunteer-run, offers bioinformatics-related packages.
-
-:::
-
-#### Build and activate the environment
-
-In the command line, run the following to create your environment:
-
-```{.bash}
-conda env create --file environment.yaml
-```
-
-You can then activate it (replacing `des-example` with your environment name):
-
-```{.bash}
-conda activate des-example
-```
-
-To confirm your environment contains the expected packages, run:
-
-```{.bash}
-conda list
-```
-
-This will output a list of packages, versions, builds and channels. For example, it may look similar to:
-
-```
-(des-example) amy@xps:~/Documents/hospital-des$ conda list
-# packages in environment at /home/amy/mambaforge/envs/des-example:
-#
-# Name                    Version                   Build  Channel
-_libgcc_mutex             0.1                 conda_forge    conda-forge
-_openmp_mutex             4.5                       2_gnu    conda-forge
-bzip2                     1.0.8                h4bc722e_7    conda-forge
-ca-certificates           2025.1.31            hbd8a1cb_1    conda-forge
-ld_impl_linux-64          2.43                 h712a8e2_4    conda-forge
-libexpat                  2.7.0                h5888daf_0    conda-forge
-libffi                    3.4.6                h2dba641_1    conda-forge
-libgcc                    14.2.0               h767d61c_2    conda-forge
-libgcc-ng                 14.2.0               h69a702a_2    conda-forge
-libgomp                   14.2.0               h767d61c_2    conda-forge
-liblzma                   5.8.1                hb9d3cd8_0    conda-forge
-libmpdec                  4.0.0                h4bc722e_0    conda-forge
-libsqlite                 3.49.1               hee588c1_2    conda-forge
-libuuid                   2.38.1               h0b41bf4_0    conda-forge
-libzlib                   1.3.1                hb9d3cd8_2    conda-forge
-ncurses                   6.5                  h2d0b736_3    conda-forge
-openssl                   3.5.0                h7b32b05_0    conda-forge
-pip                       25.0.1             pyh145f28c_0    conda-forge
-python                    3.13.3          hf636f53_101_cp313    conda-forge
-python_abi                3.13                    7_cp313    conda-forge
-readline                  8.2                  h8c095d6_2    conda-forge
-simpy                     4.1.1              pyhd8ed1ab_1    conda-forge
-tk                        8.6.13          noxft_h4845f30_101    conda-forge
-tzdata                    2025b                h78e105d_0    conda-forge
-```
-
-#### Adding packages to the environment
-
-Add packages to the environment by modifying the `environment.yaml` file and then running:
+With the environment active, you can then run the following command to update it:
 
 ```{.bash}
 conda env update --file environment.yaml --prune
 ```
 
-You should **specify the exact package versions** in you `environment.yaml`. If you're starting from scratch, you may not know which versions you need, so you can leave them out initially, as we did in step 1.
+You should **specify the exact package versions** in you `environment.yaml`. If you're starting from scratch, you may not know which versions you need, so you can leave them out initially, as we did above. However, now that we have built our environment (which used the latest versions as none were specified), it is important to then record your versions in the `environment.yaml`. These are the versions you can see by running `conda list`.
 
-However, now that we have built our environment (which used the latest versions as none were specified), it is important to then record your versions in the `environment.yaml`. These are the versions you saw when running `conda list`. For example:
+Example `environment.yaml` file:
 
 ```{.bash}
 name: des-example
@@ -1011,19 +972,15 @@ renv::deactivate(clean = TRUE)
 
 This will remove the renv auto-loaded, the `renv/` directory, and the `renv.lock` file in one step, and restart the R session.
 
-### Other methods
+### Alternative: `rv`
 
-In R, `renv` is the most popular tool for managing dependencies. It replaced and improved upon the previous tool, [`Packrat`](https://github.com/rstudio/packrat).
-
-There is a new tool currently in development called [`rv`](https://github.com/A2-ai/rv) which aims to provide a more modern, declarative workflow. It requires all dependencies to be specified before installation (rather than taking snapshots as you go along like `renv`).
-
-::: {.callout-note collapse="true" title="rv"}
+::: {.callout-note collapse="true" title="Find out more"}
 
 This section provides more information on `rv`.
 
-Using `rv`, you can declare an R version up-front and, whilst it will not automate installation or switching of R versions, it will warn/error if you try to use a different version. **Note:** `renv` currently will warn you if you are using a different R version to that specified in `renv.lock`.
+Using `rv`, you can declare an R version up-front and, whilst it will not automate installation or switching of R versions, it will warn/error if you try to use a different version.
 
-The main difference in `rv` is that it requires all dependencies to be specified before installation, rather than taking snapshots as you go along like with `renv`. These dependencies are saved in an `rproject.toml file`.
+It requires all dependencies to be specified before installation, rather than taking snapshots as you go along like with `renv`. These dependencies are saved in an `rproject.toml file`.
 
 **Installation**
 
