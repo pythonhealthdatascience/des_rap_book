@@ -1,224 +1,296 @@
 ---
-title: ✅ Dependency management
+title: ✅ Environments
 format:
   html:
     css: ../../styles/wrap_code.css
 ---
 
-:::{.guidelines}
+:::: {.pale-blue}
+
+🎯 **Objectives**
+
+::: {.python-content}
+
+This page will guide you through the essentials of managing Python environments.
+
+* 🌎 **Environments:** What python environments are and why they matter.
+* 🔄 **Version:** Switching between versions of python.
+* 📦 **Packages:** Dependency management using `conda`.
+* 🛠️ **Recreate & troubleshoot:** Restoring environments and common fixes.
+* 🧪 **Activities:** Have a go at python environment management!
+* 📚 **Further ideas:** Advanced tools and workflows for managing python environments.
+
+:::
+
+::: {.r-content}
+
+This page will guide you through the essentials of managing R environments.
+
+* 🌎 **Environments:** What R environments are and why they matter.
+* 🔄 **Version:** Switching between versions of R.
+* 📦 **Packages:** Dependency management using `renv`.
+* ⚙️ **Other:** Handling system libraries and project settings.
+* 🛠️ **Recreate & troubleshoot:** Restoring environments and common fixes.
+* 🧪 **Activities:** Have a go at R environment management!
+* 📚 **Further ideas:** Advanced tools and workflows for managing R environments.
+
+:::
+
+[🔗](../intro/guidelines.qmd) **Reproducibility guidelines**
+
+This page helps you meet reproducibility criteria from:
+
 * Heather et al. 2025: List dependencies and versions.
 * NHS Levels of RAP (🥈): Repository includes dependency information.
+
+::::
+
+## 🌎 Environments
+
+:::: {.python-content}
+
+TODO
+
+::::
+
+:::: {.r-content}
+
+An R environment is the complete computational context required to run an R project. It includes:
+
+* The **version of R** itself.
+* All **R packages** (and their versions) used in your analysis.
+* **System libraries** required by some R packages.
+* **Project-specific settings** (e.g., `.Rproj`, .`Rprofile`).
+
+::::
+
+### Keeping track of your environment
+
+Recording the environment used acts like a **time capsule**, allowing you to return to a project later and run it with the exact same packages and versions, reproducing the results generated previously.
+
+![](environment_resources/time_capsule.png){fig-align="center" width=70%}
+
+Managing dependencies allows you to **isolate environments for different projects**. Each project can maintain its own set of packages and R version, preventing conflicts between projects and making it effortless to switch between them without worrying about version mismatches.
+
+![](environment_resources/isolated_env.png){fig-align="center" width=70%}
+
+Consistent environments are important for collaboration. Ensuring everyone on the team uses the same setup prevents issues caused by differing packages or versions.
+
+![](environment_resources/collaborate.png){fig-align="center" width=70%}
+
+## 🔄 Version
+
+:::: {.python-content}
+
+TODO
+
+::::
+
+:::: {.r-content}
+
+For most users, the best way to manage R versions is to use [`rig`](https://github.com/r-lib/rig). It is a tool that allows you to easily install, list and switch between R versions on Windows, Mac and Linux.
+
+### Install `rig`
+
+Follow the installation instructions for your operating system on the [rig GitHub page](https://github.com/r-lib/rig). After installation, check that it works by running:
+
+```{.bash}
+rig --version
+```
+
+### View available R versions
+
+List all R versions installed on your machine:
+
+```{.bash}
+rig list
+```
+
+Example output:
+
+```{.bash}
+* name   version  aliases
+------------------------------------------
+  3.6.0           
+  4.2.2           
+  4.3.1           
+  4.4.1           
+  4.5.0  
+```
+
+### Add a new R version
+
+To install a specific R version:
+
+```{.bash}
+rig add 4.1.2
+```
+
+Or simply add the latest version:
+
+```{.bash}
+rig add
+```
+
+### Set the active R version
+
+Choose which R version should be active (for example, when you open RStudio):
+
+```{.bash}
+rig default 4.1.2
+```
+
+This makes the selected version the default for new R sessions. (**Note:** If you later change versions manually or with other tools, you may need to reset this.)
+
+### Legacy methods
+
+If you need to know about older or alternative approaches, here are some legacy methods:
+
+* **Mac:** RSwitch, Homebrew
+* **Windows:** CRAN installer
+* **Linux:** Manual installation, symbolic links
+
+**Note:** These methods can be inconsistent and are generally more complex than rig.
+
+::: {.callout-note collapse="true" title="Manually switching R versions on Linux"}
+
+These are additional instructions on how to manually switch R versions on Linux.
+
+**Installation**
+
+Following instructions from [r-builds](https://github.com/rstudio/r-builds), we first specify the version of R that you want to install ([see available versions](https://cdn.posit.co/r/versions.json)).
+
+```{.bash}
+R_VERSION=4.5.0
+```
+
+Download the `.deb` package (modifying the url depending on your system - `ubuntu-2004`, `ubuntu-2204`, `ubuntu2404`, `debian-12`).
+
+```{.bash}
+curl -O https://cdn.posit.co/r/ubuntu-2204/pkgs/r-${R_VERSION}_1_amd64.deb
+```
+
+Install the package:
+
+```{.bash}
+sudo gdebi r-${R_VERSION}_1_amd64.deb
+```
+
+View installed R versions:
+
+```{.bash}
+ls /opt/R/
+```
+
+**Switching between versions**
+
+To set the default R version for RStudio and the terminal, you can create symbolic links in `/usr/local/bin` pointing to the desired version under `/opt/R`.
+
+```{.bash}
+sudo ln -s /opt/R/${R_VERSION}/bin/R /usr/local/bin/R 
+sudo ln -s /opt/R/${R_VERSION}/bin/Rscript /usr/local/bin/Rscript
+```
+
+However, a better approach is to use **update-alternatives**. You have to register `R` and `Rscript` for each version of R - for example:
+
+```{.bash}
+sudo update-alternatives --install /usr/local/bin/R R /opt/R/3.6.0/bin/R 360
+sudo update-alternatives --install /usr/local/bin/Rscript Rscript /opt/R/3.6.0/bin/Rscript 360
+
+sudo update-alternatives --install /usr/local/bin/R R /opt/R/4.4.1/bin/R 441
+sudo update-alternatives --install /usr/local/bin/Rscript Rscript /opt/R/4.4.1/bin/Rscript 441
+
+sudo update-alternatives --install /usr/local/bin/R R /opt/R/4.5.0/bin/R 450
+sudo update-alternatives --install /usr/local/bin/Rscript Rscript /opt/R/4.5.0/bin/Rscript 450
+```
+
+Then run the following commands to switch versions interactively - you'll be prompted to select which version of R to use.
+
+```{.bash}
+sudo update-alternatives --config R
+sudo update-alternatives --config Rscript
+```
+
+When you open RStudio, you should find it has switched to the version of R you chose.
+
+However, if using different versions of R between projects, you will need to change this before opening RStudio for each project.
+
 :::
 
-Dependency management is about keeping track of the environment used for your project. This includes the version of your programming languages, any packages used, and their versions.
+::::
 
-It acts like a **time capsule**, allowing you to return to a project later and run it with the exact same packages and versions, reproducing the results generated previously.
+## 📦 Packages
 
-![](environment_resources/time_capsule.png)
+The processing of tracking and controlling the packages your project uses, including their versions, is called **dependency management**.
 
-Dependency management enables you to **isolate environments for different projects**. Each project can have it's own set of dependencies, preventing conflicts and making it easy to switch between projects.
+:::: {.python-content}
 
-![](environment_resources/isolated_env.png)
+There are several popular tools for managing Python dependencies. Each tool varies in how it handles Python versions, dependency installation, environment isolation, and packaging workflows.
 
-It is also important for **collaboration**, so that everyone working on the project is using the same environment.
+### Comparison of dependency management tools
 
-![](environment_resources/collaborate.png){fig-align="center" width=80%}
+<div class="h4-tight"></div>
 
-<br>
+#### Comparison factors
 
-## Tools for dependency management
+* **Python versions** - can it install and switch between different python versions?
+* **Env location** - by default, are environments created in the project folder (local) or in a central cache (shared across projects)?
+* **Custom location** - can you manually choose where the environment is stored?
+* **Package source**
+* **Dependency files** - does the tool maintain a list of top-level packages (i.e. those you explicitly request) or a fully snapshot (i.e. including all transitive dependencies and pinned versions)?
+* **Speed**
+* **Packaging** - can the tool build Python packages for distribution? If you are [structuring your research as a package](package.qmd), you may wish to use one tool - or separate tools - for dependency management and creation of your package.
 
-::::{.python-content}
+#### Tool comparison table
 
-There are several popular tools for managing Python dependencies in isolated environment. Below, we compare some of main options, and consider some of the main factors that may influence your choice:
+::: {.table-greycol}
+| Tool | Python versions | Env location | Custom location | Package source | Config file | Speed | Build + publish package |
+| - | - | - | - | - | - | - | - |
+| `venv` | ❌ No | Project folder | ✅ Yes | PyPI | `requirements.txt` *(top-level only)* | ⚡ Fast | ❌ No |
+| `conda` | ✅ Yes | Central | ✅ Yes | Conda / PyPI | `environment.yml` *(top-level or snapshot)* | 🐢 Slow | ❌ No |
+| `mamba` | ✅ Yes | Central | ✅ Yes | Conda / PyPI | `environment.yml` *(top-level or snapshot)* | ⚡ Fast | ❌ No |
+| `poetry` | ⚠️ Partial | Central | ✅ Yes | PyPI | `pyproject.toml` *(top-level)* + `poetry.lock` *(snapshot)* | ⚡ Fast | ✅ Yes |
+| `uv` | 	✅ Yes | Project folder | ❌ No | PyPI | `pyproject.toml` *(top-level)* + `uv.lock` *(snapshot)* | 🚀 Very fast | ✅ Yes |
+:::
 
-* **Python version management:** Can the tool install and switch between different Python versions? This is crucial for projects that require specific versions.
-* **Default environment location:** Does the tool create environments in the project folder or in a central location? Central locations can be reused across multiple repositories from a single project, while repository-specific environments keep everything together.
-* **Speed:** How fast does the tool create environments and install packages?
-* **Build and publish packages:** If you are [structuring your research as a package](package.qmd), you may wish to use one tool - or separate tools - for dependency management and creation of your package.
+⚠️ Partial: `Poetry` can select among installed versions of Python, but cannot install new Python versions itself
 
-Other details like the package source (where packages come from) and config files (which files list dependencies) are also included.
-
-<br>
+#### Tool summaries
 
 | **venv** (2012)
-| <https://docs.python.org/3/library/venv.html>
-`venv` was introduced with Python 3.3, and quickly replaced `pyvenv` and `virtualenv` as the standard way of managing virtual environments. It is included as part of the standard Python library, and so requires no installation.
-
-::: {.table-greycol}
-| Feature | venv |
-| -- | --- |
-| Manages different python versions | No (uses the Python version it was invoked with) |
-| Default env location | Project directory (e.g. `./venv`) |
-| Customise location? | Yes |
-| Default package source | PyPI |
-| Config file | `requirements.txt` |
-| Speed | Fast |
-| Build and publish packages? | No |
-:::
-
-<br>
+| 🔗 <https://docs.python.org/3/library/venv.html>
+Part of Python's standard library (from 3.3+), `venv` quickly replaced `pyvenv` and `virtualenv` as the standard way of managing virtual environments. It is included as part of the standard Python library, and so requires no installation. No support for Python version switching.
 
 | **conda** (2012)
-| <https://github.com/conda/conda>
-`conda` comes with Anaconda and Miniconda or can be installed separately. It can install and manage multiple Python versions, and non-Python dependencies (e.g. R, Node.js, compilers and system libraries). `mamba` (2020) is a drop-in replacement for conda written in C++ which offers faster installs and clearer conflict messages.
+| 🔗 <https://github.com/conda/conda>
+Comes with Anaconda/Miniconda or can be installed separately. It can install and manage multiple Python versions, and non-Python dependencies (e.g. R, Node.js, compilers and system libraries).
 
-::: {.table-greycol}
-| Feature | conda |
-| -- | --- |
-| Manages different python versions? | Yes (downloads and manages python versions) |
-| Default env location | Central location (e.g. `~/.conda/envs/`) |
-| Customise location? | Yes |
-| Default package source | conda channels or PyPI |
-| Config file | `environment.yaml` or `environment.yml` |
-| Speed | Slow (conda) or fast (mamba) |
-| Build and publish packages? | No |
-:::
-
-<br>
+| **mamba** (2020)
+| 🔗 <https://github.com/mamba-org/mamba>
+A drop-in replacement for `conda` written in C++. It offers faster installs and clearer conflict messages.
 
 | **poetry** (2019)
-| <https://github.com/python-poetry/poetry>
-`poetry` was focused on simplifying dependency management and packaging. It uses a `pyproject.toml` file to manage dependencies and create environments, and to build packages. It can use a specific Python version if installed on your system, but does not install Python itself.
-
-::: {.table-greycol}
-| Feature | poetry |
-| -- | --- |
-| Manages different python versions? | No (relies on system-installed Python, but can select among installed versions) |
-| Default env location | Central cache (e.g. `~/.cache/pypoetry/virtualenvs/`) |
-| Customise location? | Yes |
-| Default package source | PyPI |
-| Config file | `pyproject.toml` and `poetry.lock` |
-| Speed | Fast |
-| Build and publish packages? | Yes |
-:::
-
-<br>
+| 🔗 <https://github.com/python-poetry/poetry>
+An all-in-one tool for dependency management and packaging. Supports reproducible environments via `poetry.lock`, and can build/distribute your project as a Python package. Cannot install Python versions itself, but allows selecting from those available on your system.
 
 | **uv** (2024)
-| <https://github.com/astral-sh/uv>
-`uv` is a modern tool developed by the creators of Ruff and written in Rust. It is designed to be very fast - 10-100x faster than pip or conda. It combines features of pip, venv and poetry, and can be used to build and publish packages.
+| 🔗 <https://github.com/astral-sh/uv>
+A modern tool written in Rust. It is designed to be very fast - 10-100x faster than `pip` or `conda`. It combines features of `pip`, `venv` and `poetry`, managing python versions and supporting packaging. It is an emerging all-in-one solution.
 
-::: {.table-greycol}
-| Feature | uv |
-| -- | --- |
-| Manages different python versions? | Yes (downloads and manages python versions) |
-| Default env location | Project directory (e.g. `./.venv`) |
-| Customise location? | No |
-| Default package source | PyPI |
-| Config file | `pyproject.toml` and `uv.lock` |
-| Speed | Very fast |
-| Build and publish packages? | Yes |
-:::
-::::
+### `conda`/`mamba`: step-by-step usage
 
-::::{.r-content}
-In R, the most popular tool for managing dependencies in R is `renv`. This replaced and improved upon the previous tool, `Packrat`.
+This book and its examples use `conda`/`mamba`, as they are established tools and allow Python version management.
 
-However, `renv` does not manage the R version used, so we also mention manual installation of R versions (in @sec-other), `rig` (manages R version but not packages) and `rv` (a new tool that manages both).
+#### Install `conda`/`mamba`
 
-Note: Switching between R versions is less common and more complicated than in many other languages, mainly as it is not always straightforward to install different versions, and as it may then be tricky to install compatible packages for each version of R, if no longer available on CRAN.
-
-<br>
-
-| **renv** (2019)
-| <https://github.com/rstudio/renv>
-`renv` is currently the standard way for managing R package environments. It is distributed as an R package.
-
-::: {.table-greycol}
-| Feature | renv |
-| -- | --- |
-| Package manager? | Yes |
-| Manages different R versions? | No (uses the R version it was invoked with) |
-| Default env location | Project directory (e.g. `./renv`) |
-| Customise location? | Yes |
-| Config file | `renv.lock` |
-:::
-
-<br>
-
-| **rig** (2021)
-| <https://github.com/r-lib/rig>
-`rig` is a tool for managing multiple R versions on a system - but it is not a package environment manager.
-
-::: {.table-greycol}
-| Feature | rig |
-| -- | --- |
-| Package manager? | No |
-| Manages different R versions? | Yes (installs and switches between R versions) |
-| Default env location | Central location |
-| Customise location? | Yes |
-| Config file | N/A |
-:::
-
-<br>
-
-| **rv** (TBC - in development)
-| <https://github.com/A2-ai/rv>
-`rv` is a package manager currently in development which aims to provide a more modern, declarative workflow. You can declare an R version up-front and, whilst it will not automate installation or switching of R versions, it will warn/error if you try to use a different version. Also, it requires all dependencies to be specified before installation, rather than taking snapshots as you go along like with `renv`. These dependencies are saved in an `rproject.toml file`.
-
-::: {.table-greycol}
-| Feature | rig |
-| -- | --- |
-| Package manager? | Yes |
-| Manages different R versions? | Partially (relies on system-installed R, but can select among installed versions, and will warn/error if the running R version does not match the declared version) |
-| Default env location | Project directory (e.g. `./rv`) |
-| Customise location? | Yes |
-| Config file | `rproject.toml` plus a generated lockfile |
-:::
-
-::::
-
-<br>
-
-## Step-by-step instructions
-
-:::{.python-content}
-In this book and in our examples we have used **conda** - a popular, established tools that allows you to specify the Python version. This section walks you through setting up a conda environment - with the steps for other package managers overviewed in @sec-other.
-
-::: {.callout-note}
-
-## Mamba
-
-**Mamba** is a drop-in replacement for conda that is often preferred as it is:
-
-* Faster than conda.
-* Better at dealing with dependency conflicts, providing more helpful messages in cases where environments fail to builds due to clashing requirements of different packages.
-
-To use mamba, simply replace `conda` in all the commands below with `mamba`.
-
-:::
-:::
-
-:::{.r-content}
-In our repositories for this book, we have used **renv**.
-:::
-
-<br>
-
-### Installing the environment manager
-
-:::{.python-content}
-Refer to the conda or mamba documentation for the latest instructions on installing conda/mamba for your operating system (windows, mac or linux).
+Refer to the documentation for the latest instructions on installing `conda`/`mamba` for your operating system (windows, mac or linux).
 
 * [Conda installation instructions](https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html).
 * [Mamba installation instructions](https://mamba.readthedocs.io/en/latest/installation/mamba-installation.html).
-:::
 
-:::{.r-content}
-Before getting started, you'll need to install `renv`.
+#### Create an environment file
 
-```{.r}
-install.packages("renv")
-```
-:::
-
-<br>
-
-### Creating the environment
-
-:::{.python-content}
-**Create an environment file.** In the project root, we create `environment.yaml`.
+In the project root, we create `environment.yaml`.
 
 ```{.bash}
 touch environment.yaml
@@ -258,9 +330,9 @@ Other main channels include:
 
 :::
 
-<br>
+#### Build and activate the environment
 
-**Build and activate the environment**. In the command line, run the following to create your environment:
+In the command line, run the following to create your environment:
 
 ```{.bash}
 conda env create --file environment.yaml
@@ -310,77 +382,8 @@ simpy                     4.1.1              pyhd8ed1ab_1    conda-forge
 tk                        8.6.13          noxft_h4845f30_101    conda-forge
 tzdata                    2025b                h78e105d_0    conda-forge
 ```
-:::
 
-:::{.r-content}
-**Create an R project**. It's best to use `renv` within an R project. In RStudio, select **File > New Project...**, and choose **Existing Directory**.
-
-![](environment_resources/rproject1.png){fig-align="center"}
-
-Navigate to your project directory, then select **Create Project**.
-
-![](environment_resources/rproject2.png){fig-align="center"}
-
-This creates:
-
-* `.Rproj`: project file (contains some settings for the project).
-* `.Rproj.user`: hidden folder with temporary project files (e.g. auto-saved source documents).
-
-**Note:** R projects are commonly created and managed by RStudio. If you are not using RStudio, they can be difficult to set-up, as they have to be created manually. However, it is possible to use `renv` *without* an R project, as discussed in [this GitHub issue](https://github.com/rstudio/renv/issues/460). This can be done by using `setwd()` to set your repository as the current working directory, and then continuing with the steps below, running `renv::init()`.
-
-<br>
-
-**Initialise renv**. In your R console:
-
-```{.r}
-renv::init()
-```
-
-This creates:
-
-* `renv/`: stores packages for the project.
-* `renv.lock`: records packages and the exact versions used.
-* `.Rprofile`: ensures `renv` activates when the project opens.
-
-<br>
-
-With `renv` initialised, you will now have an empty project library, just containing `renv`, as you can see from viewing `renv.lock` (example below). This is isolated from your previous projects, and from here, you can install the packages relevant for your current project.
-
-Example `renv.lock`:
-
-```
-{
-  "R": {
-    "Version": "4.4.1",
-    "Repositories": [
-      {
-        "Name": "CRAN",
-        "URL": "https://packagemanager.posit.co/cran/latest"
-      }
-    ]
-  },
-  "Packages": {
-    "renv": {
-      "Package": "renv",
-      "Version": "1.0.7",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Requirements": [
-        "utils"
-      ],
-      "Hash": "397b7b2a265bc5a7a06852524dabae20"
-    }
-  }
-}
-
-```
-:::
-
-<br>
-
-### Adding packages to the environment
-
-:::{.python-content}
+#### Adding packages to the environment
 
 Add packages to the environment by modifying the `environment.yaml` file and then running:
 
@@ -400,268 +403,12 @@ dependencies:
   - python=3.13.3
   - simpy=4.1.1
 ```
-:::
 
-::::{.r-content}
-It is possible to simply install packages using `renv::install("packagename")` or `install.packages("packagename")`.
+### Using other tools (`venv`, `poetry` `uv`)
 
-However, we recommend using a `DESCRIPTION` file. This is because it allows you to keep a record of the main packages you installed. You'll generate a clear, readable summary of the main dependencies for your project.
+If you're interested in using one of the other tools for dependency management, we’ve provided some brief information on each below, and direct you to other sources for a more detailed explanation of how to use them.
 
-**Why use a `DESCRIPTION` file?**
-
-* **Clear requirements.** The `DESCRIPTION` file provides a clear summary of your project's main pages. This is much easier to read than `renv.lock`, which lists all the packages *and* their dependencies, making it cumbersome if you just want to see the key packages.
-* **Consistency with package development**. If your project is (or might become) an R package, the `DESCRIPTION` file is the standard way to declare dependencies.
-* **Alternative for environment recreation**. While `renv.lock` is the primary tool for restoring the exact environment, having a `DESCRIPTION` file is a valuable backup. If you encounter issues with `renv.lock`, you (or collaborators) can use `DESCRIPTION` to reinstall the main dependencies - with more information on this below in the section on recreating environments.
-* **Explicit snapshots**. If you want precise control over what is included in `renv.lock`, a `DESCRIPTION` file enables you to use "explicit" snapshots. These mean only the packages listed in `DESCRIPTION` (and their dependencies) are recorded - as is covered below in the step on updating your `renv.lock` file.
-
-![](environment_resources/description_vs_lock.png)
-
-<br>
-
-**Create a DESCRIPTION file**. Run in the terminal:
-
-```
-touch DESCRIPTION
-```
-
-Open the file and copy in the template below. You can customise some of the meta-data (e.g. package, title, authors, description).
-
-This is a standard template. You can create an identical file with `usethis` by running `usethis::use_description()`. However, we can just create it from scratch, which helps to minimise our dependencies.
-
-```{.bash}
-Package: packagename
-Title: What the Package Does (One Line, Title Case)
-Version: 0.0.0.9000
-Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"))
-Description: What the package does (one paragraph).
-License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
-    license
-Encoding: UTF-8
-Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.0.0
-```
-
-<br>
-
-**List dependencies**. In `DESCRIPTION`, dependencies are listed under two headings:
-
-* `Imports`: for required packages.
-* `Suggests`: for optional/development packages.
-
-For most projects (especially non-packages), it's fine to just list all your dependencies under `Imports` for simplicity, as - assuming you're using the implicit renv snapshot type (described below) - `renv` will only detect and install packages listed under `Imports` and used in your scripts (and not necessarily those under `Suggests`).
-
-The distinction between `Imports` and `Suggests` is more relevant when [constructing your research as an R package](package.qmd), as it will distinguish between those necessary for the core simulation and those for other analysis and tests.
-
-At the very beginning of your project, your `DESCRIPTION` file might only include a few packages. For example, if you are starting with just the `simmer` package, your Imports section would look like this:
-
-```{.r}
-Imports:
-    simmer
-```
-
-As your project develops and you find yourself using additional packages, simply **add each new dependency to the `Imports` section** of your `DESCRIPTION` file.
-
-If you are following along with this book, you can use the following `DESCRIPTION` snippet to include all the packages needed to run the provided code in this book:
-
-```{.r}
-Imports:
-    simmer,
-    magrittr,
-    dplyr,
-    purrr,
-    rlang,
-    tidyr,
-    tidyselect,
-    future,
-    future.apply,
-    ggplot2,
-    tibble,
-    gridExtra,
-    R6
-Suggests:
-    testthat (>= 3.0.0),
-    patrick,
-    lintr,
-    devtools,
-    xtable,
-    data.table,
-    mockery
-Config/testthat/edition: 3
-```
-
-**Note:** In the [R Packages](https://r-pkgs.org/description.html) book, they recommend that versions are not specified in `DESCRIPTION`. Instead, they suggest that no version is specified - or that a minimum version is specified, if you know that an older version of specific package/s would break the code. This is why it is important to also create an `renv.lock` file (as below), so you do have a record of the exact versions used.
-
-<br>
-
-**Install packages from `DESCRIPTION`**. Run the following command in your console. This will install the packages from `DESCRIPTION`, and will determine and install the dependencies of those packages too.
-
-```{.r}
-renv::install()
-```
-
-<br>
-
-**Update `renv.lock`**. To take a snapshot of your environment and update your `renv.lock` file, run:
-
-```{.r}
-renv::snapshot()
-```
-
-This will update the lock file with a full list of the exact packages and dependencies, including the **versions** you have installed, providing a clear record of your working environment.
-
-There are three snapshot types:
-
-* **Implicit** - records any packages (and their dependencies) listed in `DESCRIPTION` or used in your code.
-* **Explicit** - only records packages (and their dependencies) listed in `DESCRIPTION`.
-* **All** - records all packages in your environment.
-
-The default snapshot type is **implicit**, and we recommend this approach. This is because it will catch any packages you are using but that you have forgot to add to `DESCRIPTION` (although it is best to remember to record these in `DESCRIPTION`, so you have a nice clear list of packages, and don't have to delve into `renv.lock` if you're having issues).
-
-The downside to this snapshot type if that it may include unnecessary packages if you include old scripts in your repository that use packages you no longer need. However, this can be avoided by removing old scripts (good practice!).
-
-If you want to check your snapshot type, run this command in the R console:
-
-```{.r}
-renv::settings$snapshot.type()
-```
-
-You can then change it if desired using one of:
-
-```{.r}
-renv::settings$snapshot.type("implicit")
-renv::settings$snapshot.type("explicit")
-renv::settings$snapshot.type("all")
-```
-
-<br>
-
-:::{.callout-tip}
-## System dependencies
-
-Some R packages require external system libraries. The exact requirements will depend on which packages you use, what operating system you have, and whether you have used R before.
-
-If these system libraries are missing, package installation may fail, even if you have the correct R package versions.
-
-For example, working on Ubuntu, we found that we had to install the following system dependencies for `igraph`:
-
-```{.bash}
-sudo apt install build-essential gfortran
-sudo apt install libglpk-dev libxml2-dev
-```
-
-You should list any system dependencies that you are aware of in your project's README or setup instructions.
-:::
-
-::::
-
-<br>
-
-### Recreating an existing environment
-
-:::{.python-content}
-When working on a project from scratch, you will often build up your environment organically and iteratively as you find more packages you want to use. However, to follow along with this book and ensure everything works as expected, you can use the full environment provided below. Copy this into your `environment.yaml` (feel free to alter the name!):
-
-```{.bash}
-name: des-example
-channels:
-  - conda-forge
-dependencies:
-  - ipykernel=6.29.5
-  - jinja2=3.1.5
-  - joblib=1.4.2
-  - nbconvert=7.16.6
-  - nbformat=5.10.4
-  - nbqa=1.9.0
-  - numpy=2.2.2
-  - pandas=2.2.3
-  - pip=25.0
-  - plotly_express=0.4.1
-  - pylint=3.3.4
-  - pytest=8.3.4
-  - pytest-xdist=3.6.1
-  - python=3.13.1
-  - rich=13.9.4
-  - simpy=4.1.1
-  - pip:
-    - kaleido==0.2.1
-    - sim-tools==0.8.0
-```
-
-Then update your environment to include these packages (after running `conda activate des-example`) with:
-
-```{.bash}
-conda env update --file environment.yaml --prune
-```
-:::
-
-:::{.r-content}
-When you want to recreate an environment—such as for an old project or when collaborating—you have two main options, depending on which files are available:
-
-| Method | What does it install? | Best for... |
-| - | - | - |
-| **From `renv.lock`** | Installs the exact package versions (and their dependencies) used previously | Full reproducibility; restoring the original environment exactly
-| **From `DESCRIPTION`** | Installs the main packages listed (and their dependencies), but uses the latest available versions (unless specified) | Getting started quickly or if `renv.lock` is missing or problematic |
-
-<br>
-
-**Restoring from `renv.lock` (preferred)**. If the project includes an `renv.lock` file, use this as your first option. This file records the exact versions of all packages used, enabling you to recreate the environment as it was originally (*except for R version and operating system differences).
-
-To restore the environment, run in your R console:
-
-```{.r}
-renv::restore()
-```
-
-This will attempt to install all packages at the precise versions specified.
-
-Occasionally, you may encounter issues - such as conflicts, unavailable packages, or operating system differences - especially with older projects or across different systems.
-
-<br>
-
-**Rebuilding from `DESCRIPTION`**. If `renv.lock` is unavailable or causes problems, you can use the `DESCRIPTION` file.  This file lists the main package dependencies, but typically does not specify exact versions (unless you have set minimum versions for specific needs).
-
-To install packages listed in `DESCRIPTION`, run:
-
-```{.r}
-renv::install()
-```
-
-This will install the latest available versions of the listed packages and their dependencies. This approach is less precise than using `renv.lock`, so results may differ slightly from the original environment, especially if package updates have introduced changes.
-
-In theory, the R ecosystem aspires to maintain backwards compatability, meaning that code written for older package versions should continue to work with newer ones. However, in practice, there is no strict guarantee of backward compatibility in R, either for the core language or for contributed packages.
-
-As discussed in the [R packages](https://r-pkgs.org/lifecycle.html) book:
-
-> "If we're being honest, most R users don’t manage package versions in a very intentional way. Given the way `update.packages()` and `install.packages()` work, it’s quite easy to upgrade a package to a new major version without really meaning to, especially for dependencies of the target package. This, in turn, can lead to unexpected exposure to breaking changes in code that previously worked. This unpleasantness has implications both for users and for maintainers."
-
-Hence, using a lockfile like `renv.lock` is the only reliable way to ensure that your environment is recreated exactly as it was - but `DESCRIPTION` can serve as a valuable back-up when this doesn't work, and otherwise just as a handy summary of the main packages.
-
-<br>
-
-**If neither file is provided**. If you have neither a `renv.lock` nor a `DESCRIPTION` file, you can try to create a `DESCRIPTION` file based on your knowledge of the project and its required packages.
-
-**Summary:**
-
-We can use `renv` to create a reproducible environment in R. In the process above, we generated two key files:
-
-* `DESCRIPTION` - lists project's primary packages with any minimum version requirements, but not exact versions.
-* `renv.lock` - complements this by recording the precise versions of all packages and their dependencies.
-
-These work together to both provide (a) a comprehensive record of your project environment, and (b) enable yourself or others to reconstruct the environment.
-
-:::
-
-<br>
-
-## Other examples {#sec-other}
-
-If you're interested in using one of the other tools for dependency management, we've provided some brief information on each below, and direct you to other sources for a more detailed explanation of how to use them.
-
-::::{.python-content}
-
-::: {.callout-note collapse="true"}
-## venv
+::: {.callout-note collapse="true" title="`venv`"}
 
 **Installation**
 
@@ -739,10 +486,10 @@ pip install -r requirements.txt
 **Further information**
 
 For more guidance on using `venv`, check out the [venv documentation](https://docs.python.org/3/library/venv.html).
+
 :::
 
-::: {.callout-note collapse="true"}
-## poetry
+::: {.callout-note collapse="true" title="`poetry`"}
 
 **Installation**
 
@@ -872,10 +619,10 @@ poetry add nbqa==1.9.0
 **Further information**
 
 For more guidance on using `poetry`, check out the [poetry documentation](https://python-poetry.org/docs/).
+
 :::
 
-::: {.callout-note collapse="true"}
-## uv
+::: {.callout-note collapse="true" title="`uv`"}
 
 **Installation**
 
@@ -988,171 +735,295 @@ wheels = [
 ...
 ```
 
-<br>
-
 **Further information**
 
 For more guidance on using `uv`, check out the [uv documentation](https://docs.astral.sh/uv/).
+
 :::
 
 ::::
 
-::::{.r-content}
+:::: {.r-content}
 
-**Installing and managing R versions**
+In R, the most popular tool for managing dependencies is [`renv`](https://github.com/rstudio/renv).
 
-::: {.callout-note collapse="true"}
-## Manual installation and switching with update-alternatives
+### Creating an `renv` environment
 
-The following instructions are for **Linux** systems. If you are using Windows or Mac, download the R installer from CRAN. To manage multiple versions on Windows, consider RSwitch utility or manually adjust your PATH environment variable. On Mac, consider RSwitch for Mac, or use Hojmebrew to install specific versions and manage symlinks.
+#### 1. Install renv
 
-<br>
+If you haven't already, install `renv` from CRAN:
 
-**Installation**
-
-Following instructions from [r-builds](https://github.com/rstudio/r-builds), we first specify the version of R that you want to install ([see available versions](https://cdn.posit.co/r/versions.json)).
-
-```{.bash}
-R_VERSION=4.5.0
+```{.r}
+install.packages("renv")
 ```
 
-Download the `.deb` package (modifying the url depending on your system - `ubuntu-2004`, `ubuntu-2204`, `ubuntu2404`, `debian-12`).
+#### 2. Create an R project
 
-```{.bash}
-curl -O https://cdn.posit.co/r/ubuntu-2204/pkgs/r-${R_VERSION}_1_amd64.deb
+It's best to use `renv` within an R project. R projects are commonly created and managed by RStudio.
+
+In RStudio, select "File > New Project..." and choose "Existing Directory".
+
+![](environment_resources/rproject1.png)
+
+Navigate to your project directory, then select "Create Project".
+
+![](environment_resources/rproject2.png)
+
+This will create :
+
+* `.Rproj`: project file (contains some settings for the project).
+* `.Rproject.user/`: hidden folder with temporary project files (e.g. auto-saved source documents).
+
+If you are not using RStudio, R projects can be difficult to set-up, as they have to be created manually. It is possible to use `renv` *without* an R project though, as discussed in [this GitHub issue](https://github.com/rstudio/renv/issues/460). This can be done using `setwd()` to set your repository as the current working directory, and then continuing with the steps below.
+
+#### 3. Initialise `renv`
+
+In your R console, run:
+
+```{.r}
+renv::init()
 ```
 
-Install the package:
+This creates:
 
-```{.bash}
-sudo gdebi r-${R_VERSION}_1_amd64.deb
+* `renv/`: stores packages for the project.
+* `renv.lock`: records packages and the exact versions used.
+* `.Rprofile`: ensures `renv` activates when the project opens.
+
+Example `renv.lock` containing only `renv`:
+
+```{.r}
+{
+  "R": {
+    "Version": "4.4.1",
+    "Repositories": [
+      {
+        "Name": "CRAN",
+        "URL": "https://packagemanager.posit.co/cran/latest"
+      }
+    ]
+  },
+  "Packages": {
+    "renv": {
+      "Package": "renv",
+      "Version": "1.0.7",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "utils"
+      ],
+      "Hash": "397b7b2a265bc5a7a06852524dabae20"
+    }
+  }
+}
 ```
 
-View installed R versions:
+When you initialise `renv`, you project gets its own **project library** - a private folder (`renv/library/`) where packages are installed just for this project. This means package versions are isolated and recorded for each project, so updating a package in one project won't break others. This makes collaboration and reproducibility much easier.
 
-```{.bash}
-ls /opt/R/
-```
+This is different from the **user library**, which is the default shared location where R installs packages used by all your R projects. See the "Packages" section on RStudio, which will show your project v.s. user library:
 
-<br>
+![](environment_resources/renv_init.png)
 
-**Switching between versions**
+Some further information relevant when initialising `renv`:
 
-To set the default R version for RStudio and the terminal, you can create symbolic links in `/usr/local/bin` pointing to the desired version under `/opt/R`.
+::: {.callout-note collapse="true" title="Implicit or explicit mode"}
 
-```{.bash}
-sudo ln -s /opt/R/${R_VERSION}/bin/R /usr/local/bin/R 
-sudo ln -s /opt/R/${R_VERSION}/bin/Rscript /usr/local/bin/Rscript
-```
+If a `DESCRIPTION` file is present, `renv` will prompt you to choose how dependencies are discovered:
 
-However, a better approach is to use **update-alternatives**. You have to register `R` and `Rscript` for each version of R - for example:
+* **Implicit mode:** `renv` will scan you project files for any packages used in your code.
+* **Explicit mode:** `renv` will use only the packages listed in your `DESCRIPTION` file.
 
-```{.bash}
-sudo update-alternatives --install /usr/local/bin/R R /opt/R/3.6.0/bin/R 360
-sudo update-alternatives --install /usr/local/bin/Rscript Rscript /opt/R/3.6.0/bin/Rscript 360
+We recommend choosing implicit mode for most projects, as it ensures that all packages actually used in your code are detected and managed, even if you forget to list them in `DESCRIPTION`.
 
-sudo update-alternatives --install /usr/local/bin/R R /opt/R/4.4.1/bin/R 441
-sudo update-alternatives --install /usr/local/bin/Rscript Rscript /opt/R/4.4.1/bin/Rscript 441
-
-sudo update-alternatives --install /usr/local/bin/R R /opt/R/4.5.0/bin/R 450
-sudo update-alternatives --install /usr/local/bin/Rscript Rscript /opt/R/4.5.0/bin/Rscript 450
-```
-
-Then run the following commands to switch versions interactively - you'll be prompted to select which version of R to use.
-
-```{.bash}
-sudo update-alternatives --config R
-sudo update-alternatives --config Rscript
-```
-
-When you open RStudio, you should find it has switched to the version of R you chose.
-
-However, if using different versions of R between projects, you will need to change this before opening RStudio for each project.
+*We'll explain more about `DESCRIPTION` files and these modes in the section on adding packages to the environment.*
 
 :::
 
-::: {.callout-note collapse="true"}
-## rig
+::: {.callout-note collapse="true" title="Initialising a bare environment"}
 
-**Installation**
+By default, `renv::init()` will scan and install packages into your project library. If your directory is empty or contains no code using packages, only `renv` itself will be installed.
 
-Follow [installation instructions](https://github.com/r-lib/rig) for your operating system. For example, on Linux Ubuntu:
+If you want to initialise `renv` without installing any packages, you can use:
 
-```{.bash}
-`which sudo` curl -L https://rig.r-pkg.org/deb/rig.gpg -o /etc/apt/trusted.gpg.d/rig.gpg
-`which sudo` sh -c 'echo "deb http://rig.r-pkg.org/deb rig main" > /etc/apt/sources.list.d/rig.list'
-`which sudo` apt update
-`which sudo` apt install r-rig
+```{.r}
+renv::init(bare = TRUE)
 ```
 
-Then, to confirm it has installed:
+This will create `renv/` and `.Rprofile` but not `renv.lock` or a project library.
 
-```{.bash}
-rig --version
-```
+However, when you later run `renv::snapshot()`, `renv` will scan and install packages at that point. If you use implicit mode, it will detect and install all packages used in your code - even if you started with a bare environment.
 
-<br>
-
-**See current R versions**
-
-To see all R versions installed on machine:
-
-```{.bash}
-rig list
-```
-
-Example output:
-
-```
-* name   version  aliases
-------------------------------------------
-  3.6.0           
-  4.2.2           
-  4.3.1           
-  4.4.1           
-  4.5.0  
-```
-
-<br>
-
-**Add new R versions**
-
-Can add specific versions:
-
-```{.bash}
-rig add 4.1.2
-```
-
-Or just the latest version:
-
-```{.bash}
-rig add
-```
-
-<br>
-
-**Choose which R version to use**
-
-Use the `rig default` command to choose an R version - when you open RStudio, it will be active. It will override the version you have set manually - but redoing that (e.g. with `update-alternatives`) will override it back.
-
-Example:
-
-```{.bash}
-rig default 4.1.2
-```
-
-<br>
-
-**Further information**
-
-See the [rig GitHub repository](https://github.com/r-lib/rig) for further information on using it.
+*We'll explain more about snapshots and implicit mode in the section on adding packages to the environment.*
 
 :::
 
-**Using specific R version and packages for each project**
+### Adding packages to the `renv` environment
 
-::: {.callout-note collapse="true"}
-## rv
+It is possible to simply install packages directly using commands like:
+
+```{.r}
+renv::install("packagename")
+install.packages("packagename")
+```
+
+However, we recommend using a `DESCRIPTION` file. This is a file listing only the **main packages** your project directly depends on - i.e. those you might have add using `renv::install()`.
+
+This differs from `renv.lock` which records **all packages** needed to recreate your environment, including every main package and all their dependencies, plus the exact versions used.
+
+![](environment_resources/description_vs_lock.png)
+
+The benefit of using a `DESCRIPTION` file when adding packages is:
+
+* 📝 **Clear requirements.** The `DESCRIPTION` file gives a simple, readable summary of your project’s main packages. It’s much easier to read than `renv.lock`.
+* 📦 **Consistency with package development**. If your project is (or might become) an R package, the `DESCRIPTION` file is the standard way to declare dependencies.
+* 🔄 **Alternative for environment recreation**. While `renv.lock` is the primary tool for restoring an `renv` environment, having a `DESCRIPTION` file is a valuable backup. If you encounter issues with `renv.lock`, you can use `DESCRIPTION` to reinstall the main dependencies.
+* 🎯 **Explicit snapshots**. If you want precise control over what's included in `renv.lock`, you can use an "explicit" snapshot. This means only the packages listed in `DESCRIPTION` (and their dependencies) are recorded.
+
+
+#### 1. Create a `DESCRIPTION` file
+
+Create a blank file named `DESCRIPTION` and copy in the template below. You can customise some of the meta-data (e.g. package, title, authors, description).
+
+This is a standard template. You can create an identical file with `usethis` by running `usethis::use_description()`. However, we can just create it from scratch, which helps to minimise our dependencies.
+
+```{.r}
+Package: packagename
+Title: What the Package Does (One Line, Title Case)
+Version: 0.0.0.9000
+Authors@R: 
+    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"))
+Description: What the package does (one paragraph).
+License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
+    license
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.0.0
+```
+
+#### 2. List dependencies
+
+Dependencies can be listed as:
+
+* `Imports` (required packages).
+* `Suggests` (optional/development packages).
+
+For non-package projects, it's simplest to list all dependencies under `Imports`, which will be identified by `renv` (whilst those under `Suggests` may not unless used in scripts).
+
+`Suggests` is more relevant when constructing a package, as it distinguishes packages necessary only for optional features, vignettes or testing, from those required within the package itself.
+
+**Note:** In the [R Packages](https://r-pkgs.org/description.html) book, they recommend that - in `DESCRIPTION` - no versions are specified, or a minimum version is specified if you know that an older version of specific package/s would break the code. This is why it is important to also create an `renv.lock` file (as below), so you do have a record of the exact versions used.
+
+Example `DESCRIPTION` with packages `dplyr` and `future`:
+
+```{.r}
+Package: example
+Title: Example DESCRIPTION
+Version: 0.0.0.9000
+Authors@R: 
+    person("Amy", "Heather", , "a.heather2@exeter.ac.uk", role = c("aut", "cre"))
+Description: This is an example DESCRIPTION, used for environment management.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.0.0
+Imports:
+    dplyr
+    future
+```
+
+At the very beginning of your project, your `DESCRIPTION` file might only include a few packages. As your project develops and you find yourself using additional packages, simply **add each new dependency to the `Imports` section** of your `DESCRIPTION` file.
+
+If you are following along with this book, you can use the following `DESCRIPTION` snippet to include all the packages needed to run the provided code in this book:
+
+```{.r}
+Imports:
+    simmer,
+    magrittr,
+    dplyr,
+    purrr,
+    rlang,
+    tidyr,
+    tidyselect,
+    future,
+    future.apply,
+    ggplot2,
+    tibble,
+    gridExtra,
+    R6
+Suggests:
+    testthat (>= 3.0.0),
+    patrick,
+    lintr,
+    devtools,
+    xtable,
+    data.table,
+    mockery
+Config/testthat/edition: 3
+```
+
+#### 3. Install packages from `DESCRIPTION`
+
+Install packages listed in `DESCRIPTION` (and their dependencies) with:
+
+```{.r}
+renv::install()
+```
+
+#### 4. Update `renv.lock`
+
+Take a snapshot of your environment and update `renv.lock`:
+
+```{.r}
+renv::snapshot()
+```
+
+This will update the lock file with a full list of the exact packages and dependencies, including the **versions** you have installed.
+
+There are three snapshot types:
+
+* **Implicit** (default): Records packages in `DESCRIPTION` *and* those used in your code.
+* **Explicit**: Only records packages listed in `DESCRIPTION`.
+* **All**: Records all packages in your environment.
+
+We recommend using the default (implicit) to ensure all used packages are captured, even if not listed in `DESCRIPTION`. However, you should remove unused scripts to avoid capturing unnecessary packages. 
+
+To check your current snapshot type:
+
+```{.r}
+renv::settings$snapshot.type()
+```
+
+To change it if needed:
+
+```{.r}
+renv::settings$snapshot.type("implicit")
+renv::settings$snapshot.type("explicit")
+renv::settings$snapshot.type("all")
+```
+
+### Deleting an `renv` environment
+
+To remove `renv` from a project, run:
+
+```{.r}
+renv::deactivate(clean = TRUE)
+```
+
+This will remove the renv auto-loaded, the `renv/` directory, and the `renv.lock` file in one step, and restart the R session.
+
+### Other methods
+
+In R, `renv` is the most popular tool for managing dependencies. It replaced and improved upon the previous tool, [`Packrat`](https://github.com/rstudio/packrat).
+
+There is a new tool currently in development called [`rv`](https://github.com/A2-ai/rv) which aims to provide a more modern, declarative workflow. It requires all dependencies to be specified before installation (rather than taking snapshots as you go along like `renv`).
+
+::: {.callout-note collapse="true" title="rv"}
+
+This section provides more information on `rv`.
+
+Using `rv`, you can declare an R version up-front and, whilst it will not automate installation or switching of R versions, it will warn/error if you try to use a different version. **Note:** `renv` currently will warn you if you are using a different R version to that specified in `renv.lock`.
+
+The main difference in `rv` is that it requires all dependencies to be specified before installation, rather than taking snapshots as you go along like with `renv`. These dependencies are saved in an `rproject.toml file`.
 
 **Installation**
 
@@ -1167,8 +1038,6 @@ We can then check it has installed by running:
 ```{.bash}
 rv --version
 ```
-
-<br>
 
 **Setting up the project with a particular version of R**
 
@@ -1210,8 +1079,6 @@ Caused by:
     Specified R version (4.5) does not match any available versions found on the system (3.6.0, 4.2.2, 4.3.1, 4.4.1)
 ```
 
-<br>
-
 **Setting repositories**
 
 When we ran `rv init`, we got an error message:
@@ -1229,8 +1096,6 @@ repositories = [
 ```
 
 Without this change, it was not possible to install packages (would "fail to resolve all dependencies").
-
-<br>
 
 **Adding packages**
 
@@ -1290,8 +1155,6 @@ dependencies = [
 ]
 ```
 
-<br>
-
 **Adding specific versions of packages**
 
 Currently, `rv` requires this is done by editing the `rproject.toml` file and then running:
@@ -1314,8 +1177,6 @@ dependencies = [
 ]
 ```
 
-<br>
-
 **Further information**
 
 Check out the [rv GitHub repository](https://github.com/A2-ai/rv/tree/main) for more advice on using this tool, and the latest instructions (as this package is still in active development).
@@ -1324,17 +1185,337 @@ Check out the [rv GitHub repository](https://github.com/A2-ai/rv/tree/main) for 
 
 ::::
 
-<br>
+## ⚙️ Other
 
-## Further information
+:::: {.python-content}
 
-:::{.python-content}
+TODO
+
+::::
+
+:::: {.r-content}
+
+Besides the packages and R version used, your R environment will also include **system libraries** (external software required by some packages) and **project-specific settings** (e.g. `.Rproj`, `.Rprofile`).
+
+The exact system libraries required will depend on which packages you use, what operating system you have, and whether you have used R before. If system libraries are missing, package installation may fail, even if you have the correct R package versions. For example, working on Ubuntu, we found that we had to install the following system dependencies for `igraph`:
+
+```{.bash}
+sudo apt install build-essential gfortran
+sudo apt install libglpk-dev libxml2-dev
+```
+
+Most researchers handle these components by:
+
+* Documenting required system libraries in the project's README or set-up instructions.
+* Including project files (like `.Rproj` and `.Rprofile`) in version control (e.g., Git).
+
+::::
+
+## 🛠️ Recreate & troubleshoot
+
+<div class="h3-tight"></div>
+
+:::: {.python-content}
+
+### Recreating an existing python environment
+
+TODO
+
+<!--TODO;
+When working on a project from scratch, you will often build up your environment organically and iteratively as you find more packages you want to use. However, to follow along with this book and ensure everything works as expected, you can use the full environment provided below. Copy this into your `environment.yaml` (feel free to alter the name!):
+
+```{.bash}
+name: des-example
+channels:
+  - conda-forge
+dependencies:
+  - ipykernel=6.29.5
+  - jinja2=3.1.5
+  - joblib=1.4.2
+  - nbconvert=7.16.6
+  - nbformat=5.10.4
+  - nbqa=1.9.0
+  - numpy=2.2.2
+  - pandas=2.2.3
+  - pip=25.0
+  - plotly_express=0.4.1
+  - pylint=3.3.4
+  - pytest=8.3.4
+  - pytest-xdist=3.6.1
+  - python=3.13.1
+  - rich=13.9.4
+  - simpy=4.1.1
+  - pip:
+    - kaleido==0.2.1
+    - sim-tools==0.8.0
+```
+
+Then update your environment to include these packages (after running `conda activate des-example`) with:
+
+```{.bash}
+conda env update --file environment.yaml --prune
+```
+-->
+
+::::
+
+:::: {.r-content}
+
+### Recreating an existing R environment
+
+This flowchart guides you through the main choices you'll face when rebuilding an R environment:
+
+[![Summary workflow for recreating an R environment for an existing project](environment_resources/restore_r_environment.drawio.png)](environment_resources/restore_r_environment.drawio.png)
+
+Some of the essential actions from this flowchart - alongside some additional considerations - are described below.
+
+**Switch R version**.
+
+* Use `rig` to easily change to the required R version (see '**🔄 R version**').
+
+**Restore packages**.
+
+* If you have an `renv.lock` file, run: `renv::restore()`.
+  * This installs the exact package versions (and their dependencies) used previously.
+  * It is good for full reproducibility; restoring the original environment exactly
+* If you are using a `DESCRIPTION` file, run: `renv::install()`.
+  * This installs the main packages listed (and their dependencies), but uses the latest available versions (unless specified).
+  * It is good if `renv.lock` is missing or problematic.
+
+**Snapshot mode**.
+
+* In '**📦 Packages**', we recommend 'implicit' mode so that `renv.lock` captures all packages used, even if you have forgot to add them to `DESCRIPTION`. However, when rebuilding an environment, 'explicit' mode can help ensure all required packages are listed in `DESCRIPTION`.
+
+**Additional environment components**.
+
+* System libraries - covered in troubleshooting section.
+* Project-specific settings - these files (e.g. `.Rprofile`, `.Rproj`) should be copied over if provided. They are not typically a source of errors but important for restoring full project environment, as they may contain custom project options.
+
+### Backwards compatability in R
+
+In theory, the R ecosystem aspires to maintain backwards compatability, meaning that code written for older package versions should continue to work with newer ones. However, in practice, there is no strict guarantee of backward compatibility in R, either for the core language or for contributed packages.
+
+As discussed in the [R packages](https://r-pkgs.org/lifecycle.html) book:
+
+> "If we're being honest, most R users don’t manage package versions in a very intentional way. Given the way `update.packages()` and `install.packages()` work, it’s quite easy to upgrade a package to a new major version without really meaning to, especially for dependencies of the target package. This, in turn, can lead to unexpected exposure to breaking changes in code that previously worked. This unpleasantness has implications both for users and for maintainers."
+
+Hence, using a lockfile like `renv.lock` is the only reliable way to ensure that your environment is recreated exactly as it was - but `DESCRIPTION` can serve as a valuable back-up when this doesn't work, and otherwise just as a handy summary of the main packages.
+
+### Troubleshooting
+
+Restoring an R environment can often run into issues, especially with older projects or system differences. Below are common problems and solutions.
+
+#### Unavailable packages
+
+When recreating environments with older R versions or package versions, you may encounter errors if those packages are no longer available for your chosen R version. CRAN often archives older packages, and support for very old R versions is limited.
+
+**Symptoms:**
+
+* Errors stating that a package or a specific version cannot be found or installed.
+* Installation fails even though the package exists for newer R versions.
+
+**Solutions:**
+
+* If exact reproducibility isn't critical, update to a more recent R version and/or newer package versions.
+* For legacy work, search for archived source tarballs or consult the CRAN archive, but success isn't guaranteed.
+
+#### Backdating
+
+If you set up your environment with the latest R and package versions (for example, when no specific versions are listed), you may find your code requires older package versions to work as expected.
+
+**Symptoms:**
+
+* Code relies on functions or behaviors from earlier package versions.
+* Latest package versions introduce breaking changes.
+
+**Solutions:**
+
+* Specify minimum or exact versions in your `DESCRIPTION` file.
+* Be aware that not all old versions are available for every R version; you may need to adjust your R version or accept a newer package.
+
+To specify a minimum version in `DESCRIPTION`:
+
+```{.r}
+Imports:
+    dplyr (>= 1.0.0)
+```
+
+To install a particular version using `renv` (which is then captured in `renv.lock` by calling `renv::snapshot()`):
+
+```{.r}
+renv::install("dplyr@1.1.2")
+```
+
+#### Missing system dependencies
+
+Some R packages require external system libraries (e.g., C libraries, database clients) not installed by default.
+
+**Symptoms:**
+
+* Package installation fails with errors about missing libraries (e.g., "cannot find -lssl", "libcurl not found", missing `.so` files).
+* Consult the CRAN page for each package (OR SPECIFIED ONE IN ERROR?); most list system requirements. As an example, the openssl and curl packages commonly require system libraries. See this GitHub issue for a real-world case and solution.
+
+**Solutions:**
+
+* Check the CRAN page for each package for system requirements. The `openssl` and `curl` packages are a common source of these issues.
+* Install the required system dependencies and document them in your `README` for others. For example:
+  * Ubuntu/Debian: `sudo apt-get install libssl-dev libcurl4-openssl-dev`.
+  * Fedora/RHEL: `sudo dnf install openssl-devel libcurl-devel`.
+  * MacOS: `brew install openssl curl`.
+  * Windows: Follow package documentation or use precompiled binaries.
+
+#### Legacy user libraries
+
+On systems where R has been installed for a long time, the user library (the default location for installed packages) may contain outdated or conflicting packages. This can interfere with `renv`, sometimes causing it to fail silently or behave unpredictably.
+
+**Symptoms:**
+
+* `renv` commands have no effect or fail with unclear messages.
+* Packages are loaded from the user library instead of the project library.
+
+**Solutions:**
+
+* Check `.libPaths()` to confirm the project library is listed first when `renv` is active.
+* Temporarily move or rename your user library directory and restart R to see if `renv` works correctly.
+* If issues persist, consider reinstalling R or resetting your user library.
+* As a last resort, a clean operating system install can resolve deep or persistent conflicts.
+
+#### General tips
+
+**Update renv:** Bugs are fixed regularly - ensure you're using the latest version.
+
+**Check permissions:** Make sure you have write access to your project directory.
+
+**Consult logs:** Use `renv::diagnostics()` to generate a report on your environment.
+
+**Search for known issues:** Many problems are discussed (and solved) in the [renv GitHub Issues](https://github.com/rstudio/renv/issues) tracker.
+
+::::
+
+## 🧪 Activities
+
+:::: {.python-content}
+
+TODO
+
+::::
+
+:::: {.r-content}
+
+Let's put theory into practice! These activities are designed to help you experience real-world workflows for managing R environments using `renv` and `rig`.
+
+### Activity 1: Create a reproducible R project from scratch
+
+**Goal:** Set up a new R project with `renv`, add a package, capture the environment for reproducibility, and share it with others.
+
+**Suggested package and script:** Use the `ggplot2` package, and create a script named `plot_example.R` with the following code:
+
+```{.r}
+library(ggplot2)
+ggplot(mtcars, aes(mpg, wt)) + geom_point()
+```
+
+::: {.callout-tip collapse="true" title="View solution"}
+
+1. **Create a new R project.**
+    * In RStudio: Go to "File" > "New Project..." and choose "New Directory" or "Existing Directory" as needed.
+2. **Initialize `renv`.**
+    * In the R console, run:
+      ```{.r}
+      install.packages("renv")
+      renv::init()
+      ```
+3. **Install a package.**
+    * For example, to add `ggplot2`, add this to a `DESCRIPTION` file and then run
+      ```{.r}
+      renv::install()
+      ```
+4. **Write and run a simple script.**
+    * Create a new R script (e.g., `plot_example.R`) with:
+      ```{.r}
+      library(ggplot2)
+      ggplot(mtcars, aes(mpg, wt)) + geom_point()
+      ```
+    * Run the script to confirm everything works.
+5. **Snapshot the environment.**
+    * Save the current state of your environment:
+      ```{.r}
+      renv::snapshot()
+      ```
+    * This updates the `renv.lock` file, recording all package versions.
+6. **Share your project.**
+    * Your project folder now contains everything needed for someone else to reproduce your analysis - just share the folder (via GitHub, ZIP, etc.).
+
+Review the **📦 Packages** page for more information on these steps.
+
+:::
+
+### Activity 2: Reproduce an existing R project
+
+**Goal:** Clone a repository with a pre-configured `renv` environment, switch to the correct R version, restore dependencies, and run a basic R script.
+
+**Repository:** [amyheather/renv-reproduce-activity](https://github.com/amyheather/renv-reproduce-activity/)
+
+::: {.callout-tip collapse="true" title="View solution"}
+
+1. **Clone the provided repository.**
+    * `git clone https://github.com/amyheather/renv-reproduce-activity.git`
+    * `cd renv-reproduce-activity`
+2. **Switch to the required R version.**
+    * Check the `renv.lock` file or `README` for the required R version.
+    * Use `rig` (or your preferred tool) to switch R versions.
+3. **Restore the project environment.**
+    * Open the project in RStudio.
+    * Run `renv::restore()`.
+4. **Run the example code.**
+    * Locate and run the provided R script (`analysis.R`).
+5. **Troubleshoot (if needed).**
+    * If you encounter errors, refer to the troubleshooting section in **🛠️ Recreate & troubleshoot**.
+
+:::
+
+:::
+
+## 📚 Further ideas
+
+::: {.python-content}
+
+TODO
+
+### Further reading
+
+These are some nice resources generally covering topics related to python environment management:
+
 * ["An unbiased evaluation of environment management and packaging tools"](https://alpopkes.com/posts/python/packaging_tools/) from Anna-Lena Popkes 2024.
 * ["Python dependency management is a dumpster fire"](https://nielscautaerts.xyz/python-dependency-management-is-a-dumpster-fire.html) from Niels Cautaerts 2024.
 * ["Is conda free"](https://www.anaconda.com/blog/is-conda-free) from Dave Clements 2023.
+
 :::
 
-:::{.r-content}
+::: {.r-content}
+
+If you are interested in exploring more advanced or alternative approaches to managing reproducible R environments - especially when dealing with complex external dependencies - consider the following tools and resources:
+
+### Docker for R
+
+Using Docker allows you to encapsulate your entire R environment, including system libraries, R versions, and packages, inside a container. This approach can solve many issues related to external dependencies and ensures that your analysis runs identically across different systems.
+
+* [`dockerfiler`](https://github.com/colinfay/dockerfiler): An R package for programmatically creating Dockerfiles, making it easier to build reproducible R environments with custom dependencies.
+* [`rocker`](https://www.rocker-project.org/): A collection of Docker images for R, maintained by the R community, which you can use as a base for your own projects.
+
+### R-universe
+
+[R-universe](https://r-universe.dev/) is an online platform for building, hosting, and distributing R packages—including those not available on CRAN. It can help you:
+
+* Access packages from multiple sources, not just CRAN.
+* Set up custom repositories (collections of R packages) for your team or organisation.
+* Centralise package management (as repositories can include public, private and experimental).
+
+### Further reading
+
+These are some nice resources generally covering topics related to R environment management:
+
 * ["9. DESCRIPTION" from R Packages](https://r-pkgs.org/description.html) by Hadley Wickham and Jennifer Bryan.
 * ["21. Lifecycle" from R Packages](https://r-pkgs.org/lifecycle.html) by Hadley Wickham and Jennifer Bryan.
-:::
+
+::::
