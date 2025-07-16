@@ -2,10 +2,28 @@
 title: ✅ Structuring as a package
 ---
 
-:::{.guidelines}
+::: {.pale-blue}
+
+🎯 **Objectives**
+
+This page walks you through how to structure your project as a package.
+
+* **❔ Why create a package?** Key benefits of structure.
+* **📦 Create the package structure:** Set up core folders and files.
+* **⚙️ Configure your project:** Add and update necessary project, metadata, and environment files.
+* **🧪 Test if the package works:** Check that package functions load and execute.
+* **🧾 Summary:** Overview of research package structure.
+* **📎 Further information**.
+
+[🔗](../intro/guidelines.qmd) **Reproducibility guidelines**
+
+This page helps you meet reproducibility criteria from:
+
 * NHS Levels of RAP (🥈): Code is well-organised following standard directory format.
 * NHS Levels of RAP (🥇): Code is fully packaged.
 :::
+
+## ❔ Why create a package?
 
 Building our simulation model as a package has several advantages...
 
@@ -16,25 +34,23 @@ Building our simulation model as a package has several advantages...
 
 ![](package_resources/package_summary.png)
 
-<br>
-
-## Create the package structure
+## 📦 Create the package structure
 
 ::: {.python-content}
 
 First, let's create the basic directory structure for our simulation package.
 
-<br>
+### 1. Create folder
 
-**1. Create folder.** Create a folder called `simulation/` in your project directory.
+Create a folder called `simulation/` in your project directory.
 
 ```{.bash}
 mkdir simulation
 ```
 
-<br>
+### 2. Make `__init__.py` file
 
-**2. Make init file.** Inside the `simulation/` folder, create an `__init__.py` file.
+Inside the `simulation/` folder, create an `__init__.py` file.
 
 ```{.bash}
 touch simulation/__init__.py
@@ -51,7 +67,9 @@ __version__ = "0.1.0"
 
 <br>
 
-**3. Add a `.py` file with a function.** Within `simulation/`, create a file called `model.py`.
+### 3. Add a `.py` file with a function
+
+Within `simulation/`, create a file called `model.py`.
 
 ```{.bash}
 touch simulation/model.py
@@ -84,9 +102,9 @@ def run_simulation(duration=100):
 
 ```
 
-<br>
+### 4. Make `pyproject.toml` file
 
-**4. Make pyproject file.** Create a `pyproject.toml` file in the project root directory (outside the `simulation` folder).
+Create a `pyproject.toml` file in the project root directory (outside the `simulation` folder).
 
 ```{.bash}
 touch pyproject.toml
@@ -140,7 +158,9 @@ Now, let's first create the basic directory structure for our simulation package
 
 <br>
 
-**1. Create folder** Create a folder called `R/` in your project directory - for example, by running this command in the terminal:
+### 1. Create folder
+
+Create a folder called `R/` in your project directory - for example, by running this command in the terminal:
 
 ```{.bash}
 mkdir R
@@ -148,7 +168,9 @@ mkdir R
 
 <br>
 
-**2. Add a `.R` file with a function**. Within `R/`, create a file called `model.R`.
+### 2. Add a `.R` file with a function
+
+Within `R/`, create a file called `model.R`.
 
 ```{.bash}
 touch R/model.R
@@ -177,9 +199,9 @@ run_simulation <- function(duration = 100) {
 
 ```
 
-<br>
+### 3. Make a `DESCRIPTION` file
 
-**3. Make a `DESCRIPTION` file**. If you have worked through the [dependency management](environment.qmd) page then you should already have a `DESCRIPTION` file listing dependencies, though this step will walk you through more of the meta-data in that file important when structuring our work as a package.
+If you have worked through the [dependency management](environment.qmd) page then you should already have a `DESCRIPTION` file listing dependencies, though this step will walk you through more of the meta-data in that file important when structuring our work as a package.
 
 If you haven't already, then create a `DESCRIPTION` file by running this command in the terminal:
 
@@ -294,15 +316,13 @@ Config/testthat/edition: 3
 
 :::
 
-<br>
-
-## Configure your project
+## ⚙️ Configure your project
 
 :::{.python-content}
 
-<br>
+### 1. Add package to environment file
 
-**1. Add package to environment file**. Edit the `environment.yaml` file created on the [dependency management](environment.qmd) page to add the local package. We use the `-e` flag to install it in "editable" mode, which means it will update with any changes to the source code in `simulation/`.
+Edit the `environment.yaml` file created on the [dependency management](environment.qmd) page to add the local package. We use the `-e` flag to install it in "editable" mode, which means it will update with any changes to the source code in `simulation/`.
 
 We add the following line within the `pip` installs:
 
@@ -340,9 +360,9 @@ dependencies:
     - -e .[dev]
 ```
 
-<br>
+### 2. Update the environment
 
-**2. Update the environment**. To update our environment, adding our new package, execute the following in the command line (after running `conda activate des-example`):
+To update our environment, adding our new package, execute the following in the command line (after running `conda activate des-example`):
 
 ```{.bash}
 conda env update --file environment.yaml --prune
@@ -361,9 +381,9 @@ simulation                0.1.0                    pypi_0    pypi
 
 We will use `devtools` to build documentation and run checks.
 
-<br>
+### 1. Build package documentation
 
-**1. Build package documentation**. The function we created in `model.R` had a docstring (for more info on writing docstrings, see the [docstrings](../style_docs/docstrings.qmd) page). We can create the documentation for this by calling:
+The function we created in `model.R` had a docstring (for more info on writing docstrings, see the [docstrings](../style_docs/docstrings.qmd) page). We can create the documentation for this by calling:
 
 ```{.r}
 devtools::document()
@@ -374,9 +394,9 @@ This will create:
 * `man/`: folder with roxygen2 documentation for each function in package.
 * `NAMESPACE`: file which will list all the functions and packages used within your package.
 
-<br>
+### 2. Check the package
 
-**2. Check the package**. You can check that the package is set-up correctly by running:
+You can check that the package is set-up correctly by running:
 
 ```{.r}
 devtools::check()
@@ -497,7 +517,9 @@ The note in this case is because we are importing packages not currently used in
 
 <br>
 
-**3. Install the package**. We can also verify that our package is working by trying to install it. From the console, run:
+### 3. Install the package
+
+We can also verify that our package is working by trying to install it. From the console, run:
 
 ```{.r}
 devtools::install()
@@ -505,9 +527,7 @@ devtools::install()
 
 :::
 
-<br>
-
-## Test if the package works
+## 🧪 Test if the package works
 
 :::{.python-content}
 
@@ -515,18 +535,18 @@ We will run our model and analyse results within **Jupyter notebooks**, as they 
 
 In this case, we're creating an `.ipynb` file so we can have a go at loading and using our package, to check it works.
 
-<br>
+### 1. Create directory and notebook
 
-**1. Create directory and notebook**. We create a dedicated directory for our notebooks in the project root (`notebooks/`), and add a notebook (`simulation_test.ipynb`). These can be created via your operating system's file manager, or with the command line:
+We create a dedicated directory for our notebooks in the project root (`notebooks/`), and add a notebook (`simulation_test.ipynb`). These can be created via your operating system's file manager, or with the command line:
 
 ```{.bash}
 mkdir notebooks
 touch notebooks/simulation_test.ipynb
 ```
 
-<br>
+### 2. Check our package works
 
-**2. Check our package works.** Open `notebooks/simulation_test.ipynb` and add the following code. This will test that we are able to import our package and use the basic function we had created.
+Open `notebooks/simulation_test.ipynb` and add the following code. This will test that we are able to import our package and use the basic function we had created.
 
 ```{.python}
 # Import our simulation package
@@ -560,9 +580,9 @@ We will run our model and analyse results within **R markdown (.Rmd)** files, as
 
 In this case, we're creating an `.Rmd` file so we can have a go at loading and using our package, to check it works.
 
-<br>
+### 1. Create directory and R markdown file
 
-**1. Create directory and R markdown file**. We create a dedicated directory for our R markdown files in the project root (`rmarkdown/`), and add a file (`simulation_test.Rmd`). These can be created via the terminal by running:
+We create a dedicated directory for our R markdown files in the project root (`rmarkdown/`), and add a file (`simulation_test.Rmd`). These can be created via the terminal by running:
 
 ```{.bash}
 mkdir rmarkdown
@@ -573,9 +593,9 @@ As part of an R package, you can create a `vignettes` folder, which is typically
 
 However, we usually prefer to use an `rmarkdown/` folder when structuring research as a package because running analyses as vignettes is very inefficient for simulations with longer run times, and saving outputs from vignettes can lead to file path errors during the package build process.
 
-<br>
+### 2. Check our package works
 
-**2. Check our package works**. Open `rmarkdown/simulation_test.Rmd` and add the following code into a cell. This means you put \`\`\`{r} in the line before the code, and \`\`\` in the line after.
+Open `rmarkdown/simulation_test.Rmd` and add the following code into a cell. This means you put \`\`\`{r} in the line before the code, and \`\`\` in the line after.
 
 This code will test that we are able to import our package and use the basic function we had created.
 
@@ -609,9 +629,7 @@ Number of results: 20
 
 :::
 
-<br>
-
-## Summary
+## 🧾 Summary
 
 :::{.python-content}
 
@@ -661,9 +679,7 @@ our_directory/
 
 :::
 
-<br>
-
-## Further information
+## 📎 Further information
 
 :::{.python-content}
 

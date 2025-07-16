@@ -5,18 +5,21 @@ filters:
   - line-highlight
 ---
 
-> This is not necessary to reproducibility or a reproducible analytical pipeline, but is good practice when working, and may help avoid mistakes.
+::: {.pale-blue}
 
-<br>
+🎯 **Objectives**
 
-## Introduction
+**Parameter validation** refers to checking that inputs provided to functions or classes are correct and as expected. This page focuses on two examples of validation we can perform.
 
-**Parameter validation** refers to checking that inputs provided to functions or classes are correct and as expected.
+* **🚨 Accidental creation of new parameters:** A dangerous but common mistake in discrete-event simulation (DES), where new parameters are created instead of modifying existing ones.
+* **🛡️ Validating parameter values (e.g. range):** to ensure they fall within the expected values.
+* **🧾 Examples:** Full code examples from our example simulation models.
 
-This page focuses on two examples of validation we can perform:
+[🔗](../intro/guidelines.qmd) **Reproducibility guidelines**
 
-1. Preventing a dangerous but common mistake in discrete-event simulation (DES): **accidentally creating new parameters through typos** instead of modifying existing ones.
-2. **Validating parameter values** to ensure they fall within the expected range.
+Whilst this is not necessary to reproducibility or a reproducible analytical pipeline, it is good practice when working, and may help avoid mistakes.
+
+:::
 
 :::{.python-content}
 ```{python}
@@ -31,9 +34,9 @@ library(R6) # nolint: undesirable_function_linter
 ```
 :::
 
-<br>
+## 🚨 Accidental creation of new parameters
 
-## Accidental creation of new parameters
+<div class="h3-tight"></div>
 
 ### The problem
 
@@ -130,8 +133,6 @@ try({
 
 :::::
 
-<br>
-
 ### The solution
 
 ::::{.python-content}
@@ -157,8 +158,6 @@ Class-based validation is often preferable as it catches errors at the point whe
 :::{.r-content}
 Functions are more commonly used in R than classes, so you may prefer to stick with the function-based approach for consistency with R conventions.
 :::
-
-<br>
 
 ### Parameter validation within the model function
 
@@ -336,8 +335,6 @@ try(model(params, param_function))
 ```
 :::
 
-<br>
-
 ### Parameter validation within the class
 
 :::{.python-content}
@@ -347,9 +344,7 @@ We can add logic to prevent the addition of new attributes to our Python classes
 * Directly within the class, or-
 * Using class inheritance.
 
-<br>
-
-**Direct implementation within the class:**
+#### Direct implementation within the class
 
 This approach implements validation logic directly within the class using a custom `__setattr__` method.
 
@@ -426,9 +421,7 @@ except AttributeError as e:
     print(f"Error: {e}")
 ```
 
-<br>
-
-**Using class inheritance:**
+#### Using class inheritance
 
 **Class inheritance** allows a class to serve as a blueprint for another, passing down attributes and methods. This approach is useful for sharing logic - such as restricting new attribute creation—across multiple classes - **reducing code duplication and making each class simpler**.
 
@@ -543,9 +536,7 @@ By default, **R6 classes prevent the addition of new fields**. However, there ar
 * Setting `lock_objects = FALSE`.
 * Setting parameters within a list.
 
-<br>
-
-**Setting `lock_objects = FALSE`**
+#### Setting `lock_objects = FALSE`
 
 The prevention of new fields is thanks to the default `lock_objects = TRUE` setting. If we override this and set `lock_objects = FALSE`, it will not raise an error when new fields are added. Therefore, it's important not to override this default behavior.
 
@@ -609,9 +600,7 @@ params #<<
 
 ::::
 
-<br>
-
-**Setting parameters within a list**
+#### Setting parameters within a list
 
 If you set up your R6 class with each parameter as a class field, then by default, it will have validation to prevent the addition of new fields.
 
@@ -758,22 +747,16 @@ params$get_params() #<<
 
 :::::
 
-<br>
-
-## Validating parameter values (e.g. range)
+## 🛡️ Validating parameter values (e.g. range)
 
 <!--TODO: mention that there are several examples in stroke python Param class below... but also, is there also for R?-->
 
-You can check that the provided inputs are valid - expected format, range, etc.
-
-This can either be:
+You can check that the provided inputs are valid - expected format, range, etc. This can either be:
 
 :::{.pale-blue}
 * **When using functions:** Implement parameter validation within your model functions.
 * **When using classes:** Build validation directly into the class structure.
 :::
-
-<br>
 
 ### Parameter validation within the model functions
 
@@ -884,8 +867,6 @@ params <- param_function({
 try(model(params))
 ```
 :::
-
-<br>
 
 ### Parameter validation within the class
 
@@ -1014,9 +995,7 @@ try(param$validate_param()) #<<
 
 :::::
 
-<br>
-
-## Examples
+## 🧾 Examples
 
 This section contains full code examples for our [example conceptual models](../intro/examples.qmd).
 

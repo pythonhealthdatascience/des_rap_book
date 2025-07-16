@@ -4,16 +4,34 @@ title: ✅ Linting
 
 {{< include ../../scripts/_reticulate-setup.md >}}
 
-:::{.guidelines}
-* NHS Levels of RAP (🥈): Code adheres to agreed coding standards (e.g PEP8, style guide for Pyspark).
-:::
-
 <style>
 .cell-output-stdout code {
 word-break: break-wor !important;
 white-space: pre-wrap !important;
 }
 </style>
+
+::: {.pale-blue}
+
+🎯 **Objectives**
+
+Writing **clean and consistent** code is important: it makes code easier to **read, debug and maintain**.
+
+This page outlines the established conventions and tools to help you write high-quality code.
+
+* **📘 Style guides:** Follow recommended conventions for layout, naming, and formatting.
+* **🧹 Linters:** Detect syntax issues, code smells, and deviations from style guides.
+* **🪄 Code formatters:** Automatically format code to match consistent styling.
+* **💻 Using linters:** Run, configure, and manage linters for scripts, notebooks, and project directories.
+* **📎 Further information**
+
+[🔗](../intro/guidelines.qmd) **Reproducibility guidelines**
+
+This page helps you meet reproducibility criteria from:
+
+* NHS Levels of RAP (🥈): Code adheres to agreed coding standards (e.g PEP8, style guide for Pyspark).
+
+:::
 
 ```{python}
 #| echo: false
@@ -26,35 +44,7 @@ from ansi2html import Ansi2HTMLConverter
 from IPython.display import HTML
 ```
 
-Writing **clean and consistent** code is important: it makes code easier to **read, debug and maintain**. There are established conventions and tools to help you write high-quality code:
-
-::::{.columns}
-:::{.column width="5%"}
-:::
-:::{.column width="15%"}
-<p><center>Style guides</center></p>
-
-![](linting_resources/style_guides.png)
-:::
-:::{.column width="5%"}
-:::
-:::{.column width="25%"}
-<p><center>Linters</center></p>
-
-![](linting_resources/linting.png)
-:::
-:::{.column width="5%"}
-:::
-:::{.column width="35%"}
-<p><center>Code formatters</center></p>
-
-![](linting_resources/code_formatters.png)
-:::
-::::
-
-<br>
-
-## Style guides
+## 📘 Style guides
 
 A **style guide** is a set of rules and conventions for writing code. They cover topics like naming, code layout, syntax, docstrings, indentation. They help standardise code and improve readability.
 
@@ -78,9 +68,7 @@ Popular R style guides include:
 
 You are not required to follow style guides, but they are recommended for writing clear, maintainable, and consistent code. The easiest way to enforce their requirements is using linters or code formatters.
 
-<br>
-
-## Linters
+## 🧹 Linters
 
 **Linters** are tools that analyse code for:
 
@@ -183,9 +171,7 @@ lintr::lint("linting_resources/code.R")
 
 :::
 
-<br>
-
-## Code formatters
+## 🪄 Code formatters
 
 **Code formatters** are tools that automatically format your code. They are typically designed to address **code style** (e.g. following style guidelines), rather than some of the wider issues that might be flagged by linters.
 
@@ -253,9 +239,7 @@ diffobj::diffChr(original_code, styled_code)
 
 :::
 
-<br>
-
-## Using linters
+## 💻 Using linters
 
 :::{.python-content}
 This section takes a closer look at how to use linters in practice, focusing on **`pylint`** as a widely used example.
@@ -264,12 +248,9 @@ This section takes a closer look at how to use linters in practice, focusing on 
 This section takes a closer look at how to use linters (specifically, **`lintr`**) in practice.
 :::
 
-<br>
-
 ### Linting different file types
 
 :::{.python-content}
-<br>
 
 First, make sure `pylint` is [installed into your environment](../setup/environment.qmd). It can be installed from conda or PyPI:
 
@@ -281,9 +262,7 @@ conda install pylint
 pip install pylint
 ```
 
-<br>
-
-**Using `pylint` on `.py` files**
+#### Using `pylint` on `.py` files
 
 Commands are executed from the terminal.
 
@@ -311,10 +290,7 @@ pylint .
 pylint dir
 ```
 
-
-<br>
-
-**Using `pylint` on `.ipynb` files**
+#### Using `pylint` on `.ipynb` files
 
 The popular [**`nbqa`**](https://github.com/nbQA-dev/nbQA) package is required to run `pylint` on Jupyter notebooks. 
 
@@ -332,9 +308,7 @@ To run it, the commands are the same above, except that they are prefixed by `nb
 nbqa pylint file.ipynb
 ```
 
-<br>
-
-**Using `pylint` on `.qmd` files**
+#### Using `pylint` on `.qmd` files
 
 The [**`lintquarto`**](https://github.com/lintquarto/lintquarto) package can be used to run linters on quarto files.
 
@@ -368,9 +342,7 @@ First, make sure `lintr` is [installed into your environment](../setup/environme
 install.packages("lintr")
 ```
 
-<br>
-
-**Using `lintr` on `.r` files**
+#### Using `lintr` on `.r` files
 
 Commands are executed from the R console.
 
@@ -398,9 +370,7 @@ lint_dir(path = "R")
 lint_dir(path = ".")
 ```
 
-<br>
-
-**Using `lintr` on `.Rmd` and `.qmd` files**
+#### Using `lintr` on `.Rmd` and `.qmd` files
 
 `lintr` supports linting R markdown (`.Rmd`) and Quarto (`.qmd`) files by default. You do not need an extra package.
 
@@ -412,8 +382,6 @@ lint("file.qmd")
 ```
 
 :::
-
-<br>
 
 ### Disabling lint messages
 
@@ -489,8 +457,6 @@ MyClass <- R6::R6Class("MyClass",
 
 :::
 
-<br>
-
 ### Customising linter settings for project
 
 :::{.python-content}
@@ -551,8 +517,6 @@ Some common customisations include...
     ```
 :::
 
-<br>
-
 ### Bash scripts
 
 If you need to lint different file types or multiple directories, creating a Bash script can save time and ensure everyone on your team lints the project in the same way.
@@ -606,9 +570,7 @@ And then just run:
 lint.sh
 ```
 
-<br>
-
-## Further information
+## 📎 Further information
 
 :::{.python-content}
 * ["PEP and the Evolution of Python"](https://www.linkedin.com/pulse/pep-evolution-python-nuno-bispo-eytqe/) from Nuno Bispo 2024.
