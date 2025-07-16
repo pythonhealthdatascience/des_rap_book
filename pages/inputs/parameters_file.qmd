@@ -4,20 +4,33 @@ title: ✅ Parameters from file
 
 {{< include ../../scripts/_reticulate-setup.md >}}
 
-:::{.guidelines}
+::: {.pale-blue}
+
+🎯 **Objectives**
+
+Discrete-event simulations (DES) require many parameters - like arrival rates, resource times, and probabilities - which often need to be changed for different scenarios and analyses. Managing these parameters well makes your simulations easier to update, track, and reuse.
+
+This page focuses on the storage of parameters within a file.
+
+* **❓ Why use external parameter files?**
+* **📝 Create parameter file**
+* **📖 Create data dictionary**
+* **📥 Import parameters into function or class**
+* **🧾 Examples:** Full code examples from our example simulation models.
+* **📎 Further information**
+
+If you want to see how to store parameters within a script, see the [parameters from script](parameters_script.qmd) page.
+
+[🔗](../intro/guidelines.qmd) **Reproducibility guidelines**
+
+This page helps you meet reproducibility criteria from:
+
 * Heather et al. 2025: Avoid hard-coded parameters.
 * NHS Levels of RAP (🥈): Data is handled and output in a Tidy data format.
+
 :::
 
-## Introduction
-
-Discrete-event simulations (DES) require many parameters - like arrival rates, resource times, and probabilities - which often need to be changed for different scenarios and analyses. **Managing these parameters well makes your simulations easier to update, track, and reuse**.
-
-This page focuses on the **storage of parameters within a file**. If you want to see how to store parameters within a script, see the [parameters from script](parameters_script.qmd) page.
-
-<br>
-
-## Why use external parameter files?
+## ❓ Why use external parameter files?
 
 External parameter files can offer some advantages over storing parameters directly in scripts:
 
@@ -27,9 +40,7 @@ External parameter files can offer some advantages over storing parameters direc
 
 Though storing parameters within a script is commonplace - particularly for simpler models - due to its simplicity.
 
-<br>
-
-## Create parameter file
+## 📝 Create parameter file
 
 There are several file types you could consider for storing parameters. CSV files are often a good choice - particularly better than Excel - because they are:
 
@@ -61,9 +72,7 @@ read.csv(file.path("parameters_file_resources", "example_parameters.csv"))
 
 :::
 
-<br>
-
-## Create data dictionary
+## 📖 Create data dictionary
 
 As discussed on the [input data management page](input_data.qmd), you should include a data dictionary or documentation describing each parameter. This documentation should explain the parameter's meaning, units, and any abbreviations or codes used.
 
@@ -71,9 +80,7 @@ For example:
 
 {{< include parameters_file_resources/example_data_dictionary.md >}}
 
-<br>
-
-## Import parameters into function or class
+## 📥 Import parameters into function or class
 
 The [parameters from script page](parameters_script.qmd) provides detailed guidance on how parameters should be structured within your simulation. The key principles are:
 
@@ -87,8 +94,6 @@ These same principles apply when importing parameters from files.  We recommend 
 * With an object, you can keep **consistent parameter names** in your code, while allowing names or file formats to change, as helper functions can translate between the file and parameter object.
 
 However, there is one major difference when working with parameters from files: **you should not include default values in your parameter classes**. All values should come explicitly from your data sources. This ensures your parameter choices are intentional and missing parameters fail clearly instead of silently using unexpected defaults.
-
-<br>
 
 ### Define parameter function or class
 
@@ -203,8 +208,6 @@ create_params <- function(
 
 :::
 
-<br>
-
 ### Write helper function to import parameters
 
 Create helper functions to load parameters from your CSV file into your functions/classes. How you write this function will depend on your parameter class structure and how your parameter files are organised.
@@ -279,8 +282,6 @@ setup_param_from_csv <- function(csv_path) {
 
 :::
 
-<br>
-
 ### Load and use parameters
 
 :::{.python-content}
@@ -310,7 +311,7 @@ params
 
 :::
 
-## Examples
+## 🧾 Examples
 
 This section contains full code examples for our [example conceptual models](../intro/examples.qmd).
 
@@ -540,9 +541,7 @@ setup_param_from_csv(file.path("..", "inputs", "parameters.csv"))
 
 ---
 
-<br>
-
-## Further information
+## 📎 Further information
 
 :::{.python-content}
 The `sim-tools` package provides a class for managing probability distributions stored within JSON files - check it out: <https://tommonks.github.io/sim-tools/01_sampling/03_distributions_registry.html>. 
