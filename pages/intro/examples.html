@@ -41,6 +41,9 @@ ul.task-list li input[type="checkbox"] {
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="../../site_libs/bootstrap/bootstrap-025db3b089a7e65f2676a8a92be6aa8b.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="../../site_libs/quarto-contrib/glightbox/glightbox.min.js"></script>
+<link href="../../site_libs/quarto-contrib/glightbox/glightbox.min.css" rel="stylesheet">
+<link href="../../site_libs/quarto-contrib/glightbox/lightbox.css" rel="stylesheet">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -492,8 +495,8 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul class="collapse">
-  <li><a href="#example-1-nurse-visit-simulation" id="toc-example-1-nurse-visit-simulation" class="nav-link active" data-scroll-target="#example-1-nurse-visit-simulation">Example #1: 🩺 Nurse visit simulation</a></li>
-  <li><a href="#example-2-stroke-pathway-simulation" id="toc-example-2-stroke-pathway-simulation" class="nav-link" data-scroll-target="#example-2-stroke-pathway-simulation">Example #2: 🧠 Stroke pathway simulation</a></li>
+  <li><a href="#nurse-visit-simulation" id="toc-nurse-visit-simulation" class="nav-link active" data-scroll-target="#nurse-visit-simulation">🩺 Nurse visit simulation</a></li>
+  <li><a href="#stroke-pathway-simulation" id="toc-stroke-pathway-simulation" class="nav-link" data-scroll-target="#stroke-pathway-simulation">🧠 Stroke pathway simulation</a></li>
   </ul>
 </nav>
     </div>
@@ -519,49 +522,108 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p>To illustrate how to construct reproducible simulation projects, we will use two examples:</p>
-<ol type="1">
-<li>🩺 <strong>Nurse visit simulation</strong>. A classic queueing model, serves as a straightforward, “dummy” example to demonstrate basic concepts.</li>
-<li>🧠 <strong>Stroke pathway simulation</strong>. A real-world healthcare pathway model taken from a publish study, showing how similar methods can be applied in practice.</li>
-</ol>
-<p><br></p>
-<section id="example-1-nurse-visit-simulation" class="level2">
-<h2 class="anchored" data-anchor-id="example-1-nurse-visit-simulation">Example #1: 🩺 Nurse visit simulation</h2>
-<p>This model represents a typical scenario where patients arrive at a clinic, wait to see a nurse, receive a consultation, and then leave. The aim is to understand resource utilisation (nurses) and patient waiting times.</p>
-<p><strong>Structure:</strong></p>
+<!-- Hide as no python-content or r-content blocks -->
+<style>
+      #quarto-announcement {
+        display: none !important;
+      }
+</style>
+<div class="pale-blue">
+<p>🎯 <strong>Objectives</strong></p>
+<p>This page introduces two models:</p>
 <ul>
-<li><strong>Type:</strong> Discrete-event simulation of a queueing system.</li>
-<li><strong>Key features:</strong>
-<ul>
-<li><strong>Arrivals:</strong> Patients arrival randomly, following a Poisson process. This means that the number of arrivals in a given period follows a Poisson distribution, and the time between each arrival follows an exponential distribution- two ways of describing the same process.</li>
-<li><strong>Service:</strong> Each nurse serves one patient at a time. Service times are exponentially distributed.</li>
-<li><strong>Servers</strong>: Multiple nurses work in parallel.</li>
-</ul></li>
-<li><strong>Inputs</strong>:
-<ul>
-<li>Average patient arrival rate.</li>
-<li>Average nurse service duration.</li>
-<li>Number of servers.</li>
-</ul></li>
+<li><strong>🩺 Nurse visit simulation:</strong> Simple M/M/s queueing model.</li>
+<li><strong>🧠 Stroke pathway simulation:</strong> Patient flow model based on a published study.</li>
 </ul>
-<p><img src="examples_resources/nurse_des.png" class="img-fluid"></p>
-<div class="callout callout-style-default callout-tip callout-titled">
-<div class="callout-header d-flex align-content-center">
+</div>
+<p><br></p>
+<p>We have developed two example simulation models, each <strong>implemented in both Python and R</strong>, and openly shared as public repositories.</p>
+<p>Each model serves as an <strong>illustrative example following the covered concepts in this book</strong>, and they are included as examples throughout the book.</p>
+<section id="nurse-visit-simulation" class="level2">
+<h2 class="anchored" data-anchor-id="nurse-visit-simulation">🩺 Nurse visit simulation</h2>
+<div class="blue">
+<p>This model simulates a clinic where patients arrive randomly, wait to see a nurse, receive care, then leave. It is designed to help analyse resource utilisation and patient wait times.</p>
+</div>
+<section id="code-repositories" class="level4">
+<h4 class="anchored" data-anchor-id="code-repositories">Code repositories</h4>
+<ul>
+<li><a href="https://github.com/pythonhealthdatascience/pydesrap_mms">Python version</a></li>
+<li><a href="https://github.com/pythonhealthdatascience/rdesrap_mms">R version</a></li>
+</ul>
+</section>
+<section id="process-flow-diagram" class="level4">
+<h4 class="anchored" data-anchor-id="process-flow-diagram">Process flow diagram</h4>
+<p><br></p>
+<p><img src="examples_resources/nurse_des.drawio.png" class="img-fluid"></p>
+</section>
+<section id="model-summary" class="level4">
+<h4 class="anchored" data-anchor-id="model-summary">Model summary</h4>
+<div class="grey-table">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 75%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Aspect</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Type</strong></td>
+<td>Discrete-event simulation of a multi-server queue (M/M/s system).</td>
+</tr>
+<tr class="even">
+<td><strong>Arrivals</strong></td>
+<td>Patients arrive at random intervals, following a Poisson process (memoryless/inter-arrival times are exponential).</td>
+</tr>
+<tr class="odd">
+<td><strong>Service</strong></td>
+<td>Each nurse serves one patient at a time; service times are exponentially distributed. Multiple nurses operate in parallel.</td>
+</tr>
+<tr class="even">
+<td><strong>Inputs</strong></td>
+<td>Patient arrival rate, nurse service time, number of nurses.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="callout callout-style-default callout-note callout-titled" title="Find out more about M/M/s models">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Tip
+Find out more about M/M/s models
 </div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
+<div id="callout-1" class="callout-1-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<p>This is an example of an <strong>M/M/s queueing model</strong>. An M/M/s model as Markovian assumptions (“M/M”) that arrivals are poisson distributed and server times exponentially distributed, and the “s” refers to the number of parallel servers available. It is a classic and widely used queueing model, and is also known as a “multi-server” or “Erlang delay” model.</p>
-<p>This model could be applied to a range of contexts, including:</p>
+<section id="how-it-works" class="level4">
+<h4 class="anchored" data-anchor-id="how-it-works">How it works</h4>
+<p>This model follows an <strong>M/M/s queueing structure</strong> - a widely used model in healthcare operations. M/M/s stands for:</p>
+<ul>
+<li>Markovian (Poisson) arrivals</li>
+<li>Markovian (exponential) service times</li>
+<li>s servers (nurses) in parallel</li>
+</ul>
+</section>
+<section id="why-poisson-arrivals" class="level4">
+<h4 class="anchored" data-anchor-id="why-poisson-arrivals">Why Poisson arrivals?</h4>
+<p>Patients tend to arrive independently and randomly; this is well-represented by a Poisson process, where:</p>
+<ul>
+<li>The number of arrivals in a period follows the Poisson distribution.</li>
+<li>The time between arrivals follows the exponential distribution.</li>
+</ul>
+</section>
+<section id="applications" class="level4">
+<h4 class="anchored" data-anchor-id="applications">Applications</h4>
+<p>This model structure can be used for a variety of healthcare and service settings, such as:</p>
+<div class="grey-table">
 <table class="caption-top table">
-<colgroup>
-<col style="width: 50%">
-<col style="width: 50%">
-</colgroup>
 <thead>
 <tr class="header">
 <th>Queue</th>
@@ -571,46 +633,95 @@ Tip
 <tbody>
 <tr class="odd">
 <td>Patients in a waiting room</td>
-<td>Doctor’s consultation</td>
+<td>Doctor or nurse consultations</td>
 </tr>
 <tr class="even">
-<td>Patients waiting for an ICU bed</td>
-<td>Available ICU beds</td>
+<td>Patients waiting for ICU transfer</td>
+<td>ICU beds</td>
 </tr>
 <tr class="odd">
-<td>Prescriptions waiting to be processed</td>
-<td>Pharmacists preparing and dispensing medications</td>
+<td>Prescriptions to be processed</td>
+<td>Pharmacists</td>
 </tr>
 </tbody>
 </table>
-<p>For further information on M/M/s models, see:</p>
+</div>
+</section>
+<section id="further-information-on-mms-models" class="level4">
+<h4 class="anchored" data-anchor-id="further-information-on-mms-models">Further information on M/M/s models</h4>
 <ul>
 <li>Ganesh, A. (2012). Simple queueing models. University of Bristol. <a href="https://people.maths.bris.ac.uk/~maajg/teaching/iqn/queues.pdf" class="uri">https://people.maths.bris.ac.uk/~maajg/teaching/iqn/queues.pdf</a>.</li>
 <li>Green, L. (2011). Queueing theory and modeling. In <em>Handbook of Healthcare Delivery Systems</em>. Taylor &amp; Francis. <a href="https://business.columbia.edu/faculty/research/queueing-theory-and-modeling" class="uri">https://business.columbia.edu/faculty/research/queueing-theory-and-modeling</a>.</li>
 </ul>
-</div>
-</div>
-<p><br></p>
 </section>
-<section id="example-2-stroke-pathway-simulation" class="level2">
-<h2 class="anchored" data-anchor-id="example-2-stroke-pathway-simulation">Example #2: 🧠 Stroke pathway simulation</h2>
-<p>This model is based on a published study of stroke care. It simulates patient flow through acute stroke and rehabilitation units to support capacity planning and estimate the likelihood of admission delays for different patient groups. It is described in:</p>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="stroke-pathway-simulation" class="level2">
+<h2 class="anchored" data-anchor-id="stroke-pathway-simulation">🧠 Stroke pathway simulation</h2>
+<div class="blue">
+<p>This model is based on a published study of stroke care. It simulates patient flow through acute stroke and rehabilitation units to support capacity planning and estimate the likelihood of admission delays for different patient groups.</p>
+</div>
+<p>It is described in:</p>
 <blockquote class="blockquote">
 <p>Monks T, Worthington D, Allen M, Pitt M, Stein K, James MA. A modelling tool for capacity planning in acute and community stroke services. BMC Health Serv Res. 2016 Sep 29;16(1):530. doi: <a href="https://doi.org/10.1186/s12913-016-1789-4">10.1186/s12913-016-1789-4</a>. PMID: 27688152; PMCID: PMC5043535.</p>
 </blockquote>
 <p>The original study implemented the model using SIMUL8 software. Based on the published description of the model’s logic and parameters, we have recreated it in both Python and R.</p>
-<p><strong>Structure:</strong></p>
+<section id="code-repositories-1" class="level4">
+<h4 class="anchored" data-anchor-id="code-repositories-1">Code repositories</h4>
 <ul>
-<li><strong>Type:</strong> Discrete-event simulation of a patient pathway.</li>
-<li><strong>Arrivals:</strong> Multiple patient classes (e.g., stroke, TIA, complex neurological, other) each have their own arrival processes to the acute stroke unit and rehabilitation unit, with inter-arrival times drawn from specified distributions.</li>
-<li><strong>Service:</strong> Patients experience lengths of stay in each unit based on distributions specific to their class and care type (e.g., lognormal for length of stay).</li>
-<li><strong>Routing:</strong> After acute care, patients are routed to rehabilitation, early supported discharge, or exit the system, according to probabilities defined for each patient class.</li>
-<li><strong>Resources:</strong> The model assumes infinite capacity for both acute and rehabilitation beds (i.e., no explicit queueing)</li>
+<li><a href="https://github.com/pythonhealthdatascience/pydesrap_stroke">Python repository</a></li>
+<li><a href="https://github.com/pythonhealthdatascience/rdesrap_stroke">R repository</a></li>
 </ul>
-<p>Patient pathway / process flow diagram:</p>
-<p><img src="examples_resources/stroke_rehab_design.png" class="img-fluid"></p>
+</section>
+<section id="process-flow-diagram-1" class="level4">
+<h4 class="anchored" data-anchor-id="process-flow-diagram-1">Process flow diagram</h4>
+<p><br></p>
+<p><a href="examples_resources/stroke_rehab_design.png" class="lightbox" data-gallery="quarto-lightbox-gallery-1"><img src="examples_resources/stroke_rehab_design.png" class="img-fluid"></a></p>
+</section>
+<section id="model-summary-1" class="level4">
+<h4 class="anchored" data-anchor-id="model-summary-1">Model summary</h4>
+<div class="grey-table">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 75%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Aspect</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Type</strong></td>
+<td>Discrete-event simulation of a patient pathway.</td>
+</tr>
+<tr class="even">
+<td><strong>Arrivals</strong></td>
+<td>Multiple patient classes (e.g., stroke, TIA, complex neurological, other) each have their own arrival processes to the acute stroke unit and rehabilitation unit, with inter-arrival times drawn from specified distributions.</td>
+</tr>
+<tr class="odd">
+<td><strong>Service</strong></td>
+<td>Patients experience lengths of stay in each unit based on distributions specific to their class and care type (e.g., lognormal for length of stay).</td>
+</tr>
+<tr class="even">
+<td><strong>Routing</strong></td>
+<td>After acute care, patients are routed to rehabilitation, early supported discharge, or exit the system, according to probabilities defined for each patient class.</td>
+</tr>
+<tr class="odd">
+<td><strong>Resources</strong></td>
+<td>The model assumes infinite capacity for both acute and rehabilitation beds (i.e., no explicit queueing).</td>
+</tr>
+</tbody>
+</table>
+</div>
 
 
+</section>
 </section>
 
 </main> <!-- /main -->
@@ -897,6 +1008,38 @@ Tip
   </script>
 </div> <!-- /content -->
 <script type="application/javascript" src="../../scripts/language-selector.js"></script>
+<script>var lightboxQuarto = GLightbox({"closeEffect":"zoom","descPosition":"bottom","loop":false,"openEffect":"zoom","selector":".lightbox"});
+(function() {
+  let previousOnload = window.onload;
+  window.onload = () => {
+    if (previousOnload) {
+      previousOnload();
+    }
+    lightboxQuarto.on('slide_before_load', (data) => {
+      const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+      const href = trigger.getAttribute('href');
+      if (href !== null) {
+        const imgEl = window.document.querySelector(`a[href="${href}"] img`);
+        if (imgEl !== null) {
+          const srcAttr = imgEl.getAttribute("src");
+          if (srcAttr && srcAttr.startsWith("data:")) {
+            slideConfig.href = srcAttr;
+          }
+        }
+      } 
+    });
+  
+    lightboxQuarto.on('slide_after_load', (data) => {
+      const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(slideNode);
+      }
+    });
+  
+  };
+  
+})();
+          </script>
 
 
 

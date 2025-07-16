@@ -528,10 +528,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">On this page</h2>
    
   <ul class="collapse">
-  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">Introduction</a></li>
-  <li><a href="#accidental-creation-of-new-parameters" id="toc-accidental-creation-of-new-parameters" class="nav-link" data-scroll-target="#accidental-creation-of-new-parameters">Accidental creation of new parameters</a></li>
-  <li><a href="#validating-parameter-values-e.g.-range" id="toc-validating-parameter-values-e.g.-range" class="nav-link" data-scroll-target="#validating-parameter-values-e.g.-range">Validating parameter values (e.g.&nbsp;range)</a></li>
-  <li><a href="#examples" id="toc-examples" class="nav-link" data-scroll-target="#examples">Examples</a></li>
+  <li><a href="#accidental-creation-of-new-parameters" id="toc-accidental-creation-of-new-parameters" class="nav-link active" data-scroll-target="#accidental-creation-of-new-parameters">🚨 Accidental creation of new parameters</a></li>
+  <li><a href="#validating-parameter-values-e.g.-range" id="toc-validating-parameter-values-e.g.-range" class="nav-link" data-scroll-target="#validating-parameter-values-e.g.-range">🛡️ Validating parameter values (e.g.&nbsp;range)</a></li>
+  <li><a href="#examples" id="toc-examples" class="nav-link" data-scroll-target="#examples">🧾 Examples</a></li>
   </ul>
 </nav>
     </div>
@@ -557,18 +556,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<blockquote class="blockquote">
-<p>This is not necessary to reproducibility or a reproducible analytical pipeline, but is good practice when working, and may help avoid mistakes.</p>
-</blockquote>
-<p><br></p>
-<section id="introduction" class="level2">
-<h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
-<p><strong>Parameter validation</strong> refers to checking that inputs provided to functions or classes are correct and as expected.</p>
-<p>This page focuses on two examples of validation we can perform:</p>
-<ol type="1">
-<li>Preventing a dangerous but common mistake in discrete-event simulation (DES): <strong>accidentally creating new parameters through typos</strong> instead of modifying existing ones.</li>
-<li><strong>Validating parameter values</strong> to ensure they fall within the expected range.</li>
-</ol>
+<div class="pale-blue">
+<p>🎯 <strong>Objectives</strong></p>
+<p><strong>Parameter validation</strong> refers to checking that inputs provided to functions or classes are correct and as expected. This page focuses on two examples of validation we can perform.</p>
+<ul>
+<li><strong>🚨 Accidental creation of new parameters:</strong> A dangerous but common mistake in discrete-event simulation (DES), where new parameters are created instead of modifying existing ones.</li>
+<li><strong>🛡️ Validating parameter values (e.g.&nbsp;range):</strong> to ensure they fall within the expected values.</li>
+<li><strong>🧾 Examples:</strong> Full code examples from our example simulation models.</li>
+</ul>
+<p><a href="../../pages/intro/guidelines.html">🔗</a> <strong>Reproducibility guidelines</strong></p>
+<p>Whilst this is not necessary to reproducibility or a reproducible analytical pipeline, it is good practice when working, and may help avoid mistakes.</p>
+</div>
 <div class="python-content">
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Import required packages</span></span>
@@ -581,10 +579,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(R6) <span class="co"># nolint: undesirable_function_linter</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
-<p><br></p>
-</section>
 <section id="accidental-creation-of-new-parameters" class="level2">
-<h2 class="anchored" data-anchor-id="accidental-creation-of-new-parameters">Accidental creation of new parameters</h2>
+<h2 class="anchored" data-anchor-id="accidental-creation-of-new-parameters">🚨 Accidental creation of new parameters</h2>
+<div class="h3-tight">
+
+</div>
 <section id="the-problem" class="level3">
 <h3 class="anchored" data-anchor-id="the-problem">The problem</h3>
 <p>When defining your parameters in a function, if you mistype a parameter name, an error won’t be raised. Instead, a <strong>new, unused parameter</strong> is created. This can <strong>silently</strong> invalidate your results, as you may not realise that your parameter is unchanged.</p>
@@ -723,7 +722,6 @@ $transfer_probs
 </div>
 </div>
 </div>
-<p><br></p>
 </section>
 <section id="the-solution" class="level3">
 <h3 class="anchored" data-anchor-id="the-solution">The solution</h3>
@@ -749,7 +747,6 @@ $transfer_probs
 <div class="r-content">
 <p>Functions are more commonly used in R than classes, so you may prefer to stick with the function-based approach for consistency with R conventions.</p>
 </div>
-<p><br></p>
 </section>
 <section id="parameter-validation-within-the-model-function" class="level3">
 <h3 class="anchored" data-anchor-id="parameter-validation-within-the-model-function">Parameter validation within the model function</h3>
@@ -936,7 +933,6 @@ $transfer_probs
 </div>
 </div>
 </div>
-<p><br></p>
 </section>
 <section id="parameter-validation-within-the-class" class="level3">
 <h3 class="anchored" data-anchor-id="parameter-validation-within-the-class">Parameter validation within the class</h3>
@@ -946,8 +942,8 @@ $transfer_probs
 <li>Directly within the class, or-</li>
 <li>Using class inheritance.</li>
 </ul>
-<p><br></p>
-<p><strong>Direct implementation within the class:</strong></p>
+<section id="direct-implementation-within-the-class" class="level4">
+<h4 class="anchored" data-anchor-id="direct-implementation-within-the-class">Direct implementation within the class</h4>
 <p>This approach implements validation logic directly within the class using a custom <code>__setattr__</code> method.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb23" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># pylint: disable=too-few-public-methods</span></span>
@@ -1024,8 +1020,9 @@ $transfer_probs
 <pre data-code-line-numbers=""><code>Error: Cannot add new attribute 'new_attribute' - only possible to modify existing attributes: dict_keys(['_initialising', 'param1', 'param2'])</code></pre>
 </div>
 </div>
-<p><br></p>
-<p><strong>Using class inheritance:</strong></p>
+</section>
+<section id="using-class-inheritance" class="level4">
+<h4 class="anchored" data-anchor-id="using-class-inheritance">Using class inheritance</h4>
 <p><strong>Class inheritance</strong> allows a class to serve as a blueprint for another, passing down attributes and methods. This approach is useful for sharing logic - such as restricting new attribute creation—across multiple classes - <strong>reducing code duplication and making each class simpler</strong>.</p>
 <p>Here, we have three classes, with each subsequent class inheriting from those above:</p>
 <ol type="1">
@@ -1126,6 +1123,7 @@ $transfer_probs
 <pre data-code-line-numbers=""><code>Error: Cannot add new attribute 'new_attribute' - only possible to modify existing attributes: param1, param2, _initialised.</code></pre>
 </div>
 </div>
+</section>
 </div>
 <div class="r-content">
 <p>By default, <strong>R6 classes prevent the addition of new fields</strong>. However, there are ways you can override this behavior or set up your classes differently that would not have this protection for your parameters. These include:</p>
@@ -1133,8 +1131,8 @@ $transfer_probs
 <li>Setting <code>lock_objects = FALSE</code>.</li>
 <li>Setting parameters within a list.</li>
 </ul>
-<p><br></p>
-<p><strong>Setting <code>lock_objects = FALSE</code></strong></p>
+<section id="setting-lock_objects-false" class="level4">
+<h4 class="anchored" data-anchor-id="setting-lock_objects-false">Setting <code>lock_objects = FALSE</code></h4>
 <p>The prevention of new fields is thanks to the default <code>lock_objects = TRUE</code> setting. If we override this and set <code>lock_objects = FALSE</code>, it will not raise an error when new fields are added. Therefore, it’s important not to override this default behavior.</p>
 <div class="columns">
 <div class="column" style="width:47.5%;">
@@ -1213,8 +1211,9 @@ $transfer_probs
 </div>
 </div>
 </div>
-<p><br></p>
-<p><strong>Setting parameters within a list</strong></p>
+</section>
+<section id="setting-parameters-within-a-list" class="level4">
+<h4 class="anchored" data-anchor-id="setting-parameters-within-a-list">Setting parameters within a list</h4>
 <p>If you set up your R6 class with each parameter as a class field, then by default, it will have validation to prevent the addition of new fields.</p>
 <p>You may choose to store parameters in a list instead, to make it easier to access them all at once - but, if you do this, the validation won’t apply.</p>
 <div class="columns">
@@ -1388,22 +1387,20 @@ $transfer_probs
 </div>
 </div>
 </div>
+</section>
 </div>
-<p><br></p>
 </section>
 </section>
 <section id="validating-parameter-values-e.g.-range" class="level2">
-<h2 class="anchored" data-anchor-id="validating-parameter-values-e.g.-range">Validating parameter values (e.g.&nbsp;range)</h2>
+<h2 class="anchored" data-anchor-id="validating-parameter-values-e.g.-range">🛡️ Validating parameter values (e.g.&nbsp;range)</h2>
 <!--TODO: mention that there are several examples in stroke python Param class below... but also, is there also for R?-->
-<p>You can check that the provided inputs are valid - expected format, range, etc.</p>
-<p>This can either be:</p>
+<p>You can check that the provided inputs are valid - expected format, range, etc. This can either be:</p>
 <div class="pale-blue">
 <ul>
 <li><strong>When using functions:</strong> Implement parameter validation within your model functions.</li>
 <li><strong>When using classes:</strong> Build validation directly into the class structure.</li>
 </ul>
 </div>
-<p><br></p>
 <section id="parameter-validation-within-the-model-functions" class="level3">
 <h3 class="anchored" data-anchor-id="parameter-validation-within-the-model-functions">Parameter validation within the model functions</h3>
 <p>As a reminder, this is our parameter function:</p>
@@ -1531,7 +1528,6 @@ $transfer_probs
 </div>
 </div>
 </div>
-<p><br></p>
 </section>
 <section id="parameter-validation-within-the-class-1" class="level3">
 <h3 class="anchored" data-anchor-id="parameter-validation-within-the-class-1">Parameter validation within the class</h3>
@@ -1671,11 +1667,10 @@ $transfer_probs
 </div>
 </div>
 </div>
-<p><br></p>
 </section>
 </section>
 <section id="examples" class="level2">
-<h2 class="anchored" data-anchor-id="examples">Examples</h2>
+<h2 class="anchored" data-anchor-id="examples">🧾 Examples</h2>
 <p>This section contains full code examples for our <a href="../../pages/intro/examples.html">example conceptual models</a>.</p>
 <hr>
 <details>

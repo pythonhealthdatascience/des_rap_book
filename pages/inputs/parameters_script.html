@@ -527,12 +527,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">On this page</h2>
    
   <ul class="collapse">
-  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">Introduction</a></li>
-  <li><a href="#what-not-to-do-hardcoding-parameters" id="toc-what-not-to-do-hardcoding-parameters" class="nav-link" data-scroll-target="#what-not-to-do-hardcoding-parameters">What not to do: hardcoding parameters</a></li>
-  <li><a href="#a-slight-improvement-global-parameters" id="toc-a-slight-improvement-global-parameters" class="nav-link" data-scroll-target="#a-slight-improvement-global-parameters">A slight improvement: global parameters</a></li>
-  <li><a href="#recommendation-for-managing-parameters-in-des" id="toc-recommendation-for-managing-parameters-in-des" class="nav-link" data-scroll-target="#recommendation-for-managing-parameters-in-des">Recommendation for managing parameters in DES</a></li>
-  <li><a href="#handling-a-large-number-of-parameters" id="toc-handling-a-large-number-of-parameters" class="nav-link" data-scroll-target="#handling-a-large-number-of-parameters">Handling a large number of parameters</a></li>
-  <li><a href="#examples" id="toc-examples" class="nav-link" data-scroll-target="#examples">Examples</a></li>
+  <li><a href="#what-not-to-do-hardcoding-parameters" id="toc-what-not-to-do-hardcoding-parameters" class="nav-link active" data-scroll-target="#what-not-to-do-hardcoding-parameters">🚫 What not to do: hardcoding parameters</a></li>
+  <li><a href="#a-slight-improvement-global-parameters" id="toc-a-slight-improvement-global-parameters" class="nav-link" data-scroll-target="#a-slight-improvement-global-parameters">📄 A slight improvement: global parameters</a></li>
+  <li><a href="#recommendation-for-managing-parameters-in-des" id="toc-recommendation-for-managing-parameters-in-des" class="nav-link" data-scroll-target="#recommendation-for-managing-parameters-in-des">✅ Recommendation for managing parameters in DES</a></li>
+  <li><a href="#handling-a-large-number-of-parameters" id="toc-handling-a-large-number-of-parameters" class="nav-link" data-scroll-target="#handling-a-large-number-of-parameters">🧮 Handling a large number of parameters</a></li>
+  <li><a href="#examples" id="toc-examples" class="nav-link" data-scroll-target="#examples">🧾 Examples</a></li>
   </ul>
 </nav>
     </div>
@@ -558,32 +557,32 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<div class="guidelines">
-<p><a href="../../pages/intro/guidelines.html">🔗</a> <strong>Reproducibility guidelines:</strong></p>
+<div class="pale-blue">
+<p>🎯 <strong>Objectives</strong></p>
+<p>Discrete-event simulations (DES) require many parameters - like arrival rates, resource times, and probabilities - which often need to be changed for different scenarios and analyses. Managing these parameters well makes your simulations easier to update, track, and reuse.</p>
+<p>This page explains best practices for managing model parameters directly within scripts.</p>
+<ul>
+<li><strong>🚫 What not to do: hardcoding parameters.</strong></li>
+<li><strong>📄 A slight improvement: global parameters.</strong></li>
+<li><strong>✅ Recommendation for managing parameters in DES:</strong> grouping parameters into a dedicated object and passing that object explicitly to your model.</li>
+<li><strong>🧮 Handling a large number of parameters</strong>.</li>
+<li><strong>🧾 Examples:</strong> Full code examples from our example simulation models.</li>
+</ul>
+<p>If you want to see how to store parameters in a separate file, see the <a href="../../pages/inputs/parameters_file.html">parameters from file</a> page.</p>
+<p><a href="../../pages/intro/guidelines.html">🔗</a> <strong>Reproducibility guidelines</strong></p>
+<p>This page helps you meet reproducibility criteria from:</p>
 <ul>
 <li>Heather et al.&nbsp;2025: Avoid hard-coded parameters.</li>
 </ul>
 </div>
-<section id="introduction" class="level2">
-<h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
-<p>Discrete-event simulations (DES) require many parameters - like arrival rates, resource times, and probabilities - which often need to be changed for different scenarios and analyses. <strong>Managing these parameters well makes your simulations easier to update, track, and reuse</strong>.</p>
-<p>This page focuses on the storage of parameters within your scripts. If you want to see how to store parameters in a separate file, see the <a href="../../pages/inputs/parameters_file.html">parameters from file</a> page.</p>
-<p>On this page, we explain:</p>
-<ul>
-<li>The <strong>limitations</strong> with hardcoding parameters or global variables.</li>
-<li><strong>Two recommended practices</strong>: grouping parameters into a dedicated object and passing that object explicitly to your model.</li>
-<li>Strategies for handling a <strong>large number</strong> of parameters as your model grows.</li>
-</ul>
 <div class="r-content">
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load required packages</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(R6) <span class="co"># nolint: undesirable_function_linter</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
-<p><br></p>
-</section>
 <section id="what-not-to-do-hardcoding-parameters" class="level2">
-<h2 class="anchored" data-anchor-id="what-not-to-do-hardcoding-parameters">What not to do: hardcoding parameters</h2>
+<h2 class="anchored" data-anchor-id="what-not-to-do-hardcoding-parameters">🚫 What not to do: hardcoding parameters</h2>
 <p><strong>Hardcoding</strong> means writing parameter values directly into your code. For example:</p>
 <div class="python-content">
 <div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> model():</span>
@@ -616,10 +615,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>❌ <strong>Code duplication</strong>. This means any changes - like bug fixes or improvements to the model - must be made to every copy. This is tedious and there is a risk that some copies are missed or updated incorrectly.</li>
 <li>❌ <strong>Hard to keep track</strong>. With multiple script copies, it can become difficult to know which scripts correspond to which scenarios, and which parameters were used (as have to delve into the model code to identify them).</li>
 </ul>
-<p><br></p>
 </section>
 <section id="a-slight-improvement-global-parameters" class="level2">
-<h2 class="anchored" data-anchor-id="a-slight-improvement-global-parameters">A slight improvement: global parameters</h2>
+<h2 class="anchored" data-anchor-id="a-slight-improvement-global-parameters">📄 A slight improvement: global parameters</h2>
 <p>A better (but still limited) approach is to <strong>define all parameters at the top of your script</strong>.</p>
 <p>This way, parameters are no longer hidden within the code. It becomes much easier to see which parameters are being used, and to change the values used.</p>
 <div class="python-content">
@@ -674,10 +672,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>❌ <strong>Still inflexible</strong>. In order to re-run the model with different scenarios, you would still need to do the approaches above - editing code directly or duplicating scripts for each scenario.</li>
 <li>❌ <strong>Not scalable</strong>. As the number of scenarios or parameters grows, managing all these global variables becomes messy.</li>
 </ul>
-<p><br></p>
 </section>
 <section id="recommendation-for-managing-parameters-in-des" class="level2">
-<h2 class="anchored" data-anchor-id="recommendation-for-managing-parameters-in-des">Recommendation for managing parameters in DES</h2>
+<h2 class="anchored" data-anchor-id="recommendation-for-managing-parameters-in-des">✅ Recommendation for managing parameters in DES</h2>
+<div class="h3-tight">
+
+</div>
 <section id="two-critical-practices" class="level3">
 <h3 class="anchored" data-anchor-id="two-critical-practices">Two critical practices</h3>
 <p>To manage parameters effectively, you need to:</p>
@@ -725,14 +725,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  ...</span>
 <span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p><br></p>
 </section>
 <section id="three-implementation-options" class="level3">
 <h3 class="anchored" data-anchor-id="three-implementation-options">Three implementation options</h3>
 <div class="python-content">
 <p>There are three implementation options: <strong>dictionary</strong>, <strong>function</strong> or <strong>class</strong>.</p>
-<p><br></p>
-<p><strong>Using a dictionary</strong></p>
+<section id="using-a-dictionary" class="level4">
+<h4 class="anchored" data-anchor-id="using-a-dictionary">Using a dictionary</h4>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Base case</span></span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>base_params <span class="op">=</span> {</span>
@@ -752,8 +751,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <pre><code>{'interarrival_time': 6, 'consultation_time': 20, 'transfer_prob': 0.3}</code></pre>
 </div>
 </div>
-<p><br></p>
-<p><strong>Using a function</strong></p>
+</section>
+<section id="using-a-function" class="level4">
+<h4 class="anchored" data-anchor-id="using-a-function">Using a function</h4>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> create_params(</span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  interarrival_time<span class="op">=</span><span class="dv">5</span>, consultation_time<span class="op">=</span><span class="dv">20</span>, transfer_prob<span class="op">=</span><span class="fl">0.3</span></span>
@@ -794,8 +794,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <pre><code>{'interarrival_time': 6, 'consultation_time': 20, 'transfer_prob': 0.3}</code></pre>
 </div>
 </div>
-<p><br></p>
-<p><strong>Using a class</strong></p>
+</section>
+<section id="using-a-class" class="level4">
+<h4 class="anchored" data-anchor-id="using-a-class">Using a class</h4>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Parameters: <span class="co"># pylint: disable=too-few-public-methods</span></span>
 <span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
@@ -833,11 +834,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <pre><code>{'interarrival_time': 6, 'consultation_time': 20, 'transfer_prob': 0.3}</code></pre>
 </div>
 </div>
+</section>
 </div>
 <div class="r-content">
 <p>There are three implementation options: <strong>list</strong>, <strong>function</strong> or <strong>R6 class</strong>.</p>
-<p><br></p>
-<p><strong>Using a list</strong></p>
+<section id="using-a-list" class="level4">
+<h4 class="anchored" data-anchor-id="using-a-list">Using a list</h4>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Base case</span></span>
 <span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>base_params <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
@@ -871,8 +873,9 @@ $transfer_prob
 [1] 0.3</code></pre>
 </div>
 </div>
-<p><br></p>
-<p><strong>Using a function</strong></p>
+</section>
+<section id="using-a-function-1" class="level4">
+<h4 class="anchored" data-anchor-id="using-a-function-1">Using a function</h4>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="co">#' Generate parameter list.</span></span>
 <span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="co">#'</span></span>
@@ -919,8 +922,10 @@ $transfer_prob
 [1] 0.3</code></pre>
 </div>
 </div>
-<p><br></p>
-<p><strong>Using a R6 class</strong> (include a <code>get_params</code> method to easily return a list of parameters).</p>
+</section>
+<section id="using-a-r6-class" class="level4">
+<h4 class="anchored" data-anchor-id="using-a-r6-class">Using a R6 class</h4>
+<p>Include a <code>get_params</code> method to easily return a list of parameters.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="co">#' @title Parameter class.</span></span>
 <span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="co">#'</span></span>
@@ -988,8 +993,8 @@ $transfer_prob
 [1] 0.3</code></pre>
 </div>
 </div>
+</section>
 </div>
-<p><br></p>
 </section>
 <section id="which-option-is-best" class="level3">
 <h3 class="anchored" data-anchor-id="which-option-is-best">Which option is best?</h3>
@@ -1011,19 +1016,18 @@ $transfer_prob
 <div class="r-content">
 <p>It’s worth noting though that, while R does support object-oriented programming (i.e.&nbsp;using classes), these are less commonly used in typical R code.</p>
 </div>
-<p><br></p>
 </section>
 </section>
 <section id="handling-a-large-number-of-parameters" class="level2">
-<h2 class="anchored" data-anchor-id="handling-a-large-number-of-parameters">Handling a large number of parameters</h2>
+<h2 class="anchored" data-anchor-id="handling-a-large-number-of-parameters">🧮 Handling a large number of parameters</h2>
 <p>You may need to manage many parameters - for example, if you have several patient types and/or units each with their own arrival times, resource times, and so on.</p>
 <p>We have suggested a few strategies you could use…</p>
-<p><br></p>
 <section id="using-a-single-function-or-class-for-all-parameters" class="level3">
 <h3 class="anchored" data-anchor-id="using-a-single-function-or-class-for-all-parameters">Using a single function or class for all parameters</h3>
 <p>This can be convenient for smaller models, though can get unwieldly as the number of parameters grow, including potentially quite long parameter names! Although you could return a nested object to address this.</p>
 <div class="python-content">
-<p>Function example (with nested dictionaries):</p>
+<section id="function-example-with-nested-dictionaries" class="level4">
+<h4 class="anchored" data-anchor-id="function-example-with-nested-dictionaries">Function example (with nested dictionaries)</h4>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb38"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> create_params( <span class="co"># pylint: disable=function-redefined, too-many-arguments, too-many-positional-arguments</span></span>
 <span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>    adult_interarrival<span class="op">=</span><span class="dv">5</span>, adult_consultation<span class="op">=</span><span class="dv">20</span>, adult_transfer<span class="op">=</span><span class="fl">0.3</span>,</span>
@@ -1085,7 +1089,9 @@ $transfer_prob
 <pre><code>{'adult': {'interarrival_time': 5, 'consultation_time': 20, 'transfer_prob': 0.3}, 'child': {'interarrival_time': 7, 'consultation_time': 15, 'transfer_prob': 0.2}, 'elderly': {'interarrival_time': 10, 'consultation_time': 30, 'transfer_prob': 0.5}}</code></pre>
 </div>
 </div>
-<p>Class example:</p>
+</section>
+<section id="class-example" class="level4">
+<h4 class="anchored" data-anchor-id="class-example">Class example</h4>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb40"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Parameters:  <span class="co"># pylint: disable=function-redefined, too-many-instance-attributes, too-many-arguments, too-many-positional-arguments, too-few-public-methods</span></span>
 <span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
@@ -1142,9 +1148,11 @@ $transfer_prob
 <pre><code>{'adult_interarrival': 5, 'adult_consultation': 20, 'adult_transfer': 0.3, 'child_interarrival': 7, 'child_consultation': 15, 'child_transfer': 0.2, 'elderly_interarrival': 10, 'elderly_consultation': 30, 'elderly_transfer': 0.5}</code></pre>
 </div>
 </div>
+</section>
 </div>
 <div class="r-content">
-<p>Function example (with nested lists):</p>
+<section id="function-example-with-nested-lists" class="level4">
+<h4 class="anchored" data-anchor-id="function-example-with-nested-lists">Function example (with nested lists)</h4>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="co">#' Generate parameter list.</span></span>
 <span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a><span class="co">#'</span></span>
@@ -1230,7 +1238,9 @@ $elderly$transfer_prob
 [1] 0.5</code></pre>
 </div>
 </div>
-<p>R6 class example:</p>
+</section>
+<section id="r6-class-example" class="level4">
+<h4 class="anchored" data-anchor-id="r6-class-example">R6 class example</h4>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="co">#' @title Parameter class.</span></span>
 <span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a><span class="co">#'</span></span>
@@ -1346,15 +1356,16 @@ $elderly_transfer
 [1] 0.5</code></pre>
 </div>
 </div>
+</section>
 </div>
-<p><br></p>
 </section>
 <section id="using-multiple-functions-or-classes" class="level3">
 <h3 class="anchored" data-anchor-id="using-multiple-functions-or-classes">Using multiple functions or classes</h3>
 <p>Alternatively, parameters can be split into logical groups (e.g., patient type, parameter type), with each group having its own function or class. These groups are then combined into a single parameter set.</p>
 <p>For simulations with a large number of parameters, this approach simplifies input management. It also enables validation to be performed for each individual function/class.</p>
 <div class="python-content">
-<p>Function example:</p>
+<section id="function-example" class="level4">
+<h4 class="anchored" data-anchor-id="function-example">Function example</h4>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb46"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> create_arrivals(adult<span class="op">=</span><span class="dv">5</span>, child<span class="op">=</span><span class="dv">7</span>, elderly<span class="op">=</span><span class="dv">10</span>):</span>
 <span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
@@ -1471,7 +1482,9 @@ $elderly_transfer
 <pre><code>{'arrivals': {'adult': 5, 'child': 7, 'elderly': 10}, 'consultations': {'adult': 20, 'child': 15, 'elderly': 30}, 'transfers': {'adult': 0.3, 'child': 0.2, 'elderly': 0.5}}</code></pre>
 </div>
 </div>
-<p>Class example:</p>
+</section>
+<section id="class-example-1" class="level4">
+<h4 class="anchored" data-anchor-id="class-example-1">Class example</h4>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb48"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Arrivals:  <span class="co"># pylint: disable=too-few-public-methods</span></span>
 <span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
@@ -1581,9 +1594,11 @@ $elderly_transfer
 <pre><code>{'adult': 0.3, 'child': 0.2, 'elderly': 0.5}</code></pre>
 </div>
 </div>
+</section>
 </div>
 <div class="r-content">
-<p>Function example:</p>
+<section id="function-example-1" class="level4">
+<h4 class="anchored" data-anchor-id="function-example-1">Function example</h4>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="co">#' Generate list of inter-arrival times (minutes).</span></span>
 <span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a><span class="co">#'</span></span>
@@ -1691,7 +1706,10 @@ $transfers$elderly
 [1] 0.5</code></pre>
 </div>
 </div>
-<p>R6 class example (with modified <code>get_params()</code> method to extract fields from each component class):</p>
+</section>
+<section id="r6-class-example-1" class="level4">
+<h4 class="anchored" data-anchor-id="r6-class-example-1">R6 class example</h4>
+<p>With modified <code>get_params()</code> method to extract fields from each component class.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a><span class="co">#' @title Arrivals class.</span></span>
 <span id="cb56-2"><a href="#cb56-2" aria-hidden="true" tabindex="-1"></a><span class="co">#' @description Inter-arrival times (minutes).</span></span>
@@ -1875,12 +1893,12 @@ $transfers$elderly
 [1] 0.5</code></pre>
 </div>
 </div>
+</section>
 </div>
-<p><br></p>
 </section>
 </section>
 <section id="examples" class="level2">
-<h2 class="anchored" data-anchor-id="examples">Examples</h2>
+<h2 class="anchored" data-anchor-id="examples">🧾 Examples</h2>
 <p>This section contains full code examples for our <a href="../../pages/intro/examples.html">example conceptual models</a>.</p>
 <hr>
 <details>

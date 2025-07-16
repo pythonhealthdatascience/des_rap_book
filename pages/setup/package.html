@@ -527,11 +527,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">On this page</h2>
    
   <ul class="collapse">
-  <li><a href="#create-the-package-structure" id="toc-create-the-package-structure" class="nav-link active" data-scroll-target="#create-the-package-structure">Create the package structure</a></li>
-  <li><a href="#configure-your-project" id="toc-configure-your-project" class="nav-link" data-scroll-target="#configure-your-project">Configure your project</a></li>
-  <li><a href="#test-if-the-package-works" id="toc-test-if-the-package-works" class="nav-link" data-scroll-target="#test-if-the-package-works">Test if the package works</a></li>
-  <li><a href="#summary" id="toc-summary" class="nav-link" data-scroll-target="#summary">Summary</a></li>
-  <li><a href="#further-information" id="toc-further-information" class="nav-link" data-scroll-target="#further-information">Further information</a></li>
+  <li><a href="#why-create-a-package" id="toc-why-create-a-package" class="nav-link active" data-scroll-target="#why-create-a-package">❔ Why create a package?</a></li>
+  <li><a href="#create-the-package-structure" id="toc-create-the-package-structure" class="nav-link" data-scroll-target="#create-the-package-structure">📦 Create the package structure</a></li>
+  <li><a href="#configure-your-project" id="toc-configure-your-project" class="nav-link" data-scroll-target="#configure-your-project">⚙️ Configure your project</a></li>
+  <li><a href="#test-if-the-package-works" id="toc-test-if-the-package-works" class="nav-link" data-scroll-target="#test-if-the-package-works">🧪 Test if the package works</a></li>
+  <li><a href="#summary" id="toc-summary" class="nav-link" data-scroll-target="#summary">🧾 Summary</a></li>
+  <li><a href="#further-information" id="toc-further-information" class="nav-link" data-scroll-target="#further-information">📎 Further information</a></li>
   </ul>
 </nav>
     </div>
@@ -557,13 +558,26 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<div class="guidelines">
-<p><a href="../../pages/intro/guidelines.html">🔗</a> <strong>Reproducibility guidelines:</strong></p>
+<div class="pale-blue">
+<p>🎯 <strong>Objectives</strong></p>
+<p>This page walks you through how to structure your project as a package.</p>
+<ul>
+<li><strong>❔ Why create a package?</strong> Key benefits of structure.</li>
+<li><strong>📦 Create the package structure:</strong> Set up core folders and files.</li>
+<li><strong>⚙️ Configure your project:</strong> Add and update necessary project, metadata, and environment files.</li>
+<li><strong>🧪 Test if the package works:</strong> Check that package functions load and execute.</li>
+<li><strong>🧾 Summary:</strong> Overview of research package structure.</li>
+<li><strong>📎 Further information</strong>.</li>
+</ul>
+<p><a href="../../pages/intro/guidelines.html">🔗</a> <strong>Reproducibility guidelines</strong></p>
+<p>This page helps you meet reproducibility criteria from:</p>
 <ul>
 <li>NHS Levels of RAP (🥈): Code is well-organised following standard directory format.</li>
 <li>NHS Levels of RAP (🥇): Code is fully packaged.</li>
 </ul>
 </div>
+<section id="why-create-a-package" class="level2">
+<h2 class="anchored" data-anchor-id="why-create-a-package">❔ Why create a package?</h2>
 <p>Building our simulation model as a package has several advantages…</p>
 <ul>
 <li>The model is <strong>installed</strong> in our environment and can then be easily used anywhere else in our directory (or even from other directories) without needing to specify a system path.</li>
@@ -572,16 +586,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>It supports <strong>automated <a href="../../pages/verification_validation/tests.html">testing</a></strong> frameworks which can verify functionality.</li>
 </ul>
 <p><img src="package_resources/package_summary.png" class="img-fluid"></p>
-<p><br></p>
+</section>
 <section id="create-the-package-structure" class="level2">
-<h2 class="anchored" data-anchor-id="create-the-package-structure">Create the package structure</h2>
+<h2 class="anchored" data-anchor-id="create-the-package-structure">📦 Create the package structure</h2>
 <div class="python-content">
 <p>First, let’s create the basic directory structure for our simulation package.</p>
-<p><br></p>
-<p><strong>1. Create folder.</strong> Create a folder called <code>simulation/</code> in your project directory.</p>
+<section id="create-folder" class="level3">
+<h3 class="anchored" data-anchor-id="create-folder">1. Create folder</h3>
+<p>Create a folder called <code>simulation/</code> in your project directory.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> simulation</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p><br></p>
-<p><strong>2. Make init file.</strong> Inside the <code>simulation/</code> folder, create an <code>__init__.py</code> file.</p>
+</section>
+<section id="make-__init__.py-file" class="level3">
+<h3 class="anchored" data-anchor-id="make-__init__.py-file">2. Make <code>__init__.py</code> file</h3>
+<p>Inside the <code>simulation/</code> folder, create an <code>__init__.py</code> file.</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">touch</span> simulation/__init__.py</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Open this file and copy in some basic metadata.</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co">"""SimPy Discrete-Event Simulation (DES) Model.</span></span>
@@ -589,7 +606,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>__version__ <span class="op">=</span> <span class="st">"0.1.0"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p><br></p>
-<p><strong>3. Add a <code>.py</code> file with a function.</strong> Within <code>simulation/</code>, create a file called <code>model.py</code>.</p>
+</section>
+<section id="add-a-.py-file-with-a-function" class="level3">
+<h3 class="anchored" data-anchor-id="add-a-.py-file-with-a-function">3. Add a <code>.py</code> file with a function</h3>
+<p>Within <code>simulation/</code>, create a file called <code>model.py</code>.</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">touch</span> simulation/model.py</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>In this, we will add our model code. For now, just copy in this simple function that generates a list of numbers. We will add some real code for our model later.</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co">"""Core simulation model functionality."""</span></span>
@@ -613,8 +633,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>        <span class="st">"status"</span>: <span class="st">"completed"</span>,</span>
 <span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>        <span class="st">"results"</span>: [i <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(duration) <span class="cf">if</span> i <span class="op">%</span> <span class="dv">10</span> <span class="op">==</span> <span class="dv">0</span>]</span>
 <span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>    }</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p><br></p>
-<p><strong>4. Make pyproject file.</strong> Create a <code>pyproject.toml</code> file in the project root directory (outside the <code>simulation</code> folder).</p>
+</section>
+<section id="make-pyproject.toml-file" class="level3">
+<h3 class="anchored" data-anchor-id="make-pyproject.toml-file">4. Make <code>pyproject.toml</code> file</h3>
+<p>Create a <code>pyproject.toml</code> file in the project root directory (outside the <code>simulation</code> folder).</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">touch</span> pyproject.toml</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Copy the text below into this file. This provides instructions for building the package. We’re using <code>flit</code> as our build tool because of its simplicity. The <code>dynamic</code> field tells flit to extract the version and description from our <code>__init__.py</code> file.</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ex">[build-system]</span></span>
@@ -636,6 +658,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="ex">├──</span> LICENSE</span>
 <span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="ex">├──</span> pyproject.toml          <span class="co"># Package metadata</span></span>
 <span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="ex">└──</span> README.md</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
 </div>
 <div class="r-content">
 <p>For this section, you will need <code>roxygen2</code>, <code>usethis</code> and <code>devtools</code>. If you used the environment provided on the <a href="../../pages/setup/environment.html">dependency management</a> page then you should have these already - but if you do not, make sure to install them! You can check if they are in your environment by running this command from the R console:</p>
@@ -645,10 +668,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>If will print the version number of each package if installed.</p>
 <p>Now, let’s first create the basic directory structure for our simulation package.</p>
 <p><br></p>
-<p><strong>1. Create folder</strong> Create a folder called <code>R/</code> in your project directory - for example, by running this command in the terminal:</p>
+<section id="create-folder-1" class="level3">
+<h3 class="anchored" data-anchor-id="create-folder-1">1. Create folder</h3>
+<p>Create a folder called <code>R/</code> in your project directory - for example, by running this command in the terminal:</p>
 <div class="sourceCode" id="cb10"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> R</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p><br></p>
-<p><strong>2. Add a <code>.R</code> file with a function</strong>. Within <code>R/</code>, create a file called <code>model.R</code>.</p>
+</section>
+<section id="add-a-.r-file-with-a-function" class="level3">
+<h3 class="anchored" data-anchor-id="add-a-.r-file-with-a-function">2. Add a <code>.R</code> file with a function</h3>
+<p>Within <code>R/</code>, create a file called <code>model.R</code>.</p>
 <div class="sourceCode" id="cb11"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">touch</span> R/model.R</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>In this file, we will add our model code. For now, just copy in this simple function that generates a list of numbers. We will add some real code for our model later.</p>
 <div class="sourceCode" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Core simulation model functionality</span></span>
@@ -668,8 +696,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">results =</span> results</span>
 <span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>  ))</span>
 <span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p><br></p>
-<p><strong>3. Make a <code>DESCRIPTION</code> file</strong>. If you have worked through the <a href="../../pages/setup/environment.html">dependency management</a> page then you should already have a <code>DESCRIPTION</code> file listing dependencies, though this step will walk you through more of the meta-data in that file important when structuring our work as a package.</p>
+</section>
+<section id="make-a-description-file" class="level3">
+<h3 class="anchored" data-anchor-id="make-a-description-file">3. Make a <code>DESCRIPTION</code> file</h3>
+<p>If you have worked through the <a href="../../pages/setup/environment.html">dependency management</a> page then you should already have a <code>DESCRIPTION</code> file listing dependencies, though this step will walk you through more of the meta-data in that file important when structuring our work as a package.</p>
 <p>If you haven’t already, then create a <code>DESCRIPTION</code> file by running this command in the terminal:</p>
 <div class="sourceCode" id="cb13"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">touch</span> DESCRIPTION</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Open the file and copy in the template below. This is similar to the standard template generated by <code>usethis::use_description()</code>, but with a few extra sections.</p>
@@ -751,14 +781,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb17-40"><a href="#cb17-40" aria-hidden="true" tabindex="-1"></a>    <span class="ex">data.table,</span></span>
 <span id="cb17-41"><a href="#cb17-41" aria-hidden="true" tabindex="-1"></a>    <span class="ex">mockery</span></span>
 <span id="cb17-42"><a href="#cb17-42" aria-hidden="true" tabindex="-1"></a><span class="ex">Config/testthat/edition:</span> 3</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
 </div>
-<p><br></p>
 </section>
 <section id="configure-your-project" class="level2">
-<h2 class="anchored" data-anchor-id="configure-your-project">Configure your project</h2>
+<h2 class="anchored" data-anchor-id="configure-your-project">⚙️ Configure your project</h2>
 <div class="python-content">
-<p><br></p>
-<p><strong>1. Add package to environment file</strong>. Edit the <code>environment.yaml</code> file created on the <a href="../../pages/setup/environment.html">dependency management</a> page to add the local package. We use the <code>-e</code> flag to install it in “editable” mode, which means it will update with any changes to the source code in <code>simulation/</code>.</p>
+<section id="add-package-to-environment-file" class="level3">
+<h3 class="anchored" data-anchor-id="add-package-to-environment-file">1. Add package to environment file</h3>
+<p>Edit the <code>environment.yaml</code> file created on the <a href="../../pages/setup/environment.html">dependency management</a> page to add the local package. We use the <code>-e</code> flag to install it in “editable” mode, which means it will update with any changes to the source code in <code>simulation/</code>.</p>
 <p>We add the following line within the <code>pip</code> installs:</p>
 <div class="sourceCode" id="cb18"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>  <span class="ex">-</span> pip:</span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>    <span class="ex">-</span> <span class="at">-e</span> .<span class="pp">[</span><span class="ss">dev</span><span class="pp">]</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -787,25 +818,31 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb19-22"><a href="#cb19-22" aria-hidden="true" tabindex="-1"></a>    <span class="ex">-</span> kaleido==0.2.1</span>
 <span id="cb19-23"><a href="#cb19-23" aria-hidden="true" tabindex="-1"></a>    <span class="ex">-</span> sim-tools==0.8.0</span>
 <span id="cb19-24"><a href="#cb19-24" aria-hidden="true" tabindex="-1"></a>    <span class="ex">-</span> <span class="at">-e</span> .<span class="pp">[</span><span class="ss">dev</span><span class="pp">]</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p><br></p>
-<p><strong>2. Update the environment</strong>. To update our environment, adding our new package, execute the following in the command line (after running <code>conda activate des-example</code>):</p>
+</section>
+<section id="update-the-environment" class="level3">
+<h3 class="anchored" data-anchor-id="update-the-environment">2. Update the environment</h3>
+<p>To update our environment, adding our new package, execute the following in the command line (after running <code>conda activate des-example</code>):</p>
 <div class="sourceCode" id="cb20"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="ex">conda</span> env update <span class="at">--file</span> environment.yaml <span class="at">--prune</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>If you run <code>conda list</code>, you should now see our <code>simulation</code> package listed as a dependency like so:</p>
 <pre><code># Name                    Version                   Build  Channel
 simulation                0.1.0                    pypi_0    pypi</code></pre>
+</section>
 </div>
 <div class="r-content">
 <p>We will use <code>devtools</code> to build documentation and run checks.</p>
-<p><br></p>
-<p><strong>1. Build package documentation</strong>. The function we created in <code>model.R</code> had a docstring (for more info on writing docstrings, see the <a href="../../pages/style_docs/docstrings.html">docstrings</a> page). We can create the documentation for this by calling:</p>
+<section id="build-package-documentation" class="level3">
+<h3 class="anchored" data-anchor-id="build-package-documentation">1. Build package documentation</h3>
+<p>The function we created in <code>model.R</code> had a docstring (for more info on writing docstrings, see the <a href="../../pages/style_docs/docstrings.html">docstrings</a> page). We can create the documentation for this by calling:</p>
 <div class="sourceCode" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">document</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>This will create:</p>
 <ul>
 <li><code>man/</code>: folder with roxygen2 documentation for each function in package.</li>
 <li><code>NAMESPACE</code>: file which will list all the functions and packages used within your package.</li>
 </ul>
-<p><br></p>
-<p><strong>2. Check the package</strong>. You can check that the package is set-up correctly by running:</p>
+</section>
+<section id="check-the-package" class="level3">
+<h3 class="anchored" data-anchor-id="check-the-package">2. Check the package</h3>
+<p>You can check that the package is set-up correctly by running:</p>
 <div class="sourceCode" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">check</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>This will load it and perform standard checks. If all is well, you should get an output similar to:</p>
 <pre><code>&gt; devtools::check()
@@ -916,22 +953,28 @@ Duration: 7.3s
 0 errors ✔ | 0 warnings ✔ | 1 note ✖</code></pre>
 <p>The note in this case is because we are importing packages not currently used in <code>R/</code> - but won’t worry about this for now, as will do later when build our simulation model.</p>
 <p><br></p>
-<p><strong>3. Install the package</strong>. We can also verify that our package is working by trying to install it. From the console, run:</p>
+</section>
+<section id="install-the-package" class="level3">
+<h3 class="anchored" data-anchor-id="install-the-package">3. Install the package</h3>
+<p>We can also verify that our package is working by trying to install it. From the console, run:</p>
 <div class="sourceCode" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">install</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
 </div>
-<p><br></p>
 </section>
 <section id="test-if-the-package-works" class="level2">
-<h2 class="anchored" data-anchor-id="test-if-the-package-works">Test if the package works</h2>
+<h2 class="anchored" data-anchor-id="test-if-the-package-works">🧪 Test if the package works</h2>
 <div class="python-content">
 <p>We will run our model and analyse results within <strong>Jupyter notebooks</strong>, as they allow us to combine code, results and explanations in one document. This can help make our methods and results easier to share, read through and understand.</p>
 <p>In this case, we’re creating an <code>.ipynb</code> file so we can have a go at loading and using our package, to check it works.</p>
-<p><br></p>
-<p><strong>1. Create directory and notebook</strong>. We create a dedicated directory for our notebooks in the project root (<code>notebooks/</code>), and add a notebook (<code>simulation_test.ipynb</code>). These can be created via your operating system’s file manager, or with the command line:</p>
+<section id="create-directory-and-notebook" class="level3">
+<h3 class="anchored" data-anchor-id="create-directory-and-notebook">1. Create directory and notebook</h3>
+<p>We create a dedicated directory for our notebooks in the project root (<code>notebooks/</code>), and add a notebook (<code>simulation_test.ipynb</code>). These can be created via your operating system’s file manager, or with the command line:</p>
 <div class="sourceCode" id="cb26"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> notebooks</span>
 <span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="fu">touch</span> notebooks/simulation_test.ipynb</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p><br></p>
-<p><strong>2. Check our package works.</strong> Open <code>notebooks/simulation_test.ipynb</code> and add the following code. This will test that we are able to import our package and use the basic function we had created.</p>
+</section>
+<section id="check-our-package-works" class="level3">
+<h3 class="anchored" data-anchor-id="check-our-package-works">2. Check our package works</h3>
+<p>Open <code>notebooks/simulation_test.ipynb</code> and add the following code. This will test that we are able to import our package and use the basic function we had created.</p>
 <div class="sourceCode" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Import our simulation package</span></span>
 <span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> simulation.model <span class="im">import</span> run_simulation</span>
 <span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -949,18 +992,22 @@ Duration: 7.3s
 Results: [0, 10, 20, 30, 40, 50, 60, 70, 80, 90]
 Longer simulation completed with duration: 200
 Number of results: 20</code></pre>
+</section>
 </div>
 <div class="r-content">
 <p>We will run our model and analyse results within <strong>R markdown (.Rmd)</strong> files, as they combine code, results and explanations in one document. This can help make our methods and results easier to share, read through and understand.</p>
 <p>In this case, we’re creating an <code>.Rmd</code> file so we can have a go at loading and using our package, to check it works.</p>
-<p><br></p>
-<p><strong>1. Create directory and R markdown file</strong>. We create a dedicated directory for our R markdown files in the project root (<code>rmarkdown/</code>), and add a file (<code>simulation_test.Rmd</code>). These can be created via the terminal by running:</p>
+<section id="create-directory-and-r-markdown-file" class="level3">
+<h3 class="anchored" data-anchor-id="create-directory-and-r-markdown-file">1. Create directory and R markdown file</h3>
+<p>We create a dedicated directory for our R markdown files in the project root (<code>rmarkdown/</code>), and add a file (<code>simulation_test.Rmd</code>). These can be created via the terminal by running:</p>
 <div class="sourceCode" id="cb29"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> rmarkdown</span>
 <span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="fu">touch</span> rmarkdown/simulation_test.Rmd</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>As part of an R package, you can create a <code>vignettes</code> folder, which is typically used to hold guides, tutorials, or extended examples demonstrating how to use the package. Some people suggest putting your analysis in <code>vignettes/</code>, as this ensures everything is run from scratch each time you call <code>devtools::check()</code>, helping maintain reproducibility.</p>
 <p>However, we usually prefer to use an <code>rmarkdown/</code> folder when structuring research as a package because running analyses as vignettes is very inefficient for simulations with longer run times, and saving outputs from vignettes can lead to file path errors during the package build process.</p>
-<p><br></p>
-<p><strong>2. Check our package works</strong>. Open <code>rmarkdown/simulation_test.Rmd</code> and add the following code into a cell. This means you put ```{r} in the line before the code, and ``` in the line after.</p>
+</section>
+<section id="check-our-package-works-1" class="level3">
+<h3 class="anchored" data-anchor-id="check-our-package-works-1">2. Check our package works</h3>
+<p>Open <code>rmarkdown/simulation_test.Rmd</code> and add the following code into a cell. This means you put ```{r} in the line before the code, and ``` in the line after.</p>
 <p>This code will test that we are able to import our package and use the basic function we had created.</p>
 <div class="sourceCode" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load the package from the local directory</span></span>
 <span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">load_all</span>()</span>
@@ -983,11 +1030,11 @@ Simulation completed with duration: 100
 Results: 0, 10, 20, 30, 40, 50, 60, 70, 80, 90
 Longer simulation completed with duration: 200
 Number of results: 20</code></pre>
+</section>
 </div>
-<p><br></p>
 </section>
 <section id="summary" class="level2">
-<h2 class="anchored" data-anchor-id="summary">Summary</h2>
+<h2 class="anchored" data-anchor-id="summary">🧾 Summary</h2>
 <div class="python-content">
 <p>To structure your simulation project as a python package:</p>
 <ul>
@@ -1024,10 +1071,9 @@ Number of results: 20</code></pre>
 <span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a><span class="ex">├──</span> NAMESPACE           <span class="co"># Package exports (usually generated)</span></span>
 <span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a><span class="ex">└──</span> rmarkdown/          <span class="co"># Analysis notebooks</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p><br></p>
 </section>
 <section id="further-information" class="level2">
-<h2 class="anchored" data-anchor-id="further-information">Further information</h2>
+<h2 class="anchored" data-anchor-id="further-information">📎 Further information</h2>
 <div class="python-content">
 <ul>
 <li><a href="https://joshuacook.netlify.app/posts/2024-07-27_python-data-analysis-org/">“How I use Python to organize my data analyses”</a> from Joshua Cook 2024</li>
