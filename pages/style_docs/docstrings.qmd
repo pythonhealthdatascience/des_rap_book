@@ -1,8 +1,148 @@
 ---
-title: ❌ Docstrings
+title: Docstrings
 ---
 
-:::{.guidelines}
+::: {.pale-blue}
+
+🎯 **Objectives**
+
+This page explains why and how to write docstrings.
+
+* **📄 Docstrings: what and why**
+* **✍️ How to write docstrings**
+* **⏰ When to write docstrings**
+
+[🔗](../intro/guidelines.qmd) **Reproducibility guidelines**
+
+This page helps you meet reproducibility criteria from:
+
 * Heather et al. 2025: Comment sufficiently.
 * NHS Levels of RAP (🥈): Code is well-documented including user guidance, explanation of code structure & methodology and docstrings for functions.
+
+:::
+
+## 📄 Docstrings: what and why
+
+::: {.python-content}
+
+**Docstrings** ("documentation strings") are used to describe what each object in your code does. They should be included everywhere: modules, functions, classes, methods, and tests.
+
+Example:
+
+```{.python}
+def add_positive_numbers(a, b):
+    """
+    Add two positive numbers.
+
+    Parameters
+    ----------
+    a : float
+        First number to add (must be positive).
+    b : float
+        Second number to add (must be positive).
+
+    Returns
+    -------
+    float
+        The sum of a and b.
+    """
+    if a < 0 or b < 0:
+        raise ValueError("Both numbers must be positive.")
+    return a + b
+```
+
+:::
+
+::: {.r-content}
+
+**Docstrings** ("documentation strings") are used to describe what each object in your code does. They should be added to functions, classes, and tests.
+
+Example:
+
+```{.r}
+#' Add two positive numbers
+#'
+#' @param a First number to add (must be positive).
+#' @param b Second number to add (must be positive).
+#'
+#' @return The sum of a and b.
+
+add_positive_numbers <- function(a, b) {
+  if (a < 0 || b < 0) stop("Both numbers must be positive.")
+  a + b
+}
+```
+
+:::
+
+### How do they differ from in-line comments?
+
+**Docstrings** explain the overall purpose of a code object (like a function or class), while **in-line comments** clarify individual lines or sections of code when the logic isn’t obvious.
+
+For example, we could add an in-line comment to the function above to explain the if statement:
+
+::: {.python-content}
+
+```{.python}
+# Check if both inputs are positive before adding
+if a < 0 or b < 0:
+    raise ValueError("Both numbers must be positive.")
+return a + b
+```
+
+:::
+
+::: {.r-content}
+
+```{.r}
+# Check that both inputs are positive before adding
+if (a < 0 || b < 0) stop("Both numbers must be positive.")
+a + b
+```
+
+:::
+
+### Why use docstrings?
+
+* **Clarity and consistency:** Docstrings make code easier to understand and provide a uniform way to document your work, which is especially valuable when collaborating.
+
+* **Maintainability and reproducibility:** They help future users (including yourself) see the purpose and usage of code, making ongoing maintenance and reuse simpler and less error-prone. (Hence, their inclusion in the NHS Levels of RAP silver criteria (🥈)!)
+
+::: {.python-content}
+
+* **Documentation websites:** If you create a package and build a [documentation website](documentation.qmd) (e.g. with a tool like `quartodoc`), the docstrings are automatically used to generate reference guides and manuals. For example:
+
+    ![](docstrings_resources/simpy_reference.png){.lightbox}
+
+* **Interactive help systems:** Docstrings are picked up by interactive help tools like `help(function)`, which displays the docstring directly in the console or interface, to explain how the function or class works. For example...
+
+    Open a python script, or open on terminal by calling:
+
+    ```{.bash}
+    python
+    ```
+
+    Import SimPy and load the documentation for the `Environment()` class.
+
+    ```{.python}
+    library(simpy)
+    help(simpy.core.Environment)
+    ```
+
+    This will display:
+
+    ![](docstrings_resources/simpy_terminal.png){.lightbox}
+
+:::
+
+::: {.r-content}
+
+* **Documentation websites:** If you create a package and build a [documentation website](documentation.qmd) (e.g. with a tool like `quartodoc` or `pkgdown`), the docstrings are automatically used to generate reference guides and manuals. For example:
+
+    ![](docstrings_resources/simmer_reference.png){.lightbox}
+
+* **Help systems:** When comments follow a docstring format, you can view them in help panels with `?function`. For example:
+
+    ![](docstrings_resources/simmer_rstudio.png){.lightbox}
+
 :::
