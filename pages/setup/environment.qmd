@@ -163,6 +163,12 @@ This book and its examples use `conda`/`mamba`, as they are **established** tool
 
 You can choose between them - **`mamba` is just a drop-in replacement for `conda`** that is faster and has clearer error messages.
 
+### How will we work?
+
+For reproducibility and universal applicability, all `conda`/`mamba` instructions in this book will be run from the **command line**. These commands should be run from the **terminal** on Linux or macOS, or **Git Bash** (or **Anaconda Prompt**) on Windows. This approach gives you full control, works in any environment, and aligns with best practices used in collaborative and professional settings.
+
+However, there is also **Anaconda Navigator** - an application bundled with the Anaconda Distribution. Navigator allows you to manage environments and install packages using a point-and-click interface. If you're curious about using Anaconda Navigator instead, you can follow along with this walkthrough: [How to Create Virtual Environment in Anaconda Navigator | Python](https://youtu.be/D9ppWlkO-dI?si=zyzEUOICWeIn8LoX).
+
 ### Install `conda`/`mamba`
 
 Refer to the documentation for the latest instructions on installing `conda`/`mamba` for your operating system:
@@ -172,7 +178,17 @@ Refer to the documentation for the latest instructions on installing `conda`/`ma
 
 ### Create an environment file
 
-In the project root, we create a file called `environment.yaml`. Within this file, we add three sections:
+In the main project folder, create a file called `environment.yaml`. For example, your folder structure might look like:
+
+```
+project-name/
+├── .git/
+├── README.md
+├── LICENSE
+└── environment.yaml
+```
+
+Within `environment.yaml`, we add three sections:
 
 * **Name**. The environment name.
 * **Channels**. Where to find packages (e.g. `conda-forge`).
@@ -348,7 +364,7 @@ dependencies:
   - simpy
 ```
 
-With the environment active, you can then run the following command to update it:
+With the environment active (i.e. after running `conda activate des-example`), you can then run the following command to update it. Activating the environment before updating ensures that the changes are applied to the correct environment, rather than unintentionally modifying the `base` environment.
 
 ```{.bash}
 conda env update --file environment.yaml --prune
