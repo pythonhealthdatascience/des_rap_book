@@ -1,5 +1,5 @@
 ---
-title: 🤏 Environments
+title: Environments
 format:
   html:
     css: ../../styles/wrap_code.css
@@ -19,7 +19,6 @@ This page will guide you through the essentials of managing Python environments.
 * 📦 **Packages:** Dependency management using `conda`.
 * ⚙️ **Other:** Other tools and approaches for versions and packages.
 * 🛠️ **Recreate & troubleshoot:** Restoring environments and common fixes.
-* 🧪 **Activities:** Have a go at python environment management!
 * 📚 **Further ideas:** Advanced tools and workflows for managing python environments.
 
 :::
@@ -34,7 +33,6 @@ This page will guide you through the essentials of managing R environments.
 * 📦 **Packages:** Dependency management using `renv`.
 * ⚙️ **Other:** Other tools, plus advice on handling system libraries and project settings.
 * 🛠️ **Recreate & troubleshoot:** Restoring environments and common fixes.
-* 🧪 **Activities:** Have a go at R environment management!
 * 📚 **Further ideas:** Advanced tools and workflows for managing R environments.
 
 :::
@@ -161,9 +159,15 @@ In R, managing your project environment typically requires multiple, specialised
 
 :::: {.python-content}
 
-This book and its examples use `conda`/`mamba`, as they are established tools for package management that can also install specific versions of Python, enabling you to easily switch between versions for different projects.
+This book and its examples use `conda`/`mamba`, as they are **established** tools for package management that can also install **specific versions of Python**, enabling you to easily switch between versions for different projects.
 
-You can choose between them - `mamba` is just a drop-in replacement for `conda` that is faster and has clearer error messages.
+You can choose between them - **`mamba` is just a drop-in replacement for `conda`** that is faster and has clearer error messages.
+
+### How will we work?
+
+For reproducibility and universal applicability, all `conda`/`mamba` instructions in this book will be run from the **command line**. These commands should be run from the **terminal** on Linux or macOS, or **Git Bash** (or **Anaconda Prompt**) on Windows. This approach gives you full control, works in any environment, and aligns with best practices used in collaborative and professional settings.
+
+However, there is also **Anaconda Navigator** - an application bundled with the Anaconda Distribution. Navigator allows you to manage environments and install packages using a point-and-click interface. If you're curious about using Anaconda Navigator instead, you can follow along with this walkthrough: [How to Create Virtual Environment in Anaconda Navigator | Python](https://youtu.be/D9ppWlkO-dI?si=zyzEUOICWeIn8LoX).
 
 ### Install `conda`/`mamba`
 
@@ -174,7 +178,17 @@ Refer to the documentation for the latest instructions on installing `conda`/`ma
 
 ### Create an environment file
 
-In the project root, we create a file called `environment.yaml`. Within this file, we add three sections:
+In the main project folder, create a file called `environment.yaml`. For example, your folder structure might look like:
+
+```
+project-name/
+├── .git/
+├── environment.yaml
+├── LICENSE
+└── README.md
+```
+
+Within `environment.yaml`, we add three sections:
 
 * **Name**. The environment name.
 * **Channels**. Where to find packages (e.g. `conda-forge`).
@@ -193,7 +207,6 @@ dependencies:
 ::: {.callout-note}
 
 ## Conda channels
-`For example:
 
 **Channels** are locations where conda stores and retrieves packages. You can choose which channel to use, and can a select a few with an order of priority.
 
@@ -351,7 +364,7 @@ dependencies:
   - simpy
 ```
 
-With the environment active, you can then run the following command to update it:
+With the environment active (i.e. after running `conda activate des-example`), you can then run the following command to update it. Activating the environment before updating ensures that the changes are applied to the correct environment, rather than unintentionally modifying the `base` environment.
 
 ```{.bash}
 conda env update --file environment.yaml --prune
@@ -368,6 +381,40 @@ channels:
 dependencies:
   - python=3.13.3
   - simpy=4.1.1
+```
+
+When working on a project from scratch, you will often build up your environment organically and iteratively as you find more packages you want to use. However, to follow along with this book and ensure everything works as expected, you can use the full environment provided below. Copy this into your `environment.yaml` (feel free to alter the name!):
+
+```{.bash}
+name: des-example
+channels:
+  - conda-forge
+dependencies:
+  - ipykernel=6.29.5
+  - jinja2=3.1.5
+  - joblib=1.4.2
+  - nbconvert=7.16.6
+  - nbformat=5.10.4
+  - nbqa=1.9.0
+  - numpy=2.2.2
+  - pandas=2.2.3
+  - pip=25.0
+  - plotly_express=0.4.1
+  - pylint=3.3.4
+  - pytest=8.3.4
+  - pytest-xdist=3.6.1
+  - python=3.13.1
+  - rich=13.9.4
+  - simpy=4.1.1
+  - pip:
+    - kaleido==0.2.1
+    - sim-tools==0.8.0
+```
+
+Then update your environment to include these packages (after running `conda activate des-example`) with:
+
+```{.bash}
+conda env update --file environment.yaml --prune
 ```
 
 ::::
@@ -1183,45 +1230,38 @@ Most researchers handle these components by:
 
 ### Recreating an existing python environment
 
-<!--TODO: they may have used a tool but didn't list specific versions...-->
+This flowchart guides you through the main choices you’ll face when rebuilding a python environment:
 
 ![](environment_resources/restore_py_environment.drawio.png){.lightbox}
 
-<!--TODO;
-When working on a project from scratch, you will often build up your environment organically and iteratively as you find more packages you want to use. However, to follow along with this book and ensure everything works as expected, you can use the full environment provided below. Copy this into your `environment.yaml` (feel free to alter the name!):
+### Troubleshooting
 
-```{.bash}
-name: des-example
-channels:
-  - conda-forge
-dependencies:
-  - ipykernel=6.29.5
-  - jinja2=3.1.5
-  - joblib=1.4.2
-  - nbconvert=7.16.6
-  - nbformat=5.10.4
-  - nbqa=1.9.0
-  - numpy=2.2.2
-  - pandas=2.2.3
-  - pip=25.0
-  - plotly_express=0.4.1
-  - pylint=3.3.4
-  - pytest=8.3.4
-  - pytest-xdist=3.6.1
-  - python=3.13.1
-  - rich=13.9.4
-  - simpy=4.1.1
-  - pip:
-    - kaleido==0.2.1
-    - sim-tools==0.8.0
-```
+Managing Python environments can sometimes be challenging, especially when moving projects between machines, collaborating with others, or working on older code. Below are common problems and solutions.
 
-Then update your environment to include these packages (after running `conda activate des-example`) with:
+#### Package installation fails
 
-```{.bash}
-conda env update --file environment.yaml --prune
-```
--->
+**Symptoms:**
+
+* Installation errors, such as "Could not find a version that satisfies the requirement..."
+
+**Solutions:**
+
+* Check whether your Python version is supported by the package.
+* If using conda, try install from PyPI, and vice versa. You can also try different conda channels.
+* Check package name has no typos, and that the version number is valid.
+
+#### Backdating
+
+If you set up your environment with the latest python and package versions (for example, when no specific versions are listed), you may find your code requires older package versions to work as expected.
+
+**Symptoms:**
+
+* Previously working code throws errors after installing/updating packages.
+* Incompatibilities with newer package versions.
+
+**Solutions:**
+
+* Downgrade packages, and update your environment file with the pinned/minimum package version required.
 
 ::::
 
@@ -1282,7 +1322,7 @@ When recreating environments with older R versions or package versions, you may 
 
 **Solutions:**
 
-* If exact reproducibility isn't critical, update to a more recent R version and/or newer package versions.
+* If exact reproducibility is not required, consider updating to a more recent R version and/or newer package versions.
 * For legacy work, search for archived source tarballs or consult the CRAN archive, but success isn't guaranteed.
 
 #### Backdating
@@ -1306,7 +1346,7 @@ Imports:
     dplyr (>= 1.0.0)
 ```
 
-To install a particular version using `renv` (which is then captured in `renv.lock` by calling `renv::snapshot()`):
+To install a particular version using `renv` (which will be recorded in `renv.lock` after you call `renv::snapshot()`):
 
 ```{.r}
 renv::install("dplyr@1.1.2")
@@ -1319,11 +1359,10 @@ Some R packages require external system libraries (e.g., C libraries, database c
 **Symptoms:**
 
 * Package installation fails with errors about missing libraries (e.g., "cannot find -lssl", "libcurl not found", missing `.so` files).
-* Consult the CRAN page for each package (OR SPECIFIED ONE IN ERROR?); most list system requirements. As an example, the openssl and curl packages commonly require system libraries. See this GitHub issue for a real-world case and solution.
 
 **Solutions:**
 
-* Check the CRAN page for each package for system requirements. The `openssl` and `curl` packages are a common source of these issues.
+* Check the CRAN page for each package for any system requirements (listed beside `SystemRequirements`). The [`openssl`](https://cran.r-project.org/web/packages/openssl/index.html) and [`curl`](https://cran.r-project.org/web/packages/curl/index.html) packages are a common source of these issues.
 * Install the required system dependencies and document them in your `README` for others. For example:
   * Ubuntu/Debian: `sudo apt-get install libssl-dev libcurl4-openssl-dev`.
   * Fedora/RHEL: `sudo dnf install openssl-devel libcurl-devel`.
@@ -1332,7 +1371,7 @@ Some R packages require external system libraries (e.g., C libraries, database c
 
 #### Legacy user libraries
 
-On systems where R has been installed for a long time, the user library (the default location for installed packages) may contain outdated or conflicting packages. This can interfere with `renv`, sometimes causing it to fail silently or behave unpredictably.
+If R has been installed for a long time, your user library (the default location for installed packages) may contain outdated or conflicting packages. This can interfere with `renv`, sometimes causing silent failures or unpredictable behaviour.
 
 **Symptoms:**
 
@@ -1358,95 +1397,29 @@ On systems where R has been installed for a long time, the user library (the def
 
 ::::
 
-## 🧪 Activities
-
-:::: {.python-content}
-
-TODO
-
-::::
-
-:::: {.r-content}
-
-Let's put theory into practice! These activities are designed to help you experience real-world workflows for managing R environments using `renv` and `rig`.
-
-### Activity 1: Create a reproducible R project from scratch
-
-**Goal:** Set up a new R project with `renv`, add a package, capture the environment for reproducibility, and share it with others.
-
-**Suggested package and script:** Use the `ggplot2` package, and create a script named `plot_example.R` with the following code:
-
-```{.r}
-library(ggplot2)
-ggplot(mtcars, aes(mpg, wt)) + geom_point()
-```
-
-::: {.callout-tip collapse="true" title="View solution"}
-
-1. **Create a new R project.**
-    * In RStudio: Go to "File" > "New Project..." and choose "New Directory" or "Existing Directory" as needed.
-2. **Initialize `renv`.**
-    * In the R console, run:
-      ```{.r}
-      install.packages("renv")
-      renv::init()
-      ```
-3. **Install a package.**
-    * For example, to add `ggplot2`, add this to a `DESCRIPTION` file and then run
-      ```{.r}
-      renv::install()
-      ```
-4. **Write and run a simple script.**
-    * Create a new R script (e.g., `plot_example.R`) with:
-      ```{.r}
-      library(ggplot2)
-      ggplot(mtcars, aes(mpg, wt)) + geom_point()
-      ```
-    * Run the script to confirm everything works.
-5. **Snapshot the environment.**
-    * Save the current state of your environment:
-      ```{.r}
-      renv::snapshot()
-      ```
-    * This updates the `renv.lock` file, recording all package versions.
-6. **Share your project.**
-    * Your project folder now contains everything needed for someone else to reproduce your analysis - just share the folder (via GitHub, ZIP, etc.).
-
-Review the **📦 Packages** page for more information on these steps.
-
-:::
-
-### Activity 2: Reproduce an existing R project
-
-**Goal:** Clone a repository with a pre-configured `renv` environment, switch to the correct R version, restore dependencies, and run a basic R script.
-
-**Repository:** [amyheather/renv-reproduce-activity](https://github.com/amyheather/renv-reproduce-activity/)
-
-::: {.callout-tip collapse="true" title="View solution"}
-
-1. **Clone the provided repository.**
-    * `git clone https://github.com/amyheather/renv-reproduce-activity.git`
-    * `cd renv-reproduce-activity`
-2. **Switch to the required R version.**
-    * Check the `renv.lock` file or `README` for the required R version.
-    * Use `rig` (or your preferred tool) to switch R versions.
-3. **Restore the project environment.**
-    * Open the project in RStudio.
-    * Run `renv::restore()`.
-4. **Run the example code.**
-    * Locate and run the provided R script (`analysis.R`).
-5. **Troubleshoot (if needed).**
-    * If you encounter errors, refer to the troubleshooting section in **🛠️ Recreate & troubleshoot**.
-
-:::
-
-:::
-
 ## 📚 Further ideas
+
+If you are interested in exploring more advanced or alternative approaches to managing reproducible environments - especially when dealing with complex external dependencies - consider the following tools and resources:
 
 ::: {.python-content}
 
-TODO
+### Docker
+
+Using Docker allows you to encapsulate your entire python environment - including system dependencies, specific Python interpreters, and all packages - inside a container. This approach can solve issues related to external dependencies and ensures that your analysis runs identically across different machines, as it will ensure use of the same operating system.
+
+* There are many different ways you can set up a docker image, depending on your purpose. The first step is to create a `Dockerfile`. Some tutorials include:
+  * [VSCode's docker for python tutorial](https://code.visualstudio.com/docs/containers/quickstart-python)
+  * [Docker's python tutorial](https://www.docker.com/blog/how-to-dockerize-your-python-applications/)
+* Popular starter images include `python:<version>` (<https://hub.docker.com/_/python>), and `continuumio/miniconda3` for conda-based workflows (<https://hub.docker.com/r/continuumio/miniconda3>).
+
+### Other package managers
+
+In this page, we covered some of the popular package managers - `conda`, `mamba`, `venv`, `poetry` and `uv` - but there are many other package managers available! Examples include:
+
+* `Nix` (<https://nixos.org/>) - Unlike `conda` or `pip`, `Nix` environments can strictly pin every dependency (including low-level libraries). You declare every package used - and with `NixOS`, you also can configure your whole operating system (similar to Docker).
+* `Hatch` (<https://hatch.pypa.io/latest/>) - A modern, all-in-one Python project manager handling virtual environments, dependency management, and packaging within a unified workflow.
+* `Rye` (<https://rye.astral.sh/>) - A new Python tool seeking to unify virtual environment management, dependency resolution, and packaging with simple commands.
+* `PDM` (<https://pdm-project.org/en/latest/>) - A package and project manager following the latest Python packaging standards, with strong support for `pyproject.toml`.
 
 ### Further reading
 
@@ -1460,11 +1433,9 @@ These are some nice resources generally covering topics related to python enviro
 
 ::: {.r-content}
 
-If you are interested in exploring more advanced or alternative approaches to managing reproducible R environments - especially when dealing with complex external dependencies - consider the following tools and resources:
+### Docker
 
-### Docker for R
-
-Using Docker allows you to encapsulate your entire R environment, including system libraries, R versions, and packages, inside a container. This approach can solve many issues related to external dependencies and ensures that your analysis runs identically across different systems.
+Using Docker allows you to encapsulate your entire R environment - including system libraries, R versions, and packages - inside a container. This approach can solve issues related to external dependencies and ensures that your analysis runs identically across different machines, as it will ensure use of the same operating system.
 
 * [`dockerfiler`](https://github.com/colinfay/dockerfiler): An R package for programmatically creating Dockerfiles, making it easier to build reproducible R environments with custom dependencies.
 * [`rocker`](https://www.rocker-project.org/): A collection of Docker images for R, maintained by the R community, which you can use as a base for your own projects.
