@@ -2,13 +2,6 @@
 title: Version control
 ---
 
-<!-- Hide as no python-content or r-content blocks -->
-<style>
-      #quarto-announcement {
-        display: none !important;
-      }
-</style>
-
 ::: {.pale-blue}
 
 🎯 **Objectives**
@@ -19,8 +12,10 @@ This page introduces workflows for version control using GitHub.
 * **🐙 Git:** How it works and common platforms.
 * **🏗️ Setting up a GitHub repository:** How to create one from scratch.
 * **📥 Cloning the repository:** How to copy a repository to your local machine.
+* **👩‍💻 Working with Git from your development environment:** An alternative to using the command line.
 * **🌿 Creating a branch and pushing changes:** How to work on a branch and sync changes.
 * **👥 GitHub organisations:** What they are, why use them, and how to set one up.
+* **📎 Further information**.
 
 [🔗](../intro/guidelines.qmd) **Reproducibility guidelines**
 
@@ -78,7 +73,11 @@ Click the "+" button in the top right corner, and select "New repository".
 
 ![](version_resources/github_2.png){fig-align="center" width=70%}
 
-Then fill out the form to create a repository...
+Next, fill out the form to create your repository.
+
+It's best to create a **separate repository for each project** to keep your code organised and easy to manage. For instance, if you're experimenting with both Python and R tutorials, set up a different repository for each one. Similarly, when developing models for different systems - such as one predicting emergency department wait times and another analysing the impact of a vaccination programme - it's best to keep each in its own repository.
+
+A simple, illustrative example is shown below:
 
 * **Repository name:**  e.g. *emergency-des*
 
@@ -88,11 +87,31 @@ Then fill out the form to create a repository...
 
 * **README:** Select "Add a README file", which will create a blank README we can populate later (see the [documentation](../style_docs/documentation.qmd) page).
 
-* **.gitignore:** Select the "Python" or "R" .gitignore template. This will create a `.gitignore` file in your repository that tells Git which files not to track.
+::: {.python-content}
+
+* **.gitignore:** Select the python .gitignore template. This will create a `.gitignore` file in your repository that tells Git which files not to track.
+
+:::
+
+::: {.r-content}
+
+* **.gitignore:** Select the R .gitignore template. This will create a `.gitignore` file in your repository that tells Git which files not to track.
+
+:::
 
 * **Licence:** Select an appropriate licence for your repository (see the [licensing](../sharing/licence.qmd) page for more information and advice).
 
-![](version_resources/github_3.png)
+::: {.python-content}
+
+![](version_resources/github_3_python.png)
+
+:::
+
+::: {.r-content}
+
+![](version_resources/github_3_r.png)
+
+:::
 
 ::: {.callout-tip}
 
@@ -121,21 +140,64 @@ You have created a remote repository on GitHub - we now want to clone it, which 
 
 ### 1. Get the url
 
-On the main page of you repository, click the green "<> Code" button, then copy the HTTPS url.
+On the main page of you repository, click the &nbsp;[<> Code]{style="background: #597341; color: #fff; border-radius:4px; padding:2px 8px; font-family:monospace; font-weight:bold; font-size:90%;"}&nbsp; button, then copy the HTTPS url.
 
 ![](version_resources/github_4.png)
 
 ### 2. Clone the repository
 
-Depending on your operating system, open either the terminal (Linux or Mac) or Git Bash (windows). Navigate to the location where you would like to create the folder containing your repository. Then enter `git clone` and the pasted URL - for example:
+Depending on your operating system:
 
-```
-git clone https://github.com/amyheather/hospital-des.git
+* Open the **terminal** (for Linux or Mac).
+* Open **Git Bash** (for Windows). If you're new to Git Bash, check out [4-minute video tutorial on installing Git Bash](https://youtu.be/cweFdzKMeS0?si=U2cJ_LnJ_uJvqetT).
+
+Navigate to the folder where you want the project to be stored, then run the following (using your copied url):
+
+```{.bash}
+git clone https://github.com/your-username/your-repo-name.git
 ```
 
 ![](version_resources/github_5.png)
 
-This will have created a local copy of the repository, which you can open with your preferred development environment (e.g. VSCode, RStudio).
+This will create a local copy of your repository.
+
+## 👩‍💻 Working with Git from your development environment
+
+Once you've cloned your repository, you can manage Git directly from your development environment, instead of using the command line for every step.
+
+::: {.python-content}
+
+For example, **VSCode** is a popular option in Python which offers built-in Git integration. To view the Git options, click on "Source Control" in the activity bar.
+
+![](version_resources/vscode_sourcecontrol.png)
+
+From here you can view commit files, views diffs, change branches, and push/pull to GitHub without leaving VSCode.
+
+:::
+
+::: {.r-content}
+
+For example, **RStudio** is a popular option in R which offers build-in Git integration. When you open a folder connected to a Git repository in RStudio, a **Git** tab appears in the top-right pane.
+
+![](version_resources/rstudio_git.png)
+
+From here you can view commit files, views diffs, change branches, and push/pull to GitHub without leaving RStudio.
+
+:::
+
+**Note:** In the examples below, we'll show the **command line** approach as it is universally applicable for most Git operations. However, when it comes to merging branches, we use the GitHub website as it enables us to use the pull request workflow. You are always welcome to use your preferred development environment for staging, committing, and pushing—these all use the same underlying Git process.
+
+::: {.python-content}
+
+**Need help?** Check out this [15-minute tutorial on using git and GitHub in VSCode](https://youtu.be/z5jZ9lrSpqk?si=2IcSNArDXvEileM8).
+
+:::
+
+::: {.r-content}
+
+**Need help?** Check out this [10-minute tutorial walks through connecting an RStudio project to git and GitHub](https://youtu.be/bUoN85QvC10?si=oI2FR5zAzDED1YS8).
+
+:::
 
 ## 🌿 Creating a branch and pushing changes
 
@@ -206,52 +268,86 @@ git push
 
 ### 4. Merge the changes
 
-One of the easiest ways to merge changes into main is using the GitHub website. Open your repository. You should see that you now have "2 Branches". Navigate to your new branch...
+Once you've finished committing changes to your branch (e.g. `dev`), the next step is to merge those changes into the `main` branch. There are two main ways to do this:
+
+* **Using the GitHub website** - recommended for beginners and team workflows.
+* **Using the command line** - useful if you are comfortable with Git or working independently.
+
+#### Merging using the GitHub website
+
+The easiest and most common way to merge is via a **pull request** on GitHub. A pull request is a way to propose merging changes from one branch into another. This lets you review your changes in a user-friendly interface, and gives others an opportunity to review and discuss them before they are added to the main project.
+
+To create and merge a pull request, you should first go to your repository on GitHub. You should see that you now have multiple branches. Click on your new branch (e.g. `dev`) to switch to it.
 
 ![](version_resources/github_6.png)
 
-We can see this is now 1 commit ahead of main. We can browse the files in this branch, and can click on the right hand "2 Commits" to view the version history.
+Navigate to page comparing branch to main. Click on either:
 
-![](version_resources/github_7.png)
-
-This just has 2 commits - the creation of our repository, and the change to our README file:
-
-![](version_resources/github_8.png)
-
-To merge the changes with main, go back to the page for that branch, and select either:
-
-* "This branch is 1 commit ahead of main", or
-* "Compare & pull request"
+* This branch is <span style="color: #3366cc; text-decoration: underline">X commits ahead of</span> <span style="background: #e6f2fa; ">main</span>.
+* &nbsp;[Compare & pull request]{style="background: #597341; color: #fff; border-radius:4px; padding:2px 8px; font-family:monospace; font-weight:bold; font-size:90%;"}&nbsp;
 
 ![](version_resources/github_9.png)
 
-This will open a page which shows all the new commits in your branch, and side-by-side changes the files you have modified.
-
-Click the green "Create pull request" button.
+You will be able to see side-by-side changes in the files you have modified. To create a pull request, click on the button: &nbsp;[Create pull request]{style="background: #597341; color: #fff; border-radius:4px; padding:2px 8px; font-family:monospace; font-weight:bold; font-size:90%;"}&nbsp;.
 
 ![](version_resources/github_10.png)
 
-A **pull request** is a request to merge changes from one branch to another. This provides an opportunity, for example, for others to review the changes and make sure they are happy before these are merged.
+We can modify the message or just leave as is.
 
-We can modify the message - or just leave as is, and select the "Create pull request" button.
+Then, again, you need to click &nbsp;[Create pull request]{style="background: #597341; color: #fff; border-radius:4px; padding:2px 8px; font-family:monospace; font-weight:bold; font-size:90%;"}&nbsp;.
 
 ![](version_resources/github_11.png)
 
 If new changes have been made to the main branch since you created your branch (e.g., new commits, merges from other branches, or contributions from other collaborators) and you've modified the same files, you may encounter merge conflicts that need to be resolved.
 
-If not though, you can just select "Merge pull request" and then "Confirm merge".
+If not though, you can just select &nbsp;[Merge pull request]{style="background: #597341; color: #fff; border-radius:4px; padding:2px 8px; font-family:monospace; font-weight:bold; font-size:90%;"}&nbsp; and then &nbsp;[Confirm merge]{style="background: #597341; color: #fff; border-radius:4px; padding:2px 8px; font-family:monospace; font-weight:bold; font-size:90%;"}&nbsp;.
 
 ![](version_resources/github_12.png)
 
 ![](version_resources/github_13.png)
 
+#### Command line
+
+Alternatively, if prefer to work from command line, you can also merge from the terminal or Git Bash. It's important to note that this will skip some of the important benefits of pull requests. Working from the command line:
+
+* Changes are merged without feedback or approval from others.
+* There is less transparency (as pull requests have clear discussion threads / rationale for changes).
+* There are no automated checks (whilst pull requests can run tests or require approvals before merging).
+* Harder to track as changes are less visible in the project history.
+
+To merge from the command line, you will first need to switch to the `main` branch:
+
+```{.bash}
+git checkout main
+```
+
+Pull the latest changes from GitHub:
+
+```{.bash}
+git pull origin main
+```
+
+Merge in your branch (e.g. `dev`):
+
+```{.bash}
+git merge dev
+```
+
+If there are no conflicts, the changes will merge successfully. You can then push the updated `main` branch to GitHub:
+
+```{.bash}
+git push origin main
+```
+
 ### 5. Close your branch
 
-We can now delete the branch-
+We can now delete the branch from the remote repository -
 
 ![](version_resources/github_14.png)
 
-On our local machine, switch back to main:
+We also need to delete the branch locally. We can do this using the terminal or Git Bash.
+
+First, switch back to main:
 
 ```{.bash}
 git checkout main
@@ -313,3 +409,7 @@ For example, simply select the Free plan.
 It will ask for a name and contact email. You can typically then select that the organisation belongs to your personal account. Follow the prompts to create the organisation. You can then add other GitHub users as owners or collaborators.
 
 ![](version_resources/organisation_3.png)
+
+## 📎 Further information
+
+* [git documentation](https://git-scm.com/doc) - with introductory videos on git and version control.
