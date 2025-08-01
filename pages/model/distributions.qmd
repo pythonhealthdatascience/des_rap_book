@@ -2,25 +2,233 @@
 title: ❌ Randomness
 ---
 
-:::{.guidelines}
+<!--TODO: update sim-tools-->
+
+{{< include ../../scripts/_reticulate-setup.md >}}
+
+::: {.pale-blue}
+
+🎯 **Objectives**
+
+This page covers:
+
+* **🎲 Randomness:** sampling and pseudorandom number generators.
+* **🛠️ Tools for random sampling:**
+* **⛓️‍💥 Independent random number streams:**
+* **👨‍💻 Adding random sampling to your simulation:**
+
+[🔗](../intro/guidelines.qmd) **Reproducibility guidelines**
+
+This page helps you meet reproducibility criteria from:
+
 * Heather et al. 2025: Control randomness.
+
 :::
 
-<!--TODO:
-steps we are going through...
+::: {.python-content}
 
-1 knowing what want to model
-2 input modelling
-3 importing input parametesr
-4 understanding how will sample from distributions for each
-5 start basic: generate arrivals
-    e.g. for stroke models, generated patient arrivals for the 2 units + all patients types as first step
-6 build from there - further processing
+```{python}
+# Import required packages
+import numpy as np
+from sim_tools.distributions import Exponential, Normal
+```
 
-for r, when constructing, need to add to importfrom, then run devtoolsdocument, then loadall, then try it out
-otherwise it won't find the stuff you importfrom if dont document first as needs to add to namespace
+:::
 
-rexp requires 1 / inter-arrival time for rate as rexp requires rate and rate is the inverse of mean inter-arrival time
+## 🎲 Randomness
 
-consider: often logging at this early stage... python print().... simmer verbose=True...
--->
+When simulating real-world systems (e.g. patients arriving, prescriptions queueing), using fixed values is unrealistic. Instead, **discrete-event simulations rely on randomness**: they generate event times and outcomes by sampling randomly from probability distributions.
+
+![](../inputs/input_data_resources/samples.png)
+
+However, computers can't generate "true" randomness. Instead, they use **pseudorandom number generators (PRNGs)**: algorithms which produce a sequence of numbers that apopear random, but are in fact completely determined by an initial starting point called a **seed**. If you use the same seed, you’ll get the same random sequence every time - a crucial feature for reproducibility in research and development.
+
+By default, most software PRNGs initialise the seed based on something that changes rapidly and unpredictably, such as the current system time. This ensures a unique sequence with every fresh run. But for **reproducible experiments**, you should manually set the seed yourself, allowing you and others to exactly recreate simulation results.
+
+![](distributions_resources/prng.png)
+
+## 🛠️ Introducing tools for random sampling
+
+<div class="h3-tight"></div>
+
+:::::: {.python-content}
+
+### NumPy
+
+NumPy is a widely used Python package for generating random numbers. Since NumPy version 1.17, the recommended approach for random sampling is through the new Generator API.
+
+To start, create a **generator object** using `np.random.default_rng()`. This generator is an independent random number source and manages its own random state.
+It offers methods for generating random samples from many distributions, such as normal, exponential, and uniform.
+
+For example, to generate 3 samples from an exponential distribution (with a mean of 17):
+
+```{python}
+rng = np.random.default_rng()
+rng.exponential(scale=17, size=3)
+```
+
+To ensure the same results everytime the code runs, initialise with a fixed seed:
+
+::::: {.columns}
+
+:::: {.column width="47.5%"}
+
+```{python}
+rng = np.random.default_rng(20)
+rng.exponential(scale=17, size=3)
+```
+
+::::
+
+:::: {.column width="5%"}
+::::
+
+:::: {.column width="47.5%"}
+
+```{python}
+rng = np.random.default_rng(20)
+rng.exponential(scale=17, size=3)
+```
+
+::::
+
+:::::
+
+
+#### Legacy API (not recommended for new code)
+
+You might encounter older code using NumPy's legacy random number API. This approach sets a **global** seed and samples using functions like `np.random.exponential()`:
+
+```{python}
+np.random.seed(20)
+np.random.exponential(scale=17, size=3)
+```
+
+### sim-tools
+
+The [sim-tools](https://github.com/TomMonks/sim-tools) package (developed by Prof. Tom Monks) provides an object-oriented approach to sampling from a variety of statistical distributions.
+
+`sim-tools` builds on NumPy's random number generator and distributions. This means you get the same reliable, well-tested methods, with a convenient object-oriented interface. The package also includes some additional distribution types and tools for simulation.
+
+To use `sim-tools`, you import the class for the distribution you need, specify parameters, and then use the instance to generate samples. Each object has its own seed and random state.
+
+For example:
+
+```{python}
+# Create an Exponential distribution object with mean 6 and seed 3
+exp = Exponential(mean=6, random_seed=3)
+
+# Generate 3 random samples
+samples = exp.sample(size=3)
+print(samples)
+```
+
+::::::
+
+:::::: {.r-content}
+
+TODO
+
+::::::
+
+## ⛓️‍💥 Independent random number streams
+
+In your simulation, you often have **multiple distinct processes** that involve random sampling (e.g. patients arriving, consultation lengths, routing decisions).
+
+If these processes share the **same random number generator**, changes in one part of your model (like altering the number of samples drawn for arrivals) can unintentionally **affect the random numbers used elsewhere**. This can introduce subtle, hard-to-detect errors, making your simulation **harder to debug and compare across scenarios**.
+
+To demonstrate this problem, we will simulate two queues: arrivals and processing times.
+
+:::: {.python-content}
+
+### Problem: Shared generators
+
+```{python}
+rng = np.random.default_rng(1)
+arrivals = rng.exponential(3, 3)
+processing = rng.normal(10, 2, 3)
+
+print(f"Arrivals: {arrivals}\nProcessing: {processing}")
+```
+
+```{python}
+rng = np.random.default_rng(1)
+arrivals = rng.exponential(3, 5)
+processing = rng.normal(10, 2, 3)
+
+print(f"Arrivals: {arrivals}\nProcessing: {processing}")
+```
+
+::: {.pale-red}
+
+⚠️ Processing samples have changed, despite no changes to their sampling code! This is because they share a generator: drawing more arrival samples moves the random number sequence forward, so the processing draws start from a different place.
+
+:::
+
+### Solution: Independent generators
+
+```{python}
+rng_a = np.random.default_rng(1)
+rng_p = np.random.default_rng(2)
+arrivals = rng_a.exponential(3, 3)
+processing = rng_p.normal(10, 2, 3)
+
+print(f"Arrivals: {arrivals}\nProcessing: {processing}")
+```
+
+```{python}
+rng_a = np.random.default_rng(1)
+rng_p = np.random.default_rng(2)
+arrivals = rng_a.exponential(3, 5)
+processing = rng_p.normal(10, 2, 3)
+
+print(f"Arrivals: {arrivals}\nProcessing: {processing}")
+```
+
+::: {.pale-green}
+
+✅ Processing samples remain the same.
+
+:::
+
+### sim-tools
+
+The same rule applies for `sim-tools`: use one object per process, each with it's own seed.
+
+```{python}
+arrivals_exp = Exponential(mean=3, random_seed=1)
+processing_norm = Normal(mean=10, sigma=2, random_seed=2)
+
+arrivals = arrivals_exp.sample(3)
+processing = processing_norm.sample(3)
+
+print(f"Arrivals: {arrivals}\nProcessing: {processing}")
+```
+
+```{python}
+arrivals_exp = Exponential(mean=3, random_seed=1)
+processing_norm = Normal(mean=10, sigma=2, random_seed=2)
+
+arrivals = arrivals_exp.sample(5)
+processing = processing_norm.sample(3)
+
+print(f"Arrivals: {arrivals}\nProcessing: {processing}")
+```
+
+### sim-tools v.s. NumPy
+
+With `sim-tools`, you're encouraged to use independent random number streams by time, as each distribution gets its own instance of a distribution class, each with its own parameters and random seed.
+
+With NumPy, you can use separate random generators, but it's not "enforced". If you don't explicitly create one per stream, it's easy to accidentally fall back on using a single generator.
+
+::::
+
+:::: {.r-content}
+
+TODO
+
+::::
+
+## 👨‍💻 Adding random sampling to your simulation
+
+TODO
