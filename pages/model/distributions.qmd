@@ -2,8 +2,6 @@
 title: ❌ Randomness
 ---
 
-<!--TODO: update sim-tools-->
-
 {{< include ../../scripts/_reticulate-setup.md >}}
 
 ::: {.pale-blue}
@@ -49,9 +47,9 @@ By default, most software PRNGs initialise the seed based on something that chan
 
 ## 🛠️ Introducing tools for random sampling
 
-<div class="h3-tight"></div>
-
 :::::: {.python-content}
+
+<div class="h3-tight"></div>
 
 ### NumPy
 
@@ -127,7 +125,14 @@ print(samples)
 
 :::::: {.r-content}
 
-TODO
+In R, random sampling is typically done with functions from the `stats` package. To ensure reproducibility, set a global random seed with `set.seed()`. Then use the appropriate function for your desired distribution.
+
+For example, the exponential distribution is sampled with `rexp()` which requires the rate parameter (the inverse of the mean). To generate 3 samples from an exponential distribution with a mean of 6, you would use:
+
+```{r}
+set.seed(3)
+rexp(n=3L, rate=1L/6L)
+```
 
 ::::::
 
@@ -145,16 +150,18 @@ To demonstrate this problem, we will simulate two queues: arrivals and processin
 
 ```{python}
 rng = np.random.default_rng(1)
-arrivals = rng.exponential(3, 3)
-processing = rng.normal(10, 2, 3)
+arrivals = rng.exponential(scale=3, size=3)
+processing = rng.normal(loc=10, scale=2, size=3)
 
 print(f"Arrivals: {arrivals}\nProcessing: {processing}")
 ```
 
+Change to five arrivals samples:
+
 ```{python}
 rng = np.random.default_rng(1)
-arrivals = rng.exponential(3, 5)
-processing = rng.normal(10, 2, 3)
+arrivals = rng.exponential(scale=3, size=5)
+processing = rng.normal(loc=10, scale=2, size=3)
 
 print(f"Arrivals: {arrivals}\nProcessing: {processing}")
 ```
@@ -170,8 +177,8 @@ print(f"Arrivals: {arrivals}\nProcessing: {processing}")
 ```{python}
 rng_a = np.random.default_rng(1)
 rng_p = np.random.default_rng(2)
-arrivals = rng_a.exponential(3, 3)
-processing = rng_p.normal(10, 2, 3)
+arrivals = rng_a.exponential(scale=3, size=3)
+processing = rng_p.normal(loc=10, scale=2, size=3)
 
 print(f"Arrivals: {arrivals}\nProcessing: {processing}")
 ```
@@ -179,8 +186,8 @@ print(f"Arrivals: {arrivals}\nProcessing: {processing}")
 ```{python}
 rng_a = np.random.default_rng(1)
 rng_p = np.random.default_rng(2)
-arrivals = rng_a.exponential(3, 5)
-processing = rng_p.normal(10, 2, 3)
+arrivals = rng_a.exponential(scale=3, size=5)
+processing = rng_p.normal(loc=10, scale=2, size=3)
 
 print(f"Arrivals: {arrivals}\nProcessing: {processing}")
 ```
@@ -215,20 +222,63 @@ processing = processing_norm.sample(3)
 print(f"Arrivals: {arrivals}\nProcessing: {processing}")
 ```
 
-### sim-tools v.s. NumPy
+### Which package to use?
 
-With `sim-tools`, you're encouraged to use independent random number streams by time, as each distribution gets its own instance of a distribution class, each with its own parameters and random seed.
+We've used `sim-tools` for sampling in the example models in this book. This is because, with `sim-tools`, you're encouraged to use independent random number streams by design, as each distribution gets its own instance of a distribution class, each with its own parameters and random seed.
 
-With NumPy, you can use separate random generators, but it's not "enforced". If you don't explicitly create one per stream, it's easy to accidentally fall back on using a single generator.
+You can still use NumPy directly if you prefer - you'll just need to remember to deliberately create separate random generators, as it's not "enforced". If you don't explicitly create one per stream, it's easy to accidentally fall back on using a single generator. 
 
 ::::
 
 :::: {.r-content}
 
-TODO
+### Problem
+
+```{r}
+set.seed(1)
+arrivals <- rexp(n=3L, rate=1L/3L)
+processing <- rnorm(n=3L, mean=10L, sd=2L)
+
+print(arrivals)
+print(processing)
+```
+
+Change to five arrivals samples:
+
+```{r}
+set.seed(1)
+arrivals <- rexp(n=5L, rate=1L/3L)
+processing <- rnorm(n=3L, mean=10L, sd=2L)
+
+print(arrivals)
+print(processing)
+```
+
+::: {.pale-red}
+
+⚠️ Processing samples have changed, despite no changes to their sampling code! This is because they share a generator: drawing more arrival samples moves the random number sequence forward, so the processing draws start from a different place.
+
+:::
+
+### Solution
+
+This section is adapted from https://pythonhealthdatascience.github.io/stars-treat-simmer/02_model/03_r_sampling.html.
+
+By default, R's stats package uses a single random number stream and does not support managing multiple, independent streams.
+
+The [`simEd`](https://cran.r-project.org/web/packages/simEd/index.html) package, last updated in 2023, provides equivalent functions that allow separate random number streams. The package is described in:
+
+> B. Lawson and L. M. Leemis, “An R package for simulation education,” 2017 Winter Simulation Conference (WSC), Las Vegas, NV, USA, 2017, pp. 4175-4186, doi: 10.1109/WSC.2017.8248124 <https://ieeexplore.ieee.org/document/8248124>.
+
+We did not use `simEd` in this work because it slowed down model execution.
+
+However, as an example of how it works:
+
+ALTERNATIVELY just link to https://pythonhealthdatascience.github.io/stars-treat-simmer/02_model/03_r_sampling.html#using-the-simed-package if don't want to / have issues addin g it to the dependencies
+
+```{r}
+```
+
+<!--TODO: for python and r, need to explain, it's not a big deal too, like, its ok-->
 
 ::::
-
-## 👨‍💻 Adding random sampling to your simulation
-
-TODO
