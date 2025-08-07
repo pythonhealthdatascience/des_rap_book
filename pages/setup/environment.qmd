@@ -507,7 +507,7 @@ Some further information relevant when initialising `renv`:
 If a `DESCRIPTION` file is present, `renv` will prompt you to choose how dependencies are discovered:
 
 * **Implicit mode:** `renv` will scan you project files for any packages used in your code.
-* **Explicit mode:** `renv` will use only the packages listed in your `DESCRIPTION` file.
+* **Explicit mode:** `renv` will use only the packages listed in your `DESCRIPTION` file (under "Imports").
 
 We recommend choosing implicit mode for most projects, as it ensures that all packages actually used in your code are detected and managed, even if you forget to list them in `DESCRIPTION`.
 
@@ -645,6 +645,8 @@ Install packages listed in `DESCRIPTION` (and their dependencies) with:
 renv::install()
 ```
 
+This will only install packages listed under "Imports" - those under "Suggests" have to be installed manually.
+
 #### 4. Update `renv.lock`
 
 Take a snapshot of your environment and update `renv.lock`:
@@ -657,11 +659,13 @@ This will update the lock file with a full list of the exact packages and depend
 
 There are three snapshot types:
 
-* **Implicit** (default): Records packages in `DESCRIPTION` *and* those used in your code.
-* **Explicit**: Only records packages listed in `DESCRIPTION`.
+* **Implicit** (default): Records packages in `DESCRIPTION` Imports section (not the Suggests section) *and* those used in your code.
+* **Explicit**: Only records packages listed in `DESCRIPTION` Imports section (not the Suggests section).
 * **All**: Records all packages in your environment.
 
 We recommend using the default (implicit) to ensure all used packages are captured, even if not listed in `DESCRIPTION`. However, you should remove unused scripts to avoid capturing unnecessary packages. 
+
+If you are using a `DESCRIPTION` file with "Imports" and "Suggests", you may wish to use the "all" snapshot, as otherwise renv will only include packages in imports or used in the code in the lockfile.
 
 To check your current snapshot type:
 
