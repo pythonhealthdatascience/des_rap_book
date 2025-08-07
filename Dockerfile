@@ -35,6 +35,10 @@ ENV PATH=$CONDA_DIR/bin:$PATH
 WORKDIR /workspace
 COPY . /workspace
 
+# Accept Anaconda ToS for required channels in non-interactive builds
+RUN conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/main && \
+    conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/r
+
 # Create the conda environment
 RUN conda env create -f environment.yaml
 
