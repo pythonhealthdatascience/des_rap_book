@@ -1,3 +1,16 @@
+---
+title: "Data Dictionary: `example_parameters` CSV"
+format:
+  pdf:
+    geometry:
+      - left=1cm
+      - right=1cm
+      - top=1cm
+      - bottom=1cm
+---
+
+\vspace*{-2cm}
+
 | Column | Data type | Description | Possible values |
 | - | - | - | --- |
 | patient | str | Patient type | `adult`, `child` or `elderly` |

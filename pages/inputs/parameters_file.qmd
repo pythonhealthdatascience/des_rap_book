@@ -15,9 +15,10 @@ This page focuses on the storage of parameters within a file.
 * **❓ Why use external parameter files?**
 * **📝 Create parameter file**
 * **📖 Create data dictionary**
-* **📥 Import parameters into function or class**
+* **🔑 Principles when importing**
+* **🗃️ Importing from a CSV**
+* **🗂️ Importing from JSON**
 * **🧾 Examples:** Full code examples from our example simulation models.
-* **📎 Further information**
 
 If you want to see how to store parameters within a script, see the [parameters from script](parameters_script.qmd) page.
 
@@ -34,27 +35,28 @@ This page helps you meet reproducibility criteria from:
 
 External parameter files can offer some advantages over storing parameters directly in scripts:
 
-* Easier for non-programmers to modify parameters.
-* Can easily share your simulation with different parameters versions (e.g. real parameters for internal use, synthetic parameters for external sharing, as discussed in [input data management](input_data.qmd)) without editing the code itself.
-* Less hard coding as parameters are completely separate.
+* **Easier for non-programmers** to modify parameters.
+* Can easily share your simulation with **different parameters versions** (e.g. real parameters for internal use, synthetic parameters for external sharing, as discussed in [input data management](input_data.qmd)) **without editing the code itself**.
+* **Less hard coding** as parameters are completely separate.
 
 Though storing parameters within a script is commonplace - particularly for simpler models - due to its simplicity.
 
 ## 📝 Create parameter file
 
-There are several file types you could consider for storing parameters. CSV files are often a good choice - particularly better than Excel - because they are:
+There are several file types you can use to store parameters, with **CSV** and **JSON** being two good options. Both have advantages over Excel files:
 
-* Open and non-proprietary format.
-* Compatible with version-control systems (being text-based).
-* Readable in wide range of spreadsheet software (Excel, LibreOffice), text editors, and programming environments
-* Easy to import and parse in major programming languages.
+* **Open and non-proprietary** format.
+* Work well with **version control** (as they are plain text).
+* **Supported** by many tools: spreadsheets, text editors, programming languages.
+* **Easier to import** and parse programmatically than Excel.
 
-The parameter file should be structured following tidy data principles. This means each row represents a single observation and each column represents a variable. Avoid using merged cells or stacked headers as these make the data harder to process programmatically.
+### CSV example
+
+For CSV files, use a simple tabular structure and follow tidy data principles - each row is an observation, each column a variable. Avoid merged cells or stacked headers, as these make data processing difficult.
 
 :::{.python-content}
 
 ```{python}
-# Import required packages
 import pandas as pd
 
 # Import and preview parameter file
@@ -66,8 +68,39 @@ pd.read_csv("parameters_file_resources/example_parameters.csv")
 :::{.r-content}
 
 ```{r}
-# Import and preview parameter file
+# Import and view the parameter table
 read.csv(file.path("parameters_file_resources", "example_parameters.csv"))
+```
+
+:::
+
+### JSON example
+
+For JSON files, data are stored in hierachical / nested structures. Keep the structure clear and consistent.
+
+::: {.python-content}
+
+```{python}
+import json
+
+# Import parameters
+parameter_file = "parameters_file_resources/example_parameters.json"
+with open(parameter_file, "r", encoding="utf-8") as f:
+    param = json.load(f)
+
+# View the dictionary
+print(json.dumps(param, indent=4, sort_keys=True))
+```
+
+:::
+
+::: {.r-content}
+
+```{r}
+library(jsonlite)
+
+param <- fromJSON("parameters_file_resources/example_parameters.json")
+str(param)
 ```
 
 :::
@@ -76,18 +109,44 @@ read.csv(file.path("parameters_file_resources", "example_parameters.csv"))
 
 As discussed on the [input data management page](input_data.qmd), you should include a data dictionary or documentation describing each parameter. This documentation should explain the parameter's meaning, units, and any abbreviations or codes used.
 
-For example:
+```{python}
+#| echo: false
+#| output: false
 
-{{< include parameters_file_resources/example_data_dictionary.md >}}
+import subprocess
 
-## 📥 Import parameters into function or class
+subprocess.run([
+    "pandoc",
+    "parameters_file_resources/csv_data_dictionary.md",
+    "-o", "parameters_file_resources/csv_data_dictionary.pdf"
+])
+subprocess.run([
+    "pandoc",
+    "parameters_file_resources/json_data_dictionary.md",
+    "-o", "parameters_file_resources/json_data_dictionary.pdf"
+])
+```
+
+### CSV data dictionary example
+
+<iframe src="parameters_file_resources/csv_data_dictionary.pdf" width="100%" height="500px" style="border:1px solid #dee2e6"></iframe>
+
+### JSON data dictionary example
+
+<iframe src="parameters_file_resources/json_data_dictionary.pdf" width="100%" height="500px" style="border:1px solid #dee2e6"></iframe>
+
+## 🔑 Principles when importing
 
 The [parameters from script page](parameters_script.qmd) provides detailed guidance on how parameters should be structured within your simulation. The key principles are:
 
 1. **Group parameters into a dedicated object**.
 2. **Pass these objects explicitly to your model**.
 
-These same principles apply when importing parameters from files.  We recommend using **structured parameter objects** rather than passing raw CSV data directly to your simulation functions because:
+These same principles apply when importing parameters from files.
+
+## 🗃️ Importing from a CSV
+
+We recommend using **structured parameter objects** rather than passing raw CSV data directly to your simulation functions because:
 
 * Your files might contain baseline parameters plus scenario-specific overrides, but your simulation needs **one complete object** with all parameters merged together. Having all required parameters for a run in one object also makes it clear exactly what's being used.
 * Classes allow you to incorporate parameter **validation** (e.g. ranges, types) before running the simulation.
@@ -310,6 +369,35 @@ params
 ```
 
 :::
+
+## 🗂️ Importing from JSON
+
+<!--
+you could use a similar approach to that described for csv
+
+however, we'll show another way you could do it
+
+remember this book just guidance... always lots of ways!
+
+in this example, we just import, gets stored as dictionary, just as above.
+
+```{python}
+import json
+
+# Import parameters
+filename = "parameters_file_resources/example_parameters.json"
+with open(filename, "r", encoding="utf-8") as f:
+    file_content = json.load(f)
+
+# Extract the simulation parameters
+sim_params = file_content["simulation_parameters"]
+```
+
+now, what about validation? above import to class was because...
+
+well, validation is explained on next page. one of the ways is using a class we make called lockeddict. another is validation performed when distributions are created. find out more...
+
+-->
 
 ## 🧾 Examples
 
@@ -540,13 +628,3 @@ setup_param_from_csv(file.path("..", "inputs", "parameters.csv"))
 </details>
 
 ---
-
-## 📎 Further information
-
-:::{.python-content}
-The `sim-tools` package provides a class for managing probability distributions stored within JSON files - check it out: <https://tommonks.github.io/sim-tools/01_sampling/03_distributions_registry.html>. 
-:::
-
-:::{.r-content}
-N/A
-:::
