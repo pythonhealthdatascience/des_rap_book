@@ -26,6 +26,17 @@ This page helps you meet reproducibility criteria from:
 :::
 
 > 🔍 **Note:** This pages includes some simplified, standalone examples to illustrate how functions and classes work. They are not taken from the full example simulation models in this book.
+>
+> To keep things simple, docstrings are not shown here. If you’d like to see examples that include docstrings, please refer to the [docstrings page](../style_docs/docstrings.qmd).
+
+::: {.python-content}
+
+```{python}
+# pylint: disable=missing-function-docstring,missing-class-docstring
+# pylint: disable=wrong-import-position
+```
+
+:::
 
 ## ♻️ Reusing code
 
@@ -54,6 +65,7 @@ Here, estimation of wait time based on the queue length and average service time
 ```{python}
 def estimate_wait_time(queue_length, avg_service_time):
     return queue_length * avg_service_time
+
 
 # There are 4 patients ahead, average service time is 15 minutes
 print(estimate_wait_time(queue_length=4, avg_service_time=15))
@@ -95,10 +107,10 @@ class Patient:
         self.patient_id = patient_id
         self.arrival_time = arrival_time
         self.status = "waiting"
-        
+
     def admit(self):
         self.status = "admitted"
-        
+
     def discharge(self):
         self.status = "discharged"
 
@@ -174,8 +186,7 @@ class EmergencyPatient(Patient):
     def triage(self):
         if self.severity > 7:
             return "High priority"
-        else:
-            return "Standard priority"
+        return "Standard priority"
 
 
 ben = EmergencyPatient(patient_id=2, arrival_time=5, severity=9)
@@ -279,15 +290,15 @@ end_times = [0] * len(patient_arrivals)
 waiting_times = [0] * len(patient_arrivals)
 
 # Simulate service
-for i in range(len(patient_arrivals)):
+for i, arrival in enumerate(patient_arrivals):
     if i == 0:
-        start_times[i] = patient_arrivals[i]
+        start_times[i] = arrival
     else:
         # Next patient starts when they arrive or when previous is done
-        start_times[i] = max(patient_arrivals[i], end_times[i - 1])
-    
+        start_times[i] = max(arrival, end_times[i - 1])
+
     end_times[i] = start_times[i] + service_times[i]
-    waiting_times[i] = start_times[i] - patient_arrivals[i]
+    waiting_times[i] = start_times[i] - arrival
 
 # Combine into a DataFrame
 results = pd.DataFrame({

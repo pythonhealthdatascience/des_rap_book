@@ -27,5 +27,5 @@ print_section "python" "index.qmd and pages/"
 lintquarto -l pylint flake8 -p index.qmd pages/
 
 print_section "python" "tests/"
-pylint pages tests
-flake8 pages tests
+pylint pages tests --ignore=linting_resources
+flake8 pages tests --exclude linting_resources
