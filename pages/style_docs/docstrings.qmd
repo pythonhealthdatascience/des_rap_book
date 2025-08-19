@@ -25,8 +25,7 @@ This page helps you meet reproducibility criteria from:
 
 ::: {.r-content}
 ```{r}
-library(R6)
-library(testthat)
+library(R6)  # nolint: undesirable_function_linter
 ```
 :::
 
@@ -38,7 +37,7 @@ library(testthat)
 
 Example:
 
-```{.python}
+```{python}
 def add_positive_numbers(a, b):
     """
     Add two positive numbers.
@@ -68,7 +67,7 @@ def add_positive_numbers(a, b):
 
 Example:
 
-```{.r}
+```{r}
 #' Add two positive numbers
 #'
 #' @param a First number to add (must be positive).
@@ -77,7 +76,7 @@ Example:
 #' @return The sum of a and b.
 
 add_positive_numbers <- function(a, b) {
-  if (a < 0 || b < 0) stop("Both numbers must be positive.")
+  if (a < 0L || b < 0L) stop("Both numbers must be positive.", call. = FALSE)
   a + b
 }
 ```
@@ -92,7 +91,7 @@ For example, we could add an in-line comment to the function above to explain th
 
 ::: {.python-content}
 
-```{.python}
+```{python}
 # Check if both inputs are positive before adding
 if a < 0 or b < 0:
     raise ValueError("Both numbers must be positive.")
@@ -103,9 +102,9 @@ return a + b
 
 ::: {.r-content}
 
-```{.r}
+```{r}
 # Check that both inputs are positive before adding
-if (a < 0 || b < 0) stop("Both numbers must be positive.")
+if (a < 0L || b < 0L) stop("Both numbers must be positive.", call. = FALSE)
 a + b
 ```
 
@@ -333,14 +332,14 @@ The `@export` tag is included in each docstring to tell Roxygen to add the objec
 
 ```{r}
 #' Estimate the total wait time for all customers in the queue.
-#' 
+#'
 #' @param queue_length numeric Number of customers currently in the queue.
 #' @param avg_service_time numeric Average time taken to serve one customer.
 #' @return numeric Estimated total wait time.
 #' @export
 
 estimate_wait_time <- function(queue_length, avg_service_time) {
-  return(queue_length * avg_service_time)
+  queue_length * avg_service_time
 }
 ```
 
@@ -348,48 +347,47 @@ estimate_wait_time <- function(queue_length, avg_service_time) {
 
 ```{r}
 #' Represents a patient in a healthcare facility.
-#' 
+#'
 #' @docType class
 #' @importFrom R6 R6Class
 #' @export
 
-Patient <- R6Class("Patient", list(
+Patient <- R6Class("Patient", list(  # nolint: object_name_linter
 
-    #' @field patient_id integer or character. Unique identifier for the
-    #' patient.
-    patient_id = NULL,
+  #' @field patient_id integer or character. Unique identifier for the
+  #' patient.
+  patient_id = NULL,
 
-    #' @field arrival_time character or Date/POSIXt. The time when the patient
-    #' arrived.
-    arrival_time = NULL,
+  #' @field arrival_time character or Date/POSIXt. The time when the patient
+  #' arrived.
+  arrival_time = NULL,
 
-    #' @field status character. Current status of the patient: one of
-    #' "waiting", "admitted", or "discharged".
-    status = NULL,
+  #' @field status character. Current status of the patient: one of
+  #' "waiting", "admitted", or "discharged".
+  status = NULL,
 
-    #' Initialise a new patient record.
-    #' 
-    #' @param patient_id integer or character. Unique identifier for the
-    #' patient.
-    #' @param arrival_time character or Date/POSIXt. The time when the patient
-    #' arrived.
-    initialize = function(patient_id, arrival_time) {
-      self$patient_id <- patient_id
-      self$arrival_time <- arrival_time
-      self$status <- "waiting"
-    },
+  #' Initialise a new patient record.
+  #'
+  #' @param patient_id integer or character. Unique identifier for the
+  #' patient.
+  #' @param arrival_time character or Date/POSIXt. The time when the patient
+  #' arrived.
+  initialize = function(patient_id, arrival_time) {
+    self$patient_id <- patient_id
+    self$arrival_time <- arrival_time
+    self$status <- "waiting"
+  },
 
-    #' Admit the patient.
-    admit = function() {
-      self$status <- "admitted"
-    },
+  #' Admit the patient.
+  admit = function() {
+    self$status <- "admitted"
+  },
 
-    #' Discharge the patient.
-    discharge = function() {
-      self$status <- "discharged"
-    }
-  )
-)
+  #' Discharge the patient.
+  discharge = function() {
+    self$status <- "discharged"
+  }
+))
 ```
 
 :::

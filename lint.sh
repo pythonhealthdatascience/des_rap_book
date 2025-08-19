@@ -16,7 +16,7 @@ print_section "R" "index.qmd"
 Rscript -e 'lintr::lint("index.qmd")'
 
 print_section "R" "pages/"
-Rscript -e 'lintr::lint_dir("pages")'
+Rscript -e 'lintr::lint_dir("pages", exclusions = list("style_docs/linting_resources/code.R"))'
 
 print_section "R" "tests/"
 Rscript -e 'lintr::lint_dir("tests")'
