@@ -198,7 +198,7 @@ class Runner:
                 for run in range(self.param.number_of_runs)
             )
 
-        # Seperate results from each run into appropriate lists
+        # Separate results from each run into appropriate lists
         patient_results_list = [result["patient"] for result in all_results]
         run_results_list = [result["run"] for result in all_results]
         interval_audit_list = [
