@@ -5,6 +5,8 @@ filters:
   - line-highlight
 ---
 
+<!--TODO: MAKE SURE THIS HAS VALIDATION FOR THE FUNCTGIONS AND CLASS ON BOTH PARAM SCRIPT AND PARAM FILE REMEMBER THEY ARE DIFFERENT NOW AND REMEMBER EG PARAM FILE I SAID VALIDATION IN MODEL VS IN CLASS -->
+
 ::: {.pale-blue}
 
 🎯 **Objectives**
@@ -24,6 +26,7 @@ Whilst this is not necessary to reproducibility or a reproducible analytical pip
 :::{.python-content}
 ```{python}
 # Import required packages
+from collections import UserDict
 import inspect
 ```
 :::
@@ -136,12 +139,16 @@ try({
 ### The solution
 
 ::::{.python-content}
-There are two main approaches to prevent these silent failures:
+There are three approaches to prevent these silent failures:
 
 :::{.pale-blue}
 * **When using functions:** Implement parameter validation within your model functions.
 * **When using classes:** Build validation directly into the class structure.
+* **When using dictionaries:** Use a custom wrapper that locks the keys. *This is relevant when using dictionaries independently, or as part of a nested structure in a function or class.*
 :::
+
+Class-based validation is often preferable to function-based as it catches errors at the point when parameters are defined - but both approaches are effective! Also, if either included nested structures of parameters, a wrapper for dictionaries may also be necessary.
+
 ::::
 
 ::::{.r-content}
@@ -151,11 +158,9 @@ There are two main approaches to prevent these silent failures **when using func
 * Implement parameter validation within your model functions.
 * Switch to using R6 classes.
 :::
-::::
 
 Class-based validation is often preferable as it catches errors at the point when parameters are defined - but both approaches are effective!
 
-:::{.r-content}
 Functions are more commonly used in R than classes, so you may prefer to stick with the function-based approach for consistency with R conventions.
 :::
 
@@ -527,6 +532,168 @@ except AttributeError as e:
     print(f"Error: {e}")
 ```
 
+### Custom wrapper for dictionaries
+
+`LockedDict` is a dictionary wrapper that locks its initial set of keys after creation. It ensures that existing keys can still be updated, but adding or deleting top-level keys is not possible, preventing bugs caused by typos or unintended modifications.
+
+```{python}
+class LockedDict(UserDict):
+    """
+    Wrapper that prevents adding or deleting top-level keys in a dictionary
+    after creation.
+
+    This prevents accidental addition or deletion of keys after construction,
+    helping to avoid subtle bugs (e.g., typos introducing new keys).
+
+    Attributes
+    ----------
+    _locked_keys : set
+        The set of top-level keys locked after initialisation.
+    _locked_keys_initialised : bool
+        Indicates whether locked key enforcement is active (True after
+        __init__ completes). This flag is crucial for compatibility with
+        joblib and multiprocessing, as object reconstruction during
+        deserialisation may call __setitem__ before additional attributes are
+        restored.
+    """
+    def __init__(self, *args, **kwargs):
+        """
+        Initialise the LockedDict.
+
+        Parameters
+        ----------
+        *args, **kwargs : any
+            Arguments passed to dict for initialisation. Top-level keys will
+            be locked.
+
+        Notes
+        -----
+        """
+        self._locked_keys_initialised = False
+        super().__init__(*args, **kwargs)
+        self._locked_keys = set(self.data)
+        self._locked_keys_initialised = True
+
+    def __setattr__(self, name, value):
+        """
+        Block silent attribute assignment by only allowing internal, private
+        and known base-class-needed attributes.
+
+        This avoids silent failure when users try to set dict.new_attribute,
+        where it does not change the dictionary as it set an attribute.
+        """
+        if name.startswith("_") or name == "data":
+            super().__setattr__(name, value)
+        else:
+            raise AttributeError(
+                f"Cannot set attribute '{name}'. "
+                f"Use item syntax: obj['{name}'] = value"
+            )
+
+    def __setitem__(self, key, value):
+        """
+        Restrict assignment to existing top-level keys.
+
+        Parameters
+        ----------
+        key : str
+            Top-level dictionary key.
+        value : any
+            Value to assign.
+
+        Raises
+        ------
+        KeyError
+            If key is not an original top-level key.
+
+        Notes
+        -----
+        Key restriction is enforced only after initialisation to prevent errors
+        when used with joblib or multiprocessing, which may call __setitem__
+        before all attributes are available.
+        """
+        if getattr(self, '_locked_keys_initialised', False):
+            if key not in self._locked_keys:
+                raise KeyError(
+                    f"Attempted to add or update key '{key}', which is not "
+                    f"one of the original locked keys. This is likely due to "
+                    f"a typo or unintended new parameter. Allowed top-level "
+                    f"keys are: [{self._locked_keys}]"
+                )
+        super().__setitem__(key, value)
+
+    def __delitem__(self, key):
+        """
+        Prevent deletion of top-level keys.
+
+        Parameters
+        ----------
+        key : str
+            Top-level dictionary key.
+
+        Raises
+        ------
+        KeyError
+            Always, to disallow top-level key deletion.
+        """
+        raise KeyError(
+            f"Deletion of key '{key}' is not allowed. The set of top-level "
+            f"keys is locked to prevent accidental removal of expected "
+            f"parameters. Allowed top-level keys are: [{self._locked_keys}]"
+        )
+```
+
+This can be used when parameters are simply stored in a dictionary:
+
+```{python}
+param = LockedDict({
+  "param1": "test",
+  "param2": 42
+})
+
+# Successfuly modify an existing attribute
+param["param1"] = "newtest"
+
+# Attempts to add new attributes should raise an error
+try:
+  param["newattribute"] = 3
+except KeyError as e:
+  print(f"Error: {e}")
+
+print(param)
+```
+
+It is also useful for nested structures - for example, when a nested dictionary of parameters is a class attribute.
+
+```{python}
+class Param(RestrictAttributes):
+    """
+    Parameter class with validation to prevent the addition of new attributes.
+    """
+    def __init__(self, param1="test", param2=42):
+        """
+        Initialise Param instance.
+        """
+        self.param_dict = LockedDict({
+          "param1": "test",
+          "param2": 42
+        })
+
+
+param_instance = Param()
+
+# Successfully modify an existing attribute
+param_instance.param_dict["param1"] = "newtest"
+
+# Attempts to add new attributes should raise an error
+try:
+    param_instance.param_dict["new_attribute"] = 3
+except KeyError as e:
+    print(f"Error: {e}")
+
+print(param_instance.param_dict)
+```
+
 :::
 
 :::::{.r-content}
@@ -535,6 +702,7 @@ By default, **R6 classes prevent the addition of new fields**. However, there ar
 
 * Setting `lock_objects = FALSE`.
 * Setting parameters within a list.
+* Using nested parameters. <!--TODO-->
 
 #### Setting `lock_objects = FALSE`
 
@@ -748,8 +916,6 @@ params$get_params() #<<
 :::::
 
 ## 🛡️ Validating parameter values (e.g. range)
-
-<!--TODO: mention that there are several examples in stroke python Param class below... but also, is there also for R?-->
 
 You can check that the provided inputs are valid - expected format, range, etc. This can either be:
 
