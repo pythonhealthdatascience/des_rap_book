@@ -102,13 +102,21 @@ The following `# pylint: disable` lines simply turn off some linting warnings th
 
 :::
 
-::::
-
 ```{python}
 import pandas as pd
 import json
 from collections import defaultdict
 ```
+
+::::
+
+::: {.r-content}
+
+```{r}
+library(R6)
+```
+
+:::
 
 ## ❓ Why use external parameter files?
 
@@ -223,15 +231,36 @@ As explained in the [parameters from script page](parameters_script.qmd), there 
 
 If you haven't already, see the [script page](parameters_script.qmd) for more detail on why this explicit grouping and passing is important.
 
+::: {.python-content}
+
 On that page, we discussed three implementation options: **dictionary**, **function**, and **class**. When defining parameters within scripts, we recommended using a function or class. But what about when you're importing parameters from a file?
+
+:::
+
+::: {.r-content}
+
+On that page, we discussed three implementation options: **list**, **function**, and **R6 class**. When defining parameters within scripts, we recommended using a function or class. But what about when you're importing parameters from a file?
+
+:::
+
 
 ### Implementation options for file-based parameters
 
+::: {.python-content}
 You still have two main choices: a **function** or a **class**. 
 
 **Direct dictionary import** (loading the file straight into a dictionary) is rarely practical. It only works if the file structure exactly matches your model and no extra parameters are needed.
 
 **Function (returns a dictionary)**
+:::
+
+::: {.r-content}
+You still have two main choices: a **function** or a **R6 class**. 
+
+**Direct list import** (loading the file straight into a named list) is rarely practical. It only works if the file structure exactly matches your model and no extra parameters are needed.
+
+**Function (returns a named list)**
+:::
 
 * ✅ Handles any processing needed to go from file to parameter structure.
 
@@ -239,15 +268,27 @@ You still have two main choices: a **function** or a **class**.
 
 * ✅ Keeps all import/processing logic together for easy reuse and debugging.
 
+::: {.python-content}
 * ❌ Dictionaries can be modified after creation, so validation must be performed in the model functions/classes (ensuring the final set of parameters is being checked). This means that errors are only caught later, rather than immediately at the point of import/change.
 
 **Class**
+:::
+
+::: {.r-content}
+* ❌ Named list can be modified after creation, so validation must be performed in the model functions/classes (ensuring the final set of parameters is being checked). This means that errors are only caught later, rather than immediately at the point of import/change.
+
+**R6 class**
+:::
 
 * ✅ Includes all function benefits: processing, merging, in one place.
 
 * ✅ Supports validation at creation or update, catching errors earlier.
 
 ### Using a function
+
+<div class="h4-tight"></div>
+
+::: {.python-content}
 
 #### Nested or flat dictionary
 
@@ -265,7 +306,7 @@ params = {
 params["adult"]["interarrival"]
 ```
 
-A **flat dictionary** is simpler to use if everything fits in one layer.
+A **flat dictionary** can be simpler to use if everything fits in one layer.
 
 ```{python}
 params = {
@@ -278,10 +319,46 @@ params = {
 params["adult_interarrival"]
 ```
 
+:::
+
+::: {.r-content}
+
+#### Nested or flat list
+
+A function loads parameters and returns them as a named list. You can choose between a **nested** or **flat** structure, depending on complexity.
+
+A **nested list** is good for grouped parameters, like distributions with multiple values (`mean`, `sd`, etc.), or if you want to organise by category like patient type.
+
+```{r}
+params <- list(
+  adult = list(interarrival = 5, service_time = 10),
+  child = list(interarrival = 3, service_time = 7),
+  distribution = list(mean = 0, sd = 1)
+)
+
+params$adult$interarrival
+```
+
+A **flat list** can be simpler to use if everything fits in one layer.
+
+```{r}
+params <- list(
+  adult_interarrival = 5,
+  adult_service_time = 10,
+  child_interarrival = 3,
+  child_service_time = 7
+)
+
+params$adult_interarrival
+```
+
+:::
+
 #### JSON example
 
-This uses a nested dictionary, as JSON was already in that format:
+This uses a nested format, as the JSON was already in that format:
 
+::: {.python-content}
 ```{python}
 def create_parameters(json_file, number_of_runs=10):
     """
@@ -310,13 +387,41 @@ def create_parameters(json_file, number_of_runs=10):
 param = create_parameters("parameters_file_resources/example_parameters.json")
 print_dict(param, 4)
 ```
+:::
+
+::: {.r-content}
+```{r}
+#' Create parameter list by combining parameters from JSON with those
+#' defined in this function.
+#'
+#' @param json_file Character, path to JSON file containing simulation
+#' parameters.
+#' @param number_of_runs Integer, number of simulation runs (default is 10).
+#'
+#' @return Named list of simulation parameters (nested).
+#' @export
+create_parameters <- function(json_file, number_of_runs = 10) {
+  json_content <- jsonlite::fromJSON(json_file)
+  param_list <- json_content$simulation_parameters
+  param_list$number_of_runs <- number_of_runs
+  return(param_list)
+}
+
+# Example usage:
+param <- create_parameters(
+    file.path("parameters_file_resources", "example_parameters.json")
+)
+print(param[1:4])
+```
+:::
 
 #### CSV example (flat)
 
+::: {.python-content}
 ```{python}
 def create_parameters(csv_file, number_of_runs=10):
     """
-    Create nested parameter dictionary by combining parameters from CSV with
+    Create flat parameter dictionary by combining parameters from CSV with
     those defined in this function.
 
     Parameters
@@ -343,13 +448,42 @@ def create_parameters(csv_file, number_of_runs=10):
 param = create_parameters("parameters_file_resources/example_parameters.csv")
 print_dict(param, 4)
 ```
+:::
+
+::: {.r-content}
+```{r}
+#' Create flat parameter list by combining parameters from CSV with those
+#' defined in this function.
+#'
+#' @param csv_file Character, path to CSV file containing simulation
+#' parameters.
+#' @param number_of_runs Integer, number of simulation runs (default is 10).
+#'
+#' @return Named list of simulation parameters (flat).
+#' @export
+create_parameters <- function(csv_file, number_of_runs = 10) {
+    df <- read.csv(csv_file)
+    lst <- as.list(df$value)
+    names(lst) <- paste(df$patient, df$metric, sep="_")
+    lst$number_of_runs <- number_of_runs
+    return(lst)
+}
+
+# Example usage:
+param <- create_parameters(
+    file.path("parameters_file_resources", "example_parameters.csv")
+)
+print(param[1:4])
+```
+:::
 
 #### CSV example (nested)
 
+::: {.python-content}
 ```{python}
 def create_parameters(csv_file, number_of_runs=10):
     """
-    Create flat parameter dictionary by combining parameters from CSV with
+    Create nested parameter dictionary by combining parameters from CSV with
     those defined in this function.
 
     Parameters
@@ -375,6 +509,35 @@ def create_parameters(csv_file, number_of_runs=10):
 param = create_parameters("parameters_file_resources/example_parameters.csv")
 print_dict(param, 4)
 ```
+:::
+
+::: {.r-content}
+```{r}
+#' Create nested parameter list by combining parameters from CSV with those
+#' defined in this function.
+#'
+#' @param csv_file Character, path to CSV file containing simulation
+#' parameters.
+#' @param number_of_runs Integer, number of simulation runs (default is 10).
+#'
+#' @return Named list of simulation parameters (nested).
+#' @export
+create_parameters <- function(csv_file, number_of_runs = 10) {
+    df <- read.csv(csv_file)
+    lst <- lapply(split(df, df$patient), function(subdf) {
+      setNames(as.list(subdf$value), subdf$metric)
+    })
+    lst$number_of_runs <- number_of_runs
+    return(lst)
+}
+
+# Example usage:
+param <- create_parameters(
+    file.path("parameters_file_resources", "example_parameters.csv")
+)
+print(param[1:4])
+```
+:::
 
 ### Using a class
 
@@ -382,8 +545,13 @@ In the class, parameters can again be nested or flat, but this time they are **a
 
 As described above, classes also allow you to "lock down" the allowed parameters and add validation checks during initialisation and any changes. For examples of how to add validation when using a class, see the [parameter validation page](parameters_validation.qmd).
 
+::: {.r-content}
+This requires each parameter to be a field, rather than storing all parameters in a list within the class. In R, we cannot dynamically add these fields when initialising, TODO.
+:::
+
 #### JSON example
 
+::: {.python-content}
 ```{python}
 class CreateParameters:
     """
@@ -415,9 +583,40 @@ class CreateParameters:
 param = CreateParameters("parameters_file_resources/example_parameters.json")
 print_dict(param.__dict__, 4)
 ```
+:::
+
+::: {.r-content}
+```{r}
+#' Store simulation parameters, combining those loaded from a JSON file with
+#' values defined in the class.
+CreateParameters <- R6Class("CreateParameters",
+
+  public = list(
+
+    #' @field params List of parameters
+    params = NULL,
+
+    #' @param json_file Path to JSON file containing simulation parameters.
+    #' @param number_of_runs Number of simulation runs (default is 10).
+    initialize = function(json_file, number_of_runs = 10) {
+      json_content <- jsonlite::fromJSON(json_file)
+      self$params <- json_content$simulation_parameters
+      self$params$number_of_runs <- number_of_runs
+    }
+  )
+)
+
+
+param <- CreateParameters$new(
+  file.path("parameters_file_resources", "example_parameters.json")
+)
+print(param$params[1:4])
+```
+:::
 
 #### CSV example (flat)
 
+::: {.python-content}
 ```{python}
 class CreateParameters:
     """
@@ -448,9 +647,17 @@ class CreateParameters:
 param = CreateParameters("parameters_file_resources/example_parameters.csv")
 print_dict(param.__dict__, 4)
 ```
+:::
+
+::: {.r-content}
+TODO
+```{r}
+```
+:::
 
 #### CSV example (nested)
 
+::: {.python-content}
 ```{python}
 class CreateParameters:
     """
@@ -484,6 +691,13 @@ class CreateParameters:
 param = CreateParameters("parameters_file_resources/example_parameters.csv")
 print_dict(param.__dict__, 4)
 ```
+:::
+
+::: {.r-content}
+TODO
+```{r}
+```
+:::
 
 #### Alternative set-up: class with explicit attributes
 
@@ -493,6 +707,7 @@ It's worth noting that you don't have to use class attributes for this kind of s
 
 Here, we show the explicit attribute approach to demonstrate another way of importing that provides clarity and structure, and because it fundamentally changes the import process compared to the earlier dynamic methods.
 
+::: {.python-content}
 ```{python}
 class Parameters:  # pylint: disable=too-many-instance-attributes, too-many-arguments, too-many-positional-arguments, too-few-public-methods
     """
@@ -541,9 +756,61 @@ class Parameters:  # pylint: disable=too-many-instance-attributes, too-many-argu
         self.elderly_consultation = elderly_consultation
         self.elderly_transfer = elderly_transfer
 ```
+:::
+
+::: {.r-content}
+```{r}
+#' Create parameter list for simulation
+#'
+#' @param adult_interarrival Numeric. Time between adult patient arrivals
+#'   (e.g. in minutes or hours).
+#' @param adult_consultation Numeric. Duration of consultation time for
+#'   adult patients.
+#' @param adult_transfer Numeric. Time required to transfer adult patients
+#'   between stages.
+#' @param child_interarrival Numeric. Time between child patient arrivals
+#'   (e.g. in minutes or hours).
+#' @param child_consultation Numeric. Duration of consultation time for
+#'   child patients.
+#' @param child_transfer Numeric. Time required to transfer child patients
+#'   between stages.
+#' @param elderly_interarrival Numeric. Time between elderly patient arrivals
+#'   (e.g. in minutes or hours).
+#' @param elderly_consultation Numeric. Duration of consultation time for
+#'   elderly patients.
+#' @param elderly_transfer Numeric. Time required to transfer elderly patients
+#'   between stages.
+#'
+#' @return A named list containing all simulation parameters organised by
+#'   patient demographic groups (adult, child, elderly). Each group contains
+#'   interarrival, consultation, and transfer time parameters.
+
+create_params <- function(
+  adult_interarrival, adult_consultation, adult_transfer,
+  child_interarrival, child_consultation, child_transfer,
+  elderly_interarrival, elderly_consultation, elderly_transfer
+) {
+  list(
+    # Adult parameters
+    adult_interarrival = adult_interarrival,
+    adult_consultation = adult_consultation,
+    adult_transfer = adult_transfer,
+    # Child parameters
+    child_interarrival = child_interarrival,
+    child_consultation = child_consultation,
+    child_transfer = child_transfer,
+    # Elderly parameters
+    elderly_interarrival = elderly_interarrival,
+    elderly_consultation = elderly_consultation,
+    elderly_transfer = elderly_transfer
+  )
+}
+```
+:::
 
 Use a helper function that loads the data and matches it to the class attributes. For example, from a CSV file:
 
+::: {.python-content}
 ```{python}
 def setup_param_from_csv(csv_path):
     """
@@ -573,9 +840,43 @@ def setup_param_from_csv(csv_path):
     # Pass these values to the Parameters class
     return Parameters(**values)
 ```
+:::
+
+::: {.r-content}
+```{r}
+#' Create parameter list from CSV file
+#'
+#' @param csv_path Character. Path to CSV file containing the parameters.
+#'   The CSV file should have columns "patient", "metric", and "value".
+#'   The "patient" column should contain demographic groups (e.g., "adult",
+#'   "child", "elderly"), the "metric" column should contain parameter types
+#'   (e.g., "interarrival", "consultation", "transfer"), and the "value"
+#'   column should contain the numeric parameter values.
+#'
+#' @return A named list containing all simulation parameters organised by
+#'   patient demographic groups, identical to the output of
+#'   \code{create_params()}. The list contains interarrival, consultation, and
+#'   transfer time parameters for each patient group.
+
+setup_param_from_csv <- function(csv_path) {
+
+  # Import the parameters
+  param_file <- read.csv(csv_path)
+
+  # Create named vector where names match function arguments
+  values <- setNames(
+    param_file$value, paste(param_file$patient, param_file$metric, sep = "_")
+  )
+
+  # Pass the named list to create_params
+  do.call(create_params, as.list(values))
+}
+```
+:::
 
 Example usage:
 
+::: {.python-content}
 ```{python}
 # Import parameters
 params = setup_param_from_csv(
@@ -585,6 +886,19 @@ params = setup_param_from_csv(
 # View object
 print_dict(params.__dict__, 4)
 ```
+:::
+
+:::{.r-content}
+```{r}
+# Import parameters
+params <- setup_param_from_csv(
+  file.path("parameters_file_resources", "example_parameters.csv")
+)
+
+# View object
+params
+```
+:::
 
 ## 🧾 Examples
 
