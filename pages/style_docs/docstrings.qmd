@@ -1,6 +1,8 @@
 ---
-title: ❌ Docstrings
+title: Docstrings
 ---
+
+{{< include ../../scripts/_reticulate-setup.md >}}
 
 ::: {.pale-blue}
 
@@ -10,7 +12,7 @@ This page explains why and how to write docstrings.
 
 * **📄 Docstrings: what and why**
 * **✍️ How to write docstrings**
-* **⏰ When to write docstrings**
+* **💡 Advice when writing docstrings**
 
 [🔗](../intro/guidelines.qmd) **Reproducibility guidelines**
 
@@ -21,6 +23,26 @@ This page helps you meet reproducibility criteria from:
 
 :::
 
+:::: {.python-content}
+
+::: {.callout-note title="Linting" collapse="true"}
+
+The following `# pylint: disable` lines simply turn off some linting warnings that would otherwise appear in this page's examples. If you want to learn more about linting, see the [linting](linting.qmd) page.
+
+```{python}
+# pylint: disable=function-redefined
+```
+
+:::
+
+::::
+
+::: {.r-content}
+```{r}
+library(R6)  # nolint: undesirable_function_linter
+```
+:::
+
 ## 📄 Docstrings: what and why
 
 ::: {.python-content}
@@ -29,7 +51,7 @@ This page helps you meet reproducibility criteria from:
 
 Example:
 
-```{.python}
+```{python}
 def add_positive_numbers(a, b):
     """
     Add two positive numbers.
@@ -55,11 +77,11 @@ def add_positive_numbers(a, b):
 
 ::: {.r-content}
 
-**Docstrings** ("documentation strings") are used to describe what each object in your code does. They should be added to functions, classes, and tests.
+**Docstrings** ("documentation strings") are used to describe what each object in your code does. They should be added to functions and classes.
 
 Example:
 
-```{.r}
+```{r}
 #' Add two positive numbers
 #'
 #' @param a First number to add (must be positive).
@@ -68,7 +90,7 @@ Example:
 #' @return The sum of a and b.
 
 add_positive_numbers <- function(a, b) {
-  if (a < 0 || b < 0) stop("Both numbers must be positive.")
+  if (a < 0L || b < 0L) stop("Both numbers must be positive.", call. = FALSE)
   a + b
 }
 ```
@@ -96,7 +118,7 @@ return a + b
 
 ```{.r}
 # Check that both inputs are positive before adding
-if (a < 0 || b < 0) stop("Both numbers must be positive.")
+if (a < 0L || b < 0L) stop("Both numbers must be positive.", call. = FALSE)
 a + b
 ```
 
@@ -149,96 +171,258 @@ a + b
 
 ## ✍️ How to write docstrings
 
-TODO
+::: {.python-content}
 
-<!--
-python:
-There are style guides, standardised formats, supported by tools mentioned above, etc. Two popular ones include:
+There are a variety of style guides and standardized docstring formats available for Python, many of which are supported by automated documentation tools, linters, and code editors. Choosing a consistent style improves code readability and makes it easier for others to understand and use your code.
 
-* NumPy style docstrings - [numpydoc](https://numpydoc.readthedocs.io/en/latest/format.html)
-* Google style docstrings - [google style guide](https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings)
--->
+Two popular ones include:
+
+* NumPy style docstrings - [numpydoc](https://numpydoc.readthedocs.io/en/latest/format.html).
+* Google style docstrings - [google style guide](https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings).
+
+In our example models, we have used NumPy style. Below, we illustrate both approaches for comparison.
 
 ### Function
 
-TODO
+**NumPy style:**
 
-::::: {.columns}
+```{python}
+def estimate_wait_time(queue_length, avg_service_time):
+    """
+    Estimate the total wait time for all customers in the queue.
 
-:::: {.column width="47.5%"}
+    Parameters
+    ----------
+    queue_length : int or float
+        Number of customers currently in the queue.
+    avg_service_time : int or float
+        Average time taken to serve one customer.
 
-NumPy style:
-
-```{.python}
+    Returns
+    -------
+    float
+        Estimated total wait time.
+    """
+    return queue_length * avg_service_time
 ```
 
-::::
+**Google style:**
 
-:::: {.column width="5%"}
-::::
+```{python}
+def estimate_wait_time(queue_length, avg_service_time):
+    """Estimate the total wait time for all customers in the queue.
 
-:::: {.column width="47.5%"}
+    Args:
+        queue_length (int or float): Number of customers currently in the
+            queue.
+        avg_service_time (int or float): Average time taken to serve one
+            customer.
 
-Google style:
-
-```{.python}
+    Returns:
+        float: Estimated total wait time.
+    """
+    return queue_length * avg_service_time
 ```
-
-::::
-
-:::::
 
 ### Class
 
-TODO
+**NumPy style:**
 
-<!--Ideally with method example
+```{python}
+class Patient:
+    """
+    Represents a patient in a healthcare facility.
 
-::::: {.columns}
+    Attributes
+    ----------
+    patient_id : int or str
+        Unique identifier for the patient.
+    arrival_time : str or datetime-like
+        The time when the patient arrived.
+    status : str
+        Current status of the patient: one of "waiting", "admitted", or
+        "discharged".
+    """
 
-:::: {.column width="47.5%"}
+    def __init__(self, patient_id, arrival_time):
+        """
+        Initialise a new patient record.
 
-NumPy style:
+        Parameters
+        ----------
+        patient_id : int or str
+            Unique identifier for the patient.
+        arrival_time : str or datetime-like
+            The time when the patient arrived.
+        """
+        self.patient_id = patient_id
+        self.arrival_time = arrival_time
+        self.status = "waiting"
 
-```{.python}
-USE THE EXAMPLE CLASS FROM CODE_STRUCTURE.QMD
+    def admit(self):
+        """Admit the patient."""
+        self.status = "admitted"
+
+    def discharge(self):
+        """Discharge the patient."""
+        self.status = "discharged"
 ```
 
-::::
+**Google style:**
 
-:::: {.column width="5%"}
-::::
+```{python}
+class Patient:
+    """Represents a patient in a healthcare facility.
 
-:::: {.column width="47.5%"}
+    Attributes:
+        patient_id (int or str): Unique identifier for the patient.
+        arrival_time (str or datetime-like): The time when the patient arrived.
+        status (str): Current status of the patient, one of "waiting",
+            "admitted", or "discharged".
+    """
 
-Google style:
+    def __init__(self, patient_id, arrival_time):
+        """Initialise a new patient record.
 
-```{.python}
+        Args:
+            patient_id (int or str): Unique identifier for the patient.
+            arrival_time (str or datetime-like): The time when the patient
+                arrived.
+        """
+        self.patient_id = patient_id
+        self.arrival_time = arrival_time
+        self.status = "waiting"
+
+    def admit(self):
+        """Admit the patient."""
+        self.status = "admitted"
+
+    def discharge(self):
+        """Discharge the patient."""
+        self.status = "discharged"
+
 ```
-
-::::
-
-:::::
-
--->
 
 ### Test
 
-TODO
+Tests are a bit different. They usually just have a short, one‑line description without formal parameters or return sections, and are not based on any specific style guide.
+
+**Example:**
+
+```{python}
+def test_estimate_wait_time():
+    """Test estimate_wait_time with sample input and expected output."""
+    assert estimate_wait_time(5, 2) == 10
+```
 
 ### Module
 
-TODO
+A module is a `.py` file within a package containing package code, like functions or classes. Each `.py` file is considered a module, and modules can be used to group related code together.
 
-<!--Explain what a module is-->
+Module docstrings - similar to tests - are usually brief, giving an overview of the file's purpose and main contents, without necessarily following a strict style guide.
 
-## ⏰ When to write docstrings
+**Example:**
 
-TODO
+```{.python}
+"""
+hospital.py
 
-<!--
-people talk about writing before write code
-might not always feel feasible
-but certainly, straight after
-don't leave to end!
--->
+A simple healthcare utility module.
+
+Provides:
+- A function to estimate patient wait times in a queue.
+- A class to represent a patient and manage their admission status.
+"""
+```
+
+:::
+
+::: {.r-content}
+
+In R, docstrings are almost always written in [roxygen2](https://roxygen2.r-lib.org/) style. This is because it is the standard for packages, and works seamlessly with R's package tools.
+
+The `@export` tag is included in each docstring to tell Roxygen to add the object to the package's `NAMESPACE` file, making it available for users once they load the package with `library(packagename)`.
+
+### Function
+
+```{r}
+#' Estimate the total wait time for all customers in the queue.
+#'
+#' @param queue_length numeric Number of customers currently in the queue.
+#' @param avg_service_time numeric Average time taken to serve one customer.
+#' @return numeric Estimated total wait time.
+#' @export
+
+estimate_wait_time <- function(queue_length, avg_service_time) {
+  queue_length * avg_service_time
+}
+```
+
+### Class
+
+```{r}
+#' Represents a patient in a healthcare facility.
+#'
+#' @docType class
+#' @importFrom R6 R6Class
+#' @export
+
+Patient <- R6Class("Patient", list(  # nolint: object_name_linter
+
+  #' @field patient_id integer or character. Unique identifier for the
+  #' patient.
+  patient_id = NULL,
+
+  #' @field arrival_time character or Date/POSIXt. The time when the patient
+  #' arrived.
+  arrival_time = NULL,
+
+  #' @field status character. Current status of the patient: one of
+  #' "waiting", "admitted", or "discharged".
+  status = NULL,
+
+  #' Initialise a new patient record.
+  #'
+  #' @param patient_id integer or character. Unique identifier for the
+  #' patient.
+  #' @param arrival_time character or Date/POSIXt. The time when the patient
+  #' arrived.
+  initialize = function(patient_id, arrival_time) {
+    self$patient_id <- patient_id
+    self$arrival_time <- arrival_time
+    self$status <- "waiting"
+  },
+
+  #' Admit the patient.
+  admit = function() {
+    self$status <- "admitted"
+  },
+
+  #' Discharge the patient.
+  discharge = function() {
+    self$status <- "discharged"
+  }
+))
+```
+
+:::
+
+## 💡 Advice when writing docstrings
+
+**Write early!** Add docstrings whilst you code or immediately afterward. If you leave them until later, you can easily forget important details.
+
+**Keep them concise.**
+
+**Use AI wisely.** Large language models can help draft docstrings, but review carefully - they may be too wordy, following a different format, or miss details.
+
+::: {.python-content}
+
+**Use linting tools.** `pydoclint` ([GitHub](https://github.com/jsh9/pydoclint)) is a great new tool for flagging formatting issues and missing parameters in docstrings.
+
+:::
+
+:::{.r-content}
+
+**Use linting tools.** When you run `devtools::check()`, it will let you know about missing parameters in docstrings.
+
+:::

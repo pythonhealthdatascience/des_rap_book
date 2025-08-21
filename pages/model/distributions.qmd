@@ -1,5 +1,5 @@
 ---
-title: ❌ Randomness
+title: Randomness
 ---
 
 {{< include ../../scripts/_reticulate-setup.md >}}
@@ -11,9 +11,10 @@ title: ❌ Randomness
 This page covers:
 
 * **🎲 Randomness:** sampling and pseudorandom number generators.
-* **🛠️ Tools for random sampling:**
-* **⛓️‍💥 Independent random number streams:**
-* **👨‍💻 Adding random sampling to your simulation:**
+* **🛠️ Tools for random sampling:** introducing options for drawing random samples.
+* **⛓️‍💥 Independent random number streams:** why using separate streams improves reproducibility and debugging.
+* **❓ What's next?**
+* **👥 Acknowledgements**.
 
 [🔗](../intro/guidelines.qmd) **Reproducibility guidelines**
 
@@ -39,11 +40,11 @@ When simulating real-world systems (e.g. patients arriving, prescriptions queuei
 
 ![](../inputs/input_data_resources/samples.png)
 
-However, computers can't generate "true" randomness. Instead, they use **pseudorandom number generators (PRNGs)**: algorithms which produce a sequence of numbers that apopear random, but are in fact completely determined by an initial starting point called a **seed**. If you use the same seed, you’ll get the same random sequence every time - a crucial feature for reproducibility in research and development.
+However, computers can't generate "true" randomness. Instead, they use **pseudorandom number generators (PRNGs)**: algorithms which produce a sequence of numbers that appear random, but are in fact completely determined by an initial starting point called a **seed**. If you use the same seed, you’ll get the same random sequence every time - a crucial feature for reproducibility in research and development.
 
 By default, most software PRNGs initialise the seed based on something that changes rapidly and unpredictably, such as the current system time. This ensures a unique sequence with every fresh run. But for **reproducible experiments**, you should manually set the seed yourself, allowing you and others to exactly recreate simulation results.
 
-![](distributions_resources/prng.png)
+![](distributions_resources/prng_sample.png)
 
 ## 🛠️ Introducing tools for random sampling
 
@@ -130,8 +131,8 @@ In R, random sampling is typically done with functions from the `stats` package.
 For example, the exponential distribution is sampled with `rexp()` which requires the rate parameter (the inverse of the mean). To generate 3 samples from an exponential distribution with a mean of 6, you would use:
 
 ```{r}
-set.seed(3)
-rexp(n=3L, rate=1L/6L)
+set.seed(3L)
+rexp(n = 3L, rate = 1L / 6L)
 ```
 
 ::::::
@@ -146,7 +147,7 @@ To demonstrate this problem, we will simulate two queues: arrivals and processin
 
 :::: {.python-content}
 
-### Problem: Shared generators
+### Problem: shared generators
 
 ```{python}
 rng = np.random.default_rng(1)
@@ -172,7 +173,7 @@ print(f"Arrivals: {arrivals}\nProcessing: {processing}")
 
 :::
 
-### Solution: Independent generators
+### Solution: independent generators
 
 ```{python}
 rng_a = np.random.default_rng(1)
@@ -222,7 +223,13 @@ processing = processing_norm.sample(3)
 print(f"Arrivals: {arrivals}\nProcessing: {processing}")
 ```
 
-### Which package to use?
+::: {.pale-green}
+
+✅ Processing samples remain the same.
+
+:::
+
+### Which package did we use?
 
 We've used `sim-tools` for sampling in the example models in this book. This is because, with `sim-tools`, you're encouraged to use independent random number streams by design, as each distribution gets its own instance of a distribution class, each with its own parameters and random seed.
 
@@ -232,12 +239,12 @@ You can still use NumPy directly if you prefer - you'll just need to remember to
 
 :::: {.r-content}
 
-### Problem
+### Problem: single random number stream
 
 ```{r}
-set.seed(1)
-arrivals <- rexp(n=3L, rate=1L/3L)
-processing <- rnorm(n=3L, mean=10L, sd=2L)
+set.seed(1L)
+arrivals <- rexp(n = 3L, rate = 1L / 3L)
+processing <- rnorm(n = 3L, mean = 10L, sd = 2L)
 
 print(arrivals)
 print(processing)
@@ -246,9 +253,9 @@ print(processing)
 Change to five arrivals samples:
 
 ```{r}
-set.seed(1)
-arrivals <- rexp(n=5L, rate=1L/3L)
-processing <- rnorm(n=3L, mean=10L, sd=2L)
+set.seed(1L)
+arrivals <- rexp(n = 5L, rate = 1L / 3L)
+processing <- rnorm(n = 3L, mean = 10L, sd = 2L)
 
 print(arrivals)
 print(processing)
@@ -260,25 +267,81 @@ print(processing)
 
 :::
 
-### Solution
-
-This section is adapted from https://pythonhealthdatascience.github.io/stars-treat-simmer/02_model/03_r_sampling.html.
+### Solution: independent streams
 
 By default, R's stats package uses a single random number stream and does not support managing multiple, independent streams.
 
-The [`simEd`](https://cran.r-project.org/web/packages/simEd/index.html) package, last updated in 2023, provides equivalent functions that allow separate random number streams. The package is described in:
+The [`simEd`](https://cran.r-project.org/web/packages/simEd/index.html) package, last updated in 2023, provides equivalent functions that **allow separate random number streams**. The package is described in:
 
 > B. Lawson and L. M. Leemis, “An R package for simulation education,” 2017 Winter Simulation Conference (WSC), Las Vegas, NV, USA, 2017, pp. 4175-4186, doi: 10.1109/WSC.2017.8248124 <https://ieeexplore.ieee.org/document/8248124>.
 
-We did not use `simEd` in this work because it slowed down model execution.
-
-However, as an example of how it works:
-
-ALTERNATIVELY just link to https://pythonhealthdatascience.github.io/stars-treat-simmer/02_model/03_r_sampling.html#using-the-simed-package if don't want to / have issues addin g it to the dependencies
+To use `simEd`, take the code from above but change the prefix on functions from `r` to `v` - so `rexp` becomes `vexp`, and `rnorm` becomes `vnorm`.
 
 ```{r}
+suppressMessages(library(simEd))  # nolint: undesirable_function_linter
+set.seed(1L)
+arrivals <- vexp(n = 3L, rate = 1L / 3L)
+processing <- vnorm(n = 3L, mean = 10L, sd = 2L)
+
+print(arrivals)
+print(processing)
 ```
 
-<!--TODO: for python and r, need to explain, it's not a big deal too, like, its ok-->
+```{r}
+set.seed(1L)
+arrivals <- vexp(n = 5L, rate = 1L / 3L)
+processing <- vnorm(n = 3L, mean = 10L, sd = 2L)
+
+print(arrivals)
+print(processing)
+```
+
+::: {.pale-green}
+
+✅ Processing samples remain the same.
+
+:::
+
+### Which package did we use?
+
+We've used R's standard random sampling functions in the example models in this book. This is mainly because they're fast, even though all draws share a single global random stream. If you need independent streams, the `simEd` package allows for that, but it can slow things down—which is why we didn’t use it here.
 
 ::::
+
+### Is this a big deal?
+
+These quirks with random number streams are **worth understanding**, especially for modellers concerned with detailed reproducibility, or if you find yourself debugging odd glitches in sensitivity analyses.
+
+::: {.python-content}
+
+With Python, it’s easy to avoid pitfalls from shared random number streams - just use the new Generator API (`np.random.default_rng`) to create separate generators for each process in your simulation, rather than sharing a global one, or packages like `sim-tools`. That said, for most simulations, even if you use a single stream, the impact is usually minor - so it’s not something to stress over.
+
+:::
+
+::: {.r-content}
+
+For most everyday simulation work though, this isn't a disaster! In fact, for standard DES models in R (like our examples), it's quite normal to rely on the default setup - where all random draws come from a single, global stream. Unless you're doing really specialised work, like comparing many scenarios in fine detail, the impact on your results is typically minor.
+
+:::
+
+The key is simply to be **aware** of how shared random number streams work, so you aren't caught by surprise if results subtly shift when you tweak the simulation structure.
+
+## ❓ What's next?
+
+On [the next page](patients.qmd), we'll learn how to add sampling to your model through the example of generating some patients arriving in your simulation.
+
+## 👥 Acknowledgements
+
+::: {.python-content}
+
+N/A
+
+:::
+
+::: {.r-content}
+
+The section on `simEd` is adapted from the [R sampling](https://pythonhealthdatascience.github.io/stars-treat-simmer/02_model/03_r_sampling.html#using-the-simed-package) page in Monks, Thomas, Alison Harper, Amy Heather, and Navonil Mustafee. 2024. “**Towards Sharing Tools, Artifacts, and Reproducible Simulation: a ‘simmer‘ model example.**” Zenodo. <https://doi.org/10.5281/zenodo.11222943> (MIT Licence).
+
+We also acknowledge the work of B. Lawson and L. M. Leemis for the `simEd` package and their contributions to simulation education.
+
+:::

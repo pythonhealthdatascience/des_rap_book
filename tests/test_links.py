@@ -1,3 +1,7 @@
+"""
+Check markdown links in quarto and markdown files.
+"""
+
 import os
 import re
 import pytest
@@ -26,20 +30,7 @@ def extract_links_from_file(filepath):
 
 @pytest.mark.parametrize("root_dir", ["."], ids=["project_root"])
 def test_quarto_links(root_dir):
-    """
-    Test that all internal markdown links in .qmd and .md files are valid.
-
-    Parameters
-    ----------
-    root_dir : str
-        The root directory to search for markdown and quarto files.
-
-    Raises
-    ------
-    AssertionError
-        If any internal link points to a non-existent file, an AssertionError
-        is raised with a report of all broken links found.
-    """
+    """Test that internal markdown links in .qmd and .md files are valid."""
     broken_links = []
     # Walk through all files in the project directory
     for dirpath, _, filenames in os.walk(root_dir):

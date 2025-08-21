@@ -1,26 +1,31 @@
 #!/bin/bash
 
+print_section() {
+    echo "--------------------------------------------------------------------"
+    echo "Linting $1 code ($2)..."
+    echo "--------------------------------------------------------------------"
+}
+
 # Note: I have used ```{r} #| file: file.R``` instead of
 # ```{r}{{< include file.R >}}```, and likewise for python, as the latter
 # breaks lintr (false positive messages, and missing other messages) and breaks
 # pylint (returns an error Parsing failed: 'invalid syntax'). It doesn't break
 # if used in non-active code chunks as linters ignore those.
 
-echo "Linting R code..."
+print_section "R" "index.qmd"
 Rscript -e 'lintr::lint("index.qmd")'
-Rscript -e 'lintr::lint_dir("pages")'
+
+print_section "R" "pages/"
+Rscript -e 'lintr::lint_dir("pages", exclusions = list("style_docs/linting_resources/code.R"))'
+
+print_section "R" "tests/"
 Rscript -e 'lintr::lint_dir("tests")'
 
-echo "------------------------------------------------------------------"
+echo "--------------------------------------------------------------------"
 
-echo "Linting Python code..."
+print_section "python" "index.qmd and pages/"
+lintquarto -l pylint flake8 -p index.qmd pages/
 
-# Lint .qmd files
-lintquarto pylint index.qmd
-lintquarto pylint pages
-lintquarto flake8 index.qmd
-lintquarto flake8 pages
-
-# Lint .py files in pages/ and tests/
-pylint pages tests
-flake8 pages tests
+print_section "python" "tests/"
+pylint pages tests --ignore=linting_resources
+flake8 pages tests --exclude linting_resources

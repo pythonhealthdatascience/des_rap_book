@@ -26,6 +26,23 @@ This page helps you meet reproducibility criteria from:
 :::
 
 > 🔍 **Note:** This pages includes some simplified, standalone examples to illustrate how functions and classes work. They are not taken from the full example simulation models in this book.
+>
+> To keep things simple, docstrings are not shown here. If you’d like to see examples that include docstrings, please refer to the [docstrings](../style_docs/docstrings.qmd) page.
+
+:::: {.python-content}
+
+::: {.callout-note title="Linting" collapse="true"}
+
+The following `# pylint: disable` lines simply turn off some linting warnings that would otherwise appear in this page's examples. If you want to learn more about linting, see the [linting](../style_docs/linting.qmd) page.
+
+```{python}
+# pylint: disable=missing-function-docstring,missing-class-docstring
+# pylint: disable=wrong-import-position
+```
+
+:::
+
+::::
 
 ## ♻️ Reusing code
 
@@ -55,6 +72,7 @@ Here, estimation of wait time based on the queue length and average service time
 def estimate_wait_time(queue_length, avg_service_time):
     return queue_length * avg_service_time
 
+
 # There are 4 patients ahead, average service time is 15 minutes
 print(estimate_wait_time(queue_length=4, avg_service_time=15))
 ```
@@ -64,11 +82,11 @@ print(estimate_wait_time(queue_length=4, avg_service_time=15))
 
 ```{r}
 estimate_wait_time <- function(queue_length, avg_service_time) {
-  return(queue_length * avg_service_time)
+  queue_length * avg_service_time
 }
 
 # There are 4 patients ahead, average service time is 15 minutes
-print(estimate_wait_time(queue_length = 4, avg_service_time = 15))
+print(estimate_wait_time(queue_length = 4L, avg_service_time = 15L))
 ```
 :::
 
@@ -95,10 +113,10 @@ class Patient:
         self.patient_id = patient_id
         self.arrival_time = arrival_time
         self.status = "waiting"
-        
+
     def admit(self):
         self.status = "admitted"
-        
+
     def discharge(self):
         self.status = "discharged"
 
@@ -124,9 +142,9 @@ Classes are less common in R than functions, but they are used sometimes for com
 The example below uses **R6**, since this style is closest to how Python handles classes, making it easier to draw parallels between the two languages.
 
 ```{r}
-library(R6)
+library(R6) # nolint: undesirable_function_linter
 
-Patient <- R6Class("Patient",
+Patient <- R6Class("Patient",  # nolint: object_name_linter
   public = list(
     patient_id = NULL,
     arrival_time = NULL,
@@ -146,7 +164,7 @@ Patient <- R6Class("Patient",
 )
 
 
-alice <- Patient$new(patient_id=1, arrival_time=3)
+alice <- Patient$new(patient_id = 1L, arrival_time = 3L)
 print(alice$status)
 ```
 
@@ -174,8 +192,7 @@ class EmergencyPatient(Patient):
     def triage(self):
         if self.severity > 7:
             return "High priority"
-        else:
-            return "Standard priority"
+        return "Standard priority"
 
 
 ben = EmergencyPatient(patient_id=2, arrival_time=5, severity=9)
@@ -191,7 +208,7 @@ print(ben.triage())
 ::: {.r-content}
 
 ```{r}
-EmergencyPatient <- R6Class("EmergencyPatient",
+EmergencyPatient <- R6Class("EmergencyPatient",  # nolint: object_name_linter
   inherit = Patient,
   public = list(
     severity = NULL,
@@ -200,17 +217,17 @@ EmergencyPatient <- R6Class("EmergencyPatient",
       self$severity <- severity
     },
     triage = function() {
-      if (self$severity > 7) {
-        return("High priority")
+      if (self$severity > 7L) {
+        "High priority"
       } else {
-        return("Standard priority")
+        "Standard priority"
       }
     }
   )
 )
 
 
-ben <- EmergencyPatient$new(patient_id=2, arrival_time=5, severity=9)
+ben <- EmergencyPatient$new(patient_id = 2L, arrival_time = 5L, severity = 9L)
 print(ben$status)
 print(ben$triage())
 ```
@@ -279,15 +296,15 @@ end_times = [0] * len(patient_arrivals)
 waiting_times = [0] * len(patient_arrivals)
 
 # Simulate service
-for i in range(len(patient_arrivals)):
+for i, arrival in enumerate(patient_arrivals):
     if i == 0:
-        start_times[i] = patient_arrivals[i]
+        start_times[i] = arrival
     else:
         # Next patient starts when they arrive or when previous is done
-        start_times[i] = max(patient_arrivals[i], end_times[i - 1])
-    
+        start_times[i] = max(arrival, end_times[i - 1])
+
     end_times[i] = start_times[i] + service_times[i]
-    waiting_times[i] = start_times[i] - patient_arrivals[i]
+    waiting_times[i] = start_times[i] - arrival
 
 # Combine into a DataFrame
 results = pd.DataFrame({
@@ -306,11 +323,11 @@ print(results)
 ::: {.r-content}
 
 ```{r}
-set.seed(123)
+set.seed(123L)
 
 # Input parameters
-patient_arrivals <- c(1, 3, 4, 10, 12)  # in minutes
-service_times <- c(5, 7, 3, 4, 6)       # in minutes
+patient_arrivals <- c(1L, 3L, 4L, 10L, 12L)  # in minutes
+service_times <- c(5L, 7L, 3L, 4L, 6L)       # in minutes
 arrival_ids <- seq_along(patient_arrivals)
 
 # Simulation tracking variables
@@ -319,12 +336,13 @@ end_times <- numeric(length(patient_arrivals))
 waiting_times <- numeric(length(patient_arrivals))
 
 # Simulate each patient's start and end time
-for (i in 1:length(patient_arrivals)) {
-  if (i == 1) {
+for (i in seq_along(patient_arrivals)) {
+  if (i == 1L) {
     start_times[i] <- patient_arrivals[i]
   } else {
-    # Next patient starts after previous is done — or when they arrive, whichever is later
-    start_times[i] <- max(patient_arrivals[i], end_times[i - 1])
+    # Next patient starts after previous is done — or when they arrive,
+    # whichever is later
+    start_times[i] <- max(patient_arrivals[i], end_times[i - 1L])
   }
   end_times[i] <- start_times[i] + service_times[i]
   waiting_times[i] <- start_times[i] - patient_arrivals[i]

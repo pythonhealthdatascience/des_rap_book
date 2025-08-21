@@ -26,6 +26,22 @@ This page helps you meet reproducibility criteria from:
 
 :::
 
+:::: {.python-content}
+
+::: {.callout-note title="Linting" collapse="true"}
+
+The following `# pylint: disable` lines simply turn off some linting warnings that would otherwise appear in this page's examples. If you want to learn more about linting, see the [linting](../style_docs/linting.qmd) page.
+
+```{python}
+# pylint: disable=function-redefined, too-many-instance-attributes
+# pylint: disable=too-many-arguments, too-many-positional-arguments
+# pylint: disable=too-few-public-methods
+```
+
+:::
+
+::::
+
 :::{.r-content}
 ```{r}
 # Load required packages
@@ -163,7 +179,7 @@ However, there are still several disadvantages:
 To manage parameters effectively, you need to:
 
 1. **Group parameters into a dedicated object**.
-2. **Pass these objects explicitly to your model**.
+2. **Pass this object explicitly to your model**.
 
 Why?
 
@@ -285,7 +301,7 @@ print(scenario1)
 #### Using a class
 
 ```{python}
-class Parameters: # pylint: disable=too-few-public-methods
+class Parameters:
     """
     Parameter class.
     """
@@ -307,6 +323,7 @@ class Parameters: # pylint: disable=too-few-public-methods
         self.interarrival_time = interarrival_time
         self.consultation_time = consultation_time
         self.transfer_prob = transfer_prob
+
 
 # Base case
 base_params = Parameters()
@@ -436,7 +453,7 @@ The **most robust** approach is to use a **function or class** to manage your pa
 * ❌ With a **list**, you have to make a copy of the base list and then manually change individual values for each scenario. This can become cumbersome as the number of parameters or scenarios grows - and is just a bit more clunky!
 :::
 
-Your choice may be further informed by options for parameter validation, where classes can be superior as you can incorporate validation within the class, as discussed on the [parameter validation](parameters_validation.qmd) page.
+Your choice may be further informed by options for parameter validation, where classes can be superior as you can incorporate validation within the class - although it is ultimately possible to perform similar validation regardless of whether you use dictionaries, functions and classes - as discussed on the [parameter validation](parameters_validation.qmd) page.
 
 :::{.r-content}
 It's worth noting though that, while R does support object-oriented programming (i.e. using classes), these are less commonly used in typical R code.
@@ -457,7 +474,7 @@ This can be convenient for smaller models, though can get unwieldly as the numbe
 #### Function example (with nested dictionaries)
 
 ```{python}
-def create_params( # pylint: disable=function-redefined, too-many-arguments, too-many-positional-arguments
+def create_params(
     adult_interarrival=5, adult_consultation=20, adult_transfer=0.3,
     child_interarrival=7, child_consultation=15, child_transfer=0.2,
     elderly_interarrival=10, elderly_consultation=30, elderly_transfer=0.5
@@ -518,7 +535,7 @@ print(base_params)
 #### Class example
 
 ```{python}
-class Parameters:  # pylint: disable=function-redefined, too-many-instance-attributes, too-many-arguments, too-many-positional-arguments, too-few-public-methods
+class Parameters:
     """
     Parameter class.
     """
@@ -755,6 +772,7 @@ def create_arrivals(adult=5, child=7, elderly=10):
         "elderly": elderly
     }
 
+
 def create_consultations(adult=20, child=15, elderly=30):
     """
     Generate dictionary of consultation times (minutes).
@@ -778,6 +796,7 @@ def create_consultations(adult=20, child=15, elderly=30):
         "elderly": elderly
     }
 
+
 def create_transfers(adult=0.3, child=0.2, elderly=0.5):
     """
     Generate dictionary of transfer probabilities.
@@ -800,6 +819,7 @@ def create_transfers(adult=0.3, child=0.2, elderly=0.5):
         "child": child,
         "elderly": elderly
     }
+
 
 def create_parameters(
     arrivals=None,
@@ -848,7 +868,7 @@ print(base_params)
 #### Class example
 
 ```{python}
-class Arrivals:  # pylint: disable=too-few-public-methods
+class Arrivals:
     """
     Inter-arrival times (minutes).
     """
@@ -870,7 +890,7 @@ class Arrivals:  # pylint: disable=too-few-public-methods
         self.elderly = elderly
 
 
-class Consultations:  # pylint: disable=too-few-public-methods
+class Consultations:
     """
     Consultation times (minutes).
     """
@@ -892,7 +912,7 @@ class Consultations:  # pylint: disable=too-few-public-methods
         self.elderly = elderly
 
 
-class Transfers:  # pylint: disable=too-few-public-methods
+class Transfers:
     """
     Transfer probabilities (0-1).
     """
@@ -914,7 +934,7 @@ class Transfers:  # pylint: disable=too-few-public-methods
         self.elderly = elderly
 
 
-class Parameters():  # pylint: disable=function-redefined, too-few-public-methods
+class Parameters():
     """
     Complete parameter class.
     """

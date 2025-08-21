@@ -15,9 +15,8 @@ This page focuses on the storage of parameters within a file.
 * **❓ Why use external parameter files?**
 * **📝 Create parameter file**
 * **📖 Create data dictionary**
-* **📥 Import parameters into function or class**
+* **📥 Methods for importing parameters**
 * **🧾 Examples:** Full code examples from our example simulation models.
-* **📎 Further information**
 
 If you want to see how to store parameters within a script, see the [parameters from script](parameters_script.qmd) page.
 
@@ -30,35 +29,130 @@ This page helps you meet reproducibility criteria from:
 
 :::
 
+:::: {.python-content}
+
+::: {.callout-note title="Utility function" collapse="true"}
+
+The `print_dict` function is just a small helper used on this page to make dictionary outputs easier to read.
+
+```{python}
+import json
+import itertools
+
+
+def print_dict(dictionary, max_items_per_level):
+    """
+    Pretty print the first n items of a dictionary in JSON format.
+
+    Parameters
+    ----------
+    dictionary : dict
+        Dictionary to print.
+    max_items_per_level: int or list of int.
+        If int, applies limit to all levels. If list, limit for
+        [level1, level2, ...]. If the nesting is deeper, the last value is
+        used for deeper levels.
+    """
+    # Ensure max_items_per_level is a list of limits per level
+    if isinstance(max_items_per_level, int):
+        levels = [max_items_per_level]
+    else:
+        levels = list(max_items_per_level)
+
+    def _truncate(obj, level=0):
+        """
+        Recursively copy the dictionary, trimming to the allowed number
+        of items at each level.
+
+        Parameters
+        ----------
+        obj : dict or other
+            The object (dict or non-dict) to be truncated.
+        level : int
+            Current depth in nested structure (0 = top/root).
+        """
+        # Choose the current level's limit, or last limit if deeper
+        max_items = levels[min(level, len(levels)-1)]
+
+        # If obj is a dict, slice its items to the limit
+        if isinstance(obj, dict):
+            # Use islice for efficiency; only take max_items items
+            return {
+                k: _truncate(v, level + 1)
+                for k, v in itertools.islice(obj.items(), max_items)
+            }
+        # If obj is not a dict, return as is
+        return obj
+
+    # Create a truncated copy and print as pretty JSON
+    trimmed_dict = _truncate(dictionary)
+    print(json.dumps(trimmed_dict, indent=4, sort_keys=True))
+```
+
+:::
+
+::: {.callout-note title="Linting" collapse="true"}
+
+The following `# pylint: disable` lines simply turn off some linting warnings that would otherwise appear in this page's examples. If you want to learn more about linting, see the [linting](../style_docs/linting.qmd) page.
+
+```{python}
+# pylint: disable=wrong-import-position,reimported,wrong-import-order
+# pylint: disable=ungrouped-imports,too-many-instance-attributes
+# pylint: disable=too-many-arguments, too-many-positional-arguments
+# pylint: disable=too-few-public-methods,redefined-outer-name
+# pylint: disable=function-redefined
+```
+
+:::
+
+```{python}
+import pandas as pd
+import json
+from collections import defaultdict
+```
+
+::::
+
+::: {.r-content}
+
+```{r}
+# nolint start: undesirable_function_linter
+library(jsonlite)
+library(R6)
+# nolint end
+```
+
+:::
+
 ## ❓ Why use external parameter files?
 
 External parameter files can offer some advantages over storing parameters directly in scripts:
 
-* Easier for non-programmers to modify parameters.
-* Can easily share your simulation with different parameters versions (e.g. real parameters for internal use, synthetic parameters for external sharing, as discussed in [input data management](input_data.qmd)) without editing the code itself.
-* Less hard coding as parameters are completely separate.
+* **Easier for non-programmers** to modify parameters.
+* Can easily share your simulation with **different parameters versions** (e.g. real parameters for internal use, synthetic parameters for external sharing, as discussed in [input data management](input_data.qmd)) **without editing the code itself**.
+* **Less hard coding** as parameters are completely separate.
 
 Though storing parameters within a script is commonplace - particularly for simpler models - due to its simplicity.
 
 ## 📝 Create parameter file
 
-There are several file types you could consider for storing parameters. CSV files are often a good choice - particularly better than Excel - because they are:
+There are several file types you can use to store parameters, with **CSV** and **JSON** being two good options. Both have advantages over Excel files:
 
-* Open and non-proprietary format.
-* Compatible with version-control systems (being text-based).
-* Readable in wide range of spreadsheet software (Excel, LibreOffice), text editors, and programming environments
-* Easy to import and parse in major programming languages.
+* **Open and non-proprietary** format.
+* Work well with **version control** (as they are plain text).
+* **Supported** by many tools: spreadsheets, text editors, programming languages.
+* **Easier to import** and parse programmatically than Excel.
 
-The parameter file should be structured following tidy data principles. This means each row represents a single observation and each column represents a variable. Avoid using merged cells or stacked headers as these make the data harder to process programmatically.
+### CSV example
+
+For CSV files, use a simple tabular structure and follow tidy data principles - each row is an observation, each column a variable. Avoid merged cells or stacked headers, as these make data processing difficult.
 
 :::{.python-content}
 
 ```{python}
-# Import required packages
-import pandas as pd
-
 # Import and preview parameter file
-pd.read_csv("parameters_file_resources/example_parameters.csv")
+csv_content = pd.read_csv("parameters_file_resources/example_parameters.csv")
+csv_content.head()
 ```
 
 :::
@@ -66,45 +160,510 @@ pd.read_csv("parameters_file_resources/example_parameters.csv")
 :::{.r-content}
 
 ```{r}
-# Import and preview parameter file
+# Import and view the parameter table
 read.csv(file.path("parameters_file_resources", "example_parameters.csv"))
+```
+
+:::
+
+### JSON example
+
+For JSON files, data are stored in hierachical / nested structures. Keep the structure clear and consistent.
+
+::: {.python-content}
+
+```{python}
+# Import parameters
+# pylint:disable=invalid-name
+json_file = "parameters_file_resources/example_parameters.json"
+with open(json_file, "r", encoding="utf-8") as f:
+    json_content = json.load(f)
+
+# Preview the dictionary
+print_dict(json_content, [1, 3])
+```
+
+:::
+
+::: {.r-content}
+
+```{r}
+json_file <- fromJSON(
+  file.path("parameters_file_resources", "example_parameters.json")
+)
+str(json_file)
 ```
 
 :::
 
 ## 📖 Create data dictionary
 
-As discussed on the [input data management page](input_data.qmd), you should include a data dictionary or documentation describing each parameter. This documentation should explain the parameter's meaning, units, and any abbreviations or codes used.
-
-For example:
-
-{{< include parameters_file_resources/example_data_dictionary.md >}}
-
-## 📥 Import parameters into function or class
-
-The [parameters from script page](parameters_script.qmd) provides detailed guidance on how parameters should be structured within your simulation. The key principles are:
-
-1. **Group parameters into a dedicated object**.
-2. **Pass these objects explicitly to your model**.
-
-These same principles apply when importing parameters from files.  We recommend using **structured parameter objects** rather than passing raw CSV data directly to your simulation functions because:
-
-* Your files might contain baseline parameters plus scenario-specific overrides, but your simulation needs **one complete object** with all parameters merged together. Having all required parameters for a run in one object also makes it clear exactly what's being used.
-* Classes allow you to incorporate parameter **validation** (e.g. ranges, types) before running the simulation.
-* With an object, you can keep **consistent parameter names** in your code, while allowing names or file formats to change, as helper functions can translate between the file and parameter object.
-
-However, there is one major difference when working with parameters from files: **you should not include default values in your parameter classes**. All values should come explicitly from your data sources. This ensures your parameter choices are intentional and missing parameters fail clearly instead of silently using unexpected defaults.
-
-### Define parameter function or class
-
-Parameters can be stored using one or multiple functions or classes (see the [parameters from script page](parameters_script.qmd) for detailed discussion).
-
-:::{.python-content}
-
-Here, we show a single class approach:
+As discussed on the [input data management](input_data.qmd) page, you should include a data dictionary or documentation describing each parameter. This documentation should explain the parameter's meaning, units, and any abbreviations or codes used.
 
 ```{python}
-class Parameters:  # pylint: disable=too-many-instance-attributes, too-many-arguments, too-many-positional-arguments, too-few-public-methods
+#| echo: false
+#| output: false
+
+import subprocess
+
+subprocess.run([
+    "pandoc",
+    "parameters_file_resources/csv_data_dictionary.md",
+    "-o", "parameters_file_resources/csv_data_dictionary.pdf"
+], check=False)
+subprocess.run([
+    "pandoc",
+    "parameters_file_resources/json_data_dictionary.md",
+    "-o", "parameters_file_resources/json_data_dictionary.pdf"
+], check=False)
+```
+
+### CSV data dictionary example
+
+<iframe src="parameters_file_resources/csv_data_dictionary.pdf" width="100%" height="500px" style="border:1px solid #dee2e6"></iframe>
+
+### JSON data dictionary example
+
+<iframe src="parameters_file_resources/json_data_dictionary.pdf" width="100%" height="500px" style="border:1px solid #dee2e6"></iframe>
+
+## 📥 Methods for importing parameters
+
+As explained in the [parameters from script](parameters_script.qmd) page, there are two key principles for managing parameters effectively in simulation models:
+
+1. **Group parameters into a dedicated object**.
+2. **Pass this object explicitly to your model**.
+
+If you haven't already, see the [parameters from script](parameters_script.qmd) page for more detail on why this explicit grouping and passing is important.
+
+::: {.python-content}
+
+On that page, we discussed three implementation options: **dictionary**, **function**, and **class**. When defining parameters within scripts, we recommended using a function or class. But what about when you're importing parameters from a file?
+
+:::
+
+::: {.r-content}
+
+On that page, we discussed three implementation options: **list**, **function**, and **R6 class**. When defining parameters within scripts, we recommended using a function or class. But what about when you're importing parameters from a file?
+
+:::
+
+
+### Implementation options for file-based parameters
+
+::: {.python-content}
+You still have two main choices: a **function** or a **class**. 
+
+**Direct dictionary import** (loading the file straight into a dictionary) is rarely practical. It only works if the file structure exactly matches your model and no extra parameters are needed.
+
+**Function (returns a dictionary)**
+:::
+
+::: {.r-content}
+You still have two main choices: a **function** or a **R6 class**. 
+
+**Direct list import** (loading the file straight into a named list) is rarely practical. It only works if the file structure exactly matches your model and no extra parameters are needed.
+
+**Function (returns a named list)**
+:::
+
+* ✅ Handles any processing needed to go from file to parameter structure.
+
+* ✅ Lets you merge file-based and script-based parameters into one object.
+
+* ✅ Keeps all import/processing logic together for easy reuse and debugging.
+
+::: {.python-content}
+* ❌ Dictionaries can be modified after creation, so validation must be performed in the model functions/classes (ensuring the final set of parameters is being checked). This means that errors are only caught later, rather than immediately at the point of import/change.
+
+**Class**
+:::
+
+::: {.r-content}
+* ❌ Named list can be modified after creation, so validation must be performed in the model functions/classes (ensuring the final set of parameters is being checked). This means that errors are only caught later, rather than immediately at the point of import/change.
+
+**R6 class**
+:::
+
+* ✅ Includes all function benefits: processing, merging, in one place.
+
+* ✅ Supports validation at creation or update, catching errors earlier.
+
+For more context on validation, see the [parameter validation](parameters_validation.qmd) page.
+
+### Using a function
+
+<div class="h4-tight"></div>
+
+::: {.python-content}
+
+#### Nested or flat dictionary
+
+A function loads parameters and returns them as a dictionary. You can choose between a **nested** or **flat** structure, depending on complexity.
+
+A **nested dictionary** is good for grouped parameters, like distributions with multiple values (`mean`, `sd`, etc.), or if you want to organise by category like patient type.
+
+```{python}
+params = {
+    "adult": {"interarrival": 5, "service_time": 10},
+    "child": {"interarrival": 3, "service_time": 7},
+    "distribution": {"mean": 0, "sd": 1}
+}
+
+print(params["adult"]["interarrival"])
+```
+
+A **flat dictionary** can be simpler to use if everything fits in one layer.
+
+```{python}
+params = {
+    "adult_interarrival": 5,
+    "adult_service_time": 10,
+    "child_interarrival": 3,
+    "child_service_time": 7
+}
+
+print(params["adult_interarrival"])
+```
+
+:::
+
+::: {.r-content}
+
+#### Nested or flat list
+
+A function loads parameters and returns them as a named list. You can choose between a **nested** or **flat** structure, depending on complexity.
+
+A **nested list** is good for grouped parameters, like distributions with multiple values (`mean`, `sd`, etc.), or if you want to organise by category like patient type.
+
+```{r}
+params <- list(
+  adult = list(interarrival = 5L, service_time = 10L),
+  child = list(interarrival = 3L, service_time = 7L),
+  distribution = list(mean = 0L, sd = 1L)
+)
+
+params$adult$interarrival
+```
+
+A **flat list** can be simpler to use if everything fits in one layer.
+
+```{r}
+params <- list(
+  adult_interarrival = 5L,
+  adult_service_time = 10L,
+  child_interarrival = 3L,
+  child_service_time = 7L
+)
+
+params$adult_interarrival
+```
+
+:::
+
+#### JSON example
+
+This uses a nested format, as the JSON was already in that format:
+
+::: {.python-content}
+```{python}
+def create_parameters(json_file, number_of_runs=10):
+    """
+    Create parameter dictionary by combining parameters from JSON with those
+    defined in this function.
+
+    Parameters
+    ----------
+    json_file : str
+        Path to JSON file containing simulation parameters.
+    number_of_runs : int, optional
+        Number of simulation runs (default is 10).
+
+    Returns
+    -------
+    param_dict : dict
+        Nested dictionary of simulation parameters.
+    """
+    with open(json_file, "r", encoding="utf-8") as f:
+        json_content = json.load(f)
+    param_dict = json_content["simulation_parameters"]
+    param_dict["number_of_runs"] = number_of_runs
+    return param_dict
+
+
+param = create_parameters("parameters_file_resources/example_parameters.json")
+print_dict(param, 4)
+```
+:::
+
+::: {.r-content}
+```{r}
+#' Create parameter list by combining parameters from JSON with those
+#' defined in this function.
+#'
+#' @param json_file Character, path to JSON file containing simulation
+#' parameters.
+#' @param number_of_runs Integer, number of simulation runs (default is 10).
+#'
+#' @return Named list of simulation parameters (nested).
+#' @export
+create_parameters <- function(json_file, number_of_runs = 10L) {
+  json_content <- jsonlite::fromJSON(json_file)
+  param_list <- json_content$simulation_parameters
+  param_list$number_of_runs <- number_of_runs
+  return(param_list)
+}
+
+# Example usage:
+param <- create_parameters(
+  file.path("parameters_file_resources", "example_parameters.json")
+)
+print(param[1L:4L])
+```
+:::
+
+#### CSV example (flat)
+
+::: {.python-content}
+```{python}
+def create_parameters(csv_file, number_of_runs=10):
+    """
+    Create flat parameter dictionary by combining parameters from CSV with
+    those defined in this function.
+
+    Parameters
+    ----------
+    csv_file : str
+        Path to CSV file containing simulation parameters.
+    number_of_runs : int, optional
+        Number of simulation runs (default is 10).
+
+    Returns
+    -------
+    param_dict : dict
+        Flat dictionary of simulation parameters.
+    """
+    csv_content = pd.read_csv(csv_file)
+    param_dict = {
+        f"{row.patient}_{row.metric}": float(row.value)
+        for row in csv_content.itertuples(index=False)
+    }
+    param_dict["number_of_runs"] = number_of_runs
+    return param_dict
+
+
+param = create_parameters("parameters_file_resources/example_parameters.csv")
+print_dict(param, 4)
+```
+:::
+
+::: {.r-content}
+```{r}
+#' Create flat parameter list by combining parameters from CSV with those
+#' defined in this function.
+#'
+#' @param csv_file Character, path to CSV file containing simulation
+#' parameters.
+#' @param number_of_runs Integer, number of simulation runs (default is 10).
+#'
+#' @return Named list of simulation parameters (flat).
+#' @export
+create_parameters <- function(csv_file, number_of_runs = 10L) {
+  csv_content <- read.csv(csv_file)
+  lst <- as.list(csv_content$value)
+  names(lst) <- paste(csv_content$patient, csv_content$metric, sep = "_")
+  lst$number_of_runs <- number_of_runs
+  return(lst)
+}
+
+# Example usage:
+param <- create_parameters(
+  file.path("parameters_file_resources", "example_parameters.csv")
+)
+print(param[1L:4L])
+```
+:::
+
+#### CSV example (nested)
+
+::: {.python-content}
+```{python}
+def create_parameters(csv_file, number_of_runs=10):
+    """
+    Create nested parameter dictionary by combining parameters from CSV with
+    those defined in this function.
+
+    Parameters
+    ----------
+    csv_file : str
+        Path to CSV file containing simulation parameters.
+    number_of_runs : int, optional
+        Number of simulation runs (default is 10).
+
+    Returns
+    -------
+    dict
+        Nested dictionary of simulation parameters.
+    """
+    csv_content = pd.read_csv(csv_file)
+    param_dict = defaultdict(dict)
+    for row in csv_content.itertuples(index=False):
+        param_dict[row.patient][row.metric] = float(row.value)
+    param_dict["number_of_runs"] = number_of_runs
+    return dict(param_dict)
+
+
+param = create_parameters("parameters_file_resources/example_parameters.csv")
+print_dict(param, 4)
+```
+:::
+
+::: {.r-content}
+```{r}
+#' Create nested parameter list by combining parameters from CSV with those
+#' defined in this function.
+#'
+#' @param csv_file Character, path to CSV file containing simulation
+#' parameters.
+#' @param number_of_runs Integer, number of simulation runs (default is 10).
+#'
+#' @return Named list of simulation parameters (nested).
+#' @export
+create_parameters <- function(csv_file, number_of_runs = 10L) {
+  csv_content <- read.csv(csv_file)
+  lst <- lapply(split(csv_content, csv_content$patient), function(subset) {
+    setNames(as.list(subset$value), subset$metric)
+  })
+  lst$number_of_runs <- number_of_runs
+  return(lst)
+}
+
+# Example usage:
+param <- create_parameters(
+  file.path("parameters_file_resources", "example_parameters.csv")
+)
+print(param[1L:4L])
+```
+:::
+
+### Using a class
+
+In the class, parameters can again be nested or flat, but this time they are **attributes** of the class instance. Those attributes can themselves them be simple values or dictionaries.
+
+As described above, classes also allow you to "lock down" the allowed parameters and add validation checks during initialisation and any changes. For examples of how to add validation when using a class, see the [parameter validation](parameters_validation.qmd) page.
+
+::: {.python-content}
+
+#### JSON example
+
+```{python}
+class CreateParameters:
+    """
+    Store simulation parameters, combining those loaded from a JSON file with
+    values defined in the class.
+    """
+    def __init__(self, json_file, number_of_runs=10):
+        """
+        Parameters
+        ----------
+        json_file : str
+            Path to JSON file containing simulation parameters.
+        number_of_runs : int, optional
+            Number of simulation runs (default is 10).
+        """
+        # Import parameters from JSON file
+        with open(json_file, "r", encoding="utf-8") as f:
+            json_content = json.load(f)
+        params = json_content["simulation_parameters"]
+
+        # Assign file-based parameters as attributes
+        for key, value in params.items():
+            setattr(self, key, value)
+
+        # Add class-defined parameters
+        self.number_of_runs = number_of_runs
+
+
+param = CreateParameters("parameters_file_resources/example_parameters.json")
+print_dict(param.__dict__, 4)
+```
+
+#### CSV example (flat)
+
+```{python}
+class CreateParameters:
+    """
+    Store simulation parameters, combining those loaded from a CSV file with
+    values defined in the class.
+    """
+    def __init__(self, csv_file, number_of_runs=10):
+        """
+        Parameters
+        ----------
+        csv_file : str
+            Path to CSV file containing simulation parameters.
+        number_of_runs : int, optional
+            Number of simulation runs (default is 10).
+        """
+        # Import parameters from CSV file
+        csv_content = pd.read_csv(csv_file)
+
+        # Assign CSV parameters as attributes (flat style)
+        for row in csv_content.itertuples(index=False):
+            param_key = f"{row.patient}_{row.metric}"
+            setattr(self, param_key, float(row.value))
+
+        # Add class-defined parameters
+        self.number_of_runs = number_of_runs
+
+
+param = CreateParameters("parameters_file_resources/example_parameters.csv")
+print_dict(param.__dict__, 4)
+```
+
+#### CSV example (nested)
+
+```{python}
+class CreateParameters:
+    """
+    Store simulation parameters, combining those loaded from a CSV file with
+    values defined in the class.
+    """
+    def __init__(self, csv_file, number_of_runs=10):
+        """
+        Parameters
+        ----------
+        csv_file : str
+            Path to CSV file containing simulation parameters.
+        number_of_runs : int, optional
+            Number of simulation runs (default is 10).
+        """
+        # Import parameters from CSV file and structure as nested dictionary
+        csv_content = pd.read_csv(csv_file)
+        param_dict = defaultdict(dict)
+        for row in csv_content.itertuples(index=False):
+            param_dict[row.patient][row.metric] = float(row.value)
+        param_dict["number_of_runs"] = number_of_runs
+
+        # Assign file-based parameters as attributes
+        for key, value in param_dict.items():
+            setattr(self, key, value)
+
+        # Add class-defined parameters
+        self.number_of_runs = number_of_runs
+
+
+param = CreateParameters("parameters_file_resources/example_parameters.csv")
+print_dict(param.__dict__, 4)
+```
+
+#### Alternative set-up: class with explicit attributes
+
+The previous examples dynamically set attributes based on whatever is present in your input file. Here, we show another approach - explicitly defining each attribute. This provides clarity and structure, although is more verbose.
+
+You'll notice that this class is similar to those in [parameters from script](parameters_script.qmd) - except that it has no default values.
+
+```{python}
+class Parameters:
     """
     Container for simulation parameters across patient demographics.
     """
@@ -121,7 +680,7 @@ class Parameters:  # pylint: disable=too-many-instance-attributes, too-many-argu
         ----------
         adult_interarrival : float
             Time between adult patient arrivals (e.g., in minutes or hours).
-        adult_consultation : float  
+        adult_consultation : float
             Duration of consultation time for adult patients.
         adult_transfer : float
             Time required to transfer adult patients between stages.
@@ -152,69 +711,7 @@ class Parameters:  # pylint: disable=too-many-instance-attributes, too-many-argu
         self.elderly_transfer = elderly_transfer
 ```
 
-:::
-
-:::{.r-content}
-
-Here, we show a single function approach:
-
-```{r}
-#' Create parameter list for simulation
-#'
-#' @param adult_interarrival Numeric. Time between adult patient arrivals
-#'   (e.g. in minutes or hours).
-#' @param adult_consultation Numeric. Duration of consultation time for
-#'   adult patients.
-#' @param adult_transfer Numeric. Time required to transfer adult patients
-#'   between stages.
-#' @param child_interarrival Numeric. Time between child patient arrivals
-#'   (e.g. in minutes or hours).
-#' @param child_consultation Numeric. Duration of consultation time for
-#'   child patients.
-#' @param child_transfer Numeric. Time required to transfer child patients
-#'   between stages.
-#' @param elderly_interarrival Numeric. Time between elderly patient arrivals
-#'   (e.g. in minutes or hours).
-#' @param elderly_consultation Numeric. Duration of consultation time for
-#'   elderly patients.
-#' @param elderly_transfer Numeric. Time required to transfer elderly patients
-#'   between stages.
-#'
-#' @return A named list containing all simulation parameters organised by
-#'   patient demographic groups (adult, child, elderly). Each group contains
-#'   interarrival, consultation, and transfer time parameters.
-
-create_params <- function(
-  adult_interarrival, adult_consultation, adult_transfer,
-  child_interarrival, child_consultation, child_transfer,
-  elderly_interarrival, elderly_consultation, elderly_transfer
-) {
-  list(
-    # Adult parameters
-    adult_interarrival = adult_interarrival,
-    adult_consultation = adult_consultation,
-    adult_transfer = adult_transfer,
-    # Child parameters
-    child_interarrival = child_interarrival,
-    child_consultation = child_consultation,
-    child_transfer = child_transfer,
-    # Elderly parameters
-    elderly_interarrival = elderly_interarrival,
-    elderly_consultation = elderly_consultation,
-    elderly_transfer = elderly_transfer
-  )
-}
-```
-
-:::
-
-### Write helper function to import parameters
-
-Create helper functions to load parameters from your CSV file into your functions/classes. How you write this function will depend on your parameter class structure and how your parameter files are organised.
-
-For example:
-
-:::{.python-content}
+Use a helper function that loads the data and matches it to the class attributes. For example, from a CSV file:
 
 ```{python}
 def setup_param_from_csv(csv_path):
@@ -244,69 +741,176 @@ def setup_param_from_csv(csv_path):
 
     # Pass these values to the Parameters class
     return Parameters(**values)
+
+
+# Import parameters
+params = setup_param_from_csv(
+    "parameters_file_resources/example_parameters.csv"
+)
+
+# View object
+print_dict(params.__dict__, 4)
 ```
 
 :::
 
-:::{.r-content}
+::: {.r-content}
+This requires each parameter to be a field, rather than storing all parameters in a list within the class (as explained on the [parameter validation](parameters_validation.qmd) page).
+
+In R, we cannot dynamically add these fields when initialising - i.e. we have to explicitly specify each attribute.
+
+If you didn't want to do that (e.g. for large numbers of parameters), it would be possible to store the parameters as a named list within the class, but the list items themselves would still be modifiable, so this has no advantages over just using a function - for either, validation of the parameters present would need to be done within the model function/class.
+
+You'll notice that this class is similar to those in [parameters from script](parameters_script.qmd) - except that it has no default values.
+
+```{r}
+#' @title Parameter class.
+#'
+#' @field adult_interarrival Numeric. Time between adult patient arrivals
+#' (minutes).
+#' @field adult_consultation Numeric. Length of adult patient consultation
+#' (minutes).
+#' @field adult_transfer Numeric. Adult patient transfer probability (0-1).
+#' @field child_interarrival Numeric. Time between child patient arrivals
+#' (minutes).
+#' @field child_consultation Numeric. Length of child patient consultation
+#' (minutes).
+#' @field child_transfer Numeric. Child patient transfer probability (0-1).
+#' @field elderly_interarrival Numeric. Time between elderly patient arrivals
+#' (minutes).
+#' @field elderly_consultation Numeric. Length of elderly patient consultation
+#' (minutes).
+#' @field elderly_transfer Numeric. Elderly patient transfer probability (0-1).
+
+Parameters <- R6Class( # nolint: object_name_linter
+  classname = "Parameters",
+  public = list(
+    # Adult parameters
+    adult_interarrival = NULL,
+    adult_consultation = NULL,
+    adult_transfer = NULL,
+
+    # Child parameters
+    child_interarrival = NULL,
+    child_consultation = NULL,
+    child_transfer = NULL,
+
+    # Elderly parameters
+    elderly_interarrival = NULL,
+    elderly_consultation = NULL,
+    elderly_transfer = NULL,
+
+    #' @description
+    #' Initialise Parameters instance.
+
+    initialize = function(
+      adult_interarrival, adult_consultation, adult_transfer,
+      child_interarrival, child_consultation, child_transfer,
+      elderly_interarrival, elderly_consultation, elderly_transfer
+    ) {
+      # Adult parameters
+      self$adult_interarrival <- adult_interarrival
+      self$adult_consultation <- adult_consultation
+      self$adult_transfer <- adult_transfer
+
+      # Child parameters
+      self$child_interarrival <- child_interarrival
+      self$child_consultation <- child_consultation
+      self$child_transfer <- child_transfer
+
+      # Elderly parameters
+      self$elderly_interarrival <- elderly_interarrival
+      self$elderly_consultation <- elderly_consultation
+      self$elderly_transfer <- elderly_transfer
+    },
+
+    #' @description
+    #' Returns parameters as a named list.
+    #'
+    #' @return A named list containing all parameter values.
+
+    get_params = function() {
+      # Get all non-function fields
+      all_names <- ls(self)
+      is_not_function <- vapply(
+        all_names,
+        function(x) !is.function(self[[x]]),
+        FUN.VALUE = logical(1L)
+      )
+      param_names <- all_names[is_not_function]
+      mget(param_names, envir = self)
+    }
+  )
+)
+```
+
+Use a helper function that loads the data and matches it to the class attributes. For example, from a CSV file:
 
 ```{r}
 #' Create parameter list from CSV file
 #'
-#' @param csv_path Character. Path to CSV file containing the parameters.
-#'   The CSV file should have columns "patient", "metric", and "value".
-#'   The "patient" column should contain demographic groups (e.g., "adult",
-#'   "child", "elderly"), the "metric" column should contain parameter types
-#'   (e.g., "interarrival", "consultation", "transfer"), and the "value"
-#'   column should contain the numeric parameter values.
+#' @param csv_path Character.  Path to CSV file with columns:
+#'   "patient", "metric", "value".
 #'
-#' @return A named list containing all simulation parameters organised by
-#'   patient demographic groups, identical to the output of
-#'   \code{create_params()}. The list contains interarrival, consultation, and
-#'   transfer time parameters for each patient group.
+#' @return An instance of `Parameters` R6 class.
 
 setup_param_from_csv <- function(csv_path) {
 
   # Import the parameters
-  param_file <- read.csv(csv_path)
+  param_file <- read.csv(csv_path, stringsAsFactors = FALSE)
 
-  # Create named vector where names match function arguments
+  # Create named vector (e.g. "adult_interarrival" = 5)
   values <- setNames(
-    param_file$value, paste(param_file$patient, param_file$metric, sep = "_")
+    param_file$value,
+    paste(param_file$patient, param_file$metric, sep = "_")
   )
 
-  # Pass the named list to create_params
-  do.call(create_params, as.list(values))
+  # Instantiate Parameters with values
+  do.call(Parameters$new, as.list(values))
 }
-```
 
-:::
 
-### Load and use parameters
-
-:::{.python-content}
-
-```{python}
-# Import parameters
-params = setup_param_from_csv(
-    "parameters_file_resources/example_parameters.csv")
-
-# View object
-print(params.__dict__)
-```
-
-:::
-
-:::{.r-content}
-
-```{r}
 # Import parameters
 params <- setup_param_from_csv(
   file.path("parameters_file_resources", "example_parameters.csv")
 )
 
-# View objects
-params
+# View object
+params$get_params()
+```
+
+Or, from a JSON file:
+
+```{r}
+#' Create parameter list from JSON file
+#'
+#' @param json_path Character. Path to JSON file containing the parameters.
+#'
+#' @return A named list containing all simulation parameters.
+
+setup_param_from_json <- function(json_path) {
+
+  # Import the JSON parameters
+  json_file <- jsonlite::fromJSON(json_path)
+
+  # Extract the simulation_parameters list
+  sim_params <- json_file$simulation_parameters
+
+  # Pull out the mean values from the nested structure
+  values <- lapply(sim_params, function(x) x$params$mean)
+
+  # Pass them into Parameters (arguments matched by name)
+  do.call(Parameters$new, values)
+}
+
+
+# Import parameters
+params <- setup_param_from_json(
+  file.path("parameters_file_resources", "example_parameters.json")
+)
+
+# View object
+params$get_params()
 ```
 
 :::
@@ -540,13 +1144,3 @@ setup_param_from_csv(file.path("..", "inputs", "parameters.csv"))
 </details>
 
 ---
-
-## 📎 Further information
-
-:::{.python-content}
-The `sim-tools` package provides a class for managing probability distributions stored within JSON files - check it out: <https://tommonks.github.io/sim-tools/01_sampling/03_distributions_registry.html>. 
-:::
-
-:::{.r-content}
-N/A
-:::
