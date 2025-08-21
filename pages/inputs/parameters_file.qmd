@@ -97,7 +97,10 @@ The following `# pylint: disable` lines simply turn off some linting warnings th
 
 ```{python}
 # pylint: disable=wrong-import-position,reimported,wrong-import-order
-# pylint: disable=ungrouped-imports
+# pylint: disable=ungrouped-imports,too-many-instance-attributes
+# pylint: disable=too-many-arguments, too-many-positional-arguments
+# pylint: disable=too-few-public-methods,redefined-outer-name
+# pylint: disable=function-redefined
 ```
 
 :::
@@ -113,8 +116,10 @@ from collections import defaultdict
 ::: {.r-content}
 
 ```{r}
+# nolint start: undesirable_function_linter
 library(jsonlite)
 library(R6)
+# nolint end
 ```
 
 :::
@@ -304,7 +309,7 @@ params = {
     "distribution": {"mean": 0, "sd": 1}
 }
 
-params["adult"]["interarrival"]
+print(params["adult"]["interarrival"])
 ```
 
 A **flat dictionary** can be simpler to use if everything fits in one layer.
@@ -317,7 +322,7 @@ params = {
     "child_service_time": 7
 }
 
-params["adult_interarrival"]
+print(params["adult_interarrival"])
 ```
 
 :::
@@ -332,9 +337,9 @@ A **nested list** is good for grouped parameters, like distributions with multip
 
 ```{r}
 params <- list(
-  adult = list(interarrival = 5, service_time = 10),
-  child = list(interarrival = 3, service_time = 7),
-  distribution = list(mean = 0, sd = 1)
+  adult = list(interarrival = 5L, service_time = 10L),
+  child = list(interarrival = 3L, service_time = 7L),
+  distribution = list(mean = 0L, sd = 1L)
 )
 
 params$adult$interarrival
@@ -344,10 +349,10 @@ A **flat list** can be simpler to use if everything fits in one layer.
 
 ```{r}
 params <- list(
-  adult_interarrival = 5,
-  adult_service_time = 10,
-  child_interarrival = 3,
-  child_service_time = 7
+  adult_interarrival = 5L,
+  adult_service_time = 10L,
+  child_interarrival = 3L,
+  child_service_time = 7L
 )
 
 params$adult_interarrival
@@ -401,7 +406,7 @@ print_dict(param, 4)
 #'
 #' @return Named list of simulation parameters (nested).
 #' @export
-create_parameters <- function(json_file, number_of_runs = 10) {
+create_parameters <- function(json_file, number_of_runs = 10L) {
   json_content <- jsonlite::fromJSON(json_file)
   param_list <- json_content$simulation_parameters
   param_list$number_of_runs <- number_of_runs
@@ -410,9 +415,9 @@ create_parameters <- function(json_file, number_of_runs = 10) {
 
 # Example usage:
 param <- create_parameters(
-    file.path("parameters_file_resources", "example_parameters.json")
+  file.path("parameters_file_resources", "example_parameters.json")
 )
-print(param[1:4])
+print(param[1L:4L])
 ```
 :::
 
@@ -462,19 +467,19 @@ print_dict(param, 4)
 #'
 #' @return Named list of simulation parameters (flat).
 #' @export
-create_parameters <- function(csv_file, number_of_runs = 10) {
-    df <- read.csv(csv_file)
-    lst <- as.list(df$value)
-    names(lst) <- paste(df$patient, df$metric, sep="_")
-    lst$number_of_runs <- number_of_runs
-    return(lst)
+create_parameters <- function(csv_file, number_of_runs = 10L) {
+  csv_content <- read.csv(csv_file)
+  lst <- as.list(csv_content$value)
+  names(lst) <- paste(csv_content$patient, csv_content$metric, sep = "_")
+  lst$number_of_runs <- number_of_runs
+  return(lst)
 }
 
 # Example usage:
 param <- create_parameters(
-    file.path("parameters_file_resources", "example_parameters.csv")
+  file.path("parameters_file_resources", "example_parameters.csv")
 )
-print(param[1:4])
+print(param[1L:4L])
 ```
 :::
 
@@ -523,20 +528,20 @@ print_dict(param, 4)
 #'
 #' @return Named list of simulation parameters (nested).
 #' @export
-create_parameters <- function(csv_file, number_of_runs = 10) {
-    df <- read.csv(csv_file)
-    lst <- lapply(split(df, df$patient), function(subdf) {
-      setNames(as.list(subdf$value), subdf$metric)
-    })
-    lst$number_of_runs <- number_of_runs
-    return(lst)
+create_parameters <- function(csv_file, number_of_runs = 10L) {
+  csv_content <- read.csv(csv_file)
+  lst <- lapply(split(csv_content, csv_content$patient), function(subset) {
+    setNames(as.list(subset$value), subset$metric)
+  })
+  lst$number_of_runs <- number_of_runs
+  return(lst)
 }
 
 # Example usage:
 param <- create_parameters(
-    file.path("parameters_file_resources", "example_parameters.csv")
+  file.path("parameters_file_resources", "example_parameters.csv")
 )
-print(param[1:4])
+print(param[1L:4L])
 ```
 :::
 
@@ -658,7 +663,7 @@ The previous examples dynamically set attributes based on whatever is present in
 You'll notice that this class is similar to those in [parameters from script](parameters_script.qmd) - except that it has no default values.
 
 ```{python}
-class Parameters:  # pylint: disable=too-many-instance-attributes, too-many-arguments, too-many-positional-arguments, too-few-public-methods
+class Parameters:
     """
     Container for simulation parameters across patient demographics.
     """
@@ -675,7 +680,7 @@ class Parameters:  # pylint: disable=too-many-instance-attributes, too-many-argu
         ----------
         adult_interarrival : float
             Time between adult patient arrivals (e.g., in minutes or hours).
-        adult_consultation : float  
+        adult_consultation : float
             Duration of consultation time for adult patients.
         adult_transfer : float
             Time required to transfer adult patients between stages.
@@ -856,10 +861,10 @@ setup_param_from_csv <- function(csv_path) {
 
   # Create named vector (e.g. "adult_interarrival" = 5)
   values <- setNames(
-    param_file$value, 
+    param_file$value,
     paste(param_file$patient, param_file$metric, sep = "_")
   )
-  
+
   # Instantiate Parameters with values
   do.call(Parameters$new, as.list(values))
 }
@@ -880,7 +885,7 @@ Or, from a JSON file:
 #' Create parameter list from JSON file
 #'
 #' @param json_path Character. Path to JSON file containing the parameters.
-#' 
+#'
 #' @return A named list containing all simulation parameters.
 
 setup_param_from_json <- function(json_path) {
@@ -890,10 +895,10 @@ setup_param_from_json <- function(json_path) {
 
   # Extract the simulation_parameters list
   sim_params <- json_file$simulation_parameters
-  
+
   # Pull out the mean values from the nested structure
   values <- lapply(sim_params, function(x) x$params$mean)
-  
+
   # Pass them into Parameters (arguments matched by name)
   do.call(Parameters$new, values)
 }

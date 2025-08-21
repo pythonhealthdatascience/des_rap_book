@@ -31,7 +31,10 @@ import inspect
 :::{.r-content}
 ```{r}
 # Import required packages
-library(R6) # nolint: undesirable_function_linter
+# nolint start: undesirable_function_linter
+library(jsonlite)
+library(R6)
+# nolint end
 ```
 :::
 
@@ -279,7 +282,11 @@ check_param_names <- function(param, param_function) {
 
 If parameters are imported from a file (e.g., using a function that saves them as a list), that file can be reused for validation when no function with explicit arguments exists. Whilst this won't detect missing or misspelled parameters in the file itself, it will confirm that no parameters have been added or removed since import. This is useful when the list has been modified (e.g., to implement scenarios) before it was provided to the model function.
 
+In this example, we have a package `simulation` where the parameters are in `extdata/parameters.json`, and a function `parameters()` which returns a named list of parameters, one of which is a list itself (`dist_config`) and so is checked separately.
+
 ```{r}
+# nolint start: object_usage_linter
+
 #' Validate parameter names.
 #'
 #' Ensure that all required parameters are present, and no extra parameters are
@@ -313,6 +320,8 @@ check_param_names_json <- function(param, param_file) {
     stop("Problem in param. Missing: ", missing_names, ". ",
          "Extra: ", extra_names, ".", call. = FALSE)
 }
+
+# nolint end
 ```
 
 :::
@@ -694,9 +703,9 @@ param["param1"] = "newtest"
 
 # Attempts to add new attributes should raise an error
 try:
-  param["newattribute"] = 3
+    param["newattribute"] = 3
 except KeyError as e:
-  print(f"Error: {e}")
+    print(f"Error: {e}")
 
 print(param)
 ```
@@ -713,8 +722,8 @@ class Param(RestrictAttributes):
         Initialise Param instance.
         """
         self.param_dict = LockedDict({
-          "param1": "test",
-          "param2": 42
+          "param1": param1,
+          "param2": param2
         })
 
 
