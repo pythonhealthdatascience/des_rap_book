@@ -193,7 +193,7 @@ As a reminder, this is our parameter function:
 
 :::
 
-We can write a validation function which checks that **all the required parameters are present**, and that **no extra parameters** are provided:
+We can write a validation function which checks that **all the required parameters are present**, and that **no extra parameters** are provided.
 
 :::{.python-content}
 ```{python}
@@ -232,6 +232,8 @@ def check_param_names(param_dict, param_function):
 :::
 
 :::{.r-content}
+
+This is based on the arguments of `param_function`:
 
 ```{r}
 #' Validate parameter names.
@@ -275,9 +277,47 @@ check_param_names <- function(param, param_function) {
 }
 ```
 
+If parameters are imported from a file (e.g., using a function that saves them as a list), that file can be reused for validation when no function with explicit arguments exists. Whilst this won't detect missing or misspelled parameters in the file itself, it will confirm that no parameters have been added or removed since import. This is useful when the list has been modified (e.g., to implement scenarios) before it was provided to the model function.
+
+```{r}
+#' Validate parameter names.
+#'
+#' Ensure that all required parameters are present, and no extra parameters are
+#' provided.
+#'
+#' @param param List containing parameters for the simulation.
+#'
+#' @return Throws an error if there are missing or extra parameters.
+
+check_param_names_json <- function(param, param_file) {
+
+  # Check the distribution names....
+  # Import JSON with the required names
+  config <- fromJSON(
+    system.file("extdata", "parameters.json", package = "simulation"),
+    simplifyVector = FALSE
+  )[["simulation_parameters"]]
+  required <- names(config)
+
+  # Check what names are within param, if any missing or extra
+  missing_names <- setdiff(required, names(param[["dist_config"]]))
+  extra_names <- setdiff(names(param[["dist_config"]]), required)
+  if (length(missing_names) > 0L || length(extra_names) > 0L)
+    stop("Problem in param$dist_config. Missing: ", missing_names, ". ",
+         "Extra: ", extra_names, ".", call. = FALSE)
+
+  # Check the names in param
+  missing_names <- setdiff(names(parameters()), names(param))
+  extra_names <- setdiff(names(param), names(parameters()))
+  if (length(missing_names) > 0L || length(extra_names) > 0L)
+    stop("Problem in param. Missing: ", missing_names, ". ",
+         "Extra: ", extra_names, ".", call. = FALSE)
+}
+```
+
 :::
 
-Then, in our **model function**, we call the validation function to check all inputs before proceeding with the simulation:
+Then, in our **model function**, we call the relevant validation function to check all inputs before proceeding with the simulation:
 
 :::{.python-content}
 ```{python}
