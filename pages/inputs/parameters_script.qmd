@@ -848,10 +848,12 @@ def create_parameters(
     "transfers"), each containing a dictionary of parameters.
     """
     # Create the individual dictionaries if none provided
-    arrivals = create_arrivals() if arrivals is None else arrivals
-    consultations = (
-      create_consultations() if consultations is None else consultations)
-    transfers = create_transfers() if transfers is None else transfers
+    if arrivals is None:
+        arrivals = create_arrivals()
+    if consultations is None:
+        consultations = create_consultations()
+    if transfers is None:
+        transfers = create_transfers()
     # Create dictionary
     return {
         "arrivals": arrivals,
