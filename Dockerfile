@@ -17,6 +17,7 @@ RUN apt-get update && \
         python3-pip \
         python3-venv \
         build-essential \
+        pandoc \
         && rm -rf /var/lib/apt/lists/*
 
 # Install Quarto CLI
