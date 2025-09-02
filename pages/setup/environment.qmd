@@ -41,7 +41,7 @@ This page will guide you through the essentials of managing R environments.
 
 This page helps you meet reproducibility criteria from:
 
-* Heather et al. 2025: List dependencies and versions.
+* STARS Reproducibility Recommendations: List dependencies and versions.
 * NHS Levels of RAP (🥈): Repository includes dependency information.
 
 ::::
@@ -72,15 +72,15 @@ An R environment is the complete computational context required to run an R proj
 
 Recording the environment used acts like a **time capsule**, allowing you to return to a project later and run it with the exact same packages and versions, reproducing the results generated previously.
 
-![](environment_resources/time_capsule.png){.lightbox fig-align="center" width=70%}
+![](environment_resources/time_capsule.png){fig-align="center" width=70%}
 
 Managing dependencies allows you to **isolate environments for different projects**. Each project can maintain its own set of packages and R version, preventing conflicts between projects and making it effortless to switch between them without worrying about version mismatches.
 
-![](environment_resources/isolated_env.png){.lightbox fig-align="center" width=70%}
+![](environment_resources/isolated_env.png){fig-align="center" width=70%}
 
 Consistent environments are important for collaboration. Ensuring everyone on the team uses the same setup prevents issues caused by differing packages or versions.
 
-![](environment_resources/collaborate.png){.lightbox fig-align="center" width=70%}
+![](environment_resources/collaborate.png){fig-align="center" width=70%}
 
 ## 🧰 Tools
 
@@ -197,7 +197,7 @@ Within `environment.yaml`, we add three sections:
 When first creating our environment, we just want to specify the version of python used. For example:
 
 ```{.bash}
-name: des-example
+name: envname
 channels:
   - conda-forge
 dependencies:
@@ -224,14 +224,14 @@ Other main channels include:
 In the command line, run either set of commands to:
 
 * Create your environment.
-* Activate it (replacing `des-example` with your environment name).
+* Activate it (replacing `envname` with your environment name).
 * List the packages in your environment.
 
 Using `conda`:
 
 ```{.bash}
 conda env create --file environment.yaml
-conda activate des-example
+conda activate envname
 conda list
 ```
 
@@ -239,7 +239,7 @@ Using `mamba`:
 
 ```{.bash}
 mamba env create --file environment.yaml
-mamba activate des-example
+mamba activate envname
 mamba list
 ```
 
@@ -356,7 +356,7 @@ This book and its examples use `conda`/`mamba`. If you haven't already, follow t
 Add packages to the environment by modifying the `environment.yaml` file. For example, to add `simpy`:
 
 ```{.bash}
-name: des-example
+name: envname
 channels:
   - conda-forge
 dependencies:
@@ -364,7 +364,7 @@ dependencies:
   - simpy
 ```
 
-With the environment active (i.e. after running `conda activate des-example`), you can then run the following command to update it. Activating the environment before updating ensures that the changes are applied to the correct environment, rather than unintentionally modifying the `base` environment.
+With the environment active (i.e. after running `conda activate envname`), you can then run the following command to update it. Activating the environment before updating ensures that the changes are applied to the correct environment, rather than unintentionally modifying the `base` environment.
 
 ```{.bash}
 conda env update --file environment.yaml --prune
@@ -375,7 +375,7 @@ You should **specify the exact package versions** in you `environment.yaml`. If 
 Example `environment.yaml` file:
 
 ```{.bash}
-name: des-example
+name: envname
 channels:
   - conda-forge
 dependencies:
@@ -383,39 +383,9 @@ dependencies:
   - simpy=4.1.1
 ```
 
-When working on a project from scratch, you will often build up your environment organically and iteratively as you find more packages you want to use. However, to follow along with this book and ensure everything works as expected, you can use the full environment provided below. Copy this into your `environment.yaml` (feel free to alter the name!):
+When working on a project from scratch, you will often build up your environment organically and iteratively as you find more packages you want to use.
 
-```{.bash}
-name: des-example
-channels:
-  - conda-forge
-dependencies:
-  - ipykernel=6.29.5
-  - jinja2=3.1.5
-  - joblib=1.4.2
-  - nbconvert=7.16.6
-  - nbformat=5.10.4
-  - nbqa=1.9.0
-  - numpy=2.2.2
-  - pandas=2.2.3
-  - pip=25.0
-  - plotly_express=0.4.1
-  - pylint=3.3.4
-  - pytest=8.3.4
-  - pytest-xdist=3.6.1
-  - python=3.13.1
-  - rich=13.9.4
-  - simpy=4.1.1
-  - pip:
-    - kaleido==0.2.1
-    - sim-tools==0.8.0
-```
-
-Then update your environment to include these packages (after running `conda activate des-example`) with:
-
-```{.bash}
-conda env update --file environment.yaml --prune
-```
+To set-up an environment that will work for running the examples in this book, see the "**🧪 Test yourself**" section.
 
 ::::
 
@@ -439,11 +409,11 @@ It's best to use `renv` within an R project. R projects are commonly created and
 
 In RStudio, select "File > New Project..." and choose "Existing Directory".
 
-![](environment_resources/rproject1.png){.lightbox}
+![](environment_resources/rproject1.png)
 
 Navigate to your project directory, then select "Create Project".
 
-![](environment_resources/rproject2.png){.lightbox}
+![](environment_resources/rproject2.png)
 
 This will create :
 
@@ -498,7 +468,7 @@ When you initialise `renv`, you project gets its own **project library** - a pri
 
 This is different from the **user library**, which is the default shared location where R installs packages used by all your R projects. See the "Packages" section on RStudio, which will show your project v.s. user library:
 
-![](environment_resources/renv_init.png){.lightbox}
+![](environment_resources/renv_init.png)
 
 Some further information relevant when initialising `renv`:
 
@@ -546,7 +516,7 @@ However, we recommend using a `DESCRIPTION` file. This is a file listing only th
 
 This differs from `renv.lock` which records **all packages** needed to recreate your environment, including every main package and all their dependencies, plus the exact versions used.
 
-![](environment_resources/description_vs_lock.png){.lightbox}
+![](environment_resources/description_vs_lock.png)
 
 The benefit of using a `DESCRIPTION` file when adding packages is:
 
@@ -609,33 +579,7 @@ Imports:
 
 At the very beginning of your project, your `DESCRIPTION` file might only include a few packages. As your project develops and you find yourself using additional packages, simply **add each new dependency to the `Imports` section** of your `DESCRIPTION` file.
 
-If you are following along with this book, you can use the following `DESCRIPTION` snippet to include all the packages needed to run the provided code in this book:
-
-```{.r}
-Imports:
-    simmer,
-    magrittr,
-    dplyr,
-    purrr,
-    rlang,
-    tidyr,
-    tidyselect,
-    future,
-    future.apply,
-    ggplot2,
-    tibble,
-    gridExtra,
-    R6
-Suggests:
-    testthat (>= 3.0.0),
-    patrick,
-    lintr,
-    devtools,
-    xtable,
-    data.table,
-    mockery
-Config/testthat/edition: 3
-```
+To set-up an environment that will work for running the examples in this book, see the "**🧪 Test yourself**" section.
 
 #### 3. Install packages from `DESCRIPTION`
 
@@ -1230,78 +1174,56 @@ Most researchers handle these components by:
 
 <div class="h3-tight"></div>
 
-:::: {.python-content}
+::: {.python-content}
 
-### Recreating an existing python environment
+### 1. Identify or create environment file
 
-This flowchart guides you through the main choices you’ll face when rebuilding a python environment:
+Begin by identifying any existing files that list the necessary details: python version, required packages, and their versions. If these files fully specify the environment, use them directly to set-up the environment.
 
-![](environment_resources/restore_py_environment.drawio.png){.lightbox}
+If information is missing, fill in the gaps as follows, creating your own `environment.yml` (or similar) with the details gathered:
 
-### Troubleshooting
+* **Python version:** Look for explicit version info in documentation or project materials. If unavailable, estimate based on project dates or use the latest release.
+* **Packages:** Check documentation for a list of packages, or inspect code for import statements to determine what's needed.
+* **Package versions:** Search for version details in documentation, or estimate based on project's age; otherwise, consider installing the latest compatible versions.
 
-Managing Python environments can sometimes be challenging, especially when moving projects between machines, collaborating with others, or working on older code. Below are common problems and solutions.
+### 2. Build environment
 
-#### Package installation fails
+Install the environment using your chosen tool (ideally one that controls the python version, like `conda`). If you encounter **installation errors** (e.g. `could not find a version that satisified the requirement...`):
 
-**Symptoms:**
+* Check if Python version is supported by the package.
+* Try alternative sources (PyPI v.s. conda, different conda channels).
+* Ensure package name has no typos, and that the version number is valid.
 
-* Installation errors, such as "Could not find a version that satisfies the requirement..."
+After installation, test your code. If problems arise due to **incompatible package versions** (e.g. latest versions causing changes or errors):
 
-**Solutions:**
+* Downgrade affected packages, and update your environment file with the versions required.
 
-* Check whether your Python version is supported by the package.
-* If using conda, try install from PyPI, and vice versa. You can also try different conda channels.
-* Check package name has no typos, and that the version number is valid.
-
-#### Backdating
-
-If you set up your environment with the latest python and package versions (for example, when no specific versions are listed), you may find your code requires older package versions to work as expected.
-
-**Symptoms:**
-
-* Previously working code throws errors after installing/updating packages.
-* Incompatibilities with newer package versions.
-
-**Solutions:**
-
-* Downgrade packages, and update your environment file with the pinned/minimum package version required.
-
-::::
+:::
 
 :::: {.r-content}
 
-### Recreating an existing R environment
+### 1. Identify R version, packages and their required versions
 
-This flowchart guides you through the main choices you'll face when rebuilding an R environment:
+Start by looking for files that define the environment, like `renv.lock` or `DESCRIPTION`. If such files are missing or don't specify versions:
 
-![Summary workflow for recreating an R environment for an existing project](environment_resources/restore_r_environment.drawio.png){.lightbox}
+* **R version:** Look for explicit version info in documentation or project materials. If unavailable, estimate based on project dates or use the latest release.
+* **Packages:** Check documentation for a list of packages, or inspect code for import statements (`library()`, `require()`) to determine what's needed.
+* **Package versions:** Search for version details in documentation, or estimate based on project's age; otherwise, consider installing the latest compatible versions.
 
-Some of the essential actions from this flowchart - alongside some additional considerations - are described below.
+### 2. Build R environment
 
-**Switch R version**.
+The required R version can be switched to using `rig`.
 
-* Use `rig` to easily change to the required R version (see '**🔄 R version**').
+If an `renv.lock` file exists, use `renv::restore()` to create the exact previous environment. This will match package versions exactly, and prompt you to use the appropriate R version. However, if you encounter problems, you may wish to switch to a `DESCRIPTION` file.
 
-**Restore packages**.
+If you are working from a provided `DESCRIPTION` file, or have deduced the required packages, then `renv::install()` can be used.
 
-* If you have an `renv.lock` file, run: `renv::restore()`.
-  * This installs the exact package versions (and their dependencies) used previously.
-  * It is good for full reproducibility; restoring the original environment exactly
-* If you are using a `DESCRIPTION` file, run: `renv::install()`.
-  * This installs the main packages listed (and their dependencies), but uses the latest available versions (unless specified).
-  * It is good if `renv.lock` is missing or problematic.
+* For the latest versions, just list the packages in `DESCRIPTION` (with no pinned dependencies) and run `renv::install()`.
+* For specific versions, the simplest method can be to individually install these using `renv::install("pkg@version")`, record the package in `DESCRIPTION`, and then ensure the version is recorded by runing `renv::snapshot()`.
 
-**Snapshot mode**.
+<br>
 
-* In '**📦 Packages**', we recommend 'implicit' mode so that `renv.lock` captures all packages used, even if you have forgot to add them to `DESCRIPTION`. However, when rebuilding an environment, 'explicit' mode can help ensure all required packages are listed in `DESCRIPTION`.
-
-**Additional environment components**.
-
-* System libraries - covered in troubleshooting section.
-* Project-specific settings - these files (e.g. `.Rprofile`, `.Rproj`) should be copied over if provided. They are not typically a source of errors but important for restoring full project environment, as they may contain custom project options.
-
-### Backwards compatibility in R
+::: {.callout-note title="Backwards compatability in R"}
 
 In theory, the R ecosystem aspires to maintain backwards compatibility, meaning that code written for older package versions should continue to work with newer ones. However, in practice, there is no strict guarantee of backward compatibility in R, either for the core language or for contributed packages.
 
@@ -1311,7 +1233,9 @@ As discussed in the [R packages](https://r-pkgs.org/lifecycle.html) book:
 
 Hence, using a lockfile like `renv.lock` is the only reliable way to ensure that your environment is recreated exactly as it was - but `DESCRIPTION` can serve as a valuable back-up when this doesn't work, and otherwise just as a handy summary of the main packages.
 
-### Troubleshooting
+:::
+
+### 3. Troubleshooting
 
 Restoring an R environment can often run into issues, especially with older projects or system differences. Below are common problems and solutions.
 
@@ -1328,6 +1252,8 @@ When recreating environments with older R versions or package versions, you may 
 
 * If exact reproducibility is not required, consider updating to a more recent R version and/or newer package versions.
 * For legacy work, search for archived source tarballs or consult the CRAN archive, but success isn't guaranteed.
+
+<br>
 
 #### Backdating
 
@@ -1356,6 +1282,8 @@ To install a particular version using `renv` (which will be recorded in `renv.lo
 renv::install("dplyr@1.1.2")
 ```
 
+<br>
+
 #### Missing system dependencies
 
 Some R packages require external system libraries (e.g., C libraries, database clients) not installed by default.
@@ -1373,6 +1301,8 @@ Some R packages require external system libraries (e.g., C libraries, database c
   * MacOS: `brew install openssl curl`.
   * Windows: Follow package documentation or use precompiled binaries.
 
+<br>
+
 #### Legacy user libraries
 
 If R has been installed for a long time, your user library (the default location for installed packages) may contain outdated or conflicting packages. This can interfere with `renv`, sometimes causing silent failures or unpredictable behaviour.
@@ -1388,16 +1318,6 @@ If R has been installed for a long time, your user library (the default location
 * Temporarily move or rename your user library directory and restart R to see if `renv` works correctly.
 * If issues persist, consider reinstalling R or resetting your user library.
 * As a last resort, a clean operating system install can resolve deep or persistent conflicts.
-
-#### General tips
-
-**Update renv:** Bugs are fixed regularly - ensure you're using the latest version.
-
-**Check permissions:** Make sure you have write access to your project directory.
-
-**Consult logs:** Use `renv::diagnostics()` to generate a report on your environment.
-
-**Search for known issues:** Many problems are discussed (and solved) in the [renv GitHub Issues](https://github.com/rstudio/renv/issues) tracker.
 
 ::::
 
@@ -1461,4 +1381,46 @@ These are some nice resources generally covering topics related to R environment
 
 ::::
 
-## 💬 Comments
+## 🧪 Test yourself
+
+Let's get started! If you haven't already tried the basic setup by following the instructions above, give it a try now. In this section, we'll set up a dedicated environment for working through this book. Using the complete environment provided below will help ensure everything works as expected.
+
+:::: {.python-content}
+
+**Task:** Set-up the following environment on your machine.
+
+```{.bash}
+{{< include ../../environment.yaml >}}
+```
+
+::: {.callout-tip title="Hints" collapse="true"}
+
+1. In your `des-rap-python/` folder, create an `environment.yaml` file and copy in the above text.
+2. Build the environment by running `conda env create --file environment.yaml`.
+3. Check it by running `conda activate des-rap-book` and `conda list`.
+
+:::
+
+::::
+
+:::: {.r-content}
+
+**Task:** Set-up the following environment on your machine.
+
+```{.bash}
+{{< include ../../DESCRIPTION >}}
+```
+
+::: {.callout-tip title="Hints" collapse="true"}
+
+1. In your `des-rap-r/` folder, set-up an R project.
+2. Initialise `renv` by running `renv::init()`. 
+3. Create a `DESCRIPTION` file and copy in the above text.
+4. Install those packages by running `renv::install()`.
+5. Create/update `renv.lock` by running `renv::snapshot()`.
+
+:::
+
+::::
+
+<br><br>
