@@ -107,7 +107,7 @@ It has four key components.
 
 ## 📦 Create the package structure
 
-::: {.python-content}
+:::: {.python-content}
 
 First, let's create the basic directory structure for our simulation package.
 
@@ -207,7 +207,7 @@ project-name/
 └── pyproject.toml   <---
 ```
 
-Copy the text below into this file. This provides instructions for building the package. We're using `flit` as our build tool because of its simplicity. The `dynamic` field tells flit to extract the version from our `__init__.py` file.
+Copy the text below into your `pyproject.toml` file. This provides instructions for building the package. We're using `flit` as our build tool because of its simplicity.
 
 ```{.bash}
 [build-system]
@@ -222,9 +222,21 @@ dynamic = ["version"]
 
 <br>
 
-**Our directory is now recognisable as a package** - it contains an `__init__.py` file, and there is information about the package in `pyproject.toml`.
+::: {.callout-note title="Dynamic version number"}
+
+You have to assign your package a version number using [semantic versioning](https://semver.org/). This follows the syntax `MAJOR.MINOR.PATCH` e.g. `0.1.0`. When packages are updated, then the version number is incremented (e.g. to `0.2.0`).
+
+In our `pyproject.toml`, the `[project]` section uses `dynamic = ["version"]`. This means Flit will automatically look for a variable named `__version__` in your package's `__init__.py` file.
+
+That means (as instructed above) `simulation/__init__.py` should contain:
+
+```{.bash}
+__version__ = "0.1.0"
+```
 
 :::
+
+::::
 
 :::{.r-content}
 
@@ -803,6 +815,26 @@ project-name/
 ├── DESCRIPTION
 └── NAMESPACE
 ```
+
+:::
+
+## 🧪 Test yourself
+
+**Put everything from this package into practice!**
+
+Before getting started, make sure to set-up your repository with [version control](version.qmd) and an [environment](environment.qmd).
+
+**Task:**
+
+* Follow the steps above to set up your folder structure, create all required package files, and add at least one test function.
+* Configure your environment so your package can be installed and imported.
+* Create a short test script or notebook to check that your function works when loaded as a package.
+
+::: {.callout-tip title="Hints"}
+
+* Use the folder, file and code templates already given above.
+* Tweak names and descriptions for your own project.
+* If you hit any errors, check your files are in the right place, and look back at earlier steps for solutions.
 
 :::
 
