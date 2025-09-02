@@ -197,7 +197,7 @@ Within `environment.yaml`, we add three sections:
 When first creating our environment, we just want to specify the version of python used. For example:
 
 ```{.bash}
-name: des-example
+name: envname
 channels:
   - conda-forge
 dependencies:
@@ -224,14 +224,14 @@ Other main channels include:
 In the command line, run either set of commands to:
 
 * Create your environment.
-* Activate it (replacing `des-example` with your environment name).
+* Activate it (replacing `envname` with your environment name).
 * List the packages in your environment.
 
 Using `conda`:
 
 ```{.bash}
 conda env create --file environment.yaml
-conda activate des-example
+conda activate envname
 conda list
 ```
 
@@ -239,7 +239,7 @@ Using `mamba`:
 
 ```{.bash}
 mamba env create --file environment.yaml
-mamba activate des-example
+mamba activate envname
 mamba list
 ```
 
@@ -356,7 +356,7 @@ This book and its examples use `conda`/`mamba`. If you haven't already, follow t
 Add packages to the environment by modifying the `environment.yaml` file. For example, to add `simpy`:
 
 ```{.bash}
-name: des-example
+name: envname
 channels:
   - conda-forge
 dependencies:
@@ -364,7 +364,7 @@ dependencies:
   - simpy
 ```
 
-With the environment active (i.e. after running `conda activate des-example`), you can then run the following command to update it. Activating the environment before updating ensures that the changes are applied to the correct environment, rather than unintentionally modifying the `base` environment.
+With the environment active (i.e. after running `conda activate envname`), you can then run the following command to update it. Activating the environment before updating ensures that the changes are applied to the correct environment, rather than unintentionally modifying the `base` environment.
 
 ```{.bash}
 conda env update --file environment.yaml --prune
@@ -375,7 +375,7 @@ You should **specify the exact package versions** in you `environment.yaml`. If 
 Example `environment.yaml` file:
 
 ```{.bash}
-name: des-example
+name: envname
 channels:
   - conda-forge
 dependencies:
@@ -383,39 +383,9 @@ dependencies:
   - simpy=4.1.1
 ```
 
-When working on a project from scratch, you will often build up your environment organically and iteratively as you find more packages you want to use. However, to follow along with this book and ensure everything works as expected, you can use the full environment provided below. Copy this into your `environment.yaml` (feel free to alter the name!):
+When working on a project from scratch, you will often build up your environment organically and iteratively as you find more packages you want to use.
 
-```{.bash}
-name: des-example
-channels:
-  - conda-forge
-dependencies:
-  - ipykernel=6.29.5
-  - jinja2=3.1.5
-  - joblib=1.4.2
-  - nbconvert=7.16.6
-  - nbformat=5.10.4
-  - nbqa=1.9.0
-  - numpy=2.2.2
-  - pandas=2.2.3
-  - pip=25.0
-  - plotly_express=0.4.1
-  - pylint=3.3.4
-  - pytest=8.3.4
-  - pytest-xdist=3.6.1
-  - python=3.13.1
-  - rich=13.9.4
-  - simpy=4.1.1
-  - pip:
-    - kaleido==0.2.1
-    - sim-tools==0.8.0
-```
-
-Then update your environment to include these packages (after running `conda activate des-example`) with:
-
-```{.bash}
-conda env update --file environment.yaml --prune
-```
+To set-up an environment that will work for running the examples in this book, see the "**🧪 Test yourself**" section.
 
 ::::
 
@@ -609,33 +579,7 @@ Imports:
 
 At the very beginning of your project, your `DESCRIPTION` file might only include a few packages. As your project develops and you find yourself using additional packages, simply **add each new dependency to the `Imports` section** of your `DESCRIPTION` file.
 
-If you are following along with this book, you can use the following `DESCRIPTION` snippet to include all the packages needed to run the provided code in this book:
-
-```{.r}
-Imports:
-    simmer,
-    magrittr,
-    dplyr,
-    purrr,
-    rlang,
-    tidyr,
-    tidyselect,
-    future,
-    future.apply,
-    ggplot2,
-    tibble,
-    gridExtra,
-    R6
-Suggests:
-    testthat (>= 3.0.0),
-    patrick,
-    lintr,
-    devtools,
-    xtable,
-    data.table,
-    mockery
-Config/testthat/edition: 3
-```
+To set-up an environment that will work for running the examples in this book, see the "**🧪 Test yourself**" section.
 
 #### 3. Install packages from `DESCRIPTION`
 
@@ -1434,6 +1378,48 @@ These are some nice resources generally covering topics related to R environment
 
 * ["9. DESCRIPTION" from R Packages](https://r-pkgs.org/description.html) by Hadley Wickham and Jennifer Bryan.
 * ["21. Lifecycle" from R Packages](https://r-pkgs.org/lifecycle.html) by Hadley Wickham and Jennifer Bryan.
+
+::::
+
+## 🧪 Test yourself
+
+Let's get started! If you haven't already tried the basic setup by following the instructions above, give it a try now. In this section, we'll set up a dedicated environment for working through this book. Using the complete environment provided below will help ensure everything works as expected.
+
+:::: {.python-content}
+
+**Task:** Set-up the following environment on your machine.
+
+```{.bash}
+{{< include ../../environment.yaml >}}
+```
+
+::: {.callout-tip title="Hints" collapse="true"}
+
+1. In your `des-rap-python/` folder, create an `environment.yaml` file and copy in the above text.
+2. Build the environment by running `conda env create --file environment.yaml`.
+3. Check it by running `conda activate des-rap-book` and `conda list`.
+
+:::
+
+::::
+
+:::: {.r-content}
+
+**Task:** Set-up the following environment on your machine.
+
+```{.bash}
+{{< include ../../DESCRIPTION >}}
+```
+
+::: {.callout-tip title="Hints" collapse="true"}
+
+1. In your `des-rap-r/` folder, set-up an R project.
+2. Initialise `renv` by running `renv::init()`. 
+3. Create a `DESCRIPTION` file and copy in the above text.
+4. Install those packages by running `renv::install()`.
+5. Create/update `renv.lock` by running `renv::snapshot()`.
+
+:::
 
 ::::
 
