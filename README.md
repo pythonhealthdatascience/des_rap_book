@@ -1,7 +1,5 @@
 <div align="center">
 
-![](images/stars_banner.png)
-
 # DES RAP Book: Reproducible Discrete-Event Simulation in Python and R
 
 [![Python](https://img.shields.io/badge/-Python_3.9.22-a8902b?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
@@ -14,7 +12,59 @@
 
 <br>
 
-Step-by-step guide for building simulation models as part of a reproducible analytical pipeline (RAP). Check it out at: **https://pythonhealthdatascience.github.io/des_rap_book/**.
+**DES RAP Book** is an open resource and website for building discrete-event simulation (DES) models within a **reproducible analytical pipline (RAP)**, supporting the healthcare simulation community.
+
+The resource demonstrates practical, code-based workflows and tools to help researchers and practitioners develop, validate, and share DES models in Python (SimPy) and R (simmer), ensuring models are reproducible.
+
+Check it out at: **https://pythonhealthdatascience.github.io/des_rap_book/**.
+
+<br>
+
+## Who is this for?
+
+* **Researchers, analysts, practitioners, and students** in simulation modeling - especially those in healthcare and operations research.
+
+* **Anyone using Python or R** who is seeking practical guidance on best practices for reproducibility, with many of the sections (e.g. environments, version control, documentation, testing) being broadly relevant to any research software and data science projects.
+
+* **Accessible to a range of experience levels**. The material is designed to be approachable, though some familiarity with Python or R, and basic command line usage, is recommended. Prior experience with simulation modeling is also helpful.
+
+<br>
+
+## What's covered?
+
+* **Getting started:** introduction to reproducibility and open-source.
+
+* **Building models:** Structured guidance on model inputs, implementation, experimentation, and analysis with clear, reproducible code examples in Python and R. This includes recommendations for experimentation, output analysis, and verification and validation.
+
+* **Best practices:** Code packaging, environment management, version control, linting, testing, and documentation for robust and transparent workflows.
+
+* **Reporting and collaboration:** Generating tables/figures, licensing, sharing, peer review, archiving, citation, and changelogs.
+
+<br>
+
+## Getting started/Navigation
+
+* Visit the [DES RAP Book website](https://pythonhealthdatascience.github.io/des_rap_book/) for all tutorials and resources (also viewable locally as described below).
+
+* The example model repositories linked from the book are:
+    * [Python M/M/s example](https://github.com/pythonhealthdatascience/pydesrap_mms)
+    * [Python stroke example](https://github.com/pythonhealthdatascience/pydesrap_stroke)
+    * [R M/M/s example](https://github.com/pythonhealthdatascience/rdesrap_mms)
+    * [R stroke example](https://github.com/pythonhealthdatascience/rdesrap_stroke)
+
+<br>
+
+## STARS
+
+This resource has been developed as part of the project **STARS: Sharing Tools and Artefacts for Reproducible Simulations in healthcare**.
+
+![](images/stars_banner.png)
+
+The project tackles the challenges of sharing, reusing, and reproducing discrete event simulation (DES) models in healthcare. Our goal is to create open resources using the two most popular open-source languages for DES: Python and R.
+
+We have been developing tutorials, code examples, and tools to help researchers and practitioners develop, validate, and share DES models more effectively.
+
+For more information on this project, check out the [STARS page](https://pythonhealthdatascience.github.io/des_rap_book/pages/project/stars.html) in the DES RAP Book.
 
 <br>
 
