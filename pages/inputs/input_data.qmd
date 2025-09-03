@@ -83,7 +83,7 @@ This is data which reflects system you will be simulating. It is used to estimat
 
 🔓 **If you can share the data:**
 
-* **Make the data openly available**<br>Follow the FAIR principles: Findable, Accessible, Interoperable, Reusable.
+* **Make the data openly available**<br>Follow the [FAIR principles]((https://open-science-training-handbook.github.io/Open-Science-Training-Handbook_EN/02OpenScienceBasics/02OpenResearchDataAndMaterials.html)): Findable, Accessible, Interoperable, Reusable.
 
 * **Deposit in a trusted archive**<br>Use platforms like Zenodo, Figshare, GitHub or GitLab.
 
@@ -105,9 +105,7 @@ This is data which reflects system you will be simulating. It is used to estimat
 
 :::
 
-:::{.callout collapse="true"}
-
-## 👆 Click to view example metadata
+#### Example metadata
 
 > "Data sourced from the XYZ database. Copies are available in this repository, or, to access directly, log in to the XYZ database and navigate to [path/to/data].
 >
@@ -117,13 +115,11 @@ This is data which reflects system you will be simulating. It is used to estimat
 >
 > Access to the dataset is restricted due to patient confidentiality. Researchers interested in accessing the data must submit a data access request to the XYZ Data Governance Committee. For more information, contact data.manager@xyz.org.
 
-:::
+#### Example data dictionary
 
-:::{.callout collapse="true"}
+A data dictionary describes each field, its format, units, and any coding schemes used. Several resources exist to provide guidance on their creation, like ["How to Make a Data Dictionary"](https://help.osf.io/article/217-how-to-make-a-data-dictionary) from OSF Support.
 
-## 👆 Click to view example data dictionary
-
-A data dictionary describes each field, its format, units, and any coding schemes used. Example data dictionary:
+Example data dictionary:
 
 ::: {.grey-table}
 
@@ -138,11 +134,9 @@ A data dictionary describes each field, its format, units, and any coding scheme
 
 :::
 
-:::
-
 ## 📜 Input modelling code
 
-[Input modelling code](input_modelling.qmd) refers to the scripts used to define and fit the statistical distributions that represent the uncertain inputs for a simulation model.
+[Input modelling code](input_modelling.qmd#input-modelling) refers to the scripts used to define and fit the statistical distributions that represent the uncertain inputs for a simulation model.
 
 These scripts are often not shared, but are an essential part of your simulation RAP. Sharing them ensures transparency in how distributions were chosen and allows you (or others) to re-run the process if new data or assumptions arise.
 
@@ -205,16 +199,92 @@ You must share some parameters with your model so that it is possible for others
 
 ## 🔐 Maintaining a private and public version of your model
 
-It is likely that you may have some data and/or code that you need to keep private, and cannot share along with the simulation model. It's important that **both the private and public components are [version controlled](../setup/version.qmd)**. One way of managing this is to have two separate repositories: a private repository and a public repository.
+It's common to have data and/or code that cannot be shared publicly. **Both your private and public components should be [version controlled](../setup/version.qmd)**, but you cannot split a single GitHub repository into public and private sections. The suggested solution is to use two separate repositories: **one public, one private**.
 
-**If the public repository contains the real parameters** and results, it's quite simple: use the private repository for processing input data, then switch to the public repository for running the model.
+The way you might set these up depends on whether you are allowed to share the real simulation parameter files.
 
-**If the public repository only contains synthetic parameters**, you'll need to be able to run the simulation in the private repository with the real parameters and results, and also in the public repository with the synthetic parameters and results. To avoid duplicating the simulation code across both repositories, a good strategy is to develop your [simulation code as a package](../setup/package.qmd). This package can be published on GitHub, PyPI, or simply installed locally. Your private repository can then import and use this package, allowing you to maintain a single version of the simulation code while keeping sensitive parameters and data private. <!--TODO: need to explain better about the import of package options-->
+### Scenario 1: Allowed to share real parameters
+
+* **Public repository:** Contains everything needed to reproduce your model except sensitive raw data and input modelling scripts.
+
+* **Private repository:** Contains the sensitive raw data, input modelling scripts, and anything else that cannot be publicly released.
+
+* **Workflow:**
+  1. Do all input modelling (parameter estimation) on real data in your private repository.
+  2. Copy the resulting real parameter files to the public repository.
+  3. Run your model and share code/results publicly - users can fully reproduce your analysis using the real parameters.
+
+### Scenario 2: Only sharing fake/synthetic parameters
+
+* **Public repository:** Contains only synthetic/fake parameter files, synthetic/example data, analysis code, and documentation describing how these synthetic values were generated.
+
+* **Private repository:** Contains the sensitive raw data and real parameter files, plus scripts for analysis with the real values.
+
+* **Shared simulation package (in it's own repository or part of the public repository):** All analysis code is [developed as a package](../setup/package.qmd) that can be installed and used by both the public and private repositories. This greatly reduces code duplication.
+
+* **Workflow:**
+  1. Estimate parameters using real data in your private repository - store these securely.
+  2. Generate synthetic parameter files for the public repository, documenting the generation process.
+  3. Use the shared simulation package in both repositories.
+  4. Run and share the full workflow in public with synthetic parameters; run the actual analysis in private with the real parameters.
 
 ## 📎 Further information
 
 * ["How to Make a Data Dictionary"](https://help.osf.io/article/217-how-to-make-a-data-dictionary) from OSF Support.
+
+  *Simple guide on creating a data dictionary*.
+
 * ["Open Research Data and Materials"](https://open-science-training-handbook.github.io/Open-Science-Training-Handbook_EN/02OpenScienceBasics/02OpenResearchDataAndMaterials.html) from the Open Science Training Handbook.
+
+  *Explains principles like FAIR, as well as other guidance on sharing data*.
+
 * ["The Research Data Management Workbook"](https://caltechlibrary.github.io/RDMworkbook/) from Kristin Briney 2024.
+
+  *Comprehensive workbook full of advice on research data management including: documentation, file organisation and naming, storage, management plans, sharing and archiving*.
+
+## 🧪 Test yourself
+
+```{r, echo = FALSE}
+library(webexercises) # nolint: undesirable_function_linter
+```
+
+:::{.callout-note}
+
+## If your raw (e.g. patient-level) data cannot be shared, which of the following is recommended?
+
+```{r, results="asis", echo = FALSE}
+cat(longmcq(c(
+  "Do not share or describe anything.",
+  answer = "Describe the dataset, and if possible also share a data dictionary and a synthetic dataset."
+)))
+```
+
+:::
+
+:::{.callout-note}
+
+## Even if it cannot be shared publicly, input modelling code be retained so parameters can be re-estimated if new data or assumptions arise.
+
+```{r, results="asis", echo = FALSE}
+cat(longmcq(c(
+  answer = "True",
+  "False"
+)))
+```
+
+:::
+
+:::{.callout-note}
+
+## What is a good strategy when maintaining a public and private version of a model?
+
+```{r, results="asis", echo = FALSE}
+cat(longmcq(c(
+  "Duplicate all simulation code across both repositories.",
+  answer = "Develop the simulation code as a package so it can be shared across repositories without code duplication."
+)))
+```
+
+:::
 
 <br><br>
