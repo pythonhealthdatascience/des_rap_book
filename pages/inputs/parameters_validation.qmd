@@ -13,7 +13,6 @@ filters:
 
 * **🚨 Accidental creation of new parameters:** A dangerous but common mistake in discrete-event simulation (DES), where new parameters are created instead of modifying existing ones.
 * **🛡️ Validating parameter values (e.g. range):** to ensure they fall within the expected values.
-* **🧾 Examples:** Full code examples from our example simulation models.
 
 [🔗](../intro/guidelines.qmd) **Reproducibility guidelines**
 
@@ -1207,64 +1206,68 @@ try(param$validate_param()) #<<
 
 :::::
 
-## 🧾 Examples
+## 🔍 Explore the example models
 
-This section contains full code examples for our [example conceptual models](../intro/examples.qmd).
+<div class="h3-tight"></div>
 
----
+### 🩺 Nurse visit simulation
 
-<details>
-<summary>Show/Hide example 1: 🩺 Nurse visit simulation</summary>
-<br>
+:::: {.python-content}
 
-:::{.python-content}
-This example is from `simulation/param.py` in [pydesrap_mms](https://github.com/pythonhealthdatascience/pydesrap_mms).
+{{< include ../../html/pydesrapmms.html >}}
 
-```{.r}
-{{< include ../../examples/pydesrap_mms/simulation/param.py >}}
-```
+::: {.blue-table}
+| | |
+| - | - |
+| **Key files** | `simulation/param.py`<br>`simulation/model.py` |
+| **What to look for?** | The `Param` class in `param.py` uses `__setattr__()` to prevent accidental creation of new attributes (parameters). The `Model` class in `model.py` includes a `valid_inputs()` method that checks parameter values (e.g., if numbers are positive) before running a simulation. Some additional checks are handled by distribution classes imported from `sim-tools`.|
+| **Why it matters?** | Putting `__setattr__()` logic directly in the class is clean and perfectly sufficient for this model with its relatively simple parameter set. Value validation happens in the model function itself, which works well because all validation is needed right before the simulation runs. For a small model, this keeps the code straightforward and easy to follow. |
+: {tbl-colwidths="[20,80]"}
 :::
+::::
 
-:::{.r-content}
-This example is from `R/validate_model_inputs.R` in [rdesrap_mms](https://github.com/pythonhealthdatascience/rdesrap_mms).
+:::: {.r-content}
 
-```{.r}
-{{< include ../../examples/rdesrap_mms/R/validate_model_inputs.R >}}
-```
+{{< include ../../html/rdesrapmms.html >}}
+
+::: {.blue-table}
+| | |
+| - | - |
+| **Key files** | `R/validate_model_inputs.R`<br>`R/model.R` |
+| **What to look for?** | Parameter validation functions are defined in `validate_model_inputs.R` and called from within `model.R`. These check that the names in the provided parameter list match those in the `parameters()` function (from `parameters.R`), and also validate the parameter values themselves. |
+| **Why it matters?** | All validation is performed in the model function. Since `parameters()` is a straightforward function with no nested arguments, it can be directly referenced to detect accidental creation of new parameters in the list provided to the model. |
+: {tbl-colwidths="[20,80]"}
 :::
+::::
 
-<br>
-</details>
+### 🧠 Stroke pathway simulation
 
----
+:::: {.python-content}
 
-<details>
-<summary>Show/Hide example 2: 🧠 Stroke pathway simulation</summary>
-<br>
+{{< include ../../html/pydesrapstroke.html >}}
 
-:::{.python-content}
-
-This example is from `simulation/parameters.py` in [pydesrap_stroke](https://github.com/pythonhealthdatascience/pydesrap_stroke).
-
-```{.python}
-{{< include ../../examples/pydesrap_stroke/simulation/parameters.py >}}
-```
-
+::: {.blue-table}
+| | |
+| - | - |
+| **Key file** | `simulation/parameters.py`<br>`simulation/restrictattributes.py`<br>`simulation/model.py` |
+| **What to look for?** | The `Param` class inherits from `RestrictAttributes`to prevent accidental creation of new attributes. The `check_param_validity` and `validate_param` methods ensure parameter values are valid (e.g., correct ranges), and these are called from `model.py`. Some additional checks are handled by distribution classes imported from `sim-tools`. |
+| **Why it matters?** | Inheriting restriction logic keeps the `Param` class focused and simpler. Storing validation methods in the class ensures all logic for parameter correctness is together, even though validation is triggered from the model (`param.check_param_validity()` in `model.py`). Because the model code is more complex than in the M/M/s model, it's clearer and more maintainable to keep validation with the parameter classes instead of mixing it into the main simulation logic. |
+: {tbl-colwidths="[20,80]"}
 :::
+::::
 
-:::{.r-content}
-This example is from `R/validate_model_inputs.R` in [rdesrap_stroke](https://github.com/pythonhealthdatascience/rdesrap_stroke).
+:::: {.r-content}
 
-```{.r}
-{{< include ../../examples/rdesrap_stroke/R/validate_model_inputs.R >}}
-```
+{{< include ../../html/rdesrapstroke.html >}}
+
+::: {.blue-table}
+| | |
+| - | - |
+| **Key file** | `R/validate_model_inputs.R`<br>`R/model.R` |
+| **What to look for?** | Parameter validation functions are defined in `validate_model_inputs.R` and called from within `model.R`. These check that the names in the provided parameter list match those in the `parameters()` function (from `parameters.R`), as well as checking that the names in the nested `dist_config` entry match the names in `parameters.json`. They also validate the parameter values themselves.|
+| **Why it matters?** | The set-up closely follows the approach in the M/M/s model, but is slightly more complex due to the nested structure within dist_config. This is handled by comparing the supplied parameter names to entries in the JSON file - which is straightforward, but does mean you're relying on the correctness of the entries in the JSON itself, so the approach is imperfect. |
+: {tbl-colwidths="[20,80]"}
 :::
-
-<br>
-</details>
-
----
-
-<br>
+::::
 
 <br><br>
