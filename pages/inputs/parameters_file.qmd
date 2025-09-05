@@ -122,7 +122,7 @@ library(R6)
 External parameter files can offer some advantages over storing parameters directly in scripts:
 
 * **Easier for non-programmers** to modify parameters.
-* Can easily share your simulation with **different parameters versions** (e.g. real parameters for internal use, synthetic parameters for external sharing, as discussed in [input data management](input_data.qmd)) **without editing the code itself**.
+* Can easily share your simulation with **different parameters versions** (e.g. real parameters for internal use, synthetic parameters for external sharing, as discussed in [input data management](input_data.qmd#checklist-managing-your-raw-data)) **without editing the code itself**.
 * **Less hard coding** as parameters are completely separate.
 
 In many cases though, storing parameters within a script is commonplace - particularly for simpler models - due to its simplicity (everything in one place, fewer files).
@@ -139,6 +139,8 @@ There are several file types you can use to store parameters, with **CSV** and *
 ### CSV example
 
 For CSV files, use a simple tabular structure and follow tidy data principles - each row is an observation, each column a variable. Avoid merged cells or stacked headers, as these make data processing difficult.
+
+{{< downloadthis parameters_file_resources/example_parameters.csv dname="example_parameters" label="Download example_parameters.csv" type="primary" >}}
 
 :::{.python-content}
 
@@ -162,6 +164,8 @@ read.csv(file.path("parameters_file_resources", "example_parameters.csv"))
 ### JSON example
 
 For JSON files, data are stored in hierachical / nested structures. Keep the structure clear and consistent.
+
+{{< downloadthis parameters_file_resources/example_parameters.json dname="example_parameters" label="Download example_parameters.json" type="primary" >}}
 
 ::: {.python-content}
 
@@ -189,9 +193,16 @@ str(json_file)
 
 :::
 
+
 ## 📖 Create data dictionary
 
-As discussed on the [input data management](input_data.qmd) page, you should include a data dictionary or documentation describing each parameter. This documentation should explain the parameter's meaning, units, and any abbreviations or codes used.
+As mentioned in the [checklist for managing parameter data](input_data.qmd#checklist-managing-your-parameters) on the input data management page, you should include a **data dictionary or documentation describing each parameter**. This documentation should explain:
+
+* The parameter's meaning
+* The parameter's units
+* Any abbreviations or codes used.
+
+The examples below were created using markdown (converted to PDF using `pandoc`), but you can use any suitable format (e.g. CSV, YAML, etc.) - as long as it is clear, consistent and accessible.
 
 ```{python}
 #| echo: false
@@ -213,9 +224,13 @@ subprocess.run([
 
 ### CSV data dictionary example
 
+{{< downloadthis parameters_file_resources/_csv_data_dictionary.md dname="csv_data_dictionary" label="Download CSV data dictionary" type="primary" >}}
+
 <iframe src="parameters_file_resources/_csv_data_dictionary.pdf" width="100%" height="500px" style="border:1px solid #dee2e6"></iframe>
 
 ### JSON data dictionary example
+
+{{< downloadthis parameters_file_resources/_json_data_dictionary.md dname="json_data_dictionary" label="Download JSON data dictionary" type="primary" >}}
 
 <iframe src="parameters_file_resources/_json_data_dictionary.pdf" width="100%" height="500px" style="border:1px solid #dee2e6"></iframe>
 
@@ -945,5 +960,37 @@ Not applicable as the nurse visit example stores [parameters in a script](parame
 : {tbl-colwidths="[20,80]"}
 :::
 ::::
+
+## 🧪 Test yourself
+
+If you haven't already, now's the time to practice working with **external parameter files**.
+
+**Task:**
+
+* Download the example CSV and JSON parameter files from this page - for example, saving them into a `data/` folder in your repository.
+
+:::{.python-content}
+
+* Create a new Jupyter notebook (e.g. in a `notebooks/` directory).
+
+* In your notebook, try out at least two different parameter loading approaches from the examples above (e.g. flat vs nested structure, function vs class, CSV v.s. JSON).
+
+:::
+
+:::{.r-content}
+
+* Create a new Rmarkdown file (e.g. in a `rmarkdown/` directory).
+
+* In your Rmarkdown file, try out at least two different parameter loading approaches from the examples above (e.g. flat vs nested structure, function vs class, CSV v.s. JSON).
+
+:::
+
+* Print or inspect the loaded parameters for each approach, and briefly note any differences or advantages you notice.
+
+::: {.callout-tip title="Hint"}
+
+* If you encounter errors, check the file path, the folder structure, and the filename extensions.
+
+:::
 
 <br><br>
