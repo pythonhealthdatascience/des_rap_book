@@ -1,8 +1,5 @@
 ---
 title: Parameter validation
-format: html
-filters:
-  - line-highlight
 ---
 
 ::: {.pale-blue}
@@ -22,6 +19,8 @@ Whilst this is not necessary to reproducibility or a reproducible analytical pip
 
 ```{python, echo=FALSE}
 # pylint: disable=undefined-variable, used-before-assignment
+# pylint: disable=too-few-public-methods,maybe-no-member,function-redefined
+# pylint: disable=attribute-defined-outside-init
 ```
 
 :::{.python-content}
@@ -194,8 +193,8 @@ def check_param_names(param_dict, param_function):
     """
     Validate parameter names.
 
-    Ensure that all required parameters are present, and no extra parameters
-    are provided.
+    Ensure that all required parameters are present,
+    and no extra parameters are provided.
 
     Parameters
     ----------
@@ -308,7 +307,6 @@ We can implement this validation either:
 This approach implements validation logic directly within the class using a custom `__setattr__` method.
 
 ```{python}
-# pylint: disable=too-few-public-methods
 class Param:
     """
     Parameter class with validation to prevent the addition of new attributes.
@@ -351,7 +349,6 @@ class Param:
             to add it to the instance.
         """
         # Skip validation if still initialising
-        # pylint: disable=maybe-no-member
         if hasattr(self, "_initialising") and self._initialising:
             super().__setattr__(name, value)
         else:
@@ -375,7 +372,7 @@ params.param1 = "newtest"
 
 # Attempts to add new attributes should raise an error
 try:
-    params.new_attribute = 3  # pylint: disable=attribute-defined-outside-init
+    params.new_attribute = 3
 except AttributeError as e:
     print(f"Error: {e}")
 ```
@@ -416,7 +413,6 @@ class RestrictAttributesMeta(type):
 `RestrictAttributes` (parent/base class):  A parent or base class controls the behaviour (but doesn't impact initialisation). Here, the class inherits from `RestrictAttributesMeta`, and adds a new method which prevents the addition of new attributes after initialisation.
 
 ```{python}
-# pylint: disable=too-few-public-methods
 class RestrictAttributes(metaclass=RestrictAttributesMeta):
     """
     Base class that prevents the addition of new attributes after
@@ -462,7 +458,6 @@ class RestrictAttributes(metaclass=RestrictAttributesMeta):
 As a child or derived class, `Param` inherits behavior from `RestrictAttributes` (and, by extension, its metaclass `RestrictAttributesMeta`). This means `Param` automatically gains the validation logic defined in its parent classes.
 
 ```{python}
-# pylint: disable=too-few-public-methods,function-redefined
 class Param(RestrictAttributes):
     """
     Parameter class with validation to prevent the addition of new attributes.
@@ -660,7 +655,7 @@ print(param_instance.param_dict)
 
 ::::
 
-::::: {.r-content}
+:::: {.r-content}
 
 There are two main approaches to prevent these silent failures **when using functions**:
 
@@ -692,8 +687,8 @@ This is based on the arguments of `param_function`:
 ```{r}
 #' Validate parameter names.
 #'
-#' Ensure that all required parameters are present, and no extra parameters are
-#' provided.
+#' Ensure that all required parameters are present,
+#' and no extra parameters are provided.
 #'
 #' @param param List containing parameters for the simulation.
 #' @param param_function Function used to generate parameter list.
@@ -740,8 +735,8 @@ In this example, we have a package `simulation` where the parameters are in `ext
 
 #' Validate parameter names.
 #'
-#' Ensure that all required parameters are present, and no extra parameters are
-#' provided.
+#' Ensure that all required parameters are present,
+#' and no extra parameters are provided.
 #'
 #' @param param List containing parameters for the simulation.
 #'
@@ -808,14 +803,7 @@ By default, **R6 classes prevent the addition of new fields**. However, there ar
 * Setting `lock_objects = FALSE`.
 * Setting parameters within a list.
 
-#### Setting `lock_objects = FALSE`
-
-The prevention of new fields is thanks to the default `lock_objects = TRUE` setting. If we override this and set `lock_objects = FALSE`, it will not raise an error when new fields are added. Therefore, it's important not to override this default behavior.
-
-:::: {.columns}
-
-::: {.column width="47.5%"}
-Original class with `lock_objects = TRUE`:
+As a reminder, this is our default parameter class:
 
 ```{r}
 #| file = "parameters_validation_resources/ParamClass.R"
@@ -830,13 +818,10 @@ try({
   params$transfer_probs <- 0.4
 })
 ```
-:::
 
-::: {.column width="5%"}
-:::
+#### Setting `lock_objects = FALSE`
 
-::: {.column width="47.5%"}
-Same class with `lock_objects = TRUE`:
+The prevention of new fields is thanks to the default `lock_objects = TRUE` setting. If we override this and set `lock_objects = FALSE`, it will not raise an error when new fields are added. Therefore, it's important not to override this default behavior.
 
 ```{r}
 #' @title Returns transfer_prob for validation example.
@@ -844,7 +829,7 @@ Same class with `lock_objects = TRUE`:
 #' @field transfer_prob Numeric. Transfer probability (0-1).
 
 ParamClass <- R6Class( # nolint: object_name_linter
-  lock_objects = FALSE, #<<
+  lock_objects = FALSE, 
   public = list(
     transfer_prob = NULL,
 
@@ -866,11 +851,8 @@ params <- ParamClass$new()
 try({
   params$transfer_probs <- 0.4
 })
-params #<<
+params 
 ```
-:::
-
-::::
 
 #### Setting parameters within a list
 
@@ -878,31 +860,6 @@ If you set up your R6 class with each parameter as a class field, then by defaul
 
 You may choose to store parameters in a list instead, to make it easier to access them all at once - but, if you do this, the validation won't apply.
 
-:::: {.columns}
-
-::: {.column width="47.5%"}
-Original class with individual fields:
-
-```{r}
-#| file: parameters_validation_resources/ParamClass.R
-``` 
-
-```{r}
-# Create instance of ParamClass
-params <- ParamClass$new()
-
-# Mistype transfer_prob
-try({
-  params$transfer_probs <- 0.4
-})
-```
-:::
-
-::: {.column width="5%"}
-:::
-
-::: {.column width="47.5%"}
-Class with parameters in a list:
 ```{r}
 #' @title Returns transfer_prob for validation example.
 #'
@@ -910,15 +867,15 @@ Class with parameters in a list:
 
 ParamClass <- R6Class( # nolint: object_name_linter
   public = list(
-    parameters = NULL, #<<
+    parameters = NULL, 
 
     #' @description
     #' Initialises the R6 object.
 
     initialize = function(transfer_prob = 0.3) {
-      self$parameters <- list( #<<
-        transfer_prob = transfer_prob #<<
-      ) #<<
+      self$parameters <- list( 
+        transfer_prob = transfer_prob
+      ) 
     }
   )
 )
@@ -932,41 +889,13 @@ params <- ParamClass$new()
 try({
   params$parameters$transfer_probs <- 0.4
 })
-params$parameters #<<
+params$parameters 
 ```
-:::
-
-::::
 
 <br>
 
 However, there is a clean solution that allows you to access parameters easily while maintaining individual fields with built-in validation. By adding a `get_params()` method, you can extract parameters without storing them in a list.
 
-:::: {.columns}
-
-::: {.column width="47.5%"}
-Original class with individual fields:
-
-```{r}
-#| file: parameters_validation_resources/ParamClass.R
-``` 
-
-```{r}
-# Create instance of ParamClass
-params <- ParamClass$new()
-
-# Mistype transfer_prob
-try({
-  params$transfer_probs <- 0.4
-})
-```
-:::
-
-::: {.column width="5%"}
-:::
-
-::: {.column width="47.5%"}
-Same class with added `get_params()` method:
 ```{r}
 #' @title Returns transfer_prob for validation example.
 #'
@@ -983,20 +912,20 @@ ParamClass <- R6Class( # nolint: object_name_linter
       self$transfer_prob <- transfer_prob
     },
 
-    #' @description #<<
-    #' Returns parameters as a named list. #<<
+    #' @description 
+    #' Returns parameters as a named list. 
 
-    get_params = function() { #<<
-      # Get all non-function fields #<<
-      all_names <- ls(self) #<<
-      is_not_function <- vapply( #<<
-        all_names, #<<
-        function(x) !is.function(self[[x]]), #<<
-        FUN.VALUE = logical(1L) #<<
-      ) #<<
-      param_names <- all_names[is_not_function] #<<
-      mget(param_names, envir = self) #<<
-    } #<<
+    get_params = function() { 
+      # Get all non-function fields 
+      all_names <- ls(self) 
+      is_not_function <- vapply( 
+        all_names, 
+        function(x) !is.function(self[[x]]), 
+        FUN.VALUE = logical(1L) 
+      ) 
+      param_names <- all_names[is_not_function] 
+      mget(param_names, envir = self) 
+    } 
   )
 )
 ```
@@ -1010,14 +939,11 @@ try({
   params$transfer_probs <- 0.4
 })
 
-# Get all parameters #<<
-params$get_params() #<<
+# Get all parameters 
+params$get_params() 
 ```
-:::
 
 ::::
-
-:::::
 
 ## 🛡️ Validating parameter values (e.g. range)
 
@@ -1032,14 +958,14 @@ You can check that the provided inputs are valid - expected format, range, etc. 
 
 As a reminder, this is our parameter function:
 
-:::{.python-content}
+::: {.python-content}
 ```{python}
 #| file: parameters_validation_resources/param_function.py
 ```
 
 :::
 
-:::{.r-content}
+::: {.r-content}
 ```{r}
 #| file: parameters_validation_resources/param_function.R
 ```
@@ -1103,6 +1029,8 @@ def model(param_dict):
 
     # Simulation code...
 
+    print("The simulation has run!")
+
 
 # Example usage
 # Run model() invalid transfer_prob - raises an error
@@ -1126,6 +1054,8 @@ model <- function(param) {
   validate_param(parameters = param)
 
   # Simulation code...
+
+  print("The simulation has run!")
 }
 
 
@@ -1138,19 +1068,29 @@ try(model(params))
 ```
 :::
 
-### Parameter validation within the class
+Provided an invalid probability, the code has stopped with an **error message**, and `model()` has **halted execution**.
 
-The new `validate_param()` method checks whether `transfer_prob` is between 0 and 1.
-
-Although this is defined within the class, it could also be called from within the model function, so that all parameters are checked before the simulation runs.
-
-::::: {.columns}
-
-:::: {.column width="47.5%"}
-
-Original `ParamClass`:
+If we modified `param` to have a valid value, then the `model()` function will **run without error**:
 
 :::{.python-content}
+```{python}
+param = param_function(transfer_prob=0.25)
+model(param)
+```
+:::
+
+:::{.r-content}
+```{r}
+params <- param_function(transfer_prob = 0.25)
+model(params)
+```
+:::
+
+### Parameter validation within the class
+
+As a reminder, this is our parameter class:
+
+::: {.python-content}
 
 ```{python}
 #| file: parameters_validation_resources/ParamClass.py
@@ -1163,7 +1103,7 @@ param = ParamClass(transfer_prob=1.4)
 
 :::
 
-:::{.r-content}
+::: {.r-content}
 
 ```{r}
 #| file: parameters_validation_resources/ParamClass.R
@@ -1176,16 +1116,16 @@ param <- ParamClass$new(transfer_prob = 1.4)
 
 :::
 
-::::
+As you'll see, no error was raised when using an invalid transfer probability.
 
-:::: {.column width="5%"}
-::::
+<br>
 
-:::: {.column width="47.5%"}
+The new `validate_param()` method checks whether `transfer_prob` is between 0 and 1.
 
-Same class with added `validate_param()` method:
+Although this is defined within the class, it could also be called from within the model function, so that all parameters are checked before the simulation runs.
 
-:::{.python-content}
+::: {.python-content}
+
 ```{python}
 class ParamClass:
     """
@@ -1219,9 +1159,11 @@ try:  # <<
 except ValueError as e:  # <<
     print(f"Error: {e}")  # <<
 ```
+
 :::
 
-:::{.r-content}
+::: {.r-content}
+
 ```{r}
 #' @title Returns transfer_prob for validation example.
 #'
@@ -1238,18 +1180,18 @@ ParamClass <- R6Class( # nolint: object_name_linter
       self$transfer_prob <- transfer_prob
     },
 
-    #' @description #<<
-    #' Check that transfer_prob is between 0 and 1. #<<
-    #' @return No return value; throws an error if invalid. #<<
+    #' @description 
+    #' Check that transfer_prob is between 0 and 1. 
+    #' @return No return value; throws an error if invalid. 
 
-    validate_param = function() { #<<
-      if (self$transfer_prob < 0L || self$transfer_prob > 1L) { #<<
-        stop( #<<
-          "transfer_prob must be between 0 and 1, but is: ", #<<
-          self$transfer_prob, call. = FALSE #<<
-        ) #<<
-      } #<<
-    } #<<
+    validate_param = function() { 
+      if (self$transfer_prob < 0L || self$transfer_prob > 1L) { 
+        stop( 
+          "transfer_prob must be between 0 and 1, but is: ", 
+          self$transfer_prob, call. = FALSE 
+        ) 
+      } 
+    } 
   )
 )
 ```
@@ -1257,13 +1199,10 @@ ParamClass <- R6Class( # nolint: object_name_linter
 ```{r}
 # Create instance with invalid transfer_prob and run method
 param <- ParamClass$new(transfer_prob = 1.4)
-try(param$validate_param()) #<<
+try(param$validate_param()) 
 ```
+
 :::
-
-::::
-
-:::::
 
 ## 🔍 Explore the example models
 
@@ -1330,5 +1269,22 @@ try(param$validate_param()) #<<
 ::::
 
 ## 🧪 Test yourself
+
+If you haven't already, now's the time to try out **parameter validation** in practice.
+
+**Task:**
+
+::: {.python-content}
+* Create a simple set of parameters for a simulation model using a function, dictionary, or class (you can use an example from above if you want to).
+:::
+::: {.r-content}
+* Create a simple set of parameters for a simulation model using a function, list, or R6 class (you can use an example from above if you want to).
+:::
+
+* Try **mistyping** a parameter name. Observe what happens - does it raise an error, or does it quietly add a new unused parameter?
+
+* Next, implement a **validation step** using one of the examples above. Run the same typo again - does validation now catch the mistake and riase an error?
+
+* Repeat this task, but with an **invalid value** for a parameter (e.g. outside the expected range).
 
 <br><br>
