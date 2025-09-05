@@ -14,7 +14,6 @@ This page explains best practices for managing model parameters directly within 
 * **📄 A slight improvement: global parameters.** 
 * **✅ Recommendation for managing parameters in DES:** grouping parameters into a dedicated object and passing that object explicitly to your model.
 * **🧮 Handling a large number of parameters**.
-* **🧾 Examples:** Full code examples from our example simulation models.
 
 If you want to see how to store parameters in a separate file, see the [parameters from file](parameters_file.qmd) page.
 
@@ -26,21 +25,11 @@ This page helps you meet reproducibility criteria from:
 
 :::
 
-:::: {.python-content}
-
-::: {.callout-note title="Linting" collapse="true"}
-
-The following `# pylint: disable` lines simply turn off some linting warnings that would otherwise appear in this page's examples. If you want to learn more about linting, see the [linting](../style_docs/linting.qmd) page.
-
-```{python}
+```{python, echo=FALSE}
 # pylint: disable=function-redefined, too-many-instance-attributes
 # pylint: disable=too-many-arguments, too-many-positional-arguments
 # pylint: disable=too-few-public-methods
 ```
-
-:::
-
-::::
 
 :::{.r-content}
 ```{r}
@@ -1208,72 +1197,100 @@ base_params$get_params()
 
 :::
 
-## 🧾 Examples
+## 🔍 Explore the example models
 
-This section contains full code examples for our [example conceptual models](../intro/examples.qmd).
+<div class="h3-tight"></div>
 
----
+### 🩺 Nurse visit simulation
 
-<details>
-<summary>Show/Hide example 1: 🩺 Nurse visit simulation</summary>
+:::: {.python-content}
+
+{{< include ../../html/pydesrapmms.html >}}
+
+::: {.blue-table}
+| | |
+| - | - |
+| **Key file** | `simulation/param.py` |
+| **What to look for?** | Notice how all parameters are grouped into a single `Param` class that gets passed to the simulation class. This demonstrates the "dedicated object" approach we recommend. |
+| **Why it matters?** | This simulation manages 11 different parameters. Imagine trying to pass all these individually to every function! |
+: {tbl-colwidths="[20,80]"}
+:::
+::::
+
+:::: {.r-content}
+
+{{< include ../../html/rdesrapmms.html >}}
+
+::: {.blue-table}
+| | |
+| - | - |
+| **Key file** | `R/parameters.R` |
+| **What to look for?** | Notice how all parameters are grouped into a single `parameters` function that gets passed to the simulation functions. This demonstrates the "dedicated object" approach we recommend. |
+| **Why it matters?** | This simulation manages 11 different parameters. Imagine trying to pass all these individually to every function! |
+: {tbl-colwidths="[20,80]"}
+:::
+::::
+
+### 🧠 Stroke pathway simulation
+
+Not applicable as the stroke example stores [parameters in a file](parameters_file.qmd).
+
+## 🧪 Test yourself
+
+```{r, echo = FALSE}
+library(webexercises) # nolint: undesirable_function_linter
+```
+
+:::{.callout-note}
+
+## When creating multiple scenarios that differ by only one parameter, what is a robust approach?
+
+```{r, results="asis", echo = FALSE}
+cat(longmcq(c(
+  "Directly edit the parameter in the original script.",
+  "Duplicate the entire script for each scenario.",
+  answer = "Create a new parameter object with only the changed value."
+)))
+```
+
+:::
+
+:::{.callout-note}
+
+## Why is it important to pass parameters explicitly to the model instead of relying on global variables?
+
+```{r, results="asis", echo = FALSE}
+cat(longmcq(c(
+  answer = "It ensures that each scenario only uses the parameters intended for it, and avoids accidental reuse between runs.",
+  "It always makes your code shorter.",
+  "It allows you to skip documenting your parameters."
+)))
+```
+
+:::
+
 <br>
+
+If you haven't already, let's have a go at **managing parameters inside scripts**.
+
+**Task:**
 
 :::{.python-content}
 
-This example is from `simulation/param.py` in [pydesrap_mms](https://github.com/pythonhealthdatascience/pydesrap_mms).
+* Create a new **Jupyter notebook** in your project (e.g. in a `notebooks/` directory).
 
-```{.python}
-{{< include ../../examples/pydesrap_mms/simulation/param.py >}}
-```
+* **Try out at least two different ways** of grouping and passing parameters, using examples from above (e.g. dictionary, function, or class).
 
 :::
 
 :::{.r-content}
 
-This example is from `R/parameters.R` in [rdesrap_mms](https://github.com/pythonhealthdatascience/rdesrap_mms).
+* Create a new **Rmarkdown file** in your project (e.g. in a `rmarkdown/` directory).
 
-**If you're building the nurse M/M/s model:** Create a file called `parameters.R` within your `R` folder, and copy this code into that file.
-
-```{.r}
-{{< include ../../examples/rdesrap_mms/R/parameters.R >}}
-```
+* **Try out at least two different ways** of grouping and passing parameters, using examples from above (e.g. list, function, or R6 class).
 
 :::
 
-<br>
-</details>
-
----
-
-<details>
-<summary>Show/Hide example 2: 🧠 Stroke pathway simulation</summary>
-<br>
-
-:::{.python-content}
-
-This example is from `simulation/parameters.py` in [pydesrap_stroke](https://github.com/pythonhealthdatascience/pydesrap_stroke).
-
-```{.python}
-{{< include ../../examples/pydesrap_stroke/simulation/parameters.py >}}
-```
-
-:::
-
-:::{.r-content}
-
-This example is from `R/parameters.R` in [rdesrap_stroke](https://github.com/pythonhealthdatascience/rdesrap_stroke).
-
-```{.python}
-{{< include ../../examples/rdesrap_stroke/R/parameters.R >}}
-```
-
-:::
-
-<br>
-</details>
-
----
-
-<br>
+* For each option, create at least **one variant scenario** by overriding one or more parameters.
 
 <br><br>

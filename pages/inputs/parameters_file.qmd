@@ -16,7 +16,6 @@ This page focuses on the storage of parameters within a file.
 * **📝 Create parameter file**
 * **📖 Create data dictionary**
 * **📥 Methods for importing parameters**
-* **🧾 Examples:** Full code examples from our example simulation models.
 
 If you want to see how to store parameters within a script, see the [parameters from script](parameters_script.qmd) page.
 
@@ -91,19 +90,13 @@ def print_dict(dictionary, max_items_per_level):
 
 :::
 
-::: {.callout-note title="Linting" collapse="true"}
-
-The following `# pylint: disable` lines simply turn off some linting warnings that would otherwise appear in this page's examples. If you want to learn more about linting, see the [linting](../style_docs/linting.qmd) page.
-
-```{python}
+```{python, echo=FALSE}
 # pylint: disable=wrong-import-position,reimported,wrong-import-order
 # pylint: disable=ungrouped-imports,too-many-instance-attributes
 # pylint: disable=too-many-arguments, too-many-positional-arguments
 # pylint: disable=too-few-public-methods,redefined-outer-name
 # pylint: disable=function-redefined
 ```
-
-:::
 
 ```{python}
 import pandas as pd
@@ -129,7 +122,7 @@ library(R6)
 External parameter files can offer some advantages over storing parameters directly in scripts:
 
 * **Easier for non-programmers** to modify parameters.
-* Can easily share your simulation with **different parameters versions** (e.g. real parameters for internal use, synthetic parameters for external sharing, as discussed in [input data management](input_data.qmd)) **without editing the code itself**.
+* Can easily share your simulation with **different parameters versions** (e.g. real parameters for internal use, synthetic parameters for external sharing, as discussed in [input data management](input_data.qmd#checklist-managing-your-raw-data)) **without editing the code itself**.
 * **Less hard coding** as parameters are completely separate.
 
 In many cases though, storing parameters within a script is commonplace - particularly for simpler models - due to its simplicity (everything in one place, fewer files).
@@ -146,6 +139,8 @@ There are several file types you can use to store parameters, with **CSV** and *
 ### CSV example
 
 For CSV files, use a simple tabular structure and follow tidy data principles - each row is an observation, each column a variable. Avoid merged cells or stacked headers, as these make data processing difficult.
+
+{{< downloadthis parameters_file_resources/example_parameters.csv dname="example_parameters" label="Download example_parameters.csv" type="primary" >}}
 
 :::{.python-content}
 
@@ -169,6 +164,8 @@ read.csv(file.path("parameters_file_resources", "example_parameters.csv"))
 ### JSON example
 
 For JSON files, data are stored in hierachical / nested structures. Keep the structure clear and consistent.
+
+{{< downloadthis parameters_file_resources/example_parameters.json dname="example_parameters" label="Download example_parameters.json" type="primary" >}}
 
 ::: {.python-content}
 
@@ -196,9 +193,16 @@ str(json_file)
 
 :::
 
+
 ## 📖 Create data dictionary
 
-As discussed on the [input data management](input_data.qmd) page, you should include a data dictionary or documentation describing each parameter. This documentation should explain the parameter's meaning, units, and any abbreviations or codes used.
+As mentioned in the [checklist for managing parameter data](input_data.qmd#checklist-managing-your-parameters) on the input data management page, you should include a **data dictionary or documentation describing each parameter**. This documentation should explain:
+
+* The parameter's meaning
+* The parameter's units
+* Any abbreviations or codes used.
+
+The examples below were created using markdown (converted to PDF using `pandoc`), but you can use any suitable format (e.g. CSV, YAML, etc.) - as long as it is clear, consistent and accessible.
 
 ```{python}
 #| echo: false
@@ -220,9 +224,13 @@ subprocess.run([
 
 ### CSV data dictionary example
 
+{{< downloadthis parameters_file_resources/_csv_data_dictionary.md dname="csv_data_dictionary" label="Download CSV data dictionary" type="primary" >}}
+
 <iframe src="parameters_file_resources/_csv_data_dictionary.pdf" width="100%" height="500px" style="border:1px solid #dee2e6"></iframe>
 
 ### JSON data dictionary example
+
+{{< downloadthis parameters_file_resources/_json_data_dictionary.md dname="json_data_dictionary" label="Download JSON data dictionary" type="primary" >}}
 
 <iframe src="parameters_file_resources/_json_data_dictionary.pdf" width="100%" height="500px" style="border:1px solid #dee2e6"></iframe>
 
@@ -915,234 +923,74 @@ params$get_params()
 
 :::
 
-## 🧾 Examples
+## 🔍 Explore the example models
 
-This section contains full code examples for our [example conceptual models](../intro/examples.qmd).
+<div class="h3-tight"></div>
 
----
+### 🩺 Nurse visit simulation
 
-<details>
-<summary>Show/Hide example 1: 🩺 Nurse visit simulation</summary>
-<br>
+Not applicable as the nurse visit example stores [parameters in a script](parameters_script.qmd).
 
-We didn't create a file-based example for the nurse M/M/s model due to its simplicity with only a few parameters.
+### 🧠 Stroke pathway simulation
 
-<br>
-</details>
+:::: {.python-content}
 
----
+{{< include ../../html/pydesrapstroke.html >}}
 
-<details>
-<summary>Show/Hide example 2: 🧠 Stroke pathway simulation</summary>
-<br>
+::: {.blue-table}
+| | |
+| - | - |
+| **Key files** | `simulation/parameters.py`<br>`inputs/parameters.json`<br>`inputs/data_dictionary.md` |
+| **What to look for?** | See how model parameters are stored in a structured JSON file and documented with a data dictionary. The Python code imports these parameters and stores them as an attribute in the `Param` class, while a few parameters (like warm-up period) remain defined in the script. |
+| **Why it matters?** | This model has 50+ parameters across multiple patient types and care settings. By keeping these in a separate file rather than in the script, it significantly reduces the amount of code for this project. |
+: {tbl-colwidths="[20,80]"}
+:::
+::::
+
+:::: {.r-content}
+
+{{< include ../../html/rdesrapstroke.html >}}
+
+::: {.blue-table}
+| | |
+| - | - |
+| **Key file** | `R/parameters.R`<br>`inst/extdata/parameters.json`<br>`inst/extdata/data_dictionary.md` |
+| **What to look for?** | See how model parameters are stored in a structured JSON file and documented with a data dictionary. The R code imports these parameters and stores them within the named list returned by the function. A few parameters (like warm-up period) remain defined in the script. |
+| **Why it matters?** | This model has 50+ parameters across multiple patient types and care settings. By keeping these in a separate file rather than in the script, it significantly reduces the amount of code for this project. |
+: {tbl-colwidths="[20,80]"}
+:::
+::::
+
+## 🧪 Test yourself
+
+If you haven't already, now's the time to practice working with **external parameter files**.
+
+**Task:**
+
+* Download the example CSV and JSON parameter files from this page - for example, saving them into a `data/` folder in your repository.
 
 :::{.python-content}
-This example is from `notebooks/parameters_csv.ipynb` in [pydesrap_stroke](https://github.com/pythonhealthdatascience/pydesrap_stroke).
-:::
-:::{.r-content}
-This example is from `rmarkdown/parameters_csv.Rmd` in [rdesrap_stroke](https://github.com/pythonhealthdatascience/rdesrap_stroke).
-:::
 
-**If you're building the stroke model:** Use the code from [parameters from script](parameters_script.qmd) - you don't need this file-based example. This is because we have actually used script-based parameters - this code was just created to demonstrate how file-based parameters could work instead.
+* Create a new Jupyter notebook (e.g. in a `notebooks/` directory).
 
-<br>
-
-:::{.python-content}
-
-```{.python}
-from IPython.display import display
-import pandas as pd
-
-from simulation.parameters import (
-    ASUArrivals, RehabArrivals, ASULOS, RehabLOS,
-    ASURouting, RehabRouting, Param
-)
-
-def init_param_class(df, unit, parameter, param_class):
-    """
-    Instantiate a parameter class using values from a DataFrame.
-
-    Parameters
-    ----------
-    df : pd.DataFrame
-        Dataframe with columns "unit", "parameter", "type", "mean" and "sd".
-    unit : str
-        Unit name to filter by ("asu" or "rehab").
-    parameter : str
-        Parameter name to filter by ("iat", "los" or "routing").
-    param_class: class
-        Class to instantiate.
-
-    Returns
-    -------
-    object
-        An instance of param_class initialised with parameters from the
-        DataFrame.
-    """
-    # Filter data to the specified unit and parameter
-    df_subset = df[(df["unit"] == unit) & (df["parameter"] == parameter)]
-
-    # If all SD values are missing, create a dict: {type: mean}
-    if df_subset["sd"].isnull().all():
-        param_dict = df_subset.set_index("type")["mean"].to_dict()
-    # Otherwise, create a nested dict with mean and SD for each type
-    else:
-        param_dict = {}
-        for _, row in df_subset.iterrows():
-            param_dict[f"{row["type"]}_mean"] = row["mean"]
-            param_dict[f"{row["type"]}_sd"] = row["sd"]
-
-    # Instantiate parameter class using dict
-    return param_class(**param_dict)
-
-
-
-def setup_param_from_csv(csv_path):
-    """
-    Create a Param instance using parameter values loaded from a CSV file.
-
-    Parameters
-    ----------
-    csv_path : str
-        Path to csv file containing the parameters. Should have columns "unit",
-        "parameter", "type", "mean" and "sd". Missing values should be marked
-        as "NA".
-
-    Returns
-    -------
-    Param
-        An instance of Param initialised with the parameters from the CSV file.
-    """
-    # Load parameter data from CSV, treating "NA" as missing values
-    df = pd.read_csv(csv_path, na_values=["NA"])
-
-    # Specify mapping of Param() arguments to their corresponding units,
-    # parameter types, and parameter classes
-    param_specs = [
-        ("asu_arrivals", "asu", "iat", ASUArrivals),
-        ("rehab_arrivals", "rehab", "iat", RehabArrivals),
-        ("asu_los", "asu", "los", ASULOS),
-        ("rehab_los", "rehab", "los", RehabLOS),
-        ("asu_routing", "asu", "routing", ASURouting),
-        ("rehab_routing", "rehab", "routing", RehabRouting),
-    ]
-
-    # Instantiate each parameter class and store in a dictionary
-    param_kwargs = {
-        name: init_param_class(
-            df=df, unit=unit, parameter=parameter, param_class=param_class)
-        for name, unit, parameter, param_class in param_specs
-    }
-
-    # Return a Param instance initialised with all parameter classes
-    return Param(**param_kwargs)
-
-
-display(setup_param_from_csv(csv_path="../inputs/parameters.csv").__dict__)
-```
+* In your notebook, try out at least two different parameter loading approaches from the examples above (e.g. flat vs nested structure, function vs class, CSV v.s. JSON).
 
 :::
 
 :::{.r-content}
 
-```{.r}
-#' Use parameter function to create parameter list using values from dataframe.
-#'
-#' @param data Dataframe with columns "unit", "parameter", "type", "mean" and
-#' "sd".
-#' @param unit Unit name to filter by ("asu" or "rehab").
-#' @param parameter Parameter name to filter by ("iat", "los" or "routing").
-#' @param param_function Function to run
-#'
-#' @return Named list of parameters
+* Create a new Rmarkdown file (e.g. in a `rmarkdown/` directory).
 
-init_param_class <- function(data, unit, parameter, param_function) {
-
-  # Filter data to specified unit and parameter
-  df_subset <- data[data[["unit"]] == unit &
-                      data[["parameter"]] == parameter, ]
-
-  # Create named list of parameter values.
-  # If all SD values are missing, use only means and name by 'type'.
-  # Otherwise, include both mean and sd for each type, with names like
-  # 'type_mean' and 'type_sd'.
-  if (all(is.na(df_subset$sd))) {
-    param_list <- as.list(setNames(df_subset$mean, df_subset$type))
-  } else {
-    param_list <- list()
-    for (i in seq_len(nrow(df_subset))) {
-      df_row <- df_subset[i, ]
-      param_list[[paste0(df_row$type, "_mean")]] <- df_row$mean
-      param_list[[paste0(df_row$type, "_sd")]] <- df_row$sd
-    }
-  }
-
-  # Run parameter function using list
-  do.call(param_function, param_list)
-}
-
-
-#' Generate named_list with create_parameters() using values loaded from a CSV
-#' file.
-#'
-#' @param csv_path Path to csv file containing the parameters. Should have
-#' columns "unit", "parameter", "type", "mean" and "sd". Missing values should
-#' be marked as "NA".
-#'
-#' @return Named list generated by create_parameters()
-
-setup_param_from_csv <- function(csv_path) {
-  # Load parameter data from CSV, treating "NA" as missing values
-  param_data <- read.csv(csv_path, na.strings = "NA")
-
-  # Specify mappings of create_parameters() arguments to their corresponding
-  # units, parameter types and parameter classes
-  param_specs <- list(
-    list(name = "asu_arrivals",
-         unit = "asu",
-         parameter = "iat",
-         param_function = create_asu_arrivals),
-    list(name = "rehab_arrivals",
-         unit = "rehab",
-         parameter = "iat",
-         param_function = create_rehab_arrivals),
-    list(name = "asu_los",
-         unit = "asu",
-         parameter = "los",
-         param_function = create_asu_los),
-    list(name = "rehab_los",
-         unit = "rehab",
-         parameter = "los",
-         param_function = create_rehab_los),
-    list(name = "asu_routing",
-         unit = "asu",
-         parameter = "routing",
-         param_function = create_asu_routing),
-    list(name = "rehab_routing",
-         unit = "rehab",
-         parameter = "routing",
-         param_function = create_rehab_routing)
-  )
-  param_kwargs <- list()
-  for (spec in param_specs) {
-    param_kwargs[[spec$name]] <- init_param_class(
-      data = param_data, unit = spec$unit, parameter = spec$parameter,
-      param_function = spec$param_function
-    )
-  }
-
-  do.call(create_parameters, param_kwargs)
-}
-
-
-setup_param_from_csv(file.path("..", "inputs", "parameters.csv"))
-```
+* In your Rmarkdown file, try out at least two different parameter loading approaches from the examples above (e.g. flat vs nested structure, function vs class, CSV v.s. JSON).
 
 :::
 
-<br>
-</details>
+* Print or inspect the loaded parameters for each approach, and briefly note any differences or advantages you notice.
 
----
+::: {.callout-tip title="Hint"}
+
+* If you encounter errors, check the file path, the folder structure, and the filename extensions.
+
+:::
 
 <br><br>
