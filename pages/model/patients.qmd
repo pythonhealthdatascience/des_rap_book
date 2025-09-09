@@ -1,5 +1,7 @@
 ---
 title: ❌ Entity generation
+filters:
+  - line-highlight
 ---
 
 {{< include ../../scripts/_reticulate-setup.md >}}
@@ -44,7 +46,7 @@ The examples here will use the following packages. These should already be avail
 ```{python}
 import numpy as np
 import simpy
-from sim_tools.distributions import Exponential
+from sim_tools.distributions import DistributionRegistry, Exponential
 ```
 
 :::
@@ -62,6 +64,8 @@ from sim_tools.distributions import Exponential
 Before writing any code, it's important that you have defined a conceptual model of the process to guide design of your simulation, and that the necessary parameters are defined. With these essentials in place, the process of building the simulation can start.
 
 The best approach is to build the model **step by step**, testing and understanding each component before adding more complexity. Typically, the first step is to write code that **generates arrivals into the system**.
+
+::: {.python-content}
 
 ### Parameter class
 
@@ -137,7 +141,8 @@ class Model:
         seeds = ss.spawn(1)
 
         # Create an exponential distribution for patient inter-arrival times
-        self.arrival_dist = Exponential(mean=self.param.interarrival_time, random_seed=seeds[0])
+        self.arrival_dist = Exponential(mean=self.param.interarrival_time,
+                                        random_seed=seeds[0])
 
     def generate_arrivals(self):
         """
@@ -184,6 +189,8 @@ The `param` argument accepts an instance of the `Parameters` object, which group
 
 The `run_number` will be used when generating the random seeds. This is important when performing multiple replications, as it ensures each run gets a unique seed (see the [Replications](../output_analysis/n_reps.qmd) page for more details).
 
+<br>
+
 ```{.python}
 # Create SimPy environment
 self.env = simpy.Environment()
@@ -193,6 +200,8 @@ A SimPy `Environment` is the main simulation container. Everything that happens 
 
 For example, when patient arrivals are added, the environment is responsible for controlling their timing and execution.
 
+<br>
+
 ```{.python}
 # Create a random seed sequence based on the run number
 ss = np.random.SeedSequence(self.run_number)
@@ -201,14 +210,17 @@ seeds = ss.spawn(1)
 
 A random seed sequence is created based on the `run_number`.
 
-> **Note:** If you want a deeper dive into random streams and seed management, see the [Randomness](distributions.qmd) page.
+<br>
 
 ```{.python}
 # Create an exponential distribution for patient inter-arrival times
-self.arrival_dist = Exponential(mean=self.param.interarrival_time, random_seed=seeds[0])
+self.arrival_dist = Exponential(mean=self.param.interarrival_time,
+                                random_seed=seeds[0])
 ```
 
 We've used the `Exponential` distribution from `sim-tools` to generate inter-arrival times for patients.
+
+<br>
 
 ```{.python}
 def generate_arrivals(self):
@@ -226,11 +238,15 @@ Using `while True` ensures the arrival generator continues to cycle and create n
 
 Each time the loop cycles, it draws the next inter-arrival time from the exponential distribution, waits for that interval, and then triggers an arrival event.
 
+<br>
+
 ```{.python}
 yield self.env.timeout(sampled_iat)
 ```
 
 The statement `yield self.env.timeout(sampled_iat)` is how the simulation waits between successive arrivals. It tells the SimPy environment to pause this arrivals process for the sampled time interval.
+
+<br>
 
 ```{.python}
 # Print arrival time
@@ -238,6 +254,8 @@ print(f"Arrival at time: {self.env.now}")
 ```
 
 Printing the time of each arrival gives a quick and visible check that the arrival process is working as expected. For now, simple print statements are effective, but this can later be replaced by a more sophisticated logging approach (see [Logging](../verification_validation/logs.qmd)).
+
+<br>
 
 ```{.python}
 def run(self):
@@ -251,6 +269,8 @@ def run(self):
 Our final method in `Model` is `run`, which is responsible for setting up and running the simulation itself.
 
 Before running the simulation, we have to tell SimPy that the process for creating arrivals should be managed as an "event generator" by calling `self.env.process()`. SimPy will now keep track of the arrival process and schedule its actions (timeouts and events) according to the rules laid out in our method.
+
+<br>
 
 ```{.python}
 # Run the simulation
@@ -269,6 +289,12 @@ model = Model(param=param, run_number=0)
 model.run()
 ```
 
+:::
+
+::: {.r-content}
+
+TODO
+
 <!--TODO:
 
 https://github.com/pythonhealthdatascience/pydesrap_stroke/blob/3a95ba490ad2807ce3f4fe72bf43d4ec639e9788/simulation/simulation.py
@@ -280,17 +306,209 @@ consider: often logging at this early stage... python print().... simmer verbose
 
 -->
 
+:::
+
 ## 📉 Distribution registry
 
-## 🖨️ Status of simulation
+::: {.python-content}
 
+In more advanced models, you may need multiple different random distributions (e.g., for arrivals, consultations, transfers, service times). Managing these with individual distribution objects quickly becomes tedious and can clutter your code.
 
-## Extending
+The `DistributionRegistry` class from `sim-tools` provides a structured way to organise all your distributions. Instead of instantiating each distribution separately, you define them in a single configuration dictionary and let the registry handle the set-up.
 
-<!--TODO: mention further reading with HSMA-->
+This will feel excessive for our basic example, but having a distribution registry can make things easier for larger models.
+
+### Changes in `Parameter` class
+
+In the `Parameters` class, distributions are now specified in a dictionary called `dist_config`. Each entry describes the distribution type and its parameters.
+
+```{python}
+class Parameters:
+    """
+    Parameter class.
+    """
+    def __init__(
+        self, interarrival_time=5, consultation_time=10,
+        run_length=50
+    ):
+        """
+        Initialise Parameters instance.
+
+        Parameters
+        ----------
+        dist_config : dict  #<<
+            Holds all distribution specifications.  #<<
+        run_length : int
+            Simulation run length (minutes).
+        """
+        self.dist_config = {  #<<
+            "interarrival_time": {  #<<
+                "class_name": "Exponential",  #<<
+                "params": {"mean": interarrival_time}  #<<
+            },  #<<
+            "consultation_time": {  #<<
+                "class_name": "Exponential",  #<<
+                "params": {"mean": consultation_time}  #<<
+            },  #<<
+        }  #<<
+        self.run_length = run_length
+```
+
+<!--TODO: should it be lockeddict? i do in pydesrapstroke... and i have covered it...-->
+
+### Changes in `Model` class
+
+The model now uses `DistributionRegistry.create_batch()` to set up all required distributions at once.
+
+This creates a dictionary and we can access specific distributions via e.g., `self.dist["interarrival_time"]`.
+
+```{python}
+class Model:
+    """
+    Simulation model.
+
+    Attributes
+    ----------
+    param : Parameters
+        Simulation parameters.
+    run_number : int
+        Run number for random seed generation.
+    env : simpy.Environment
+        The SimPy environment for the simulation.
+    arrival_dist : Exponential
+        Distribution used to generate random patient inter-arrival times.
+    """
+    def __init__(self, param, run_number):
+        """
+        Create a new Model instance.
+
+        Parameters
+        ----------
+        param : Parameters
+            Simulation parameters.
+        run_number : int
+            Run number for random seed generation.
+        """
+        self.param = param
+        self.run_number = run_number
+
+        # Create SimPy environment
+        self.env = simpy.Environment()
+
+        # Create a random seed sequence based on the run number
+        ss = np.random.SeedSequence(self.run_number)
+        seeds = ss.spawn(1)
+
+        # Create all the distributions  #<<
+        self.dist = DistributionRegistry.create_batch(  #<<
+            config=dict(self.param.dist_config), main_seed=self.run_number  #<<
+        )  #<<
+        print(self.dist)
+
+    def generate_arrivals(self):
+        """
+        Process that generates patient arrivals.
+        """
+        while True:
+            # Sample and pass time to next arrival
+            sampled_iat = self.dist["interarrival_time"].sample()  #<<
+            yield self.env.timeout(sampled_iat)
+            # Print arrival time
+            print(f"Arrival at time: {self.env.now}")
+
+    def run(self):
+        """
+        Run the simulation.
+        """
+        # Schedule arrival generator
+        self.env.process(self.generate_arrivals())
+        # Run the simulation
+        self.env.run(until=self.param.run_length)
+```
+
+### Run the model
+
+We can see that results are consistent with before.
+
+```{python}
+param = Parameters()
+model = Model(param=param, run_number=0)
+model.run()
+```
+
+:::
 
 ## 🔍 Explore the example models
 
-<!--TODO-->
+<div class="h3-tight"></div>
+
+### 🩺 Nurse visit simulation
+
+:::: {.python-content}
+
+{{< include ../../html/pydesrapmms.html >}}
+
+::: {.blue-table}
+| | |
+| - | - |
+| **Key file** |  |
+| **What to look for?** |  |
+| **Why it matters?** |  |
+: {tbl-colwidths="[20,80]"}
+:::
+::::
+
+:::: {.r-content}
+
+{{< include ../../html/rdesrapmms.html >}}
+
+::: {.blue-table}
+| | |
+| - | - |
+| **Key file** |  |
+| **What to look for?** |  |
+| **Why it matters?** |  |
+: {tbl-colwidths="[20,80]"}
+:::
+::::
+
+### 🧠 Stroke pathway simulation
+
+:::: {.python-content}
+
+{{< include ../../html/pydesrapstroke.html >}}
+
+::: {.blue-table}
+| | |
+| - | - |
+| **Key file** | `simulation/parameters.py`<br>`simulation/model.py` |
+| **What to look for?** |  |
+| **Why it matters?** |  |
+: {tbl-colwidths="[20,80]"}
+:::
+::::
+
+:::: {.r-content}
+
+{{< include ../../html/rdesrapstroke.html >}}
+
+::: {.blue-table}
+| | |
+| - | - |
+| **Key file** |  |
+| **What to look for?** |  |
+| **Why it matters?** |  |
+: {tbl-colwidths="[20,80]"}
+:::
+::::
+
+## 🧪 Test yourself
+
+
+
+
+<!--TODO: mention further reading with HSMA... could have extending section where discuss it..
+
+also, acknowledge the sources of inspiration for this...-->
 
 <br><br>
