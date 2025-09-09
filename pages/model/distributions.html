@@ -349,7 +349,7 @@ cookieconsent.run({
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../../pages/model/patients.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">❌ Entity generation</span></a>
+ <span class="menu-text">Entity generation</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -583,7 +583,7 @@ cookieconsent.run({
   <li><a href="#introducing-tools-for-random-sampling" id="toc-introducing-tools-for-random-sampling" class="nav-link" data-scroll-target="#introducing-tools-for-random-sampling">🛠️ Introducing tools for random sampling</a></li>
   <li><a href="#independent-random-number-streams" id="toc-independent-random-number-streams" class="nav-link" data-scroll-target="#independent-random-number-streams">⛓️‍💥 Independent random number streams</a></li>
   <li><a href="#whats-next" id="toc-whats-next" class="nav-link" data-scroll-target="#whats-next">❓ What’s next?</a></li>
-  <li><a href="#acknowledgements" id="toc-acknowledgements" class="nav-link" data-scroll-target="#acknowledgements">👥 Acknowledgements</a></li>
+  <li><a href="#test-yourself" id="toc-test-yourself" class="nav-link" data-scroll-target="#test-yourself">🧪 Test yourself</a></li>
   </ul>
 </nav>
     </div>
@@ -622,7 +622,6 @@ Note: When a Quarto document just contains Python code blocks (and no R code), Q
 <li><strong>🛠️ Tools for random sampling:</strong> introducing options for drawing random samples.</li>
 <li><strong>⛓️‍💥 Independent random number streams:</strong> why using separate streams improves reproducibility and debugging.</li>
 <li><strong>❓ What’s next?</strong></li>
-<li><strong>👥 Acknowledgements</strong>.</li>
 </ul>
 <p><a href="../../pages/intro/guidelines.html">🔗</a> <strong>Reproducibility guidelines</strong></p>
 <p>This page helps you meet reproducibility criteria from:</p>
@@ -630,11 +629,18 @@ Note: When a Quarto document just contains Python code blocks (and no R code), Q
 <li>STARS Reproducibility Recommendations: Control randomness.</li>
 </ul>
 </div>
+<p><br></p>
 <div class="python-content">
+<p>This page uses the following packages. They should already be installed in you set up the environment in the “<em>🧪 Test yourself</em>” section of the <a href="../../pages/setup/environment.html">Environments</a> page.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Import required packages</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sim_tools.distributions <span class="im">import</span> Exponential, Normal</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sim_tools.distributions <span class="im">import</span> Exponential, Normal</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+<div class="r-content">
+<p>This page uses base R and the <code>simEd</code> package. It should already be installed in you set up the environment in the “<em>🧪 Test yourself</em>” section of the <a href="../../pages/setup/environment.html">Environments</a> page.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">suppressMessages</span>(<span class="fu">library</span>(simEd))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
 <section id="randomness" class="level2">
@@ -657,18 +663,18 @@ Note: When a Quarto document just contains Python code blocks (and no R code), Q
 <p>To start, create a <strong>generator object</strong> using <code>np.random.default_rng()</code>. This generator is an independent random number source and manages its own random state. It offers methods for generating random samples from many distributions, such as normal, exponential, and uniform.</p>
 <p>For example, to generate 3 samples from an exponential distribution (with a mean of 17):</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng()</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>rng.exponential(scale<span class="op">=</span><span class="dv">17</span>, size<span class="op">=</span><span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng()</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>rng.exponential(scale<span class="op">=</span><span class="dv">17</span>, size<span class="op">=</span><span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>array([ 1.58414702, 52.6542098 ,  3.86918347])</code></pre>
+<pre><code>array([120.56613419,  16.1289754 ,  21.18995156])</code></pre>
 </div>
 </div>
 <p>To ensure the same results everytime the code runs, initialise with a fixed seed:</p>
 <div class="columns">
 <div class="column" style="width:47.5%;">
 <div class="cell">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng(<span class="dv">20</span>)</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>rng.exponential(scale<span class="op">=</span><span class="dv">17</span>, size<span class="op">=</span><span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng(<span class="dv">20</span>)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>rng.exponential(scale<span class="op">=</span><span class="dv">17</span>, size<span class="op">=</span><span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>array([3.64795914, 9.04242889, 2.27536902])</code></pre>
 </div>
@@ -677,8 +683,8 @@ Note: When a Quarto document just contains Python code blocks (and no R code), Q
 
 </div><div class="column" style="width:47.5%;">
 <div class="cell">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng(<span class="dv">20</span>)</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>rng.exponential(scale<span class="op">=</span><span class="dv">17</span>, size<span class="op">=</span><span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng(<span class="dv">20</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>rng.exponential(scale<span class="op">=</span><span class="dv">17</span>, size<span class="op">=</span><span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>array([3.64795914, 9.04242889, 2.27536902])</code></pre>
 </div>
@@ -689,8 +695,8 @@ Note: When a Quarto document just contains Python code blocks (and no R code), Q
 <h4 class="anchored" data-anchor-id="legacy-api-not-recommended-for-new-code">Legacy API (not recommended for new code)</h4>
 <p>You might encounter older code using NumPy’s legacy random number API. This approach sets a <strong>global</strong> seed and samples using functions like <code>np.random.exponential()</code>:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>np.random.seed(<span class="dv">20</span>)</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>np.random.exponential(scale<span class="op">=</span><span class="dv">17</span>, size<span class="op">=</span><span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>np.random.seed(<span class="dv">20</span>)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>np.random.exponential(scale<span class="op">=</span><span class="dv">17</span>, size<span class="op">=</span><span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>array([15.07984079, 38.75965673, 37.76190224])</code></pre>
 </div>
@@ -704,12 +710,12 @@ Note: When a Quarto document just contains Python code blocks (and no R code), Q
 <p>To use <code>sim-tools</code>, you import the class for the distribution you need, specify parameters, and then use the instance to generate samples. Each object has its own seed and random state.</p>
 <p>For example:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create an Exponential distribution object with mean 6 and seed 3</span></span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>exp <span class="op">=</span> Exponential(mean<span class="op">=</span><span class="dv">6</span>, random_seed<span class="op">=</span><span class="dv">3</span>)</span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Generate 3 random samples</span></span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>samples <span class="op">=</span> exp.sample(size<span class="op">=</span><span class="dv">3</span>)</span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(samples)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create an Exponential distribution object with mean 6 and seed 3</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>exp <span class="op">=</span> Exponential(mean<span class="op">=</span><span class="dv">6</span>, random_seed<span class="op">=</span><span class="dv">3</span>)</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Generate 3 random samples</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>samples <span class="op">=</span> exp.sample(size<span class="op">=</span><span class="dv">3</span>)</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(samples)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[0.66008888 2.33794124 8.39724575]</code></pre>
 </div>
@@ -720,8 +726,8 @@ Note: When a Quarto document just contains Python code blocks (and no R code), Q
 <p>In R, random sampling is typically done with functions from the <code>stats</code> package. To ensure reproducibility, set a global random seed with <code>set.seed()</code>. Then use the appropriate function for your desired distribution.</p>
 <p>For example, the exponential distribution is sampled with <code>rexp()</code> which requires the rate parameter (the inverse of the mean). To generate 3 samples from an exponential distribution with a mean of 6, you would use:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">3</span>L)</span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="fu">rexp</span>(<span class="at">n =</span> <span class="dv">3</span>L, <span class="at">rate =</span> <span class="dv">1</span>L <span class="sc">/</span> <span class="dv">6</span>L)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">3</span>L)</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="fu">rexp</span>(<span class="at">n =</span> <span class="dv">3</span>L, <span class="at">rate =</span> <span class="dv">1</span>L <span class="sc">/</span> <span class="dv">6</span>L)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 10.383759  3.690197  7.397500</code></pre>
 </div>
@@ -737,11 +743,11 @@ Note: When a Quarto document just contains Python code blocks (and no R code), Q
 <section id="problem-shared-generators" class="level3">
 <h3 class="anchored" data-anchor-id="problem-shared-generators">Problem: shared generators</h3>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng(<span class="dv">1</span>)</span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>arrivals <span class="op">=</span> rng.exponential(scale<span class="op">=</span><span class="dv">3</span>, size<span class="op">=</span><span class="dv">3</span>)</span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>processing <span class="op">=</span> rng.normal(loc<span class="op">=</span><span class="dv">10</span>, scale<span class="op">=</span><span class="dv">2</span>, size<span class="op">=</span><span class="dv">3</span>)</span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Arrivals: </span><span class="sc">{</span>arrivals<span class="sc">}</span><span class="ch">\n</span><span class="ss">Processing: </span><span class="sc">{</span>processing<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng(<span class="dv">1</span>)</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>arrivals <span class="op">=</span> rng.exponential(scale<span class="op">=</span><span class="dv">3</span>, size<span class="op">=</span><span class="dv">3</span>)</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>processing <span class="op">=</span> rng.normal(loc<span class="op">=</span><span class="dv">10</span>, scale<span class="op">=</span><span class="dv">2</span>, size<span class="op">=</span><span class="dv">3</span>)</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Arrivals: </span><span class="sc">{</span>arrivals<span class="sc">}</span><span class="ch">\n</span><span class="ss">Processing: </span><span class="sc">{</span>processing<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Arrivals: [ 3.21908708  0.92535943 16.12631062]
 Processing: [11.81071173 10.89274914  8.92609353]</code></pre>
@@ -749,11 +755,11 @@ Processing: [11.81071173 10.89274914  8.92609353]</code></pre>
 </div>
 <p>Change to five arrivals samples:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng(<span class="dv">1</span>)</span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>arrivals <span class="op">=</span> rng.exponential(scale<span class="op">=</span><span class="dv">3</span>, size<span class="op">=</span><span class="dv">5</span>)</span>
-<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>processing <span class="op">=</span> rng.normal(loc<span class="op">=</span><span class="dv">10</span>, scale<span class="op">=</span><span class="dv">2</span>, size<span class="op">=</span><span class="dv">3</span>)</span>
-<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Arrivals: </span><span class="sc">{</span>arrivals<span class="sc">}</span><span class="ch">\n</span><span class="ss">Processing: </span><span class="sc">{</span>processing<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng(<span class="dv">1</span>)</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>arrivals <span class="op">=</span> rng.exponential(scale<span class="op">=</span><span class="dv">3</span>, size<span class="op">=</span><span class="dv">5</span>)</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>processing <span class="op">=</span> rng.normal(loc<span class="op">=</span><span class="dv">10</span>, scale<span class="op">=</span><span class="dv">2</span>, size<span class="op">=</span><span class="dv">3</span>)</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Arrivals: </span><span class="sc">{</span>arrivals<span class="sc">}</span><span class="ch">\n</span><span class="ss">Processing: </span><span class="sc">{</span>processing<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Arrivals: [ 3.21908708  0.92535943 16.12631062  1.09928134  0.34608612]
 Processing: [ 8.92609353 11.16223621 10.72914479]</code></pre>
@@ -766,24 +772,24 @@ Processing: [ 8.92609353 11.16223621 10.72914479]</code></pre>
 <section id="solution-independent-generators" class="level3">
 <h3 class="anchored" data-anchor-id="solution-independent-generators">Solution: independent generators</h3>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>rng_a <span class="op">=</span> np.random.default_rng(<span class="dv">1</span>)</span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>rng_p <span class="op">=</span> np.random.default_rng(<span class="dv">2</span>)</span>
-<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>arrivals <span class="op">=</span> rng_a.exponential(scale<span class="op">=</span><span class="dv">3</span>, size<span class="op">=</span><span class="dv">3</span>)</span>
-<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>processing <span class="op">=</span> rng_p.normal(loc<span class="op">=</span><span class="dv">10</span>, scale<span class="op">=</span><span class="dv">2</span>, size<span class="op">=</span><span class="dv">3</span>)</span>
-<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Arrivals: </span><span class="sc">{</span>arrivals<span class="sc">}</span><span class="ch">\n</span><span class="ss">Processing: </span><span class="sc">{</span>processing<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>rng_a <span class="op">=</span> np.random.default_rng(<span class="dv">1</span>)</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>rng_p <span class="op">=</span> np.random.default_rng(<span class="dv">2</span>)</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>arrivals <span class="op">=</span> rng_a.exponential(scale<span class="op">=</span><span class="dv">3</span>, size<span class="op">=</span><span class="dv">3</span>)</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>processing <span class="op">=</span> rng_p.normal(loc<span class="op">=</span><span class="dv">10</span>, scale<span class="op">=</span><span class="dv">2</span>, size<span class="op">=</span><span class="dv">3</span>)</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Arrivals: </span><span class="sc">{</span>arrivals<span class="sc">}</span><span class="ch">\n</span><span class="ss">Processing: </span><span class="sc">{</span>processing<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Arrivals: [ 3.21908708  0.92535943 16.12631062]
 Processing: [10.37810676  8.95450312  9.17387291]</code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>rng_a <span class="op">=</span> np.random.default_rng(<span class="dv">1</span>)</span>
-<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>rng_p <span class="op">=</span> np.random.default_rng(<span class="dv">2</span>)</span>
-<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>arrivals <span class="op">=</span> rng_a.exponential(scale<span class="op">=</span><span class="dv">3</span>, size<span class="op">=</span><span class="dv">5</span>)</span>
-<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>processing <span class="op">=</span> rng_p.normal(loc<span class="op">=</span><span class="dv">10</span>, scale<span class="op">=</span><span class="dv">2</span>, size<span class="op">=</span><span class="dv">3</span>)</span>
-<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Arrivals: </span><span class="sc">{</span>arrivals<span class="sc">}</span><span class="ch">\n</span><span class="ss">Processing: </span><span class="sc">{</span>processing<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>rng_a <span class="op">=</span> np.random.default_rng(<span class="dv">1</span>)</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>rng_p <span class="op">=</span> np.random.default_rng(<span class="dv">2</span>)</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>arrivals <span class="op">=</span> rng_a.exponential(scale<span class="op">=</span><span class="dv">3</span>, size<span class="op">=</span><span class="dv">5</span>)</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>processing <span class="op">=</span> rng_p.normal(loc<span class="op">=</span><span class="dv">10</span>, scale<span class="op">=</span><span class="dv">2</span>, size<span class="op">=</span><span class="dv">3</span>)</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Arrivals: </span><span class="sc">{</span>arrivals<span class="sc">}</span><span class="ch">\n</span><span class="ss">Processing: </span><span class="sc">{</span>processing<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Arrivals: [ 3.21908708  0.92535943 16.12631062  1.09928134  0.34608612]
 Processing: [10.37810676  8.95450312  9.17387291]</code></pre>
@@ -797,26 +803,26 @@ Processing: [10.37810676  8.95450312  9.17387291]</code></pre>
 <h3 class="anchored" data-anchor-id="sim-tools-1">sim-tools</h3>
 <p>The same rule applies for <code>sim-tools</code>: use one object per process, each with it’s own seed.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>arrivals_exp <span class="op">=</span> Exponential(mean<span class="op">=</span><span class="dv">3</span>, random_seed<span class="op">=</span><span class="dv">1</span>)</span>
-<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>processing_norm <span class="op">=</span> Normal(mean<span class="op">=</span><span class="dv">10</span>, sigma<span class="op">=</span><span class="dv">2</span>, random_seed<span class="op">=</span><span class="dv">2</span>)</span>
-<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>arrivals <span class="op">=</span> arrivals_exp.sample(<span class="dv">3</span>)</span>
-<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>processing <span class="op">=</span> processing_norm.sample(<span class="dv">3</span>)</span>
-<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Arrivals: </span><span class="sc">{</span>arrivals<span class="sc">}</span><span class="ch">\n</span><span class="ss">Processing: </span><span class="sc">{</span>processing<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>arrivals_exp <span class="op">=</span> Exponential(mean<span class="op">=</span><span class="dv">3</span>, random_seed<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>processing_norm <span class="op">=</span> Normal(mean<span class="op">=</span><span class="dv">10</span>, sigma<span class="op">=</span><span class="dv">2</span>, random_seed<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>arrivals <span class="op">=</span> arrivals_exp.sample(<span class="dv">3</span>)</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>processing <span class="op">=</span> processing_norm.sample(<span class="dv">3</span>)</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Arrivals: </span><span class="sc">{</span>arrivals<span class="sc">}</span><span class="ch">\n</span><span class="ss">Processing: </span><span class="sc">{</span>processing<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Arrivals: [ 3.21908708  0.92535943 16.12631062]
 Processing: [10.37810676  8.95450312  9.17387291]</code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>arrivals_exp <span class="op">=</span> Exponential(mean<span class="op">=</span><span class="dv">3</span>, random_seed<span class="op">=</span><span class="dv">1</span>)</span>
-<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>processing_norm <span class="op">=</span> Normal(mean<span class="op">=</span><span class="dv">10</span>, sigma<span class="op">=</span><span class="dv">2</span>, random_seed<span class="op">=</span><span class="dv">2</span>)</span>
-<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>arrivals <span class="op">=</span> arrivals_exp.sample(<span class="dv">5</span>)</span>
-<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>processing <span class="op">=</span> processing_norm.sample(<span class="dv">3</span>)</span>
-<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Arrivals: </span><span class="sc">{</span>arrivals<span class="sc">}</span><span class="ch">\n</span><span class="ss">Processing: </span><span class="sc">{</span>processing<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>arrivals_exp <span class="op">=</span> Exponential(mean<span class="op">=</span><span class="dv">3</span>, random_seed<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>processing_norm <span class="op">=</span> Normal(mean<span class="op">=</span><span class="dv">10</span>, sigma<span class="op">=</span><span class="dv">2</span>, random_seed<span class="op">=</span><span class="dv">2</span>)</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>arrivals <span class="op">=</span> arrivals_exp.sample(<span class="dv">5</span>)</span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>processing <span class="op">=</span> processing_norm.sample(<span class="dv">3</span>)</span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Arrivals: </span><span class="sc">{</span>arrivals<span class="sc">}</span><span class="ch">\n</span><span class="ss">Processing: </span><span class="sc">{</span>processing<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Arrivals: [ 3.21908708  0.92535943 16.12631062  1.09928134  0.34608612]
 Processing: [10.37810676  8.95450312  9.17387291]</code></pre>
@@ -836,30 +842,30 @@ Processing: [10.37810676  8.95450312  9.17387291]</code></pre>
 <section id="problem-single-random-number-stream" class="level3">
 <h3 class="anchored" data-anchor-id="problem-single-random-number-stream">Problem: single random number stream</h3>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>L)</span>
-<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>arrivals <span class="ot">&lt;-</span> <span class="fu">rexp</span>(<span class="at">n =</span> <span class="dv">3</span>L, <span class="at">rate =</span> <span class="dv">1</span>L <span class="sc">/</span> <span class="dv">3</span>L)</span>
-<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>processing <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(<span class="at">n =</span> <span class="dv">3</span>L, <span class="at">mean =</span> <span class="dv">10</span>L, <span class="at">sd =</span> <span class="dv">2</span>L)</span>
-<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(arrivals)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>L)</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>arrivals <span class="ot">&lt;-</span> <span class="fu">rexp</span>(<span class="at">n =</span> <span class="dv">3</span>L, <span class="at">rate =</span> <span class="dv">1</span>L <span class="sc">/</span> <span class="dv">3</span>L)</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>processing <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(<span class="at">n =</span> <span class="dv">3</span>L, <span class="at">mean =</span> <span class="dv">10</span>L, <span class="at">sd =</span> <span class="dv">2</span>L)</span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(arrivals)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 2.2655455 3.5449283 0.4371202</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(processing)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(processing)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 12.65960 12.54486 10.82928</code></pre>
 </div>
 </div>
 <p>Change to five arrivals samples:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>L)</span>
-<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>arrivals <span class="ot">&lt;-</span> <span class="fu">rexp</span>(<span class="at">n =</span> <span class="dv">5</span>L, <span class="at">rate =</span> <span class="dv">1</span>L <span class="sc">/</span> <span class="dv">3</span>L)</span>
-<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>processing <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(<span class="at">n =</span> <span class="dv">3</span>L, <span class="at">mean =</span> <span class="dv">10</span>L, <span class="at">sd =</span> <span class="dv">2</span>L)</span>
-<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(arrivals)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>L)</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>arrivals <span class="ot">&lt;-</span> <span class="fu">rexp</span>(<span class="at">n =</span> <span class="dv">5</span>L, <span class="at">rate =</span> <span class="dv">1</span>L <span class="sc">/</span> <span class="dv">3</span>L)</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>processing <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(<span class="at">n =</span> <span class="dv">3</span>L, <span class="at">mean =</span> <span class="dv">10</span>L, <span class="at">sd =</span> <span class="dv">2</span>L)</span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(arrivals)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 2.2655455 3.5449283 0.4371202 0.4193858 1.3082059</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(processing)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(processing)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 6.920100 8.142866 9.410559</code></pre>
 </div>
@@ -877,36 +883,49 @@ Processing: [10.37810676  8.95450312  9.17387291]</code></pre>
 </blockquote>
 <p>To use <code>simEd</code>, take the code from above but change the prefix on functions from <code>r</code> to <code>v</code> - so <code>rexp</code> becomes <code>vexp</code>, and <code>rnorm</code> becomes <code>vnorm</code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">suppressMessages</span>(<span class="fu">library</span>(simEd))  <span class="co"># nolint: undesirable_function_linter</span></span>
-<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>L)</span>
-<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>arrivals <span class="ot">&lt;-</span> <span class="fu">vexp</span>(<span class="at">n =</span> <span class="dv">3</span>L, <span class="at">rate =</span> <span class="dv">1</span>L <span class="sc">/</span> <span class="dv">3</span>L)</span>
-<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>processing <span class="ot">&lt;-</span> <span class="fu">vnorm</span>(<span class="at">n =</span> <span class="dv">3</span>L, <span class="at">mean =</span> <span class="dv">10</span>L, <span class="at">sd =</span> <span class="dv">2</span>L)</span>
-<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(arrivals)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>L)</span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>arrivals <span class="ot">&lt;-</span> <span class="fu">vexp</span>(<span class="at">n =</span> <span class="dv">3</span>L, <span class="at">rate =</span> <span class="dv">1</span>L <span class="sc">/</span> <span class="dv">3</span>L)</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>processing <span class="ot">&lt;-</span> <span class="fu">vnorm</span>(<span class="at">n =</span> <span class="dv">3</span>L, <span class="at">mean =</span> <span class="dv">10</span>L, <span class="at">sd =</span> <span class="dv">2</span>L)</span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(arrivals)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 0.9257312 1.3962373 2.5518837</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(processing)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(processing)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 12.659599  8.328743 12.544859</code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>L)</span>
-<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>arrivals <span class="ot">&lt;-</span> <span class="fu">vexp</span>(<span class="at">n =</span> <span class="dv">5</span>L, <span class="at">rate =</span> <span class="dv">1</span>L <span class="sc">/</span> <span class="dv">3</span>L)</span>
-<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>processing <span class="ot">&lt;-</span> <span class="fu">vnorm</span>(<span class="at">n =</span> <span class="dv">3</span>L, <span class="at">mean =</span> <span class="dv">10</span>L, <span class="at">sd =</span> <span class="dv">2</span>L)</span>
-<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(arrivals)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>L)</span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>arrivals <span class="ot">&lt;-</span> <span class="fu">vexp</span>(<span class="at">n =</span> <span class="dv">5</span>L, <span class="at">rate =</span> <span class="dv">1</span>L <span class="sc">/</span> <span class="dv">3</span>L)</span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a>processing <span class="ot">&lt;-</span> <span class="fu">vnorm</span>(<span class="at">n =</span> <span class="dv">3</span>L, <span class="at">mean =</span> <span class="dv">10</span>L, <span class="at">sd =</span> <span class="dv">2</span>L)</span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(arrivals)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 0.9257312 1.3962373 2.5518837 7.1646835 0.6757445</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(processing)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(processing)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 12.54486 13.19056 10.82928</code></pre>
 </div>
 </div>
 <div class="pale-green">
 <p>✅ Processing samples remain the same.</p>
+</div>
+<div class="callout callout-style-default callout-note callout-titled" title="👥 Acknowledgements">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+👥 Acknowledgements
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>This section on <code>simEd</code> is adapted from the <a href="https://pythonhealthdatascience.github.io/stars-treat-simmer/02_model/03_r_sampling.html#using-the-simed-package">R sampling</a> page in Monks, Thomas, Alison Harper, Amy Heather, and Navonil Mustafee. 2024. “<strong>Towards Sharing Tools, Artifacts, and Reproducible Simulation: a ’simmer‘ model example.</strong>” Zenodo. <a href="https://doi.org/10.5281/zenodo.11222943" class="uri">https://doi.org/10.5281/zenodo.11222943</a> (MIT Licence).</p>
+<p>We also acknowledge the work of B. Lawson and L. M. Leemis for the <code>simEd</code> package and their contributions to simulation education.</p>
+</div>
 </div>
 </section>
 <section id="which-package-did-we-use-1" class="level3">
@@ -930,15 +949,115 @@ Processing: [10.37810676  8.95450312  9.17387291]</code></pre>
 <h2 class="anchored" data-anchor-id="whats-next">❓ What’s next?</h2>
 <p>On <a href="../../pages/model/patients.html">the next page</a>, we’ll learn how to add sampling to your model through the example of generating some patients arriving in your simulation.</p>
 </section>
-<section id="acknowledgements" class="level2">
-<h2 class="anchored" data-anchor-id="acknowledgements">👥 Acknowledgements</h2>
+<section id="test-yourself" class="level2">
+<h2 class="anchored" data-anchor-id="test-yourself">🧪 Test yourself</h2>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+What is a pseudorandom number generator (PRNG)?
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<div id="radio_NRSAUUJVNJ" class="webex-radiogroup">
+<label><input type="radio" autocomplete="off" name="radio_NRSAUUJVNJ" value=""> <span>A source of truly unpredictable numbers from physical processes</span></label><label><input type="radio" autocomplete="off" name="radio_NRSAUUJVNJ" value="answer"> <span>An algorithm that produces numbers that appear random but are determined by a starting seed</span></label><label><input type="radio" autocomplete="off" name="radio_NRSAUUJVNJ" value=""> <span>A hardware device that measures system noise to generate randomness</span></label>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+What is the role of a seed in a PRNG?
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<div id="radio_GIOUEIYNEE" class="webex-radiogroup">
+<label><input type="radio" autocomplete="off" name="radio_GIOUEIYNEE" value=""> <span>It decides which distribution to sample from</span></label><label><input type="radio" autocomplete="off" name="radio_GIOUEIYNEE" value="answer"> <span>It ensures reproducibility by fixing the random sequence</span></label><label><input type="radio" autocomplete="off" name="radio_GIOUEIYNEE" value=""> <span>It prevents correlation between distributions</span></label>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Why is it recommended to use independent random number streams in simulation models?
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<div id="radio_BJYLOATCFJ" class="webex-radiogroup">
+<label><input type="radio" autocomplete="off" name="radio_BJYLOATCFJ" value=""> <span>To make the simulation run faster</span></label><label><input type="radio" autocomplete="off" name="radio_BJYLOATCFJ" value=""> <span>To avoid requiring a seed</span></label><label><input type="radio" autocomplete="off" name="radio_BJYLOATCFJ" value="answer"> <span>To prevent one process's sampling from shifting another process's results</span></label>
+</div>
+</div>
+</div>
 <div class="python-content">
-<p>N/A</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Which of the following statements best describes the difference between NumPy’s legacy random API and the Generator API?
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<div id="radio_JFOTTZLYWF" class="webex-radiogroup">
+<label><input type="radio" autocomplete="off" name="radio_JFOTTZLYWF" value=""> <span>The legacy API supports more distributions</span></label><label><input type="radio" autocomplete="off" name="radio_JFOTTZLYWF" value=""> <span>The legacy API enforces independent random streams</span></label><label><input type="radio" autocomplete="off" name="radio_JFOTTZLYWF" value="answer"> <span>The Generator API isolates random state per generator object</span></label><label><input type="radio" autocomplete="off" name="radio_JFOTTZLYWF" value=""> <span>They are functionally identical</span></label>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+In the <code>sim-tools</code> package, how do you ensure separate random number streams for different processes?
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<div id="radio_YHLYWXFZGS" class="webex-radiogroup">
+<label><input type="radio" autocomplete="off" name="radio_YHLYWXFZGS" value=""> <span>Use one global RNG across all distributions</span></label><label><input type="radio" autocomplete="off" name="radio_YHLYWXFZGS" value="answer"> <span>Create one distribution object per process, each with its own seed</span></label><label><input type="radio" autocomplete="off" name="radio_YHLYWXFZGS" value=""> <span>Disable seeding entirely</span></label><label><input type="radio" autocomplete="off" name="radio_YHLYWXFZGS" value=""> <span>Use <code>np.random.seed()</code> globally</span></label>
+</div>
+</div>
+</div>
 </div>
 <div class="r-content">
-<p>The section on <code>simEd</code> is adapted from the <a href="https://pythonhealthdatascience.github.io/stars-treat-simmer/02_model/03_r_sampling.html#using-the-simed-package">R sampling</a> page in Monks, Thomas, Alison Harper, Amy Heather, and Navonil Mustafee. 2024. “<strong>Towards Sharing Tools, Artifacts, and Reproducible Simulation: a ’simmer‘ model example.</strong>” Zenodo. <a href="https://doi.org/10.5281/zenodo.11222943" class="uri">https://doi.org/10.5281/zenodo.11222943</a> (MIT Licence).</p>
-<p>We also acknowledge the work of B. Lawson and L. M. Leemis for the <code>simEd</code> package and their contributions to simulation education.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
 </div>
+<div class="callout-title-container flex-fill">
+What is the limitation of R’s base random number generation for simulation?
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<div id="radio_JFXNBMRVNF" class="webex-radiogroup">
+<label><input type="radio" autocomplete="off" name="radio_JFXNBMRVNF" value=""> <span>It cannot set seeds</span></label><label><input type="radio" autocomplete="off" name="radio_JFXNBMRVNF" value="answer"> <span>It relies on a single global stream, making independent streams difficult</span></label><label><input type="radio" autocomplete="off" name="radio_JFXNBMRVNF" value=""> <span>It doesn't support exponential sampling</span></label>
+</div>
+</div>
+</div>
+</div>
+<p><br></p>
+<p>If you haven’t already, try out <strong>random sampling</strong> for yourself!</p>
+<div class="python-content">
+<p>Have a go with <strong>NumPy</strong> and <strong>sim-tools</strong>.</p>
+</div>
+<div class="r-content">
+<p>Have a go with <strong>base R</strong> and <strong>simEd</strong>.</p>
+</div>
+<ul>
+<li><p>Sample random numbers from a distribution - try exponential, normal, or uniform.</p></li>
+<li><p>Set and change the seed, then sample again. Do you get the same results each time?</p></li>
+<li><p>Increase the number of samples for one process - see if results for other streams change.</p></li>
+</ul>
 <p><br><br></p>
 
 
@@ -1475,8 +1594,8 @@ window.onload = function() {
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../../pages/model/patients.html" class="pagination-link" aria-label="❌ Entity generation">
-        <span class="nav-page-text">❌ Entity generation</span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../../pages/model/patients.html" class="pagination-link" aria-label="Entity generation">
+        <span class="nav-page-text">Entity generation</span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

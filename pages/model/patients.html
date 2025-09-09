@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>❌ Entity generation – Reproducible Discrete-Event Simulation in Python and R</title>
+<title>Entity generation – Reproducible Discrete-Event Simulation in Python and R</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -19,6 +19,41 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -45,6 +80,7 @@ ul.task-list li input[type="checkbox"] {
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="../../site_libs/bootstrap/bootstrap-48abfe47d9aff21d6869d2a1ed7a7346.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/quarto-contrib/line-highlight-1.0.0/line-highlight.css" rel="stylesheet">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -137,7 +173,7 @@ cookieconsent.run({
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../pages/model/distributions.html">Model building</a></li><li class="breadcrumb-item"><a href="../../pages/model/patients.html">❌ Entity generation</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../pages/model/distributions.html">Model building</a></li><li class="breadcrumb-item"><a href="../../pages/model/patients.html">Entity generation</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -311,7 +347,7 @@ cookieconsent.run({
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../../pages/model/patients.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text">❌ Entity generation</span></a>
+ <span class="menu-text">Entity generation</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -541,16 +577,21 @@ cookieconsent.run({
     <h2 id="toc-title">On this page</h2>
    
   <ul class="collapse">
-  <li><a href="#adding-random-sampling-to-your-simulation" id="toc-adding-random-sampling-to-your-simulation" class="nav-link active" data-scroll-target="#adding-random-sampling-to-your-simulation">👨‍💻 Adding random sampling to your simulation</a></li>
+  <li><a href="#set-up" id="toc-set-up" class="nav-link active" data-scroll-target="#set-up">⚙️ Set-up</a></li>
+  <li><a href="#creating-a-simple-simulation-model-with-arrivals" id="toc-creating-a-simple-simulation-model-with-arrivals" class="nav-link" data-scroll-target="#creating-a-simple-simulation-model-with-arrivals">🚶 Creating a simple simulation model with arrivals</a></li>
+  <li><a href="#distribution-registry" id="toc-distribution-registry" class="nav-link" data-scroll-target="#distribution-registry">📉 Distribution registry</a></li>
+  <li><a href="#explore-the-example-models" id="toc-explore-the-example-models" class="nav-link" data-scroll-target="#explore-the-example-models">🔍 Explore the example models</a></li>
+  <li><a href="#test-yourself" id="toc-test-yourself" class="nav-link" data-scroll-target="#test-yourself">🧪 Test yourself</a></li>
+  <li><a href="#further-information" id="toc-further-information" class="nav-link" data-scroll-target="#further-information">🔗 Further information</a></li>
   </ul>
 </nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../pages/model/distributions.html">Model building</a></li><li class="breadcrumb-item"><a href="../../pages/model/patients.html">❌ Entity generation</a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../pages/model/distributions.html">Model building</a></li><li class="breadcrumb-item"><a href="../../pages/model/patients.html">Entity generation</a></li></ol></nav>
 <div class="quarto-title">
-<h1 class="title">❌ Entity generation</h1>
+<h1 class="title">Entity generation</h1>
 </div>
 
 
@@ -567,27 +608,1016 @@ cookieconsent.run({
 </header>
 
 
-<p>This page brings together learning from model inputs section - importing parameters <a href="../../pages/inputs/parameters_script.html">from script</a> or <a href="../../pages/inputs/parameters_file.html">from file</a> - and on <a href="../../pages/model/distributions.html">sampling</a></p>
-<!--TODO: mention further reading with HSMA-->
-<section id="adding-random-sampling-to-your-simulation" class="level2">
-<h2 class="anchored" data-anchor-id="adding-random-sampling-to-your-simulation">👨‍💻 Adding random sampling to your simulation</h2>
-<p>TODO</p>
-<!--separate seeds for each replication-->
-<!--TODO:
+<!--
+When a Quarto document contains R and Python code blocks, it will use the knitr engine (from R) to render the document. This means we need to load the reticulate package, which allows us to execute Python code within the R session, within the conda environment specified.
 
-https://github.com/pythonhealthdatascience/pydesrap_stroke/blob/3a95ba490ad2807ce3f4fe72bf43d4ec639e9788/simulation/simulation.py
-
-add sampling distributions
-this is a good first step, when writing sim code, is just to generate arrivals
-e.g. when i did the stroke models, look back at old commits, see what files i made, to just generate arrivals
-instruct people to do that
-
-for r, when constructing, need to add to importfrom, then run devtoolsdocument, then loadall, then try it out
-otherwise it won't find the stuff you importfrom if dont document first as needs to add to namespace
-
-consider: often logging at this early stage... python print().... simmer verbose=True...
-
+Note: When a Quarto document just contains Python code blocks (and no R code), Quarto uses the Jupyter engine to render the document.
 -->
+<div class="pale-blue">
+<p>🎯 <strong>Objectives</strong></p>
+<div class="python-content">
+<p>This page creates a simple model that samples arrivals, with inspiration from Rosser et al.&nbsp;(<a href="https://des.hsma.co.uk/">2025</a>).</p>
+</div>
+<div class="r-content">
+<p>This page creates a simple model that samples arrivals.</p>
+</div>
+<ul>
+<li><strong>⚙️ Set-up:</strong> Pre-reading and imports.</li>
+<li><strong>🚶 Creating a simple simulation model with arrivals:</strong> Build a basic model that simulates random arrival times.</li>
+<li><strong>📉 Distribution registry:</strong> Alternative set-up that organises all simulation distributions in one place.</li>
+</ul>
+<p><a href="../../pages/intro/guidelines.html">🔗</a> <strong>Reproducibility guidelines</strong></p>
+<p>Entity generation is not directly addressed by the guidelines, but is an essential step in building DES.</p>
+</div>
+<p><br></p>
+<section id="set-up" class="level2">
+<h2 class="anchored" data-anchor-id="set-up">⚙️ Set-up</h2>
+<div class="h3-tight">
+
+</div>
+<section id="pre-reading" class="level3">
+<h3 class="anchored" data-anchor-id="pre-reading">Pre-reading</h3>
+<div class="python-content">
+<p>On this page, we will start creating a very simple simulation model using <code>simpy</code>. As it builds on their content, it is recommended you review the following pages first:</p>
+</div>
+<div class="r-content">
+<p>This page extends simulation concepts from previous sections. If new to these topics, review before proceeding:</p>
+</div>
+<ul>
+<li><a href="../../pages/inputs/parameters_script.html">Parameters from script</a>.</li>
+<li><a href="../../pages/inputs/parameters_file.html">Parameters from file</a>.</li>
+<li><a href="../../pages/model/distributions.html">Randomness</a>.</li>
+</ul>
+</section>
+<section id="environment" class="level3">
+<h3 class="anchored" data-anchor-id="environment">Environment</h3>
+<p>The examples here will use the following packages. These should already be available if you followed the environment setup in the “<em>🧪 Test yourself</em>” section of the <a href="../../pages/setup/environment.html">Environments</a> page. If not, please install them before continuing.</p>
+<div class="python-content">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> simpy</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sim_tools.distributions <span class="im">import</span> DistributionRegistry, Exponential</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+<div class="r-content">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(R6)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(simmer)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<section id="how-to-use-the-example-code" class="level3">
+<h3 class="anchored" data-anchor-id="how-to-use-the-example-code">How to use the example code</h3>
+<p>On this page, we will start creating a very simple simulation model using <code>simmer</code>. You can follow along by:</p>
+<ul>
+<li>Running code in a single script/Rmarkdown file (quick for testing)</li>
+<li>Organising your code as a package (we recommend as best for reproducibility and good practice - more details in the <a href="../../pages/setup/package.html">Structuring as a package</a> page).</li>
+</ul>
+<p>Setup and imports work differently in each approach. Using the correct method avoids confusion and makes it easier to run the examples…</p>
+<div class="cream">
+<p><strong>Single Script / R Markdown</strong></p>
+<ul>
+<li><p>Start with <code>library(simmer)</code>.</p></li>
+<li><p>Use simmer functions directly, or prefix with <code>simmer::</code> for clarity.</p></li>
+<li><p>Roxygen <code>@importFrom</code> tags do <strong>not</strong> affect scripts - but are included in case you choose to use the package structure.</p></li>
+</ul>
+</div>
+<div class="cream">
+<p><strong>Package Structure</strong></p>
+<ul>
+<li><p>Include roxygen <code>@importFrom simmer ...</code> tags in function docstrings.</p></li>
+<li><p>Run <code>devtools::document()</code> (to update imports in your <code>NAMESPACE</code>) and <code>devtools::load_all()</code> (to load your package and dependencies).</p></li>
+<li><p>Do <strong>not</strong> use <code>library(simmer)</code> in scripts - the package loading makes all imported functions available automatically.</p></li>
+</ul>
+</div>
+</section>
+</div>
+</section>
+</section>
+<section id="creating-a-simple-simulation-model-with-arrivals" class="level2">
+<h2 class="anchored" data-anchor-id="creating-a-simple-simulation-model-with-arrivals">🚶 Creating a simple simulation model with arrivals</h2>
+<p>Before writing any code, it’s important that you have defined a conceptual model of the process to guide design of your simulation, and that the necessary parameters are defined. With these essentials in place, the process of building the simulation can start.</p>
+<p>The best approach is to build the model <strong>step by step</strong>, testing and understanding each component before adding more complexity. Typically, the first step is to write code that <strong>generates arrivals into the system</strong>.</p>
+<div class="python-content">
+<section id="parameter-class" class="level3">
+<h3 class="anchored" data-anchor-id="parameter-class">Parameter class</h3>
+<p>First, we need an object with the simulation parameters. Here, we use a class similar to that on the <a href="../../pages/inputs/parameters_script.html">Parameters from script</a> page, with some tweaks to the parameters contained.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Parameters:</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co">    Parameter class.</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co">    Attributes</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="co">    ----------</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="co">    interarrival_time : float</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="co">        Time between arrivals (minutes).</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="co">    run_length : int</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="co">        Total duration of simulation (minutes).</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>, interarrival_time<span class="op">=</span><span class="dv">5</span>, run_length<span class="op">=</span><span class="dv">50</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    ):</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a><span class="co">        Initialise Parameters instance.</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a><span class="co">        Parameters</span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a><span class="co">        ----------</span></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a><span class="co">        interarrival_time : float</span></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a><span class="co">            Time between arrivals (minutes).</span></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a><span class="co">        run_length : int</span></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a><span class="co">            Total duration of simulation (minutes).</span></span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a><span class="co">        """</span></span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.interarrival_time <span class="op">=</span> interarrival_time</span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.run_length <span class="op">=</span> run_length</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="model-class" class="level3">
+<h3 class="anchored" data-anchor-id="model-class">Model class</h3>
+<p>We’ll create a class for the model. Classes are useful as they can keep track of state and group logic (see <a href="../../pages/setup/code_structure.html">Code organisation</a> page for more).</p>
+<p>This class is explained line by line below.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Model:</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co">    Simulation model.</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="co">    Attributes</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="co">    ----------</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="co">    param : Parameters</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="co">        Simulation parameters.</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="co">    run_number : int</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="co">        Run number for random seed generation.</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="co">    env : simpy.Environment</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="co">        The SimPy environment for the simulation.</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="co">    arrival_dist : Exponential</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="co">        Distribution used to generate random patient inter-arrival times.</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, param, run_number):</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a><span class="co">        Create a new Model instance.</span></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a><span class="co">        Parameters</span></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a><span class="co">        ----------</span></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a><span class="co">        param : Parameters</span></span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a><span class="co">            Simulation parameters.</span></span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a><span class="co">        run_number : int</span></span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a><span class="co">            Run number for random seed generation.</span></span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a><span class="co">        """</span></span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.param <span class="op">=</span> param</span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.run_number <span class="op">=</span> run_number</span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Create SimPy environment</span></span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.env <span class="op">=</span> simpy.Environment()</span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Create a random seed sequence based on the run number</span></span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>        ss <span class="op">=</span> np.random.SeedSequence(<span class="va">self</span>.run_number)</span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>        seeds <span class="op">=</span> ss.spawn(<span class="dv">1</span>)</span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Initialise distributions</span></span>
+<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.arrival_dist <span class="op">=</span> Exponential(mean<span class="op">=</span><span class="va">self</span>.param.interarrival_time,</span>
+<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a>                                        random_seed<span class="op">=</span>seeds[<span class="dv">0</span>])</span>
+<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> generate_arrivals(<span class="va">self</span>):</span>
+<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""</span></span>
+<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a><span class="co">        Process that generates patient arrivals.</span></span>
+<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a><span class="co">        """</span></span>
+<span id="cb4-45"><a href="#cb4-45" aria-hidden="true" tabindex="-1"></a>        <span class="cf">while</span> <span class="va">True</span>:</span>
+<span id="cb4-46"><a href="#cb4-46" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Sample and pass time to next arrival</span></span>
+<span id="cb4-47"><a href="#cb4-47" aria-hidden="true" tabindex="-1"></a>            sampled_iat <span class="op">=</span> <span class="va">self</span>.arrival_dist.sample()</span>
+<span id="cb4-48"><a href="#cb4-48" aria-hidden="true" tabindex="-1"></a>            <span class="cf">yield</span> <span class="va">self</span>.env.timeout(sampled_iat)</span>
+<span id="cb4-49"><a href="#cb4-49" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Print arrival time</span></span>
+<span id="cb4-50"><a href="#cb4-50" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(<span class="ss">f"Arrival at time: </span><span class="sc">{</span><span class="va">self</span><span class="sc">.</span>env<span class="sc">.</span>now<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb4-51"><a href="#cb4-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-52"><a href="#cb4-52" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> run(<span class="va">self</span>):</span>
+<span id="cb4-53"><a href="#cb4-53" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""</span></span>
+<span id="cb4-54"><a href="#cb4-54" aria-hidden="true" tabindex="-1"></a><span class="co">        Run the simulation.</span></span>
+<span id="cb4-55"><a href="#cb4-55" aria-hidden="true" tabindex="-1"></a><span class="co">        """</span></span>
+<span id="cb4-56"><a href="#cb4-56" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Schedule arrival generator</span></span>
+<span id="cb4-57"><a href="#cb4-57" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.env.process(<span class="va">self</span>.generate_arrivals())</span>
+<span id="cb4-58"><a href="#cb4-58" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Run the simulation</span></span>
+<span id="cb4-59"><a href="#cb4-59" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.env.run(until<span class="op">=</span><span class="va">self</span>.param.run_length)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="explaining-the-model-class" class="level3">
+<h3 class="anchored" data-anchor-id="explaining-the-model-class">Explaining the model class</h3>
+<div class="sourceCode" id="cb5" data-code-line-numbers=""><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, param, run_number):</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co">    Create a new Model instance.</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="co">    Parameters</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="co">    ----------</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="co">    param : Parameters</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="co">        Simulation parameters.</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="co">    run_number : int</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="co">        Run number for random seed generation.</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>    <span class="va">self</span>.param <span class="op">=</span> param</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>    <span class="va">self</span>.run_number <span class="op">=</span> run_number</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>There are two arguments required by the initialiser: <code>param</code> and <code>run_number</code>.</p>
+<p>The <code>param</code> argument accepts an instance of the <code>Parameters</code> object, which groups all necessary simulation values in one place. This minimises the number of arguments required by <code>Model</code>, as it only needs one input for parameters.</p>
+<p>The <code>run_number</code> will be used when generating the random seeds. This is important when performing multiple replications, as it ensures each run gets a unique seed (see the <a href="../../pages/output_analysis/n_reps.html">Replications</a> page for more details).</p>
+<p><br></p>
+<div class="sourceCode" id="cb6" data-code-line-numbers=""><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create SimPy environment</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="va">self</span>.env <span class="op">=</span> simpy.Environment()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>A SimPy <code>Environment</code> is the main simulation container. Everything that happens in the simulation is managed inside this environment. It tracks the flow of time and manages when events, such as arrivals, should occur.</p>
+<p>For example, when patient arrivals are added, the environment is responsible for controlling their timing and execution.</p>
+<p><br></p>
+<div class="sourceCode" id="cb7" data-code-line-numbers=""><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a random seed sequence based on the run number</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>ss <span class="op">=</span> np.random.SeedSequence(<span class="va">self</span>.run_number)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>seeds <span class="op">=</span> ss.spawn(<span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>A random seed sequence is created based on the <code>run_number</code>.</p>
+<p><br></p>
+<div class="sourceCode" id="cb8" data-code-line-numbers=""><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Initialise distributions</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="va">self</span>.arrival_dist <span class="op">=</span> Exponential(mean<span class="op">=</span><span class="va">self</span>.param.interarrival_time,</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>                                random_seed<span class="op">=</span>seeds[<span class="dv">0</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>We’ve used the <code>Exponential</code> distribution from <code>sim-tools</code> to generate inter-arrival times for patients.</p>
+<p><br></p>
+<div class="sourceCode" id="cb9" data-code-line-numbers=""><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> generate_arrivals(<span class="va">self</span>):</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="co">    Process that generates patient arrivals.</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="va">True</span>:</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Sample and pass time to next arrival</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>        sampled_iat <span class="op">=</span> <span class="va">self</span>.arrival_dist.sample()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>The <code>generate_arrivals</code> method is where patient arrivals are produced throughout the model run.</p>
+<p>Using <code>while True</code> ensures the arrival generator continues to cycle and create new arrivals until the overall simulation time limit is reached.</p>
+<p>Each time the loop cycles, it draws the next inter-arrival time from the exponential distribution, waits for that interval, and then triggers an arrival event.</p>
+<p><br></p>
+<div class="sourceCode" id="cb10" data-code-line-numbers=""><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="cf">yield</span> <span class="va">self</span>.env.timeout(sampled_iat)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>The statement <code>yield self.env.timeout(sampled_iat)</code> is how the simulation waits between successive arrivals. It tells the SimPy environment to pause this arrivals process for the sampled time interval.</p>
+<p><br></p>
+<div class="sourceCode" id="cb11" data-code-line-numbers=""><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Print arrival time</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Arrival at time: </span><span class="sc">{</span><span class="va">self</span><span class="sc">.</span>env<span class="sc">.</span>now<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Printing the time of each arrival gives a quick and visible check that the arrival process is working as expected. For now, simple print statements are effective, but this can later be replaced by a more sophisticated logging approach (see <a href="../../pages/verification_validation/logs.html">Logging</a>).</p>
+<p><br></p>
+<div class="sourceCode" id="cb12" data-code-line-numbers=""><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> run(<span class="va">self</span>):</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="co">    Run the simulation.</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Schedule arrival generator</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    <span class="va">self</span>.env.process(<span class="va">self</span>.generate_arrivals())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Our final method in <code>Model</code> is <code>run</code>, which is responsible for setting up and running the simulation itself.</p>
+<p>Before running the simulation, we have to tell SimPy that the process for creating arrivals should be managed as an “event generator” by calling <code>self.env.process()</code>. SimPy will now keep track of the arrival process and schedule its actions (timeouts and events) according to the rules laid out in our method.</p>
+<p><br></p>
+<div class="sourceCode" id="cb13" data-code-line-numbers=""><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Run the simulation</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="va">self</span>.env.run(until<span class="op">=</span><span class="va">self</span>.param.run_length)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>The simulation is now ready to go! We run it by calling <code>self.env.run()</code>, which will run the scheduled events until the desired end time is reached (taken from the <code>Parameters</code> object);</p>
+</section>
+<section id="run-the-model" class="level3">
+<h3 class="anchored" data-anchor-id="run-the-model">Run the model</h3>
+<p>To try running the model, set up the parameters and model objects as shown, then call <code>run()</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>param <span class="op">=</span> Parameters()</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> Model(param<span class="op">=</span>param, run_number<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>model.run()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre data-code-line-numbers=""><code>Arrival at time: 16.467638954049136
+Arrival at time: 20.28329264479838
+Arrival at time: 26.54512825787535
+Arrival at time: 27.674875741907496
+Arrival at time: 28.77860094577439
+Arrival at time: 37.778249941653414
+Arrival at time: 38.1081836468351
+Arrival at time: 42.610665625320905
+Arrival at time: 44.087985168504765</code></pre>
+</div>
+</div>
+</section>
+</div>
+<div class="r-content">
+<section id="parameter-function" class="level3">
+<h3 class="anchored" data-anchor-id="parameter-function">Parameter function</h3>
+<p>First, we need an object with the simulation parameters. Here, we use a function similar to that on the <a href="../../pages/inputs/parameters_script.html">Parameters from script</a> page, with some tweaks to the parameters contained.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co">#' Generate parameter list.</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="co">#'</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="co">#' @param interarrival_time Numeric. Time between arrivals (minutes).</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="co">#' @param run_length Numeric. Total duration of simulation (minutes).</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="co">#' @param verbose Boolean. Whether to print messages as simulation runs.</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a><span class="co">#'</span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a><span class="co">#' @return A named list of parameters.</span></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>create_params <span class="ot">&lt;-</span> <span class="cf">function</span>(<span class="at">interarrival_time =</span> <span class="dv">5</span>L,</span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>                          <span class="at">run_length =</span> <span class="dv">50</span>L,</span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>                          <span class="at">verbose =</span> <span class="cn">TRUE</span>) {</span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(</span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">interarrival_time =</span> interarrival_time,</span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">run_length =</span> run_length,</span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">verbose =</span> verbose</span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="model-function" class="level3">
+<h3 class="anchored" data-anchor-id="model-function">Model function</h3>
+<p>We’ll then create a function for the model (explained line by line below).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co">#' Run simulation.</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="co">#'</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="co">#' @param param List. Model parameters.</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="co">#' @param run_number Int. Run number for random seed generation.</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a><span class="co">#'</span></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a><span class="co">#' @importFrom simmer add_generator run simmer timeout trajectory</span></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="cf">function</span>(param, run_number) {</span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Set random seed based on run number</span></span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set.seed</span>(run_number)</span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Create simmer environment</span></span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>  env <span class="ot">&lt;-</span> <span class="fu">simmer</span>(<span class="st">"simulation"</span>, <span class="at">verbose =</span> param[[<span class="st">"verbose"</span>]])</span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Define the patient trajectory</span></span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a>  patient <span class="ot">&lt;-</span> <span class="fu">trajectory</span>(<span class="st">"patient_path"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a>    <span class="fu">timeout</span>(<span class="dv">1</span>L)</span>
+<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a>  env <span class="ot">&lt;-</span> env <span class="sc">|&gt;</span></span>
+<span id="cb17-21"><a href="#cb17-21" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Add patient generator</span></span>
+<span id="cb17-22"><a href="#cb17-22" aria-hidden="true" tabindex="-1"></a>    <span class="fu">add_generator</span>(<span class="st">"patient"</span>, patient, <span class="cf">function</span>() {</span>
+<span id="cb17-23"><a href="#cb17-23" aria-hidden="true" tabindex="-1"></a>      <span class="fu">rexp</span>(<span class="at">n =</span> <span class="dv">1</span>L, <span class="at">rate =</span> <span class="dv">1</span>L <span class="sc">/</span> param[[<span class="st">"interarrival_time"</span>]])</span>
+<span id="cb17-24"><a href="#cb17-24" aria-hidden="true" tabindex="-1"></a>    }) <span class="sc">|&gt;</span></span>
+<span id="cb17-25"><a href="#cb17-25" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Run the simulation</span></span>
+<span id="cb17-26"><a href="#cb17-26" aria-hidden="true" tabindex="-1"></a>    simmer<span class="sc">::</span><span class="fu">run</span>(<span class="at">until =</span> param[[<span class="st">"run_length"</span>]])</span>
+<span id="cb17-27"><a href="#cb17-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-28"><a href="#cb17-28" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="explaining-the-model-function" class="level3">
+<h3 class="anchored" data-anchor-id="explaining-the-model-function">Explaining the model function</h3>
+<div class="sourceCode" id="cb18" data-code-line-numbers=""><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co">#' Run simulation.</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="co">#'</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="co">#' @param param List. Model parameters.</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="co">#' @param run_number Int. Run number for random seed generation.</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a><span class="co">#' </span></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a><span class="co">#' @importFrom simmer add_generator run simmer timeout trajectory</span></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="cf">function</span>(param, run_number) {</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>There are two arguments required by the function: <code>param</code> and <code>run_number</code>.</p>
+<p>The <code>param</code> argument requires the named list of parameters from the <code>create_params()</code> function, which groups all necessary simulation values in one list. This minimise the number of arguments required by <code>model()</code>, as it only needs one input for parameters.</p>
+<p>The <code>run_number</code> will be used when generating the random seeds. This is important when performing multiple replications, as it ensures each run gets a unique seed (see the <a href="../../pages/output_analysis/n_reps.html">Replications</a> page for more details).</p>
+<p><br></p>
+<div class="sourceCode" id="cb19" data-code-line-numbers=""><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Set random seed based on run number</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(run_number)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>A global random seed is set based on the <code>run_number</code>.</p>
+<p><br></p>
+<div class="sourceCode" id="cb20" data-code-line-numbers=""><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create simmer environment</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>env <span class="ot">&lt;-</span> <span class="fu">simmer</span>(<span class="st">"simulation"</span>, <span class="at">verbose =</span> param[[<span class="st">"verbose"</span>]])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>The simmer environment is the main simulation container. Everything that happens in the simulation is organised inside this environment. It tracks the flow of time and manages when events, such as arrivals, should occur.</p>
+<p>For example, when patient arrivals are added, the environment is responsible for controlling their timing and execution.</p>
+<p>The <code>verbose</code> argument is set to <code>TRUE</code> in <code>param</code>, and enables activity information to be printed during simulation execution. This gives a quick and visible check that the arrival process is working as expected. Custom logging approaches are explored later (see <a href="../../pages/verification_validation/logs.html">Logging</a>).</p>
+<p><br></p>
+<div class="sourceCode" id="cb21" data-code-line-numbers=""><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Define the patient trajectory</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>patient <span class="ot">&lt;-</span> <span class="fu">trajectory</span>(<span class="st">"patient_path"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">timeout</span>(<span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>In simmer, a trajectory must be defined for any type of arrival. It specifies the sequence of steps each arrival follows in the simulation. For now, we will just set a simple trajectory: <code>timeout(1)</code>, which means the arrival waits for one time unit, effectively doing nothing.</p>
+<p><br></p>
+<div class="sourceCode" id="cb22" data-code-line-numbers=""><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>env <span class="ot">&lt;-</span> env <span class="sc">|&gt;</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Add patient generator</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_generator</span>(<span class="st">"patient"</span>, patient, <span class="cf">function</span>() {</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">rexp</span>(<span class="at">n =</span> <span class="dv">1</span>L, <span class="at">rate =</span> <span class="dv">1</span>L <span class="sc">/</span> param[[<span class="st">"interarrival_time"</span>]])</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>  }) <span class="sc">|&gt;</span></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Run the simulation</span></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>  simmer<span class="sc">::</span><span class="fu">run</span>(<span class="at">until =</span> param[[<span class="st">"run_length"</span>]])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>We use <code>add_generator</code> to set up the patient arrivals. It uses the exponential distribution (<code>rexp()</code>) to sample inter-arrival times (with mean specified by <code>param</code>).</p>
+<p>The simulation is then run for a specified duration using the <code>run()</code> method. Because some R packages also have a function <code>run</code>, its safest to use <code>simmer::run()</code> to avoid function name conflicts.</p>
+</section>
+<section id="run-the-model-1" class="level3">
+<h3 class="anchored" data-anchor-id="run-the-model-1">Run the model</h3>
+<p>To try running the model, set up the parameters and run <code>model()</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>param <span class="ot">&lt;-</span> <span class="fu">create_params</span>()</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="fu">model</span>(<span class="at">param =</span> param, <span class="at">run_number =</span> <span class="dv">1</span>L)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre data-code-line-numbers=""><code>         0 |    source: patient          |       new: patient0         | 3.77591
+   3.77591 |   arrival: patient0         |  activity: Timeout          | 1
+   3.77591 |    source: patient          |       new: patient1         | 9.68412
+   9.68412 |   arrival: patient1         |  activity: Timeout          | 1
+   9.68412 |    source: patient          |       new: patient2         | 10.4127
+   10.4127 |   arrival: patient2         |  activity: Timeout          | 1
+   10.4127 |    source: patient          |       new: patient3         | 11.1116
+   11.1116 |   arrival: patient3         |  activity: Timeout          | 1
+   11.1116 |    source: patient          |       new: patient4         | 13.292
+    13.292 |   arrival: patient4         |  activity: Timeout          | 1
+    13.292 |    source: patient          |       new: patient5         | 27.7668
+   27.7668 |   arrival: patient5         |  activity: Timeout          | 1
+   27.7668 |    source: patient          |       new: patient6         | 33.9146
+   33.9146 |   arrival: patient6         |  activity: Timeout          | 1
+   33.9146 |    source: patient          |       new: patient7         | 36.613
+    36.613 |   arrival: patient7         |  activity: Timeout          | 1
+    36.613 |    source: patient          |       new: patient8         | 41.3959
+   41.3959 |   arrival: patient8         |  activity: Timeout          | 1
+   41.3959 |    source: patient          |       new: patient9         | 42.1311
+   42.1311 |   arrival: patient9         |  activity: Timeout          | 1
+   42.1311 |    source: patient          |       new: patient10        | 49.0848
+   49.0848 |   arrival: patient10        |  activity: Timeout          | 1
+   49.0848 |    source: patient          |       new: patient11        | 52.8949</code></pre>
+</div>
+</div>
+</section>
+</div>
+</section>
+<section id="distribution-registry" class="level2">
+<h2 class="anchored" data-anchor-id="distribution-registry">📉 Distribution registry</h2>
+<p>In more advanced models, you may need multiple different random distributions (e.g., for arrivals, consultations, transfers, service times). Managing these with individual distribution objects quickly becomes tedious and can clutter your code.</p>
+<div class="python-content">
+<p>The <code>DistributionRegistry</code> class from <code>sim-tools</code> provides a structured way to organise all your distributions. Instead of instantiating each distribution separately, you define them in a single configuration dictionary and let the registry handle the set-up.</p>
+<p>This will feel excessive for our basic example, but having a distribution registry can make things easier for larger models.</p>
+<section id="changes-in-parameter-class" class="level3">
+<h3 class="anchored" data-anchor-id="changes-in-parameter-class">Changes in <code>Parameter</code> class</h3>
+<p>In the <code>Parameters</code> class, distributions are now specified in a nested dictionary called <code>dist_config</code>. Each entry describes the distribution type and its parameters.</p>
+<p>Here, the distribution type is hard-coded whilst the mean can be changed. This is fine in our simple example, but for more complex or flexible models, these settings would usually be read from an <a href="../../pages/inputs/parameters_file.html">external configuration file</a>, which allows for easier adjustment without hard coding.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb25" data-source-line-numbers="nil" data-code-line-numbers="7,8,25,26,27,28,29,30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Parameters:</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a><span class="co">    Parameter class.</span></span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a><span class="co">    Attributes</span></span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a><span class="co">    ----------</span></span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a><span class="co">    dist_config : dict                                                      </span></span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a><span class="co">        Holds all distribution specifications.                              </span></span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a><span class="co">    run_length : int</span></span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a><span class="co">        Total duration of simulation (minutes).</span></span>
+<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(</span>
+<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>, interarrival_time<span class="op">=</span><span class="dv">5</span>, run_length<span class="op">=</span><span class="dv">50</span></span>
+<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a>    ):</span>
+<span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""</span></span>
+<span id="cb25-16"><a href="#cb25-16" aria-hidden="true" tabindex="-1"></a><span class="co">        Initialise Parameters instance.</span></span>
+<span id="cb25-17"><a href="#cb25-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-18"><a href="#cb25-18" aria-hidden="true" tabindex="-1"></a><span class="co">        Parameters</span></span>
+<span id="cb25-19"><a href="#cb25-19" aria-hidden="true" tabindex="-1"></a><span class="co">        ----------</span></span>
+<span id="cb25-20"><a href="#cb25-20" aria-hidden="true" tabindex="-1"></a><span class="co">        interarrival_time : float</span></span>
+<span id="cb25-21"><a href="#cb25-21" aria-hidden="true" tabindex="-1"></a><span class="co">            Time between arrivals (minutes).</span></span>
+<span id="cb25-22"><a href="#cb25-22" aria-hidden="true" tabindex="-1"></a><span class="co">        run_length : int</span></span>
+<span id="cb25-23"><a href="#cb25-23" aria-hidden="true" tabindex="-1"></a><span class="co">            Total duration of simulation (minutes).</span></span>
+<span id="cb25-24"><a href="#cb25-24" aria-hidden="true" tabindex="-1"></a><span class="co">        """</span></span>
+<span id="cb25-25"><a href="#cb25-25" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.dist_config <span class="op">=</span> {                                                </span>
+<span id="cb25-26"><a href="#cb25-26" aria-hidden="true" tabindex="-1"></a>            <span class="st">"interarrival_time"</span>: {                                          </span>
+<span id="cb25-27"><a href="#cb25-27" aria-hidden="true" tabindex="-1"></a>                <span class="st">"class_name"</span>: <span class="st">"Exponential"</span>,                                </span>
+<span id="cb25-28"><a href="#cb25-28" aria-hidden="true" tabindex="-1"></a>                <span class="st">"params"</span>: {<span class="st">"mean"</span>: interarrival_time}                       </span>
+<span id="cb25-29"><a href="#cb25-29" aria-hidden="true" tabindex="-1"></a>            }                                                               </span>
+<span id="cb25-30"><a href="#cb25-30" aria-hidden="true" tabindex="-1"></a>        }                                                                   </span>
+<span id="cb25-31"><a href="#cb25-31" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.run_length <span class="op">=</span> run_length</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="changes-in-model-class" class="level3">
+<h3 class="anchored" data-anchor-id="changes-in-model-class">Changes in <code>Model</code> class</h3>
+<p>The model now uses <code>DistributionRegistry.create_batch()</code> to set up all required distributions at once.</p>
+<p>This creates a dictionary and we can access specific distributions via e.g., <code>self.dist["interarrival_time"]</code>.</p>
+<p>Seed spawning is now also handled by the registry.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb26" data-source-line-numbers="nil" data-code-line-numbers="33,34,35,36,45"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Model:</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a><span class="co">    Simulation model.</span></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a><span class="co">    Attributes</span></span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a><span class="co">    ----------</span></span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a><span class="co">    param : Parameters</span></span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a><span class="co">        Simulation parameters.</span></span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a><span class="co">    run_number : int</span></span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a><span class="co">        Run number for random seed generation.</span></span>
+<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a><span class="co">    env : simpy.Environment</span></span>
+<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a><span class="co">        The SimPy environment for the simulation.</span></span>
+<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a><span class="co">    arrival_dist : Exponential</span></span>
+<span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a><span class="co">        Distribution used to generate random patient inter-arrival times.</span></span>
+<span id="cb26-15"><a href="#cb26-15" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb26-16"><a href="#cb26-16" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, param, run_number):</span>
+<span id="cb26-17"><a href="#cb26-17" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""</span></span>
+<span id="cb26-18"><a href="#cb26-18" aria-hidden="true" tabindex="-1"></a><span class="co">        Create a new Model instance.</span></span>
+<span id="cb26-19"><a href="#cb26-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-20"><a href="#cb26-20" aria-hidden="true" tabindex="-1"></a><span class="co">        Parameters</span></span>
+<span id="cb26-21"><a href="#cb26-21" aria-hidden="true" tabindex="-1"></a><span class="co">        ----------</span></span>
+<span id="cb26-22"><a href="#cb26-22" aria-hidden="true" tabindex="-1"></a><span class="co">        param : Parameters</span></span>
+<span id="cb26-23"><a href="#cb26-23" aria-hidden="true" tabindex="-1"></a><span class="co">            Simulation parameters.</span></span>
+<span id="cb26-24"><a href="#cb26-24" aria-hidden="true" tabindex="-1"></a><span class="co">        run_number : int</span></span>
+<span id="cb26-25"><a href="#cb26-25" aria-hidden="true" tabindex="-1"></a><span class="co">            Run number for random seed generation.</span></span>
+<span id="cb26-26"><a href="#cb26-26" aria-hidden="true" tabindex="-1"></a><span class="co">        """</span></span>
+<span id="cb26-27"><a href="#cb26-27" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.param <span class="op">=</span> param</span>
+<span id="cb26-28"><a href="#cb26-28" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.run_number <span class="op">=</span> run_number</span>
+<span id="cb26-29"><a href="#cb26-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-30"><a href="#cb26-30" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Create SimPy environment</span></span>
+<span id="cb26-31"><a href="#cb26-31" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.env <span class="op">=</span> simpy.Environment()</span>
+<span id="cb26-32"><a href="#cb26-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-33"><a href="#cb26-33" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Create all the distributions  </span></span>
+<span id="cb26-34"><a href="#cb26-34" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.dist <span class="op">=</span> DistributionRegistry.create_batch(  </span>
+<span id="cb26-35"><a href="#cb26-35" aria-hidden="true" tabindex="-1"></a>            config<span class="op">=</span><span class="bu">dict</span>(<span class="va">self</span>.param.dist_config), main_seed<span class="op">=</span><span class="va">self</span>.run_number  </span>
+<span id="cb26-36"><a href="#cb26-36" aria-hidden="true" tabindex="-1"></a>        )  </span>
+<span id="cb26-37"><a href="#cb26-37" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="va">self</span>.dist)</span>
+<span id="cb26-38"><a href="#cb26-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-39"><a href="#cb26-39" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> generate_arrivals(<span class="va">self</span>):</span>
+<span id="cb26-40"><a href="#cb26-40" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""</span></span>
+<span id="cb26-41"><a href="#cb26-41" aria-hidden="true" tabindex="-1"></a><span class="co">        Process that generates patient arrivals.</span></span>
+<span id="cb26-42"><a href="#cb26-42" aria-hidden="true" tabindex="-1"></a><span class="co">        """</span></span>
+<span id="cb26-43"><a href="#cb26-43" aria-hidden="true" tabindex="-1"></a>        <span class="cf">while</span> <span class="va">True</span>:</span>
+<span id="cb26-44"><a href="#cb26-44" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Sample and pass time to next arrival</span></span>
+<span id="cb26-45"><a href="#cb26-45" aria-hidden="true" tabindex="-1"></a>            sampled_iat <span class="op">=</span> <span class="va">self</span>.dist[<span class="st">"interarrival_time"</span>].sample()  </span>
+<span id="cb26-46"><a href="#cb26-46" aria-hidden="true" tabindex="-1"></a>            <span class="cf">yield</span> <span class="va">self</span>.env.timeout(sampled_iat)</span>
+<span id="cb26-47"><a href="#cb26-47" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Print arrival time</span></span>
+<span id="cb26-48"><a href="#cb26-48" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(<span class="ss">f"Arrival at time: </span><span class="sc">{</span><span class="va">self</span><span class="sc">.</span>env<span class="sc">.</span>now<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb26-49"><a href="#cb26-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-50"><a href="#cb26-50" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> run(<span class="va">self</span>):</span>
+<span id="cb26-51"><a href="#cb26-51" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""</span></span>
+<span id="cb26-52"><a href="#cb26-52" aria-hidden="true" tabindex="-1"></a><span class="co">        Run the simulation.</span></span>
+<span id="cb26-53"><a href="#cb26-53" aria-hidden="true" tabindex="-1"></a><span class="co">        """</span></span>
+<span id="cb26-54"><a href="#cb26-54" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Schedule arrival generator</span></span>
+<span id="cb26-55"><a href="#cb26-55" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.env.process(<span class="va">self</span>.generate_arrivals())</span>
+<span id="cb26-56"><a href="#cb26-56" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Run the simulation</span></span>
+<span id="cb26-57"><a href="#cb26-57" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.env.run(until<span class="op">=</span><span class="va">self</span>.param.run_length)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="run-the-model-2" class="level3">
+<h3 class="anchored" data-anchor-id="run-the-model-2">Run the model</h3>
+<p>We can see that results are consistent with before.</p>
+<p>However, differences can occur when switching to <code>DistributionRegistry</code> if the order in which the distributions are initialised changes. When using <code>DistributionRegistry.create_batch()</code> with <code>sort=True</code> (the default), distributions are seeded in alphabetical order of their keys, ensuring deterministic setup. If <code>sort=False</code>, seeding follows the dictionary’s insertion order.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb27" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>param <span class="op">=</span> Parameters()</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> Model(param<span class="op">=</span>param, run_number<span class="op">=</span><span class="dv">0</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre data-code-line-numbers=""><code>{'interarrival_time': Exponential(mean=5)}</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb29" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>model.run()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre data-code-line-numbers=""><code>Arrival at time: 16.467638954049136
+Arrival at time: 20.28329264479838
+Arrival at time: 26.54512825787535
+Arrival at time: 27.674875741907496
+Arrival at time: 28.77860094577439
+Arrival at time: 37.778249941653414
+Arrival at time: 38.1081836468351
+Arrival at time: 42.610665625320905
+Arrival at time: 44.087985168504765</code></pre>
+</div>
+</div>
+</section>
+</div>
+<div class="r-content">
+<p>One solution is to write a <code>DistributionRegistry</code> class (based on that in the Python package <a href="https://github.com/TomMonks/sim-tools">sim-tools</a>) to provide a structured way to organise all your distributions. Instead of creating each distribution separately in the code, you define them in a single configuration dictionary and let the registry handle the set-up.</p>
+<p>This will feel excessive for our basic example, but having a distribution registry can make things easier for larger models.</p>
+<section id="distributionregistry" class="level3">
+<h3 class="anchored" data-anchor-id="distributionregistry"><code>DistributionRegistry</code></h3>
+<p>This is coped from the R stroke pathway example simulation model.</p>
+<p><a href="https://github.com/pythonhealthdatascience/rdesrap_stroke" target="_blank" style="text-decoration: none;"> <span style="display: inline-flex; align-items: center; background: #1d7898;
+  color: #fff; border-radius: 20px; padding: 0.4em 1em; font-weight: 600;
+  gap: 0.5em;"> <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/github.svg" alt="GitHub" width="20" height="20" style="filter: brightness(0)
+    invert(1);"> Click to visit rdesrap_stroke repository </span> </a></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb31" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="co">#' Registry for parametrised probability distributions</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="co">#'</span></span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a><span class="co">#' @description</span></span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a><span class="co">#' The DistributionRegistry manages and generates parameterized samplers for a</span></span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a><span class="co">#' variety of probability distributions. Common distributions are included by</span></span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a><span class="co">#' default, and more can be added.</span></span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a><span class="co">#'</span></span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a><span class="co">#' Once defined, you can create sampler objects for each distribution -</span></span>
+<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a><span class="co">#' individually (`create`) or in batches (`create_batch`) - and then easily</span></span>
+<span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a><span class="co">#' draw random samples from these objects.</span></span>
+<span id="cb31-11"><a href="#cb31-11" aria-hidden="true" tabindex="-1"></a><span class="co">#'</span></span>
+<span id="cb31-12"><a href="#cb31-12" aria-hidden="true" tabindex="-1"></a><span class="co">#' To add more built-in distributions, edit `initialize()`. To add custom ones</span></span>
+<span id="cb31-13"><a href="#cb31-13" aria-hidden="true" tabindex="-1"></a><span class="co">#' at any time, use `register()`.</span></span>
+<span id="cb31-14"><a href="#cb31-14" aria-hidden="true" tabindex="-1"></a><span class="co">#'</span></span>
+<span id="cb31-15"><a href="#cb31-15" aria-hidden="true" tabindex="-1"></a><span class="co">#' @docType class</span></span>
+<span id="cb31-16"><a href="#cb31-16" aria-hidden="true" tabindex="-1"></a><span class="co">#' @importFrom R6 R6Class</span></span>
+<span id="cb31-17"><a href="#cb31-17" aria-hidden="true" tabindex="-1"></a><span class="co">#' @export</span></span>
+<span id="cb31-18"><a href="#cb31-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-19"><a href="#cb31-19" aria-hidden="true" tabindex="-1"></a>DistributionRegistry <span class="ot">&lt;-</span> <span class="fu">R6Class</span>(<span class="st">"DistributionRegistry"</span>, <span class="fu">list</span>( <span class="co"># nolint: object_name_linter</span></span>
+<span id="cb31-20"><a href="#cb31-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-21"><a href="#cb31-21" aria-hidden="true" tabindex="-1"></a>  <span class="co">#' @field registry Named list of registered distribution generator functions.</span></span>
+<span id="cb31-22"><a href="#cb31-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">registry =</span> <span class="fu">list</span>(),</span>
+<span id="cb31-23"><a href="#cb31-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-24"><a href="#cb31-24" aria-hidden="true" tabindex="-1"></a>  <span class="co">#' @description</span></span>
+<span id="cb31-25"><a href="#cb31-25" aria-hidden="true" tabindex="-1"></a>  <span class="co">#' Pre-registers a set of common base R distribution generators.</span></span>
+<span id="cb31-26"><a href="#cb31-26" aria-hidden="true" tabindex="-1"></a>  <span class="at">initialize =</span> <span class="cf">function</span>() {</span>
+<span id="cb31-27"><a href="#cb31-27" aria-hidden="true" tabindex="-1"></a>    self<span class="sc">$</span><span class="fu">register</span>(<span class="st">"exponential"</span>, <span class="cf">function</span>(mean) {</span>
+<span id="cb31-28"><a href="#cb31-28" aria-hidden="true" tabindex="-1"></a>      <span class="cf">function</span>(<span class="at">size =</span> <span class="dv">1</span>L) <span class="fu">rexp</span>(size, <span class="at">rate =</span> <span class="dv">1</span>L <span class="sc">/</span> mean)</span>
+<span id="cb31-29"><a href="#cb31-29" aria-hidden="true" tabindex="-1"></a>    })</span>
+<span id="cb31-30"><a href="#cb31-30" aria-hidden="true" tabindex="-1"></a>    self<span class="sc">$</span><span class="fu">register</span>(<span class="st">"uniform"</span>, <span class="cf">function</span>(min, max) {</span>
+<span id="cb31-31"><a href="#cb31-31" aria-hidden="true" tabindex="-1"></a>      <span class="cf">function</span>(<span class="at">size =</span> <span class="dv">1</span>L) <span class="fu">runif</span>(size, <span class="at">min =</span> min, <span class="at">max =</span> max)</span>
+<span id="cb31-32"><a href="#cb31-32" aria-hidden="true" tabindex="-1"></a>    })</span>
+<span id="cb31-33"><a href="#cb31-33" aria-hidden="true" tabindex="-1"></a>    self<span class="sc">$</span><span class="fu">register</span>(<span class="st">"discrete"</span>, <span class="cf">function</span>(values, prob) {</span>
+<span id="cb31-34"><a href="#cb31-34" aria-hidden="true" tabindex="-1"></a>      values <span class="ot">&lt;-</span> <span class="fu">unlist</span>(values)</span>
+<span id="cb31-35"><a href="#cb31-35" aria-hidden="true" tabindex="-1"></a>      prob <span class="ot">&lt;-</span> <span class="fu">unlist</span>(prob)</span>
+<span id="cb31-36"><a href="#cb31-36" aria-hidden="true" tabindex="-1"></a>      <span class="fu">stopifnot</span>(<span class="fu">length</span>(values) <span class="sc">==</span> <span class="fu">length</span>(prob), prob <span class="sc">&gt;=</span> <span class="dv">0</span>L)</span>
+<span id="cb31-37"><a href="#cb31-37" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> (<span class="fu">round</span>(<span class="fu">abs</span>(<span class="fu">sum</span>(prob) <span class="sc">-</span> <span class="dv">1</span>L), <span class="dv">2</span>L) <span class="sc">&gt;</span> <span class="fl">0.01</span>) {</span>
+<span id="cb31-38"><a href="#cb31-38" aria-hidden="true" tabindex="-1"></a>        <span class="fu">stop</span>(<span class="fu">sprintf</span>(</span>
+<span id="cb31-39"><a href="#cb31-39" aria-hidden="true" tabindex="-1"></a>          <span class="st">"'prob' must sum to 1 +- 0.01. Sum: %s"</span>, <span class="fu">abs</span>(<span class="fu">sum</span>(<span class="fu">unlist</span>(prob)))</span>
+<span id="cb31-40"><a href="#cb31-40" aria-hidden="true" tabindex="-1"></a>        ), <span class="at">call. =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb31-41"><a href="#cb31-41" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb31-42"><a href="#cb31-42" aria-hidden="true" tabindex="-1"></a>      <span class="co"># Sampling function</span></span>
+<span id="cb31-43"><a href="#cb31-43" aria-hidden="true" tabindex="-1"></a>      <span class="cf">function</span>(<span class="at">size =</span> <span class="dv">1</span>L) {</span>
+<span id="cb31-44"><a href="#cb31-44" aria-hidden="true" tabindex="-1"></a>        <span class="fu">sample</span>(values, <span class="at">size =</span> size, <span class="at">replace =</span> <span class="cn">TRUE</span>, <span class="at">prob =</span> prob)</span>
+<span id="cb31-45"><a href="#cb31-45" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb31-46"><a href="#cb31-46" aria-hidden="true" tabindex="-1"></a>    })</span>
+<span id="cb31-47"><a href="#cb31-47" aria-hidden="true" tabindex="-1"></a>    self<span class="sc">$</span><span class="fu">register</span>(<span class="st">"normal"</span>, <span class="cf">function</span>(mean, sd) {</span>
+<span id="cb31-48"><a href="#cb31-48" aria-hidden="true" tabindex="-1"></a>      <span class="cf">function</span>(<span class="at">size =</span> <span class="dv">1</span>L) <span class="fu">rnorm</span>(size, <span class="at">mean =</span> mean, <span class="at">sd =</span> sd)</span>
+<span id="cb31-49"><a href="#cb31-49" aria-hidden="true" tabindex="-1"></a>    })</span>
+<span id="cb31-50"><a href="#cb31-50" aria-hidden="true" tabindex="-1"></a>    self<span class="sc">$</span><span class="fu">register</span>(<span class="st">"lognormal"</span>, <span class="cf">function</span>(meanlog, sdlog) {</span>
+<span id="cb31-51"><a href="#cb31-51" aria-hidden="true" tabindex="-1"></a>      <span class="cf">function</span>(<span class="at">size =</span> <span class="dv">1</span>L) <span class="fu">rlnorm</span>(size, <span class="at">meanlog =</span> meanlog, <span class="at">sdlog =</span> sdlog)</span>
+<span id="cb31-52"><a href="#cb31-52" aria-hidden="true" tabindex="-1"></a>    })</span>
+<span id="cb31-53"><a href="#cb31-53" aria-hidden="true" tabindex="-1"></a>    self<span class="sc">$</span><span class="fu">register</span>(<span class="st">"poisson"</span>, <span class="cf">function</span>(lambda) {</span>
+<span id="cb31-54"><a href="#cb31-54" aria-hidden="true" tabindex="-1"></a>      <span class="cf">function</span>(<span class="at">size =</span> <span class="dv">1</span>L) <span class="fu">rpois</span>(size, <span class="at">lambda =</span> lambda)</span>
+<span id="cb31-55"><a href="#cb31-55" aria-hidden="true" tabindex="-1"></a>    })</span>
+<span id="cb31-56"><a href="#cb31-56" aria-hidden="true" tabindex="-1"></a>    self<span class="sc">$</span><span class="fu">register</span>(<span class="st">"binomial"</span>, <span class="cf">function</span>(size_param, prob) {</span>
+<span id="cb31-57"><a href="#cb31-57" aria-hidden="true" tabindex="-1"></a>      <span class="cf">function</span>(<span class="at">size =</span> <span class="dv">1</span>L) <span class="fu">rbinom</span>(size, <span class="at">size =</span> size_param, <span class="at">prob =</span> prob)</span>
+<span id="cb31-58"><a href="#cb31-58" aria-hidden="true" tabindex="-1"></a>    })</span>
+<span id="cb31-59"><a href="#cb31-59" aria-hidden="true" tabindex="-1"></a>    self<span class="sc">$</span><span class="fu">register</span>(<span class="st">"geometric"</span>, <span class="cf">function</span>(prob) {</span>
+<span id="cb31-60"><a href="#cb31-60" aria-hidden="true" tabindex="-1"></a>      <span class="cf">function</span>(<span class="at">size =</span> <span class="dv">1</span>L) <span class="fu">rgeom</span>(size, <span class="at">prob =</span> prob)</span>
+<span id="cb31-61"><a href="#cb31-61" aria-hidden="true" tabindex="-1"></a>    })</span>
+<span id="cb31-62"><a href="#cb31-62" aria-hidden="true" tabindex="-1"></a>    self<span class="sc">$</span><span class="fu">register</span>(<span class="st">"beta"</span>, <span class="cf">function</span>(shape1, shape2) {</span>
+<span id="cb31-63"><a href="#cb31-63" aria-hidden="true" tabindex="-1"></a>      <span class="cf">function</span>(<span class="at">size =</span> <span class="dv">1</span>L) <span class="fu">rbeta</span>(size, <span class="at">shape1 =</span> shape1, <span class="at">shape2 =</span> shape2)</span>
+<span id="cb31-64"><a href="#cb31-64" aria-hidden="true" tabindex="-1"></a>    })</span>
+<span id="cb31-65"><a href="#cb31-65" aria-hidden="true" tabindex="-1"></a>    self<span class="sc">$</span><span class="fu">register</span>(<span class="st">"gamma"</span>, <span class="cf">function</span>(shape, rate) {</span>
+<span id="cb31-66"><a href="#cb31-66" aria-hidden="true" tabindex="-1"></a>      <span class="cf">function</span>(<span class="at">size =</span> <span class="dv">1</span>L) <span class="fu">rgamma</span>(size, <span class="at">shape =</span> shape, <span class="at">rate =</span> rate)</span>
+<span id="cb31-67"><a href="#cb31-67" aria-hidden="true" tabindex="-1"></a>    })</span>
+<span id="cb31-68"><a href="#cb31-68" aria-hidden="true" tabindex="-1"></a>    self<span class="sc">$</span><span class="fu">register</span>(<span class="st">"chisq"</span>, <span class="cf">function</span>(df) {</span>
+<span id="cb31-69"><a href="#cb31-69" aria-hidden="true" tabindex="-1"></a>      <span class="cf">function</span>(<span class="at">size =</span> <span class="dv">1</span>L) <span class="fu">rchisq</span>(size, <span class="at">df =</span> df)</span>
+<span id="cb31-70"><a href="#cb31-70" aria-hidden="true" tabindex="-1"></a>    })</span>
+<span id="cb31-71"><a href="#cb31-71" aria-hidden="true" tabindex="-1"></a>    self<span class="sc">$</span><span class="fu">register</span>(<span class="st">"t"</span>, <span class="cf">function</span>(df) {</span>
+<span id="cb31-72"><a href="#cb31-72" aria-hidden="true" tabindex="-1"></a>      <span class="cf">function</span>(<span class="at">size =</span> <span class="dv">1</span>L) <span class="fu">rt</span>(size, <span class="at">df =</span> df)</span>
+<span id="cb31-73"><a href="#cb31-73" aria-hidden="true" tabindex="-1"></a>    })</span>
+<span id="cb31-74"><a href="#cb31-74" aria-hidden="true" tabindex="-1"></a>  },</span>
+<span id="cb31-75"><a href="#cb31-75" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-76"><a href="#cb31-76" aria-hidden="true" tabindex="-1"></a>  <span class="co">#' @description</span></span>
+<span id="cb31-77"><a href="#cb31-77" aria-hidden="true" tabindex="-1"></a>  <span class="co">#' Register a distribution generator under a name.</span></span>
+<span id="cb31-78"><a href="#cb31-78" aria-hidden="true" tabindex="-1"></a>  <span class="co">#'</span></span>
+<span id="cb31-79"><a href="#cb31-79" aria-hidden="true" tabindex="-1"></a>  <span class="co">#' Typically, the generator should be a function that:</span></span>
+<span id="cb31-80"><a href="#cb31-80" aria-hidden="true" tabindex="-1"></a>  <span class="co">#' 1. Accepts parameters for a distribution.</span></span>
+<span id="cb31-81"><a href="#cb31-81" aria-hidden="true" tabindex="-1"></a>  <span class="co">#' 2. Returns another function - the *sampler* - which takes a `size`</span></span>
+<span id="cb31-82"><a href="#cb31-82" aria-hidden="true" tabindex="-1"></a>  <span class="co">#' argument and produces that many random values from the specified</span></span>
+<span id="cb31-83"><a href="#cb31-83" aria-hidden="true" tabindex="-1"></a>  <span class="co">#' distribution.</span></span>
+<span id="cb31-84"><a href="#cb31-84" aria-hidden="true" tabindex="-1"></a>  <span class="co">#'</span></span>
+<span id="cb31-85"><a href="#cb31-85" aria-hidden="true" tabindex="-1"></a>  <span class="co">#' By storing generators rather than fixed samplers, you can create as many</span></span>
+<span id="cb31-86"><a href="#cb31-86" aria-hidden="true" tabindex="-1"></a>  <span class="co">#' different samplers as you want later, each with different parameters,</span></span>
+<span id="cb31-87"><a href="#cb31-87" aria-hidden="true" tabindex="-1"></a>  <span class="co">#' while reusing the same generator code.</span></span>
+<span id="cb31-88"><a href="#cb31-88" aria-hidden="true" tabindex="-1"></a>  <span class="co">#'</span></span>
+<span id="cb31-89"><a href="#cb31-89" aria-hidden="true" tabindex="-1"></a>  <span class="co">#' @param name Distribution name (string)</span></span>
+<span id="cb31-90"><a href="#cb31-90" aria-hidden="true" tabindex="-1"></a>  <span class="co">#' @param generator Function to create a sampler given its parameters.</span></span>
+<span id="cb31-91"><a href="#cb31-91" aria-hidden="true" tabindex="-1"></a>  <span class="at">register =</span> <span class="cf">function</span>(name, generator) {</span>
+<span id="cb31-92"><a href="#cb31-92" aria-hidden="true" tabindex="-1"></a>    self<span class="sc">$</span>registry[[name]] <span class="ot">&lt;-</span> generator</span>
+<span id="cb31-93"><a href="#cb31-93" aria-hidden="true" tabindex="-1"></a>  },</span>
+<span id="cb31-94"><a href="#cb31-94" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-95"><a href="#cb31-95" aria-hidden="true" tabindex="-1"></a>  <span class="co">#' @description</span></span>
+<span id="cb31-96"><a href="#cb31-96" aria-hidden="true" tabindex="-1"></a>  <span class="co">#' Get a registered distribution generator by name.</span></span>
+<span id="cb31-97"><a href="#cb31-97" aria-hidden="true" tabindex="-1"></a>  <span class="co">#'</span></span>
+<span id="cb31-98"><a href="#cb31-98" aria-hidden="true" tabindex="-1"></a>  <span class="co">#' @param name Distribution name (string)</span></span>
+<span id="cb31-99"><a href="#cb31-99" aria-hidden="true" tabindex="-1"></a>  <span class="co">#' @return Generator function for the distribution.</span></span>
+<span id="cb31-100"><a href="#cb31-100" aria-hidden="true" tabindex="-1"></a>  <span class="at">get =</span> <span class="cf">function</span>(name) {</span>
+<span id="cb31-101"><a href="#cb31-101" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="sc">!</span>(name <span class="sc">%in%</span> <span class="fu">names</span>(self<span class="sc">$</span>registry)))</span>
+<span id="cb31-102"><a href="#cb31-102" aria-hidden="true" tabindex="-1"></a>      <span class="fu">stop</span>(</span>
+<span id="cb31-103"><a href="#cb31-103" aria-hidden="true" tabindex="-1"></a>        <span class="fu">sprintf</span>(</span>
+<span id="cb31-104"><a href="#cb31-104" aria-hidden="true" tabindex="-1"></a>          <span class="fu">c</span>(<span class="st">"Distribution '%s' not found.</span><span class="sc">\n</span><span class="st">Available distributions:</span><span class="sc">\n\t</span><span class="st">%s</span><span class="sc">\n</span><span class="st">"</span>,</span>
+<span id="cb31-105"><a href="#cb31-105" aria-hidden="true" tabindex="-1"></a>            <span class="st">"Use register() to add new distributions."</span>),</span>
+<span id="cb31-106"><a href="#cb31-106" aria-hidden="true" tabindex="-1"></a>          name, <span class="fu">paste</span>(<span class="fu">names</span>(self<span class="sc">$</span>registry), <span class="at">collapse =</span> <span class="st">",</span><span class="sc">\n\t</span><span class="st">"</span>)</span>
+<span id="cb31-107"><a href="#cb31-107" aria-hidden="true" tabindex="-1"></a>        ),</span>
+<span id="cb31-108"><a href="#cb31-108" aria-hidden="true" tabindex="-1"></a>        <span class="at">call. =</span> <span class="cn">FALSE</span></span>
+<span id="cb31-109"><a href="#cb31-109" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb31-110"><a href="#cb31-110" aria-hidden="true" tabindex="-1"></a>    self<span class="sc">$</span>registry[[name]]</span>
+<span id="cb31-111"><a href="#cb31-111" aria-hidden="true" tabindex="-1"></a>  },</span>
+<span id="cb31-112"><a href="#cb31-112" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-113"><a href="#cb31-113" aria-hidden="true" tabindex="-1"></a>  <span class="co">#' @description</span></span>
+<span id="cb31-114"><a href="#cb31-114" aria-hidden="true" tabindex="-1"></a>  <span class="co">#' Convert mean/sd to lognormal parameters, returning the corresponding</span></span>
+<span id="cb31-115"><a href="#cb31-115" aria-hidden="true" tabindex="-1"></a>  <span class="co">#' \code{meanlog} and \code{sdlog} parameters used by R's \code{rlnorm()}.</span></span>
+<span id="cb31-116"><a href="#cb31-116" aria-hidden="true" tabindex="-1"></a>  <span class="co">#'</span></span>
+<span id="cb31-117"><a href="#cb31-117" aria-hidden="true" tabindex="-1"></a>  <span class="co">#' @param params Named list with two elements: mean and sd.</span></span>
+<span id="cb31-118"><a href="#cb31-118" aria-hidden="true" tabindex="-1"></a>  <span class="co">#' @return A named list of the same structure, but with elements</span></span>
+<span id="cb31-119"><a href="#cb31-119" aria-hidden="true" tabindex="-1"></a>  <span class="co">#' \code{meanlog} and \code{sdlog} for each patient type.</span></span>
+<span id="cb31-120"><a href="#cb31-120" aria-hidden="true" tabindex="-1"></a>  <span class="at">transform_to_lnorm =</span> <span class="cf">function</span>(params) {</span>
+<span id="cb31-121"><a href="#cb31-121" aria-hidden="true" tabindex="-1"></a>    variance <span class="ot">&lt;-</span> params<span class="sc">$</span>sd<span class="sc">^</span><span class="dv">2</span>L</span>
+<span id="cb31-122"><a href="#cb31-122" aria-hidden="true" tabindex="-1"></a>    sigma_sq <span class="ot">&lt;-</span> <span class="fu">log</span>(variance <span class="sc">/</span> (params<span class="sc">$</span>mean<span class="sc">^</span><span class="dv">2</span>L) <span class="sc">+</span> <span class="dv">1</span>L)</span>
+<span id="cb31-123"><a href="#cb31-123" aria-hidden="true" tabindex="-1"></a>    sdlog <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(sigma_sq)</span>
+<span id="cb31-124"><a href="#cb31-124" aria-hidden="true" tabindex="-1"></a>    meanlog <span class="ot">&lt;-</span> <span class="fu">log</span>(params<span class="sc">$</span>mean) <span class="sc">-</span> sigma_sq <span class="sc">/</span> <span class="dv">2</span>L</span>
+<span id="cb31-125"><a href="#cb31-125" aria-hidden="true" tabindex="-1"></a>    <span class="fu">list</span>(<span class="at">meanlog =</span> meanlog, <span class="at">sdlog =</span> sdlog)</span>
+<span id="cb31-126"><a href="#cb31-126" aria-hidden="true" tabindex="-1"></a>  },</span>
+<span id="cb31-127"><a href="#cb31-127" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-128"><a href="#cb31-128" aria-hidden="true" tabindex="-1"></a>  <span class="co">#' @description</span></span>
+<span id="cb31-129"><a href="#cb31-129" aria-hidden="true" tabindex="-1"></a>  <span class="co">#' Create a parameterised sampler for a distribution.</span></span>
+<span id="cb31-130"><a href="#cb31-130" aria-hidden="true" tabindex="-1"></a>  <span class="co">#'</span></span>
+<span id="cb31-131"><a href="#cb31-131" aria-hidden="true" tabindex="-1"></a>  <span class="co">#' The returned function draws random samples of a specified size from</span></span>
+<span id="cb31-132"><a href="#cb31-132" aria-hidden="true" tabindex="-1"></a>  <span class="co">#' the given distribution with fixed parameters.</span></span>
+<span id="cb31-133"><a href="#cb31-133" aria-hidden="true" tabindex="-1"></a>  <span class="co">#'</span></span>
+<span id="cb31-134"><a href="#cb31-134" aria-hidden="true" tabindex="-1"></a>  <span class="co">#' For "lognormal", if "meanlog" and "sdlog" are present in the parameters,</span></span>
+<span id="cb31-135"><a href="#cb31-135" aria-hidden="true" tabindex="-1"></a>  <span class="co">#' they will be used as-is. If not, but "mean" and "sd" are provided, these</span></span>
+<span id="cb31-136"><a href="#cb31-136" aria-hidden="true" tabindex="-1"></a>  <span class="co">#' will be transformed into "meanlog"/"sdlog" automatically.</span></span>
+<span id="cb31-137"><a href="#cb31-137" aria-hidden="true" tabindex="-1"></a>  <span class="co">#'</span></span>
+<span id="cb31-138"><a href="#cb31-138" aria-hidden="true" tabindex="-1"></a>  <span class="co">#' @param name Distribution name</span></span>
+<span id="cb31-139"><a href="#cb31-139" aria-hidden="true" tabindex="-1"></a>  <span class="co">#' @param ... Parameters for the generator</span></span>
+<span id="cb31-140"><a href="#cb31-140" aria-hidden="true" tabindex="-1"></a>  <span class="co">#' @return A function that draws samples when called.</span></span>
+<span id="cb31-141"><a href="#cb31-141" aria-hidden="true" tabindex="-1"></a>  <span class="at">create =</span> <span class="cf">function</span>(name, ...) {</span>
+<span id="cb31-142"><a href="#cb31-142" aria-hidden="true" tabindex="-1"></a>    dots <span class="ot">&lt;-</span> <span class="fu">list</span>(...)</span>
+<span id="cb31-143"><a href="#cb31-143" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (name <span class="sc">==</span> <span class="st">"lognormal"</span>) {</span>
+<span id="cb31-144"><a href="#cb31-144" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(dots<span class="sc">$</span>meanlog) <span class="sc">&amp;&amp;</span> <span class="sc">!</span><span class="fu">is.null</span>(dots<span class="sc">$</span>sdlog)) {</span>
+<span id="cb31-145"><a href="#cb31-145" aria-hidden="true" tabindex="-1"></a>        dots <span class="ot">&lt;-</span> dots</span>
+<span id="cb31-146"><a href="#cb31-146" aria-hidden="true" tabindex="-1"></a>      } <span class="cf">else</span> <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(dots<span class="sc">$</span>mean) <span class="sc">&amp;&amp;</span> <span class="sc">!</span><span class="fu">is.null</span>(dots<span class="sc">$</span>sd)) {</span>
+<span id="cb31-147"><a href="#cb31-147" aria-hidden="true" tabindex="-1"></a>        transformed <span class="ot">&lt;-</span> self<span class="sc">$</span><span class="fu">transform_to_lnorm</span>(dots)</span>
+<span id="cb31-148"><a href="#cb31-148" aria-hidden="true" tabindex="-1"></a>        dots <span class="ot">&lt;-</span> <span class="fu">c</span>(transformed, dots[<span class="fu">setdiff</span>(<span class="fu">names</span>(dots), <span class="fu">c</span>(<span class="st">"mean"</span>, <span class="st">"sd"</span>))])</span>
+<span id="cb31-149"><a href="#cb31-149" aria-hidden="true" tabindex="-1"></a>      } <span class="cf">else</span> {</span>
+<span id="cb31-150"><a href="#cb31-150" aria-hidden="true" tabindex="-1"></a>        <span class="fu">stop</span>(<span class="st">"Please supply either 'meanlog' and 'sdlog', or 'mean' and 'sd' "</span>,</span>
+<span id="cb31-151"><a href="#cb31-151" aria-hidden="true" tabindex="-1"></a>             <span class="st">"for a lognormal distribution."</span>, <span class="at">call. =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb31-152"><a href="#cb31-152" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb31-153"><a href="#cb31-153" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb31-154"><a href="#cb31-154" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Calls the `get()` method above which finds the distribution generator</span></span>
+<span id="cb31-155"><a href="#cb31-155" aria-hidden="true" tabindex="-1"></a>    <span class="co"># function, then do.call() populates it with dots (a list of arguments).</span></span>
+<span id="cb31-156"><a href="#cb31-156" aria-hidden="true" tabindex="-1"></a>    generator <span class="ot">&lt;-</span> self<span class="sc">$</span><span class="fu">get</span>(name)</span>
+<span id="cb31-157"><a href="#cb31-157" aria-hidden="true" tabindex="-1"></a>    <span class="fu">do.call</span>(generator, dots)</span>
+<span id="cb31-158"><a href="#cb31-158" aria-hidden="true" tabindex="-1"></a>  },</span>
+<span id="cb31-159"><a href="#cb31-159" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-160"><a href="#cb31-160" aria-hidden="true" tabindex="-1"></a>  <span class="co">#' @description</span></span>
+<span id="cb31-161"><a href="#cb31-161" aria-hidden="true" tabindex="-1"></a>  <span class="co">#' Batch-create samplers from a configuration list.</span></span>
+<span id="cb31-162"><a href="#cb31-162" aria-hidden="true" tabindex="-1"></a>  <span class="co">#'</span></span>
+<span id="cb31-163"><a href="#cb31-163" aria-hidden="true" tabindex="-1"></a>  <span class="co">#' The configuration should be a list of lists, each sublist specifying a</span></span>
+<span id="cb31-164"><a href="#cb31-164" aria-hidden="true" tabindex="-1"></a>  <span class="co">#' `class_name` (distribution) and `params` (parameter list for that</span></span>
+<span id="cb31-165"><a href="#cb31-165" aria-hidden="true" tabindex="-1"></a>  <span class="co">#' distribution).</span></span>
+<span id="cb31-166"><a href="#cb31-166" aria-hidden="true" tabindex="-1"></a>  <span class="co">#'</span></span>
+<span id="cb31-167"><a href="#cb31-167" aria-hidden="true" tabindex="-1"></a>  <span class="co">#' @param config Named or unnamed list. Each entry is a list with</span></span>
+<span id="cb31-168"><a href="#cb31-168" aria-hidden="true" tabindex="-1"></a>  <span class="co">#'   'class_name' and 'params'.</span></span>
+<span id="cb31-169"><a href="#cb31-169" aria-hidden="true" tabindex="-1"></a>  <span class="co">#' @return List of parameterised samplers (named if config is named).</span></span>
+<span id="cb31-170"><a href="#cb31-170" aria-hidden="true" tabindex="-1"></a>  <span class="at">create_batch =</span> <span class="cf">function</span>(config) {</span>
+<span id="cb31-171"><a href="#cb31-171" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.list</span>(config)) {</span>
+<span id="cb31-172"><a href="#cb31-172" aria-hidden="true" tabindex="-1"></a>      <span class="fu">stop</span>(<span class="st">"config must be a list (named or unnamed)"</span>, <span class="at">call. =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb31-173"><a href="#cb31-173" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb31-174"><a href="#cb31-174" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Calls `create()` for each distribution specified in config</span></span>
+<span id="cb31-175"><a href="#cb31-175" aria-hidden="true" tabindex="-1"></a>    <span class="fu">lapply</span>(config, <span class="cf">function</span>(cfg) {</span>
+<span id="cb31-176"><a href="#cb31-176" aria-hidden="true" tabindex="-1"></a>      <span class="fu">do.call</span>(self<span class="sc">$</span>create, <span class="fu">c</span>(cfg<span class="sc">$</span>class_name, cfg<span class="sc">$</span>params))</span>
+<span id="cb31-177"><a href="#cb31-177" aria-hidden="true" tabindex="-1"></a>    })</span>
+<span id="cb31-178"><a href="#cb31-178" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb31-179"><a href="#cb31-179" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb31-180"><a href="#cb31-180" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="changes-in-create_params-function" class="level3">
+<h3 class="anchored" data-anchor-id="changes-in-create_params-function">Changes in <code>create_params</code> function</h3>
+<p>In the <code>create_params</code> function, distributions are now specified in a nested list called <code>dist_config</code>. Each entry describes the distribution type and its parameters.</p>
+<p>Here, the distribution type is hard-coded whilst the mean can be changed. This is fine in our simple example, but for more complex or flexible models, these settings would usually be read from an <a href="../../pages/inputs/parameters_file.html">external configuration file</a>, which allows for easier adjustment without hard coding.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb32" data-source-line-numbers="nil" data-code-line-numbers="13,14,15,16,17,18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="co">#' Generate parameter list.</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="co">#'</span></span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a><span class="co">#' @param interarrival_time Numeric. Time between arrivals (minutes).</span></span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a><span class="co">#' @param run_length Numeric. Total duration of simulation (minutes).</span></span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a><span class="co">#' @param verbose Boolean. Whether to print messages as simulation runs.</span></span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a><span class="co">#'</span></span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a><span class="co">#' @return A named list of parameters.</span></span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a>create_params <span class="ot">&lt;-</span> <span class="cf">function</span>(<span class="at">interarrival_time =</span> <span class="dv">5</span>L,</span>
+<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a>                          <span class="at">run_length =</span> <span class="dv">50</span>L,</span>
+<span id="cb32-11"><a href="#cb32-11" aria-hidden="true" tabindex="-1"></a>                          <span class="at">verbose =</span> <span class="cn">TRUE</span>) {</span>
+<span id="cb32-12"><a href="#cb32-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(</span>
+<span id="cb32-13"><a href="#cb32-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">dist_config =</span> <span class="fu">list</span>(                                                     </span>
+<span id="cb32-14"><a href="#cb32-14" aria-hidden="true" tabindex="-1"></a>      <span class="at">interarrival_time =</span> <span class="fu">list</span>(                                             </span>
+<span id="cb32-15"><a href="#cb32-15" aria-hidden="true" tabindex="-1"></a>        <span class="at">class_name =</span> <span class="st">"exponential"</span>,                                         </span>
+<span id="cb32-16"><a href="#cb32-16" aria-hidden="true" tabindex="-1"></a>        <span class="at">params =</span> <span class="fu">list</span>(<span class="at">mean =</span> interarrival_time)                             </span>
+<span id="cb32-17"><a href="#cb32-17" aria-hidden="true" tabindex="-1"></a>      )                                                                     </span>
+<span id="cb32-18"><a href="#cb32-18" aria-hidden="true" tabindex="-1"></a>    ),                                                                      </span>
+<span id="cb32-19"><a href="#cb32-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">run_length =</span> run_length,</span>
+<span id="cb32-20"><a href="#cb32-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">verbose =</span> verbose</span>
+<span id="cb32-21"><a href="#cb32-21" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb32-22"><a href="#cb32-22" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="changes-in-model-function" class="level3">
+<h3 class="anchored" data-anchor-id="changes-in-model-function">Changes in <code>model</code> function</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb33" data-source-line-numbers="nil" data-code-line-numbers="16,17,18,19,20,29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="co">#' Run simulation.</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a><span class="co">#'</span></span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a><span class="co">#' @param param List. Model parameters.</span></span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a><span class="co">#' @param run_number Int. Run number for random seed generation.</span></span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a><span class="co">#'</span></span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a><span class="co">#' @importFrom simmer add_generator run simmer timeout trajectory</span></span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="cf">function</span>(param, run_number) {</span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Set random seed based on run number</span></span>
+<span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set.seed</span>(run_number)</span>
+<span id="cb33-12"><a href="#cb33-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-13"><a href="#cb33-13" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Create simmer environment</span></span>
+<span id="cb33-14"><a href="#cb33-14" aria-hidden="true" tabindex="-1"></a>  env <span class="ot">&lt;-</span> <span class="fu">simmer</span>(<span class="st">"simulation"</span>, <span class="at">verbose =</span> param[[<span class="st">"verbose"</span>]])</span>
+<span id="cb33-15"><a href="#cb33-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-16"><a href="#cb33-16" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Set up sampling distributions                                           </span></span>
+<span id="cb33-17"><a href="#cb33-17" aria-hidden="true" tabindex="-1"></a>  registry <span class="ot">&lt;-</span> DistributionRegistry<span class="sc">$</span><span class="fu">new</span>()                                    </span>
+<span id="cb33-18"><a href="#cb33-18" aria-hidden="true" tabindex="-1"></a>  param[[<span class="st">"dist"</span>]] <span class="ot">&lt;-</span> registry<span class="sc">$</span><span class="fu">create_batch</span>(                                 </span>
+<span id="cb33-19"><a href="#cb33-19" aria-hidden="true" tabindex="-1"></a>    <span class="fu">as.list</span>(param[[<span class="st">"dist_config"</span>]])                                     </span>
+<span id="cb33-20"><a href="#cb33-20" aria-hidden="true" tabindex="-1"></a>  )                                                                         </span>
+<span id="cb33-21"><a href="#cb33-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-22"><a href="#cb33-22" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Define the patient trajectory</span></span>
+<span id="cb33-23"><a href="#cb33-23" aria-hidden="true" tabindex="-1"></a>  patient <span class="ot">&lt;-</span> <span class="fu">trajectory</span>(<span class="st">"patient_path"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb33-24"><a href="#cb33-24" aria-hidden="true" tabindex="-1"></a>    <span class="fu">timeout</span>(<span class="dv">1</span>L)</span>
+<span id="cb33-25"><a href="#cb33-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-26"><a href="#cb33-26" aria-hidden="true" tabindex="-1"></a>  env <span class="ot">&lt;-</span> env <span class="sc">|&gt;</span></span>
+<span id="cb33-27"><a href="#cb33-27" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Add patient generator</span></span>
+<span id="cb33-28"><a href="#cb33-28" aria-hidden="true" tabindex="-1"></a>    <span class="fu">add_generator</span>(<span class="st">"patient"</span>, patient, <span class="cf">function</span>() {</span>
+<span id="cb33-29"><a href="#cb33-29" aria-hidden="true" tabindex="-1"></a>      param[[<span class="st">"dist"</span>]][[<span class="st">"interarrival_time"</span>]]()                            </span>
+<span id="cb33-30"><a href="#cb33-30" aria-hidden="true" tabindex="-1"></a>    }) <span class="sc">|&gt;</span></span>
+<span id="cb33-31"><a href="#cb33-31" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Run the simulation</span></span>
+<span id="cb33-32"><a href="#cb33-32" aria-hidden="true" tabindex="-1"></a>    simmer<span class="sc">::</span><span class="fu">run</span>(<span class="at">until =</span> param[[<span class="st">"run_length"</span>]])</span>
+<span id="cb33-33"><a href="#cb33-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-34"><a href="#cb33-34" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="run-the-model-3" class="level3">
+<h3 class="anchored" data-anchor-id="run-the-model-3">Run the model</h3>
+<p>We can see that results are consistent with before.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb34" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>param <span class="ot">&lt;-</span> <span class="fu">create_params</span>()</span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="fu">model</span>(<span class="at">param =</span> param, <span class="at">run_number =</span> <span class="dv">1</span>L)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre data-code-line-numbers=""><code>         0 |    source: patient          |       new: patient0         | 3.77591
+   3.77591 |   arrival: patient0         |  activity: Timeout          | 1
+   3.77591 |    source: patient          |       new: patient1         | 9.68412
+   9.68412 |   arrival: patient1         |  activity: Timeout          | 1
+   9.68412 |    source: patient          |       new: patient2         | 10.4127
+   10.4127 |   arrival: patient2         |  activity: Timeout          | 1
+   10.4127 |    source: patient          |       new: patient3         | 11.1116
+   11.1116 |   arrival: patient3         |  activity: Timeout          | 1
+   11.1116 |    source: patient          |       new: patient4         | 13.292
+    13.292 |   arrival: patient4         |  activity: Timeout          | 1
+    13.292 |    source: patient          |       new: patient5         | 27.7668
+   27.7668 |   arrival: patient5         |  activity: Timeout          | 1
+   27.7668 |    source: patient          |       new: patient6         | 33.9146
+   33.9146 |   arrival: patient6         |  activity: Timeout          | 1
+   33.9146 |    source: patient          |       new: patient7         | 36.613
+    36.613 |   arrival: patient7         |  activity: Timeout          | 1
+    36.613 |    source: patient          |       new: patient8         | 41.3959
+   41.3959 |   arrival: patient8         |  activity: Timeout          | 1
+   41.3959 |    source: patient          |       new: patient9         | 42.1311
+   42.1311 |   arrival: patient9         |  activity: Timeout          | 1
+   42.1311 |    source: patient          |       new: patient10        | 49.0848
+   49.0848 |   arrival: patient10        |  activity: Timeout          | 1
+   49.0848 |    source: patient          |       new: patient11        | 52.8949</code></pre>
+</div>
+</div>
+</section>
+</div>
+</section>
+<section id="explore-the-example-models" class="level2">
+<h2 class="anchored" data-anchor-id="explore-the-example-models">🔍 Explore the example models</h2>
+<div class="h3-tight">
+
+</div>
+<section id="nurse-visit-simulation" class="level3">
+<h3 class="anchored" data-anchor-id="nurse-visit-simulation">🩺 Nurse visit simulation</h3>
+<div class="python-content">
+<p><a href="https://github.com/pythonhealthdatascience/pydesrap_mms" target="_blank" style="text-decoration: none;"> <span style="display: inline-flex; align-items: center; background: #1d7898;
+  color: #fff; border-radius: 20px; padding: 0.4em 1em; font-weight: 600;
+  gap: 0.5em;"> <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/github.svg" alt="GitHub" width="20" height="20" style="filter: brightness(0)
+    invert(1);"> Click to visit pydesrap_mms repository </span> </a></p>
+<div class="blue-table">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 80%">
+</colgroup>
+<tbody>
+<tr class="odd">
+<td><strong>Key file</strong></td>
+<td><code>simulation/param.py</code><br><code>simulation/model.py</code></td>
+</tr>
+<tr class="even">
+<td><strong>What to look for?</strong></td>
+<td>The structure is similar to the first example on this page. The <code>Param</code> class (in <code>param.py</code>) stores all simulation settings, including <code>patient_inter</code>. The <code>Model</code> class (in <code>model.py</code>) sets up the simulation environment, initialises the required distribution for arrivals, and <code>generate_patient_arrivals()</code> samples inter-arrival times and triggers arrivals.</td>
+</tr>
+<tr class="odd">
+<td><strong>Why it matters?</strong></td>
+<td>Clear simple set-up with separation of parameters and model logic.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="r-content">
+<p><a href="https://github.com/pythonhealthdatascience/rdesrap_mms" target="_blank" style="text-decoration: none;"> <span style="display: inline-flex; align-items: center; background: #1d7898;
+  color: #fff; border-radius: 20px; padding: 0.4em 1em; font-weight: 600;
+  gap: 0.5em;"> <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/github.svg" alt="GitHub" width="20" height="20" style="filter: brightness(0)
+    invert(1);"> Click to visit rdesrap_mms repository </span> </a></p>
+<div class="blue-table">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 80%">
+</colgroup>
+<tbody>
+<tr class="odd">
+<td><strong>Key file</strong></td>
+<td><code>R/parameters.R</code><br><code>R/model.R</code></td>
+</tr>
+<tr class="even">
+<td><strong>What to look for?</strong></td>
+<td>The structure is similar to the first example on this page. The <code>parameters</code> function stores all simulation settings, including <code>patient_inter</code>. The <code>model</code> function sets up the simulation environment, creates a patient arrival generator, and runs the simulation.</td>
+</tr>
+<tr class="odd">
+<td><strong>Why it matters?</strong></td>
+<td>Clear simple set-up with separation of parameters and model logic.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="stroke-pathway-simulation" class="level3">
+<h3 class="anchored" data-anchor-id="stroke-pathway-simulation">🧠 Stroke pathway simulation</h3>
+<div class="python-content">
+<p><a href="https://github.com/pythonhealthdatascience/pydesrap_stroke" target="_blank" style="text-decoration: none;"> <span style="display: inline-flex; align-items: center; background: #1d7898;
+  color: #fff; border-radius: 20px; padding: 0.4em 1em; font-weight: 600;
+  gap: 0.5em;"> <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/github.svg" alt="GitHub" width="20" height="20" style="filter: brightness(0)
+    invert(1);"> Click to visit pydesrap_stroke repository </span> </a></p>
+<div class="blue-table">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 80%">
+</colgroup>
+<tbody>
+<tr class="odd">
+<td><strong>Key file</strong></td>
+<td><code>simulation/parameters.py</code><br><code>simulation/model.py</code></td>
+</tr>
+<tr class="even">
+<td><strong>What to look for?</strong></td>
+<td>The model uses a <code>DistributionRegistry</code> to manage multiple distributions for different entities and processes. The <code>dist_config</code> from <code>Param</code> (<code>parameters.py</code>) is used by the registry. The dictionary of distributions is nested for easy access - restructured as <code>dist[type][unit][patient]</code>. Arrivals are generated using the adaptable <code>patient_generator()</code> method, which selects the appropriate distribution to sample based on patient type and unit.</td>
+</tr>
+<tr class="odd">
+<td><strong>Why it matters?</strong></td>
+<td>Using a distribution registry and a flexible arrival generator method avoids repeated, hard-coded logic and simplifies maintenance in this more complex model.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="r-content">
+<p><a href="https://github.com/pythonhealthdatascience/rdesrap_stroke" target="_blank" style="text-decoration: none;"> <span style="display: inline-flex; align-items: center; background: #1d7898;
+  color: #fff; border-radius: 20px; padding: 0.4em 1em; font-weight: 600;
+  gap: 0.5em;"> <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/github.svg" alt="GitHub" width="20" height="20" style="filter: brightness(0)
+    invert(1);"> Click to visit rdesrap_stroke repository </span> </a></p>
+<div class="blue-table">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 80%">
+</colgroup>
+<tbody>
+<tr class="odd">
+<td><strong>Key file</strong></td>
+<td><code>R/parameters.R</code><br><code>R/model.R</code><br><code>R/distribution_registry.R</code></td>
+</tr>
+<tr class="even">
+<td><strong>What to look for?</strong></td>
+<td>The model uses a <code>DistributionRegistry</code> class to manage multiple distributions for different entities and processes. The <code>dist_config</code> from <code>parameters()</code> is used by the registry. The list of distributions is nested for easy access - restructured as <code>dist[type][unit][patient]</code>. The arrival generator is created using the <code>add_patient_generator()</code> functions, which sets up an appropriate distribution to sample based on patient type and unit.</td>
+</tr>
+<tr class="odd">
+<td><strong>Why it matters?</strong></td>
+<td>Using a distribution registry and a flexible arrival generator method avoids repeated, hard-coded logic and simplifies maintenance in this more complex model.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+</section>
+<section id="test-yourself" class="level2">
+<h2 class="anchored" data-anchor-id="test-yourself">🧪 Test yourself</h2>
+<p>Have a go at setting up a basic simulation model with entity generation, while following good package organisation.</p>
+<p><strong>Task:</strong></p>
+<div class="python-content">
+<ol type="1">
+<li><p><strong>Copy the code:</strong> Take <code>Parameters</code> and <code>Model</code> class from above (simple or with distribution registry) and place them in modules within your package (e.g., <code>parameters.py</code> and <code>model.py</code> within a <code>simulation/</code> folder).</p></li>
+<li><p><strong>Set up a notebook:</strong> Create a new notebook file (e.g., <code>notebooks/run_model.ipynb</code>).</p></li>
+<li><p><strong>Import and run the model:</strong> From your notebook, import <code>Parameters</code> and <code>Model</code> from your package and run the model.</p></li>
+</ol>
+</div>
+<div class="r-content">
+<ol type="1">
+<li><p><strong>Copy the code:</strong> Take the <code>create_params()</code> and <code>model()</code> functions from above (simple or with distributoin registry) and place them in modules within your package (e.g., <code>create_params.R</code> and <code>model.R</code> within an <code>R/</code> folder).</p></li>
+<li><p><strong>Set up an Rmarkdown file:</strong> Create a new Rmarkdown file (e.g., <code>rmarkdown/run_model.Rmd</code>).</p></li>
+<li><p><strong>Import and run the model:</strong> From your Rmarkdown file, import <code>create_params</code> and <code>model</code> from your package and run the model.</p></li>
+</ol>
+</div>
+<ol start="4" type="1">
+<li><strong>Experiment:</strong>
+<ul>
+<li>If you copied the simple versions, try using the versions with distribution registries, and vice versa.</li>
+<li>Try different seeds by varying <code>run_number</code> in your notebook.</li>
+<li>Try adding a new arrival type - add the distribution parameters in <code>Parameters</code>, and see how you can sample from them in <code>Model</code>.</li>
+</ul></li>
+</ol>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>If you are unsure how to organise these classes as a package, checkout out the <a href="../../pages/setup/package.html">Structuring as a Package</a> page for a tutorial on this.</p>
+</div>
+</div>
+</section>
+<section id="further-information" class="level2">
+<h2 class="anchored" data-anchor-id="further-information">🔗 Further information</h2>
+<div class="python-content">
+<ul>
+<li><p>“<a href="https://des.hsma.co.uk/">HSMA - little book of DES</a>” from Sammi Rosser, Dan Chalk and Amy Heather 2025</p>
+<p><em>Introduction to writing discrete event simulation models for healthcare in SimPy.</em></p></li>
+</ul>
+</div>
+<div class="r-content">
+<p>N/A</p>
+</div>
 <p><br><br></p>
 
 
@@ -1154,4 +2184,5 @@ Text licence: <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="
 
 
 
+<script src="../../site_libs/quarto-contrib/line-highlight-1.0.0/line-highlight.js" defer="true"></script>
 </body></html>
