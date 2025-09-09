@@ -1,5 +1,5 @@
 ---
-title: ❌ Entity generation
+title: Entity generation
 filters:
   - line-highlight
 bibliography: patients_resources/references.bib
@@ -7,12 +7,15 @@ bibliography: patients_resources/references.bib
 
 {{< include ../../scripts/_reticulate-setup.md >}}
 
-::: {.pale-blue}
+<!--TODO: switch from bibliography to manual references, as it doesn't allow conditional python/r content references -->
+
+:::: {.pale-blue}
 
 🎯 **Objectives**
 
-This page creates a simple model that samples arrivals, with inspiration from @hsma_des_book.
+This page creates a simple model that samples arrivals, with inspiration from @hsma_des_book for the Python version.
 
+* **⚙️ Set-up:** Pre-reading and imports.
 * **🚶 Creating a simple simulation model with arrivals:** Build a basic model that simulates random arrival times.
 * **📉 Distribution registry:** Alternative set-up that organises all simulation distributions in one place.
 
@@ -20,26 +23,32 @@ This page creates a simple model that samples arrivals, with inspiration from @h
 
 Entity generation is not directly addressed by the guidelines, but is an essential step in building DES.
 
-:::
+::::
 
 <br>
 
+## ⚙️ Set-up
+
+<div class="h3-tight"></div>
+
+### Pre-reading
+
 ::: {.python-content}
 
-On this page, we will start creating a very simple simulation model using `simpy`.
+On this page, we will start creating a very simple simulation model using `simpy`. As it builds on their content, it is recommended you review the following pages first:
 
 :::
 ::: {.r-content}
 
-On this page, we will start creating a very simple simulation model using `simmer`.
+This page extends simulation concepts from previous sections. If new to these topics, review before proceeding:
 
 :::
-
-As it builds on their content, it is recommended you review the following pages first:
 
 * [Parameters from script](../inputs/parameters_script.qmd).
 * [Parameters from file](../inputs/parameters_file.qmd).
 * [Randomness](distributions.qmd).
+
+### Environment
 
 The examples here will use the following packages. These should already be available if you followed the environment setup in the "*🧪 Test yourself*" section of the [Environments](../setup/environment.qmd) page. If not, please install them before continuing.
 
@@ -53,13 +62,47 @@ from sim_tools.distributions import DistributionRegistry, Exponential
 
 :::
 
-::: {.r-content}
+:::: {.r-content}
 
 ```{r}
-# library(simmer)
+library(R6)
+library(simmer)
 ```
 
+### How to use the example code
+
+On this page, we will start creating a very simple simulation model using `simmer`. You can follow along by:
+
+* Running code in a single script/Rmarkdown file (quick for testing)
+* Organising your code as a package (we recommend as best for reproducibility and good practice - more details in the [Structuring as a package](../setup/package.qmd) page).
+
+Setup and imports work differently in each approach. Using the correct method avoids confusion and makes it easier to run the examples...
+
+::: {.cream}
+
+**Single Script / R Markdown**
+
+* Start with `library(simmer)`.
+
+* Use simmer functions directly, or prefix with `simmer::` for clarity.
+
+* Roxygen `@importFrom` tags do **not** affect scripts - but are included in case you choose to use the package structure.
+
 :::
+
+::: {.cream}
+
+**Package Structure**
+
+* Include roxygen `@importFrom simmer ...` tags in function docstrings.
+
+* Run `devtools::document()` (to update imports in your `NAMESPACE`) and `devtools::load_all()` (to load your package and dependencies).
+
+* Do **not** use `library(simmer)` in scripts - the package loading makes all imported functions available automatically.
+
+:::
+
+::::
 
 ## 🚶 Creating a simple simulation model with arrivals
 
@@ -77,6 +120,15 @@ First, we need an object with the simulation parameters. Here, we use a class si
 class Parameters:
     """
     Parameter class.
+
+    Attributes
+    ----------
+    interarrival_time : float
+        Time between arrivals (minutes).
+    consultation_time : float
+        Length of consultation (minutes).
+    run_length : int
+        Total duration of simulation (minutes).
     """
     def __init__(
         self, interarrival_time=5, consultation_time=10,
@@ -92,7 +144,7 @@ class Parameters:
         consultation_time : float
             Length of consultation (minutes).
         run_length : int
-            Simulation run length (minutes).
+            Total duration of simulation (minutes).
         """
         self.interarrival_time = interarrival_time
         self.consultation_time = consultation_time
@@ -295,26 +347,151 @@ model.run()
 
 ::: {.r-content}
 
-TODO
+### Parameter function
 
-<!--TODO:
+First, we need an object with the simulation parameters. Here, we use a function similar to that on the [Parameters from script](../inputs/parameters_script.qmd) page, with some tweaks to the parameters contained.
 
-https://github.com/pythonhealthdatascience/pydesrap_stroke/blob/3a95ba490ad2807ce3f4fe72bf43d4ec639e9788/simulation/simulation.py
+```{r}
+#' Generate parameter list.
+#'
+#' @param interarrival_time Numeric. Time between arrivals (minutes).
+#' @param consultation_time Numeric. Length of consultation (minutes).
+#' @param run_length Numeric. Total duration of simulation (minutes).
+#' @param verbose Boolean. Whether to print messages as simulation runs.
+#'
+#' @return A named list of parameters.
 
-for r, when constructing, need to add to importfrom, then run devtoolsdocument, then loadall, then try it out
-otherwise it won't find the stuff you importfrom if dont document first as needs to add to namespace
+create_params <- function(interarrival_time = 5L,
+                          consultation_time = 20L,
+                          run_length = 50L,
+                          verbose = TRUE) {
+  list(
+    interarrival_time = interarrival_time,
+    consultation_time = consultation_time,
+    run_length = run_length,
+    verbose = verbose
+  )
+}
+```
 
-consider: often logging at this early stage... python print().... simmer verbose=True...
+### Model function
 
--->
+We'll then create a function for the model (explained line by line below).
+
+```{r}
+#' Run simulation.
+#'
+#' @param param List. Model parameters.
+#' @param run_number Int. Run number for random seed generation.
+#' 
+#' @importFrom simmer add_generator run simmer timeout trajectory
+
+model <- function(param, run_number) {
+
+  # Set random seed based on run number
+  set.seed(run_number)
+
+  # Create simmer environment
+  env <- simmer("simulation", verbose = param[["verbose"]])
+
+  # Define the patient trajectory
+  patient <- trajectory("patient_path") |>
+    timeout(1)
+
+  env <- env |>
+    # Add patient generator
+    add_generator("patient", patient, function() {
+      rexp(n = 1L, rate = 1L / param[["interarrival_time"]])
+    }) |>
+    # Run the simulation
+    simmer::run(until = param[["run_length"]])
+
+}
+```
+
+### Explaining the model function
+
+```{.r}
+#' Run simulation.
+#'
+#' @param param List. Model parameters.
+#' @param run_number Int. Run number for random seed generation.
+#' 
+#' @importFrom simmer add_generator run simmer timeout trajectory
+
+model <- function(param, run_number) {
+```
+
+There are two arguments required by the function: `param` and `run_number`.
+
+The `param` argument requires the named list of parameters from the `create_params()` function, which groups all necessary simulation values in one list. This minimise the number of arguments required by `model()`, as it only needs one input for parameters.
+
+The `run_number` will be used when generating the random seeds. This is important when performing multiple replications, as it ensures each run gets a unique seed (see the [Replications](../output_analysis/n_reps.qmd) page for more details).
+
+<br>
+
+```{.r}
+# Set random seed based on run number
+set.seed(run_number)
+```
+
+A global random seed is set based on the `run_number`.
+
+<br>
+
+```{.r}
+# Create simmer environment
+env <- simmer("simulation", verbose = param[["verbose"]])
+```
+
+The simmer environment is the main simulation container. Everything that happens in the simulation is organised inside this environment. It tracks the flow of time and manages when events, such as arrivals, should occur.
+
+For example, when patient arrivals are added, the environment is responsible for controlling their timing and execution.
+
+The `verbose` argument is set to `TRUE` in `param`, and enables activity information to be printed during simulation execution. This gives a quick and visible check that the arrival process is working as expected. Custom logging approaches are explored later (see [Logging](../verification_validation/logs.qmd)).
+
+<br>
+
+```{.r}
+# Define the patient trajectory
+patient <- trajectory("patient_path") |>
+  timeout(1)
+```
+
+In simmer, a trajectory must be defined for any type of arrival. It specifies the sequence of steps each arrival follows in the simulation. For now, we will just set a simple trajectory: `timeout(1)`, which means the arrival waits for one time unit, effectively doing nothing.
+
+<br>
+
+```{.r}
+env <- env |>
+  # Add patient generator
+  add_generator("patient", patient, function() {
+    rexp(n = 1L, rate = 1L / param[["interarrival_time"]])
+  }) |>
+  # Run the simulation
+  simmer::run(until = param[["run_length"]])
+```
+
+We use `add_generator` to set up the patient arrivals. It uses the exponential distribution (`rexp()`) to sample inter-arrival times (with mean specified by `param`).
+
+The simulation is then run for a specified duration using the `run()` method. Because some R packages also have a function `run`, its safest to use `simmer::run()` to avoid function name conflicts.
+
+### Run the model
+
+To try running the model, set up the parameters and run `model()`.
+
+```{r}
+param = create_params()
+model(param = param, run_number = 1)
+```
 
 :::
 
 ## 📉 Distribution registry
 
-::: {.python-content}
-
 In more advanced models, you may need multiple different random distributions (e.g., for arrivals, consultations, transfers, service times). Managing these with individual distribution objects quickly becomes tedious and can clutter your code.
+
+::: {.python-content}
 
 The `DistributionRegistry` class from `sim-tools` provides a structured way to organise all your distributions. Instead of instantiating each distribution separately, you define them in a single configuration dictionary and let the registry handle the set-up.
 
@@ -322,47 +499,55 @@ This will feel excessive for our basic example, but having a distribution regist
 
 ### Changes in `Parameter` class
 
-In the `Parameters` class, distributions are now specified in a dictionary called `dist_config`. Each entry describes the distribution type and its parameters.
+In the `Parameters` class, distributions are now specified in a nested dictionary called `dist_config`. Each entry describes the distribution type and its parameters.
 
 ```{python}
 class Parameters:
     """
     Parameter class.
+
+    Attributes
+    ----------
+    dist_config : dict                                                      #<<
+        Holds all distribution specifications.                              #<<
+    run_length : int
+        Total duration of simulation (minutes).
     """
     def __init__(
-        self, interarrival_time=5, consultation_time=10,
-        run_length=50
+        self, interarrival_time=5, consultation_time=10, run_length=50
     ):
         """
         Initialise Parameters instance.
 
         Parameters
         ----------
-        dist_config : dict  #<<
-            Holds all distribution specifications.  #<<
+        interarrival_time : float
+            Time between arrivals (minutes).
+        consultation_time : float
+            Length of consultation (minutes).
         run_length : int
-            Simulation run length (minutes).
+            Total duration of simulation (minutes).
         """
-        self.dist_config = {  #<<
-            "interarrival_time": {  #<<
-                "class_name": "Exponential",  #<<
-                "params": {"mean": interarrival_time}  #<<
-            },  #<<
-            "consultation_time": {  #<<
-                "class_name": "Exponential",  #<<
-                "params": {"mean": consultation_time}  #<<
-            },  #<<
-        }  #<<
+        self.dist_config = {                                                #<<
+            "interarrival_time": {                                          #<<
+                "class_name": "Exponential",                                #<<
+                "params": {"mean": interarrival_time}                       #<<
+            },                                                              #<<
+            "consultation_time": {                                          #<<
+                "class_name": "Exponential",                                #<<
+                "params": {"mean": consultation_time}                       #<<
+            },                                                              #<<
+        }                                                                   #<<
         self.run_length = run_length
 ```
-
-<!--TODO: should it be lockeddict? i do in pydesrapstroke... and i have covered it...-->
 
 ### Changes in `Model` class
 
 The model now uses `DistributionRegistry.create_batch()` to set up all required distributions at once.
 
 This creates a dictionary and we can access specific distributions via e.g., `self.dist["interarrival_time"]`.
+
+Seed spawning is now also handled by the registry.
 
 ```{python}
 class Model:
@@ -396,10 +581,6 @@ class Model:
 
         # Create SimPy environment
         self.env = simpy.Environment()
-
-        # Create a random seed sequence based on the run number
-        ss = np.random.SeedSequence(self.run_number)
-        seeds = ss.spawn(1)
 
         # Create all the distributions  #<<
         self.dist = DistributionRegistry.create_batch(  #<<
@@ -440,6 +621,290 @@ model.run()
 
 :::
 
+::: {.r-content}
+
+One solution is to write a `DistributionRegistry` class (based on that in the Python package [sim-tools](https://github.com/TomMonks/sim-tools)) to provide a structured way to organise all your distributions. Instead of creating each distribution separately in the code, you define them in a single configuration dictionary and let the registry handle the set-up.
+
+This will feel excessive for our basic example, but having a distribution registry can make things easier for larger models.
+
+### `DistributionRegistry`
+
+This is coped from the R stroke pathway example simulation model.
+
+{{< include ../../html/rdesrapstroke.html >}}
+
+```{r}
+#' Registry for parametrised probability distributions
+#'
+#' @description
+#' The DistributionRegistry manages and generates parameterized samplers for a
+#' variety of probability distributions. Common distributions are included by
+#' default, and more can be added.
+#'
+#' Once defined, you can create sampler objects for each distribution -
+#' individually (`create`) or in batches (`create_batch`) - and then easily
+#' draw random samples from these objects.
+#'
+#' To add more built-in distributions, edit `initialize()`. To add custom ones
+#' at any time, use `register()`.
+#'
+#' @docType class
+#' @importFrom R6 R6Class
+#' @export
+
+DistributionRegistry <- R6Class("DistributionRegistry", list( # nolint: object_name_linter
+
+  #' @field registry Named list of registered distribution generator functions.
+  registry = list(),
+
+  #' @description
+  #' Pre-registers a set of common base R distribution generators.
+  initialize = function() {
+    self$register("exponential", function(mean) {
+      function(size = 1L) rexp(size, rate = 1L / mean)
+    })
+    self$register("uniform", function(min, max) {
+      function(size = 1L) runif(size, min = min, max = max)
+    })
+    self$register("discrete", function(values, prob) {
+      values <- unlist(values)
+      prob <- unlist(prob)
+      stopifnot(length(values) == length(prob), prob >= 0L)
+      if (round(abs(sum(prob) - 1L), 2L) > 0.01) {
+        stop(sprintf(
+          "'prob' must sum to 1 +- 0.01. Sum: %s", abs(sum(unlist(prob)))
+        ), call. = FALSE)
+      }
+      # Sampling function
+      function(size = 1L) {
+        sample(values, size = size, replace = TRUE, prob = prob)
+      }
+    })
+    self$register("normal", function(mean, sd) {
+      function(size = 1L) rnorm(size, mean = mean, sd = sd)
+    })
+    self$register("lognormal", function(meanlog, sdlog) {
+      function(size = 1L) rlnorm(size, meanlog = meanlog, sdlog = sdlog)
+    })
+    self$register("poisson", function(lambda) {
+      function(size = 1L) rpois(size, lambda = lambda)
+    })
+    self$register("binomial", function(size_param, prob) {
+      function(size = 1L) rbinom(size, size = size_param, prob = prob)
+    })
+    self$register("geometric", function(prob) {
+      function(size = 1L) rgeom(size, prob = prob)
+    })
+    self$register("beta", function(shape1, shape2) {
+      function(size = 1L) rbeta(size, shape1 = shape1, shape2 = shape2)
+    })
+    self$register("gamma", function(shape, rate) {
+      function(size = 1L) rgamma(size, shape = shape, rate = rate)
+    })
+    self$register("chisq", function(df) {
+      function(size = 1L) rchisq(size, df = df)
+    })
+    self$register("t", function(df) {
+      function(size = 1L) rt(size, df = df)
+    })
+  },
+
+  #' @description
+  #' Register a distribution generator under a name.
+  #'
+  #' Typically, the generator should be a function that:
+  #' 1. Accepts parameters for a distribution.
+  #' 2. Returns another function - the *sampler* - which takes a `size`
+  #' argument and produces that many random values from the specified
+  #' distribution.
+  #'
+  #' By storing generators rather than fixed samplers, you can create as many
+  #' different samplers as you want later, each with different parameters,
+  #' while reusing the same generator code.
+  #'
+  #' @param name Distribution name (string)
+  #' @param generator Function to create a sampler given its parameters.
+  register = function(name, generator) {
+    self$registry[[name]] <- generator
+  },
+
+  #' @description
+  #' Get a registered distribution generator by name.
+  #'
+  #' @param name Distribution name (string)
+  #' @return Generator function for the distribution.
+  get = function(name) {
+    if (!(name %in% names(self$registry)))
+      stop(
+        sprintf(
+          c("Distribution '%s' not found.\nAvailable distributions:\n\t%s\n",
+            "Use register() to add new distributions."),
+          name, paste(names(self$registry), collapse = ",\n\t")
+        ),
+        call. = FALSE
+      )
+    self$registry[[name]]
+  },
+
+  #' @description
+  #' Convert mean/sd to lognormal parameters, returning the corresponding
+  #' \code{meanlog} and \code{sdlog} parameters used by R's \code{rlnorm()}.
+  #'
+  #' @param params Named list with two elements: mean and sd.
+  #' @return A named list of the same structure, but with elements
+  #' \code{meanlog} and \code{sdlog} for each patient type.
+  transform_to_lnorm = function(params) {
+    variance <- params$sd^2L
+    sigma_sq <- log(variance / (params$mean^2L) + 1L)
+    sdlog <- sqrt(sigma_sq)
+    meanlog <- log(params$mean) - sigma_sq / 2L
+    list(meanlog = meanlog, sdlog = sdlog)
+  },
+
+  #' @description
+  #' Create a parameterised sampler for a distribution.
+  #'
+  #' The returned function draws random samples of a specified size from
+  #' the given distribution with fixed parameters.
+  #'
+  #' For "lognormal", if "meanlog" and "sdlog" are present in the parameters,
+  #' they will be used as-is. If not, but "mean" and "sd" are provided, these
+  #' will be transformed into "meanlog"/"sdlog" automatically.
+  #'
+  #' @param name Distribution name
+  #' @param ... Parameters for the generator
+  #' @return A function that draws samples when called.
+  create = function(name, ...) {
+    dots <- list(...)
+    if (name == "lognormal") {
+      if (!is.null(dots$meanlog) && !is.null(dots$sdlog)) {
+        dots <- dots
+      } else if (!is.null(dots$mean) && !is.null(dots$sd)) {
+        transformed <- self$transform_to_lnorm(dots)
+        dots <- c(transformed, dots[setdiff(names(dots), c("mean", "sd"))])
+      } else {
+        stop("Please supply either 'meanlog' and 'sdlog', or 'mean' and 'sd' ",
+             "for a lognormal distribution.", call. = FALSE)
+      }
+    }
+    # Calls the `get()` method above which finds the distribution generator
+    # function, then do.call() populates it with dots (a list of arguments).
+    generator <- self$get(name)
+    do.call(generator, dots)
+  },
+
+  #' @description
+  #' Batch-create samplers from a configuration list.
+  #'
+  #' The configuration should be a list of lists, each sublist specifying a
+  #' `class_name` (distribution) and `params` (parameter list for that
+  #' distribution).
+  #'
+  #' @param config Named or unnamed list. Each entry is a list with
+  #'   'class_name' and 'params'.
+  #' @return List of parameterised samplers (named if config is named).
+  create_batch = function(config) {
+    if (!is.list(config)) {
+      stop("config must be a list (named or unnamed)", call. = FALSE)
+    }
+    # Calls `create()` for each distribution specified in config
+    lapply(config, function(cfg) {
+      do.call(self$create, c(cfg$class_name, cfg$params))
+    })
+  }
+)
+)
+```
+
+### Changes in `create_params` function
+
+In the `create_params` function, distributions are now specified in a nested list called `dist_config`. Each entry describes the distribution type and its parameters.
+
+<!--TODO:this feels wrong with code... you are hard coding exponential... but if you make it input, that doesn't fit, as the params you provide are hard coded anyway! should i say this would more typically be a file?-->
+
+<!--TODO: should it be lockeddict? i do in pydesrapstroke... and i have covered it...-->
+
+```{r}
+#' Generate parameter list.
+#'
+#' @param interarrival_time Numeric. Time between arrivals (minutes).
+#' @param consultation_time Numeric. Length of consultation (minutes).
+#' @param run_length Numeric. Total duration of simulation (minutes).
+#' @param verbose Boolean. Whether to print messages as simulation runs.
+#'
+#' @return A named list of parameters.
+
+create_params <- function(interarrival_time = 5L,
+                          consultation_time = 20L,
+                          run_length = 50L,
+                          verbose = TRUE) {
+  list(
+    dist_config = list(                                                     #<<
+      interarrival_time = list(                                             #<<
+        class_name = "exponential",                                         #<<
+        params = list(mean = interarrival_time)                             #<<
+      ),                                                                    #<<
+      consultation_time = list(                                             #<<
+        class_name = "exponential",                                         #<<
+        params = list(mean=consultation_time)                               #<<
+      )                                                                     #<<
+    ),                                                                      #<<
+    run_length = run_length,
+    verbose = verbose
+  )
+}
+```
+
+### Changes in `model` function
+
+```{r}
+#' Run simulation.
+#'
+#' @param param List. Model parameters.
+#' @param run_number Int. Run number for random seed generation.
+#' 
+#' @importFrom simmer add_generator run simmer timeout trajectory
+
+model <- function(param, run_number) {
+
+  # Set random seed based on run number
+  set.seed(run_number)
+
+  # Create simmer environment
+  env <- simmer("simulation", verbose = param[["verbose"]])
+
+  # Set up sampling distributions                                           #<<
+  registry <- DistributionRegistry$new()                                    #<<
+  param[["dist"]] <- registry$create_batch(                                 #<<
+    as.list(param[["dist_config"]])                                     #<<
+  )                                                                         #<<
+
+  # Define the patient trajectory
+  patient <- trajectory("patient_path") |>
+    timeout(1)
+
+  env <- env |>
+    # Add patient generator
+    add_generator("patient", patient, function() {
+      param[["dist"]][["interarrival_time"]]()                            #<<
+    }) |>
+    # Run the simulation
+    simmer::run(until = param[["run_length"]])
+
+}
+```
+
+### Run the model
+
+We can see that results are consistent with before.
+
+```{r}
+param = create_params()
+model(param = param, run_number = 1)
+```
+
+:::
+
 ## 🔍 Explore the example models
 
 <div class="h3-tight"></div>
@@ -467,7 +932,7 @@ model.run()
 ::: {.blue-table}
 | | |
 | - | - |
-| **Key file** |  |
+| **Key file** | `R/parameters.R`<br>`R/model.R` |
 | **What to look for?** |  |
 | **Why it matters?** |  |
 : {tbl-colwidths="[20,80]"}
@@ -522,11 +987,11 @@ Have a go at setting up a basic simulation model with entity generation, while f
 
 ::: {.r-content}
 
-1. TODO
+1. **Copy the code:** Take the `create_params()` and `model()` functions from above (simple or with distributoin registry) and place them in modules within your package (e.g., `create_params.R` and `model.R` within an `R/` folder).
 
-2. TODO
+2. **Set up an Rmarkdown file:** Create a new Rmarkdown file (e.g., `rmarkdown/run_model.Rmd`).
 
-3. TODO
+3. **Import and run the model:** From your Rmarkdown file, import `create_params` and `model` from your package and run the model.
 
 :::
 
