@@ -190,7 +190,7 @@ class Model:
         ss = np.random.SeedSequence(self.run_number)
         seeds = ss.spawn(1)
 
-        # Create an exponential distribution for patient inter-arrival times
+        # Initialise distributions
         self.arrival_dist = Exponential(mean=self.param.interarrival_time,
                                         random_seed=seeds[0])
 
@@ -263,7 +263,7 @@ A random seed sequence is created based on the `run_number`.
 <br>
 
 ```{.python}
-# Create an exponential distribution for patient inter-arrival times
+# Initialise distributions
 self.arrival_dist = Exponential(mean=self.param.interarrival_time,
                                 random_seed=seeds[0])
 ```
@@ -376,7 +376,7 @@ We'll then create a function for the model (explained line by line below).
 #'
 #' @param param List. Model parameters.
 #' @param run_number Int. Run number for random seed generation.
-#' 
+#'
 #' @importFrom simmer add_generator run simmer timeout trajectory
 
 model <- function(param, run_number) {
@@ -389,7 +389,7 @@ model <- function(param, run_number) {
 
   # Define the patient trajectory
   patient <- trajectory("patient_path") |>
-    timeout(1)
+    timeout(1L)
 
   env <- env |>
     # Add patient generator
@@ -474,8 +474,8 @@ The simulation is then run for a specified duration using the `run()` method. Be
 To try running the model, set up the parameters and run `model()`.
 
 ```{r}
-param = create_params()
-model(param = param, run_number = 1)
+param <- create_params()
+model(param = param, run_number = 1L)
 ```
 
 :::
@@ -845,7 +845,7 @@ create_params <- function(interarrival_time = 5L,
 #'
 #' @param param List. Model parameters.
 #' @param run_number Int. Run number for random seed generation.
-#' 
+#'
 #' @importFrom simmer add_generator run simmer timeout trajectory
 
 model <- function(param, run_number) {
@@ -864,7 +864,7 @@ model <- function(param, run_number) {
 
   # Define the patient trajectory
   patient <- trajectory("patient_path") |>
-    timeout(1)
+    timeout(1L)
 
   env <- env |>
     # Add patient generator
@@ -882,8 +882,8 @@ model <- function(param, run_number) {
 We can see that results are consistent with before.
 
 ```{r}
-param = create_params()
-model(param = param, run_number = 1)
+param <- create_params()
+model(param = param, run_number = 1L)
 ```
 
 :::
