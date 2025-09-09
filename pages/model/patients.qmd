@@ -2,18 +2,20 @@
 title: Entity generation
 filters:
   - line-highlight
-bibliography: patients_resources/references.bib
 ---
 
 {{< include ../../scripts/_reticulate-setup.md >}}
-
-<!--TODO: switch from bibliography to manual references, as it doesn't allow conditional python/r content references -->
 
 :::: {.pale-blue}
 
 🎯 **Objectives**
 
-This page creates a simple model that samples arrivals, with inspiration from @hsma_des_book for the Python version.
+::: {.python-content}
+This page creates a simple model that samples arrivals, with inspiration from Rosser et al. ([2025](https://des.hsma.co.uk/)).
+:::
+::: {.r-content}
+This page creates a simple model that samples arrivals.
+:::
 
 * **⚙️ Set-up:** Pre-reading and imports.
 * **🚶 Creating a simple simulation model with arrivals:** Build a basic model that simulates random arrival times.
@@ -492,6 +494,8 @@ This will feel excessive for our basic example, but having a distribution regist
 
 In the `Parameters` class, distributions are now specified in a nested dictionary called `dist_config`. Each entry describes the distribution type and its parameters.
 
+Here, the distribution type is hard-coded whilst the mean can be changed. This is fine in our simple example, but for more complex or flexible models, these settings would usually be read from an [external configuration file](../inputs/parameters_file.qmd), which allows for easier adjustment without hard coding.
+
 ```{python}
 class Parameters:
     """
@@ -598,7 +602,7 @@ class Model:
 
 We can see that results are consistent with before.
 
-<!--TODO: add note: results can differ... its about order that dists are set up... using new seeds... if switch to use registry, are they set up in same order? alphabetical?-->
+However, differences can occur when switching to `DistributionRegistry` if the order in which the distributions are initialised changes. When using `DistributionRegistry.create_batch()` with `sort=True` (the default), distributions are seeded in alphabetical order of their keys, ensuring deterministic setup. If `sort=False`, seeding follows the dictionary's insertion order.
 
 ```{python}
 param = Parameters()
@@ -807,9 +811,7 @@ DistributionRegistry <- R6Class("DistributionRegistry", list( # nolint: object_n
 
 In the `create_params` function, distributions are now specified in a nested list called `dist_config`. Each entry describes the distribution type and its parameters.
 
-<!--TODO:this feels wrong with code... you are hard coding exponential... but if you make it input, that doesn't fit, as the params you provide are hard coded anyway! should i say this would more typically be a file?-->
-
-<!--TODO: should it be lockeddict? i do in pydesrapstroke... and i have covered it...-->
+Here, the distribution type is hard-coded whilst the mean can be changed. This is fine in our simple example, but for more complex or flexible models, these settings would usually be read from an [external configuration file](../inputs/parameters_file.qmd), which allows for easier adjustment without hard coding.
 
 ```{r}
 #' Generate parameter list.
@@ -901,7 +903,7 @@ model(param = param, run_number = 1)
 | - | - |
 | **Key file** | `simulation/param.py`<br>`simulation/model.py` |
 | **What to look for?** | The structure is similar to the first example on this page. The `Param` class (in `param.py`) stores all simulation settings, including `patient_inter`. The `Model` class (in `model.py`) sets up the simulation environment, initialises the required distribution for arrivals, and `generate_patient_arrivals()` samples inter-arrival times and triggers arrivals. |
-| **Why it matters?** | The structure is suitable as the model is simple, with just one patient type arriving. |
+| **Why it matters?** | Clear simple set-up with separation of parameters and model logic. |
 : {tbl-colwidths="[20,80]"}
 :::
 ::::
@@ -914,8 +916,8 @@ model(param = param, run_number = 1)
 | | |
 | - | - |
 | **Key file** | `R/parameters.R`<br>`R/model.R` |
-| **What to look for?** |  |
-| **Why it matters?** |  |
+| **What to look for?** | The structure is similar to the first example on this page. The `parameters` function stores all simulation settings, including `patient_inter`. The `model` function sets up the simulation environment, creates a patient arrival generator, and runs the simulation. |
+| **Why it matters?** | Clear simple set-up with separation of parameters and model logic. |
 : {tbl-colwidths="[20,80]"}
 :::
 ::::
@@ -930,7 +932,7 @@ model(param = param, run_number = 1)
 | | |
 | - | - |
 | **Key file** | `simulation/parameters.py`<br>`simulation/model.py` |
-| **What to look for?** | The model uses a `DistributionRegistry` to manage multiple distributions for different entities and processes. The `dist_config` from `Param` (`parameters.py`) is used by the registry. The dictionary of distribution is nested for easy access - restructured as `dist[type][unit][patient]`. Arrivals are generated using the adaptable `patient_generator()` method, which selects the appropriate distribution to sample based on patient type and unit. |
+| **What to look for?** | The model uses a `DistributionRegistry` to manage multiple distributions for different entities and processes. The `dist_config` from `Param` (`parameters.py`) is used by the registry. The dictionary of distributions is nested for easy access - restructured as `dist[type][unit][patient]`. Arrivals are generated using the adaptable `patient_generator()` method, which selects the appropriate distribution to sample based on patient type and unit. |
 | **Why it matters?** | Using a distribution registry and a flexible arrival generator method avoids repeated, hard-coded logic and simplifies maintenance in this more complex model. |
 : {tbl-colwidths="[20,80]"}
 :::
@@ -943,9 +945,9 @@ model(param = param, run_number = 1)
 ::: {.blue-table}
 | | |
 | - | - |
-| **Key file** |  |
-| **What to look for?** |  |
-| **Why it matters?** |  |
+| **Key file** | `R/parameters.R`<br>`R/model.R`<br>`R/distribution_registry.R` |
+| **What to look for?** | The model uses a `DistributionRegistry` class to manage multiple distributions for different entities and processes. The `dist_config` from `parameters()` is used by the registry. The list of distributions is nested for easy access - restructured as `dist[type][unit][patient]`. The arrival generator is created using the `add_patient_generator()` functions, which sets up an appropriate distribution to sample based on patient type and unit. |
+| **Why it matters?** | Using a distribution registry and a flexible arrival generator method avoids repeated, hard-coded logic and simplifies maintenance in this more complex model. |
 : {tbl-colwidths="[20,80]"}
 :::
 ::::
@@ -987,9 +989,20 @@ If you are unsure how to organise these classes as a package, checkout out the [
 
 :::
 
-## 📙 References
+## 🔗 Further information
 
-::: {#refs}
+::: {.python-content}
+
+* "[HSMA - little book of DES](https://des.hsma.co.uk/)" from Sammi Rosser, Dan Chalk and Amy Heather 2025
+
+    *Introduction to writing discrete event simulation models for healthcare in SimPy.*
+
+:::
+
+::: {.r-content}
+
+N/A
+
 :::
 
 <br><br>
