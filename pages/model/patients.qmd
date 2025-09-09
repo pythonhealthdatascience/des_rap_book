@@ -125,14 +125,11 @@ class Parameters:
     ----------
     interarrival_time : float
         Time between arrivals (minutes).
-    consultation_time : float
-        Length of consultation (minutes).
     run_length : int
         Total duration of simulation (minutes).
     """
     def __init__(
-        self, interarrival_time=5, consultation_time=10,
-        run_length=50
+        self, interarrival_time=5, run_length=50
     ):
         """
         Initialise Parameters instance.
@@ -141,13 +138,10 @@ class Parameters:
         ----------
         interarrival_time : float
             Time between arrivals (minutes).
-        consultation_time : float
-            Length of consultation (minutes).
         run_length : int
             Total duration of simulation (minutes).
         """
         self.interarrival_time = interarrival_time
-        self.consultation_time = consultation_time
         self.run_length = run_length
 ```
 
@@ -355,19 +349,16 @@ First, we need an object with the simulation parameters. Here, we use a function
 #' Generate parameter list.
 #'
 #' @param interarrival_time Numeric. Time between arrivals (minutes).
-#' @param consultation_time Numeric. Length of consultation (minutes).
 #' @param run_length Numeric. Total duration of simulation (minutes).
 #' @param verbose Boolean. Whether to print messages as simulation runs.
 #'
 #' @return A named list of parameters.
 
 create_params <- function(interarrival_time = 5L,
-                          consultation_time = 20L,
                           run_length = 50L,
                           verbose = TRUE) {
   list(
     interarrival_time = interarrival_time,
-    consultation_time = consultation_time,
     run_length = run_length,
     verbose = verbose
   )
@@ -514,7 +505,7 @@ class Parameters:
         Total duration of simulation (minutes).
     """
     def __init__(
-        self, interarrival_time=5, consultation_time=10, run_length=50
+        self, interarrival_time=5, run_length=50
     ):
         """
         Initialise Parameters instance.
@@ -523,8 +514,6 @@ class Parameters:
         ----------
         interarrival_time : float
             Time between arrivals (minutes).
-        consultation_time : float
-            Length of consultation (minutes).
         run_length : int
             Total duration of simulation (minutes).
         """
@@ -532,11 +521,7 @@ class Parameters:
             "interarrival_time": {                                          #<<
                 "class_name": "Exponential",                                #<<
                 "params": {"mean": interarrival_time}                       #<<
-            },                                                              #<<
-            "consultation_time": {                                          #<<
-                "class_name": "Exponential",                                #<<
-                "params": {"mean": consultation_time}                       #<<
-            },                                                              #<<
+            }                                                               #<<
         }                                                                   #<<
         self.run_length = run_length
 ```
@@ -612,6 +597,8 @@ class Model:
 ### Run the model
 
 We can see that results are consistent with before.
+
+<!--TODO: add note: results can differ... its about order that dists are set up... using new seeds... if switch to use registry, are they set up in same order? alphabetical?-->
 
 ```{python}
 param = Parameters()
@@ -828,14 +815,12 @@ In the `create_params` function, distributions are now specified in a nested lis
 #' Generate parameter list.
 #'
 #' @param interarrival_time Numeric. Time between arrivals (minutes).
-#' @param consultation_time Numeric. Length of consultation (minutes).
 #' @param run_length Numeric. Total duration of simulation (minutes).
 #' @param verbose Boolean. Whether to print messages as simulation runs.
 #'
 #' @return A named list of parameters.
 
 create_params <- function(interarrival_time = 5L,
-                          consultation_time = 20L,
                           run_length = 50L,
                           verbose = TRUE) {
   list(
@@ -843,10 +828,6 @@ create_params <- function(interarrival_time = 5L,
       interarrival_time = list(                                             #<<
         class_name = "exponential",                                         #<<
         params = list(mean = interarrival_time)                             #<<
-      ),                                                                    #<<
-      consultation_time = list(                                             #<<
-        class_name = "exponential",                                         #<<
-        params = list(mean=consultation_time)                               #<<
       )                                                                     #<<
     ),                                                                      #<<
     run_length = run_length,
