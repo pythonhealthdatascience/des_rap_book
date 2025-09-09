@@ -14,7 +14,6 @@ This page covers:
 * **🛠️ Tools for random sampling:** introducing options for drawing random samples.
 * **⛓️‍💥 Independent random number streams:** why using separate streams improves reproducibility and debugging.
 * **❓ What's next?**
-* **👥 Acknowledgements**.
 
 [🔗](../intro/guidelines.qmd) **Reproducibility guidelines**
 
@@ -24,15 +23,29 @@ This page helps you meet reproducibility criteria from:
 
 :::
 
+<br>
+
 ::: {.python-content}
 
+This page uses the following packages. They should already be installed in you set up the environment in the "*🧪 Test yourself*" section of the [Environments](../setup/environment.qmd) page.
+
 ```{python}
-# Import required packages
 import numpy as np
 from sim_tools.distributions import Exponential, Normal
 ```
 
 :::
+
+::: {.r-content}
+
+This page uses base R and the `simEd` package. It should already be installed in you set up the environment in the "*🧪 Test yourself*" section of the [Environments](../setup/environment.qmd) page.
+
+```{r}
+suppressMessages(library(simEd))
+```
+
+:::
+
 
 ## 🎲 Randomness
 
@@ -278,7 +291,6 @@ The [`simEd`](https://cran.r-project.org/web/packages/simEd/index.html) package,
 To use `simEd`, take the code from above but change the prefix on functions from `r` to `v` - so `rexp` becomes `vexp`, and `rnorm` becomes `vnorm`.
 
 ```{r}
-suppressMessages(library(simEd))  # nolint: undesirable_function_linter
 set.seed(1L)
 arrivals <- vexp(n = 3L, rate = 1L / 3L)
 processing <- vnorm(n = 3L, mean = 10L, sd = 2L)
@@ -299,6 +311,14 @@ print(processing)
 ::: {.pale-green}
 
 ✅ Processing samples remain the same.
+
+:::
+
+::: {.callout-note title="👥 Acknowledgements"}
+
+This section on `simEd` is adapted from the [R sampling](https://pythonhealthdatascience.github.io/stars-treat-simmer/02_model/03_r_sampling.html#using-the-simed-package) page in Monks, Thomas, Alison Harper, Amy Heather, and Navonil Mustafee. 2024. “**Towards Sharing Tools, Artifacts, and Reproducible Simulation: a ‘simmer‘ model example.**” Zenodo. <https://doi.org/10.5281/zenodo.11222943> (MIT Licence).
+
+We also acknowledge the work of B. Lawson and L. M. Leemis for the `simEd` package and their contributions to simulation education.
 
 :::
 
@@ -330,20 +350,128 @@ The key is simply to be **aware** of how shared random number streams work, so y
 
 On [the next page](patients.qmd), we'll learn how to add sampling to your model through the example of generating some patients arriving in your simulation.
 
-## 👥 Acknowledgements
+## 🧪 Test yourself
+
+```{r, echo = FALSE}
+library(webexercises) # nolint: library_call_linter
+```
+
+:::{.callout-note}
+
+## What is a pseudorandom number generator (PRNG)?
+
+```{r, results="asis", echo = FALSE}
+cat(longmcq(c(
+  "A source of truly unpredictable numbers from physical processes",
+  answer = paste0(
+    "An algorithm that produces numbers that appear random but are determined",
+    " by a starting seed"
+  ),
+  "A hardware device that measures system noise to generate randomness"
+)))
+```
+
+:::
+
+:::{.callout-note}
+
+## What is the role of a seed in a PRNG?
+
+```{r, results="asis", echo = FALSE}
+cat(longmcq(c(
+  "It decides which distribution to sample from",
+  answer = "It ensures reproducibility by fixing the random sequence",
+  "It prevents correlation between distributions"
+)))
+```
+
+:::
+
+:::{.callout-note}
+
+## Why is it recommended to use independent random number streams in simulation models?
+
+```{r, results="asis", echo = FALSE}
+cat(longmcq(c(
+  "To make the simulation run faster",
+  "To avoid requiring a seed",
+  answer = (
+    "To prevent one process's sampling from shifting another process's results"
+  )
+)))
+```
+
+:::
+
+:::: {.python-content}
+
+::: {.callout-note}
+
+## Which of the following statements best describes the difference between NumPy's legacy random API and the Generator API?
+
+```{r, results="asis", echo = FALSE}
+cat(longmcq(c(
+  "The legacy API supports more distributions",
+  "The legacy API enforces independent random streams",
+  answer = "The Generator API isolates random state per generator object",
+  "They are functionally identical"
+)))
+```
+
+:::
+
+::: {.callout-note}
+
+## In the `sim-tools` package, how do you ensure separate random number streams for different processes?
+
+```{r, results="asis", echo = FALSE}
+cat(longmcq(c(
+  "Use one global RNG across all distributions",
+  answer = "Create one distribution object per process, each with its own seed",
+  "Disable seeding entirely",
+  "Use `np.random.seed()` globally"
+)))
+```
+
+:::
+
+::::
+
+:::: {.r-content}
+
+::: {.callout-note}
+
+## What is the limitation of R's base random number generation for simulation?
+
+```{r, results="asis", echo = FALSE}
+cat(longmcq(c(
+  "It cannot set seeds",
+  answer = (
+    "It relies on a single global stream, making independent streams difficult"
+  ),
+  "It doesn't support exponential sampling"
+)))
+```
+
+:::
+
+::::
+
+<br>
+
+If you haven't already, try out **random sampling** for yourself!
 
 ::: {.python-content}
-
-N/A
-
+Have a go with **NumPy** and **sim-tools**.
 :::
-
 ::: {.r-content}
-
-The section on `simEd` is adapted from the [R sampling](https://pythonhealthdatascience.github.io/stars-treat-simmer/02_model/03_r_sampling.html#using-the-simed-package) page in Monks, Thomas, Alison Harper, Amy Heather, and Navonil Mustafee. 2024. “**Towards Sharing Tools, Artifacts, and Reproducible Simulation: a ‘simmer‘ model example.**” Zenodo. <https://doi.org/10.5281/zenodo.11222943> (MIT Licence).
-
-We also acknowledge the work of B. Lawson and L. M. Leemis for the `simEd` package and their contributions to simulation education.
-
+Have a go with **base R** and **simEd**.
 :::
+
+* Sample random numbers from a distribution - try exponential, normal, or uniform.
+
+* Set and change the seed, then sample again. Do you get the same results each time?
+
+* Increase the number of samples for one process - see if results for other streams change.
 
 <br><br>

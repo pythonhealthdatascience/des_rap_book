@@ -829,7 +829,7 @@ The prevention of new fields is thanks to the default `lock_objects = TRUE` sett
 #' @field transfer_prob Numeric. Transfer probability (0-1).
 
 ParamClass <- R6Class( # nolint: object_name_linter
-  lock_objects = FALSE, 
+  lock_objects = FALSE,
   public = list(
     transfer_prob = NULL,
 
@@ -851,7 +851,7 @@ params <- ParamClass$new()
 try({
   params$transfer_probs <- 0.4
 })
-params 
+params
 ```
 
 #### Setting parameters within a list
@@ -867,15 +867,15 @@ You may choose to store parameters in a list instead, to make it easier to acces
 
 ParamClass <- R6Class( # nolint: object_name_linter
   public = list(
-    parameters = NULL, 
+    parameters = NULL,
 
     #' @description
     #' Initialises the R6 object.
 
     initialize = function(transfer_prob = 0.3) {
-      self$parameters <- list( 
+      self$parameters <- list(
         transfer_prob = transfer_prob
-      ) 
+      )
     }
   )
 )
@@ -889,7 +889,7 @@ params <- ParamClass$new()
 try({
   params$parameters$transfer_probs <- 0.4
 })
-params$parameters 
+params$parameters
 ```
 
 <br>
@@ -912,20 +912,20 @@ ParamClass <- R6Class( # nolint: object_name_linter
       self$transfer_prob <- transfer_prob
     },
 
-    #' @description 
-    #' Returns parameters as a named list. 
+    #' @description
+    #' Returns parameters as a named list.
 
-    get_params = function() { 
-      # Get all non-function fields 
-      all_names <- ls(self) 
-      is_not_function <- vapply( 
-        all_names, 
-        function(x) !is.function(self[[x]]), 
-        FUN.VALUE = logical(1L) 
-      ) 
-      param_names <- all_names[is_not_function] 
-      mget(param_names, envir = self) 
-    } 
+    get_params = function() {
+      # Get all non-function fields
+      all_names <- ls(self)
+      is_not_function <- vapply(
+        all_names,
+        function(x) !is.function(self[[x]]),
+        FUN.VALUE = logical(1L)
+      )
+      param_names <- all_names[is_not_function]
+      mget(param_names, envir = self)
+    }
   )
 )
 ```
@@ -939,8 +939,8 @@ try({
   params$transfer_probs <- 0.4
 })
 
-# Get all parameters 
-params$get_params() 
+# Get all parameters
+params$get_params()
 ```
 
 ::::
@@ -1055,7 +1055,7 @@ model <- function(param) {
 
   # Simulation code...
 
-  print("The simulation has run!")
+  cat("The simulation has run!")
 }
 
 
@@ -1180,18 +1180,18 @@ ParamClass <- R6Class( # nolint: object_name_linter
       self$transfer_prob <- transfer_prob
     },
 
-    #' @description 
-    #' Check that transfer_prob is between 0 and 1. 
-    #' @return No return value; throws an error if invalid. 
+    #' @description
+    #' Check that transfer_prob is between 0 and 1.
+    #' @return No return value; throws an error if invalid.
 
-    validate_param = function() { 
-      if (self$transfer_prob < 0L || self$transfer_prob > 1L) { 
-        stop( 
-          "transfer_prob must be between 0 and 1, but is: ", 
-          self$transfer_prob, call. = FALSE 
-        ) 
-      } 
-    } 
+    validate_param = function() {
+      if (self$transfer_prob < 0L || self$transfer_prob > 1L) {
+        stop(
+          "transfer_prob must be between 0 and 1, but is: ",
+          self$transfer_prob, call. = FALSE
+        )
+      }
+    }
   )
 )
 ```
@@ -1199,7 +1199,7 @@ ParamClass <- R6Class( # nolint: object_name_linter
 ```{r}
 # Create instance with invalid transfer_prob and run method
 param <- ParamClass$new(transfer_prob = 1.4)
-try(param$validate_param()) 
+try(param$validate_param())
 ```
 
 :::
