@@ -2,6 +2,7 @@
 title: ❌ Entity generation
 filters:
   - line-highlight
+bibliography: patients_resources/references.bib
 ---
 
 {{< include ../../scripts/_reticulate-setup.md >}}
@@ -10,9 +11,10 @@ filters:
 
 🎯 **Objectives**
 
-This page covers:
+This page creates a simple model that samples arrivals, with inspiration from @hsma_des_book.
 
-* **🚶 Creating a simple simulation model with arrivals:**
+* **🚶 Creating a simple simulation model with arrivals:** Build a basic model that simulates random arrival times.
+* **📉 Distribution registry:** Alternative set-up that organises all simulation distributions in one place.
 
 [🔗](../intro/guidelines.qmd) **Reproducibility guidelines**
 
@@ -451,9 +453,9 @@ model.run()
 ::: {.blue-table}
 | | |
 | - | - |
-| **Key file** |  |
-| **What to look for?** |  |
-| **Why it matters?** |  |
+| **Key file** | `simulation/param.py`<br>`simulation/model.py` |
+| **What to look for?** | The structure is similar to the first example on this page. The `Param` class (in `param.py`) stores all simulation settings, including `patient_inter`. The `Model` class (in `model.py`) sets up the simulation environment, initialises the required distribution for arrivals, and `generate_patient_arrivals()` samples inter-arrival times and triggers arrivals. |
+| **Why it matters?** | The structure is suitable as the model is simple, with just one patient type arriving. |
 : {tbl-colwidths="[20,80]"}
 :::
 ::::
@@ -482,8 +484,8 @@ model.run()
 | | |
 | - | - |
 | **Key file** | `simulation/parameters.py`<br>`simulation/model.py` |
-| **What to look for?** |  |
-| **Why it matters?** |  |
+| **What to look for?** | The model uses a `DistributionRegistry` to manage multiple distributions for different entities and processes. The `dist_config` from `Param` (`parameters.py`) is used by the registry. The dictionary of distribution is nested for easy access - restructured as `dist[type][unit][patient]`. Arrivals are generated using the adaptable `patient_generator()` method, which selects the appropriate distribution to sample based on patient type and unit. |
+| **Why it matters?** | Using a distribution registry and a flexible arrival generator method avoids repeated, hard-coded logic and simplifies maintenance in this more complex model. |
 : {tbl-colwidths="[20,80]"}
 :::
 ::::
@@ -504,11 +506,44 @@ model.run()
 
 ## 🧪 Test yourself
 
+Have a go at setting up a basic simulation model with entity generation, while following good package organisation.
 
+**Task:**
 
+::: {.python-content}
 
-<!--TODO: mention further reading with HSMA... could have extending section where discuss it..
+1. **Copy the code:** Take `Parameters` and `Model` class from above (simple or with distribution registry) and place them in modules within your package (e.g., `parameters.py` and `model.py` within a `simulation/` folder).
 
-also, acknowledge the sources of inspiration for this...-->
+2. **Set up a notebook:** Create a new notebook file (e.g., `notebooks/run_model.ipynb`).
+
+3. **Import and run the model:** From your notebook, import `Parameters` and `Model` from your package and run the model.
+
+:::
+
+::: {.r-content}
+
+1. TODO
+
+2. TODO
+
+3. TODO
+
+:::
+
+4. **Experiment:**
+    * If you copied the simple versions, try using the versions with distribution registries, and vice versa.
+    * Try different seeds by varying `run_number` in your notebook.
+    * Try adding a new arrival type - add the distribution parameters in `Parameters`, and see how you can sample from them in `Model`.
+
+::: {.callout-tip}
+
+If you are unsure how to organise these classes as a package, checkout out the [Structuring as a Package](../setup/package.qmd) page for a tutorial on this.
+
+:::
+
+## 📙 References
+
+::: {#refs}
+:::
 
 <br><br>
