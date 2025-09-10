@@ -147,11 +147,37 @@ class Parameters:
         self.run_length = run_length
 ```
 
+### Patient class
+
+We'll create a class to represent patients. Classes are useful as they can keep track of state and group logic (see [Code organisation](../setup/code_structure.qmd) page for more).
+
+For now, this will just have one attribute: `patient_id`. However, when we start tracking [Performance measures](../output_analysis/outputs.qmd), this class will be modified to store other attributes useful for output analysis.
+
+```{python}
+class Patient:
+    """
+    Represents a patient.
+
+    Attributes
+    ----------
+    patient_id : int
+        Unique patient identifier.
+    """
+    def __init__(self, patient_id):
+        """
+        Initialises a new patient.
+
+        Parameters
+        ----------
+        patient_id : int
+            Unique patient identifier.
+        """
+        self.patient_id = patient_id
+```
+
 ### Model class
 
-We'll create a class for the model. Classes are useful as they can keep track of state and group logic (see [Code organisation](../setup/code_structure.qmd) page for more).
-
-This class is explained line by line below.
+We'll also create a class for the model. This class is explained line by line below.
 
 ```{python}
 class Model:
@@ -166,6 +192,8 @@ class Model:
         Run number for random seed generation.
     env : simpy.Environment
         The SimPy environment for the simulation.
+    patients : list
+        List of Patient objects.
     arrival_dist : Exponential
         Distribution used to generate random patient inter-arrival times.
     """
@@ -190,6 +218,9 @@ class Model:
         ss = np.random.SeedSequence(self.run_number)
         seeds = ss.spawn(1)
 
+        # Create patient list
+        self.patients = []
+
         # Initialise distributions
         self.arrival_dist = Exponential(mean=self.param.interarrival_time,
                                         random_seed=seeds[0])
@@ -202,8 +233,14 @@ class Model:
             # Sample and pass time to next arrival
             sampled_iat = self.arrival_dist.sample()
             yield self.env.timeout(sampled_iat)
+
+            # Create a new patient
+            patient = Patient(patient_id=len(self.patients)+1)
+            self.patients.append(patient)
+  
             # Print arrival time
-            print(f"Arrival at time: {self.env.now}")
+            print(f"Patient {patient.patient_id} arrives " +
+                  f"at time: {self.env.now}")
 
     def run(self):
         """
@@ -263,6 +300,15 @@ A random seed sequence is created based on the `run_number`.
 <br>
 
 ```{.python}
+# Create patient list
+self.patients = []
+```
+
+The `patients` list will store the `Patient` instances created for each arrival. The list stores references to the objects, so any changes made to a Patient's attributes after being added will be reflected in the list.
+
+<br>
+
+```{.python}
 # Initialise distributions
 self.arrival_dist = Exponential(mean=self.param.interarrival_time,
                                 random_seed=seeds[0])
@@ -299,8 +345,19 @@ The statement `yield self.env.timeout(sampled_iat)` is how the simulation waits 
 <br>
 
 ```{.python}
+# Create a new patient
+patient = Patient(patient_id=len(self.patients)+1)
+self.patients.append(patient)
+```
+
+Create an instance of the `Patient` class for each arrival, with a `patient_id`.
+
+<br>
+
+```{.python}
 # Print arrival time
-print(f"Arrival at time: {self.env.now}")
+print(f"Patient {patient.patient_id} arrives " +
+      f"at time: {self.env.now}")
 ```
 
 Printing the time of each arrival gives a quick and visible check that the arrival process is working as expected. For now, simple print statements are effective, but this can later be replaced by a more sophisticated logging approach (see [Logging](../verification_validation/logs.qmd)).
@@ -530,6 +587,10 @@ class Parameters:
         self.run_length = run_length
 ```
 
+### `Patient` class
+
+No changes needed!
+
 ### Changes in `Model` class
 
 The model now uses `DistributionRegistry.create_batch()` to set up all required distributions at once.
@@ -551,6 +612,8 @@ class Model:
         Run number for random seed generation.
     env : simpy.Environment
         The SimPy environment for the simulation.
+    patients : list
+        List of Patient objects.
     arrival_dist : Exponential
         Distribution used to generate random patient inter-arrival times.
     """
@@ -571,10 +634,13 @@ class Model:
         # Create SimPy environment
         self.env = simpy.Environment()
 
-        # Create all the distributions  #<<
-        self.dist = DistributionRegistry.create_batch(  #<<
+        # Create patient list
+        self.patients = []
+
+        # Create all the distributions                                      #<<
+        self.dist = DistributionRegistry.create_batch(                      #<<
             config=dict(self.param.dist_config), main_seed=self.run_number  #<<
-        )  #<<
+        )                                                                   #<<
         print(self.dist)
 
     def generate_arrivals(self):
@@ -583,10 +649,16 @@ class Model:
         """
         while True:
             # Sample and pass time to next arrival
-            sampled_iat = self.dist["interarrival_time"].sample()  #<<
+            sampled_iat = self.dist["interarrival_time"].sample()           #<<
             yield self.env.timeout(sampled_iat)
+
+            # Create a new patient
+            patient = Patient(patient_id=len(self.patients)+1)
+            self.patients.append(patient)
+
             # Print arrival time
-            print(f"Arrival at time: {self.env.now}")
+            print(f"Patient {patient.patient_id} arrives " +
+                  f"at time: {self.env.now}")
 
     def run(self):
         """
@@ -859,7 +931,7 @@ model <- function(param, run_number) {
   # Set up sampling distributions                                           #<<
   registry <- DistributionRegistry$new()                                    #<<
   param[["dist"]] <- registry$create_batch(                                 #<<
-    as.list(param[["dist_config"]])                                     #<<
+    as.list(param[["dist_config"]])                                         #<<
   )                                                                         #<<
 
   # Define the patient trajectory
@@ -869,7 +941,7 @@ model <- function(param, run_number) {
   env <- env |>
     # Add patient generator
     add_generator("patient", patient, function() {
-      param[["dist"]][["interarrival_time"]]()                            #<<
+      param[["dist"]][["interarrival_time"]]()                              #<<
     }) |>
     # Run the simulation
     simmer::run(until = param[["run_length"]])
@@ -901,7 +973,7 @@ model(param = param, run_number = 1L)
 ::: {.blue-table}
 | | |
 | - | - |
-| **Key file** | `simulation/param.py`<br>`simulation/model.py` |
+| **Key file** | `simulation/param.py`<br>`simulation/patient.py`<br>`simulation/model.py` |
 | **What to look for?** | The structure is similar to the first example on this page. The `Param` class (in `param.py`) stores all simulation settings, including `patient_inter`. The `Model` class (in `model.py`) sets up the simulation environment, initialises the required distribution for arrivals, and `generate_patient_arrivals()` samples inter-arrival times and triggers arrivals. |
 | **Why it matters?** | Clear simple set-up with separation of parameters and model logic. |
 : {tbl-colwidths="[20,80]"}
@@ -915,7 +987,7 @@ model(param = param, run_number = 1L)
 ::: {.blue-table}
 | | |
 | - | - |
-| **Key file** | `R/parameters.R`<br>`R/model.R` |
+| **Key file** | `R/parameters.R`<br>`simulation/patient.py`<br>`R/model.R` |
 | **What to look for?** | The structure is similar to the first example on this page. The `parameters` function stores all simulation settings, including `patient_inter`. The `model` function sets up the simulation environment, creates a patient arrival generator, and runs the simulation. |
 | **Why it matters?** | Clear simple set-up with separation of parameters and model logic. |
 : {tbl-colwidths="[20,80]"}
