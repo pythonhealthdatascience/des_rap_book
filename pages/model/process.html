@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>❌ Entity processing – Reproducible Discrete-Event Simulation in Python and R</title>
+<title>Entity processing – Reproducible Discrete-Event Simulation in Python and R</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -19,6 +19,41 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -45,6 +80,7 @@ ul.task-list li input[type="checkbox"] {
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="../../site_libs/bootstrap/bootstrap-48abfe47d9aff21d6869d2a1ed7a7346.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/quarto-contrib/line-highlight-1.0.0/line-highlight.css" rel="stylesheet">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -137,7 +173,7 @@ cookieconsent.run({
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../pages/model/distributions.html">Model building</a></li><li class="breadcrumb-item"><a href="../../pages/model/process.html">❌ Entity processing</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../pages/model/distributions.html">Model building</a></li><li class="breadcrumb-item"><a href="../../pages/model/process.html">Entity processing</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -317,7 +353,7 @@ cookieconsent.run({
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../../pages/model/process.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text">❌ Entity processing</span></a>
+ <span class="menu-text">Entity processing</span></a>
   </div>
 </li>
       </ul>
@@ -536,15 +572,24 @@ cookieconsent.run({
 </nav>
 <div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul class="collapse">
+  <li><a href="#adding-a-consultation-with-a-doctor-to-the-model" id="toc-adding-a-consultation-with-a-doctor-to-the-model" class="nav-link active" data-scroll-target="#adding-a-consultation-with-a-doctor-to-the-model">🥼 Adding a consultation with a doctor to the model</a></li>
+  <li><a href="#explore-the-example-models" id="toc-explore-the-example-models" class="nav-link" data-scroll-target="#explore-the-example-models">🔍 Explore the example models</a></li>
+  <li><a href="#test-yourself" id="toc-test-yourself" class="nav-link" data-scroll-target="#test-yourself">🧪 Test yourself</a></li>
+  <li><a href="#further-information" id="toc-further-information" class="nav-link" data-scroll-target="#further-information">🔗 Further information</a></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../pages/model/distributions.html">Model building</a></li><li class="breadcrumb-item"><a href="../../pages/model/process.html">❌ Entity processing</a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../pages/model/distributions.html">Model building</a></li><li class="breadcrumb-item"><a href="../../pages/model/process.html">Entity processing</a></li></ol></nav>
 <div class="quarto-title">
-<h1 class="title">❌ Entity processing</h1>
+<h1 class="title">Entity processing</h1>
 </div>
 
 
@@ -561,13 +606,619 @@ cookieconsent.run({
 </header>
 
 
-<!--TODO: mention further reading with HSMA
+<!--
+When a Quarto document contains R and Python code blocks, it will use the knitr engine (from R) to render the document. This means we need to load the reticulate package, which allows us to execute Python code within the R session, within the conda environment specified.
 
-for r, probably best to run based on data collection period initially, not warmup+datacollection, else run into issue like i did, where i forgot to actually add code that filters for the warm-up period!-->
-<!-- TODO: describe the different approaches taken... Tom v.s. HSMA v.s. Me -->
+Note: When a Quarto document just contains Python code blocks (and no R code), Quarto uses the Jupyter engine to render the document.
+-->
+<div class="pale-blue">
+<p>🎯 <strong>Objectives</strong></p>
+<div class="python-content">
+<p>This page adds a process to the model (which uses a resource), with inspiration from Rosser et al.&nbsp;(<a href="https://des.hsma.co.uk/">2025</a>).</p>
+</div>
+<div class="r-content">
+<p>This page adds a process to the model (which uses a resource).</p>
+</div>
+<ul>
+<li><strong>🥼 Adding a consultation with a doctor to the model</strong>.</li>
+</ul>
+<p><a href="../../pages/intro/guidelines.html">🔗</a> <strong>Reproducibility guidelines</strong></p>
+<p>Entity processing is not directly addressed by the guidelines, but is an essential step in building DES.</p>
+</div>
+<p><br></p>
+<p>On the last page, we created a simple model with patient arrivals. As we continue building our model iteratively, we now add add a feature typical fo DES models: a process using a resource. In this case, a consultation with a doctor.</p>
+<blockquote class="blockquote">
+<p>⚠️ This page continues on from the <a href="../../pages/model/patients.html">Entity generation</a> page - work through that first!</p>
+</blockquote>
+<p><br></p>
+<p>Required packages:</p>
+<div class="python-content">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> simpy</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sim_tools.distributions <span class="im">import</span> Exponential</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+<div class="r-content">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(simmer)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+<section id="adding-a-consultation-with-a-doctor-to-the-model" class="level2">
+<h2 class="anchored" data-anchor-id="adding-a-consultation-with-a-doctor-to-the-model">🥼 Adding a consultation with a doctor to the model</h2>
+<div class="python-content">
+<div class="h3-tight">
+
+</div>
+<section id="parameter-class" class="level3">
+<h3 class="anchored" data-anchor-id="parameter-class">Parameter class</h3>
+<p>There are two new parameters: <code>consultation_time</code> and <code>number_of_doctors</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3" data-source-line-numbers="nil" data-code-line-numbers="9,10,11,12,17,18,27,28,29,30,35,36"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Parameters:</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co">    Parameter class.</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co">    Attributes</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="co">    ----------</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="co">    interarrival_time : float</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="co">        Mean time between arrivals (minutes).</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="co">    consultation_time : float</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="co">        Mean length of doctor's consultation (minutes).</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="co">    number_of_doctors : int</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="co">        Number of doctors.</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="co">    run_length : int</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="co">        Total duration of simulation (minutes).</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>, interarrival_time<span class="op">=</span><span class="dv">5</span>, consultation_time<span class="op">=</span><span class="dv">10</span>,</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>        number_of_doctors<span class="op">=</span><span class="dv">3</span>, run_length<span class="op">=</span><span class="dv">50</span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>    ):</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""</span></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a><span class="co">        Initialise Parameters instance.</span></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a><span class="co">        Parameters</span></span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a><span class="co">        ----------</span></span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a><span class="co">        interarrival_time : float</span></span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a><span class="co">            Time between arrivals (minutes).</span></span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a><span class="co">        consultation_time : float</span></span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a><span class="co">            Length of consultation (minutes).</span></span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a><span class="co">        number_of_doctors : int</span></span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a><span class="co">            Number of doctors.</span></span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a><span class="co">        run_length : int</span></span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a><span class="co">            Total duration of simulation (minutes).</span></span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a><span class="co">        """</span></span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.interarrival_time <span class="op">=</span> interarrival_time</span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.consultation_time <span class="op">=</span> consultation_time</span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.number_of_doctors <span class="op">=</span> number_of_doctors</span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.run_length <span class="op">=</span> run_length</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="patient-class" class="level3">
+<h3 class="anchored" data-anchor-id="patient-class">Patient class</h3>
+<p>No changes needed!</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Patient:</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co">    Represents a patient.</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="co">    Attributes</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="co">    ----------</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="co">    patient_id : int</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="co">        Unique patient identifier.</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, patient_id):</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="co">        Initialises a new patient.</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="co">        Parameters</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a><span class="co">        ----------</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a><span class="co">        patient_id : int</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a><span class="co">            Unique patient identifier.</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a><span class="co">        """</span></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.patient_id <span class="op">=</span> patient_id</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="model-class" class="level3">
+<h3 class="anchored" data-anchor-id="model-class">Model class</h3>
+<p>These changes are explained below…</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5" data-source-line-numbers="nil" data-code-line-numbers="13,14,19,20,40,41,42,46,54,55,74,75,77,78,79,81,82,83,84,85,86,87,88,89,90,91"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Model:</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co">    Simulation model.</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="co">    Attributes</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="co">    ----------</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="co">    param : Parameters</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="co">        Simulation parameters.</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="co">    run_number : int</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="co">        Run number for random seed generation.</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="co">    env : simpy.Environment</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="co">        The SimPy environment for the simulation.</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="co">    doctor : simpy.Resource</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="co">        SimPy resource representing doctors.</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a><span class="co">    patients : list</span></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a><span class="co">        List of Patient objects.</span></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a><span class="co">    arrival_dist : Exponential</span></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a><span class="co">        Distribution used to generate random patient inter-arrival times.</span></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a><span class="co">    consult_dist : Exponential</span></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a><span class="co">        Distribution used to generate length of a doctor's consultation.</span></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, param, run_number):</span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""</span></span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a><span class="co">        Create a new Model instance.</span></span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a><span class="co">        Parameters</span></span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a><span class="co">        ----------</span></span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a><span class="co">        param : Parameters</span></span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a><span class="co">            Simulation parameters.</span></span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a><span class="co">        run_number : int</span></span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a><span class="co">            Run number for random seed generation.</span></span>
+<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a><span class="co">        """</span></span>
+<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.param <span class="op">=</span> param</span>
+<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.run_number <span class="op">=</span> run_number</span>
+<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Create SimPy environment</span></span>
+<span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.env <span class="op">=</span> simpy.Environment()</span>
+<span id="cb5-38"><a href="#cb5-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-39"><a href="#cb5-39" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Create resource</span></span>
+<span id="cb5-40"><a href="#cb5-40" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.doctor <span class="op">=</span> simpy.Resource(</span>
+<span id="cb5-41"><a href="#cb5-41" aria-hidden="true" tabindex="-1"></a>            <span class="va">self</span>.env, capacity<span class="op">=</span><span class="va">self</span>.param.number_of_doctors</span>
+<span id="cb5-42"><a href="#cb5-42" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb5-43"><a href="#cb5-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-44"><a href="#cb5-44" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Create a random seed sequence based on the run number</span></span>
+<span id="cb5-45"><a href="#cb5-45" aria-hidden="true" tabindex="-1"></a>        ss <span class="op">=</span> np.random.SeedSequence(<span class="va">self</span>.run_number)</span>
+<span id="cb5-46"><a href="#cb5-46" aria-hidden="true" tabindex="-1"></a>        seeds <span class="op">=</span> ss.spawn(<span class="dv">2</span>)</span>
+<span id="cb5-47"><a href="#cb5-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-48"><a href="#cb5-48" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Create patient list</span></span>
+<span id="cb5-49"><a href="#cb5-49" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.patients <span class="op">=</span> []</span>
+<span id="cb5-50"><a href="#cb5-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-51"><a href="#cb5-51" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Initialise distributions</span></span>
+<span id="cb5-52"><a href="#cb5-52" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.arrival_dist <span class="op">=</span> Exponential(mean<span class="op">=</span><span class="va">self</span>.param.interarrival_time,</span>
+<span id="cb5-53"><a href="#cb5-53" aria-hidden="true" tabindex="-1"></a>                                        random_seed<span class="op">=</span>seeds[<span class="dv">0</span>])</span>
+<span id="cb5-54"><a href="#cb5-54" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.consult_dist <span class="op">=</span> Exponential(mean<span class="op">=</span><span class="va">self</span>.param.consultation_time,</span>
+<span id="cb5-55"><a href="#cb5-55" aria-hidden="true" tabindex="-1"></a>                                        random_seed<span class="op">=</span>seeds[<span class="dv">1</span>])</span>
+<span id="cb5-56"><a href="#cb5-56" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-57"><a href="#cb5-57" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> generate_arrivals(<span class="va">self</span>):</span>
+<span id="cb5-58"><a href="#cb5-58" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""</span></span>
+<span id="cb5-59"><a href="#cb5-59" aria-hidden="true" tabindex="-1"></a><span class="co">        Process that generates patient arrivals.</span></span>
+<span id="cb5-60"><a href="#cb5-60" aria-hidden="true" tabindex="-1"></a><span class="co">        """</span></span>
+<span id="cb5-61"><a href="#cb5-61" aria-hidden="true" tabindex="-1"></a>        <span class="cf">while</span> <span class="va">True</span>:</span>
+<span id="cb5-62"><a href="#cb5-62" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Sample and pass time to next arrival</span></span>
+<span id="cb5-63"><a href="#cb5-63" aria-hidden="true" tabindex="-1"></a>            sampled_iat <span class="op">=</span> <span class="va">self</span>.arrival_dist.sample()</span>
+<span id="cb5-64"><a href="#cb5-64" aria-hidden="true" tabindex="-1"></a>            <span class="cf">yield</span> <span class="va">self</span>.env.timeout(sampled_iat)</span>
+<span id="cb5-65"><a href="#cb5-65" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-66"><a href="#cb5-66" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Create a new patient</span></span>
+<span id="cb5-67"><a href="#cb5-67" aria-hidden="true" tabindex="-1"></a>            patient <span class="op">=</span> Patient(patient_id<span class="op">=</span><span class="bu">len</span>(<span class="va">self</span>.patients)<span class="op">+</span><span class="dv">1</span>)</span>
+<span id="cb5-68"><a href="#cb5-68" aria-hidden="true" tabindex="-1"></a>            <span class="va">self</span>.patients.append(patient)</span>
+<span id="cb5-69"><a href="#cb5-69" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-70"><a href="#cb5-70" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Print arrival time</span></span>
+<span id="cb5-71"><a href="#cb5-71" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(<span class="ss">f"Patient </span><span class="sc">{</span>patient<span class="sc">.</span>patient_id<span class="sc">}</span><span class="ss"> arrives "</span> <span class="op">+</span></span>
+<span id="cb5-72"><a href="#cb5-72" aria-hidden="true" tabindex="-1"></a>                  <span class="ss">f"at time: </span><span class="sc">{</span><span class="va">self</span><span class="sc">.</span>env<span class="sc">.</span>now<span class="sc">:.3f}</span><span class="ss">"</span>)</span>
+<span id="cb5-73"><a href="#cb5-73" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-74"><a href="#cb5-74" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Start process of consultation</span></span>
+<span id="cb5-75"><a href="#cb5-75" aria-hidden="true" tabindex="-1"></a>            <span class="va">self</span>.env.process(<span class="va">self</span>.consultation(patient))</span>
+<span id="cb5-76"><a href="#cb5-76" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-77"><a href="#cb5-77" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> consultation(<span class="va">self</span>, patient):</span>
+<span id="cb5-78"><a href="#cb5-78" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""</span></span>
+<span id="cb5-79"><a href="#cb5-79" aria-hidden="true" tabindex="-1"></a><span class="co">        Process that simulates a consultation.</span></span>
+<span id="cb5-80"><a href="#cb5-80" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-81"><a href="#cb5-81" aria-hidden="true" tabindex="-1"></a><span class="co">        Parameters</span></span>
+<span id="cb5-82"><a href="#cb5-82" aria-hidden="true" tabindex="-1"></a><span class="co">        ----------</span></span>
+<span id="cb5-83"><a href="#cb5-83" aria-hidden="true" tabindex="-1"></a><span class="co">        patient :</span></span>
+<span id="cb5-84"><a href="#cb5-84" aria-hidden="true" tabindex="-1"></a><span class="co">            Instance of the Patient() class representing a single patient.</span></span>
+<span id="cb5-85"><a href="#cb5-85" aria-hidden="true" tabindex="-1"></a><span class="co">        """</span></span>
+<span id="cb5-86"><a href="#cb5-86" aria-hidden="true" tabindex="-1"></a>        <span class="cf">with</span> <span class="va">self</span>.doctor.request() <span class="im">as</span> req:</span>
+<span id="cb5-87"><a href="#cb5-87" aria-hidden="true" tabindex="-1"></a>            <span class="cf">yield</span> req</span>
+<span id="cb5-88"><a href="#cb5-88" aria-hidden="true" tabindex="-1"></a>            <span class="bu">print</span>(<span class="ss">f"Patient </span><span class="sc">{</span>patient<span class="sc">.</span>patient_id<span class="sc">}</span><span class="ss"> starts consultation "</span> <span class="op">+</span></span>
+<span id="cb5-89"><a href="#cb5-89" aria-hidden="true" tabindex="-1"></a>                  <span class="ss">f"at: </span><span class="sc">{</span><span class="va">self</span><span class="sc">.</span>env<span class="sc">.</span>now<span class="sc">:.3f}</span><span class="ss">"</span>)</span>
+<span id="cb5-90"><a href="#cb5-90" aria-hidden="true" tabindex="-1"></a>            time_with_doctor <span class="op">=</span> <span class="va">self</span>.consult_dist.sample()</span>
+<span id="cb5-91"><a href="#cb5-91" aria-hidden="true" tabindex="-1"></a>            <span class="cf">yield</span> <span class="va">self</span>.env.timeout(time_with_doctor)</span>
+<span id="cb5-92"><a href="#cb5-92" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-93"><a href="#cb5-93" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> run(<span class="va">self</span>):</span>
+<span id="cb5-94"><a href="#cb5-94" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""</span></span>
+<span id="cb5-95"><a href="#cb5-95" aria-hidden="true" tabindex="-1"></a><span class="co">        Run the simulation.</span></span>
+<span id="cb5-96"><a href="#cb5-96" aria-hidden="true" tabindex="-1"></a><span class="co">        """</span></span>
+<span id="cb5-97"><a href="#cb5-97" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Schedule arrival generator</span></span>
+<span id="cb5-98"><a href="#cb5-98" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.env.process(<span class="va">self</span>.generate_arrivals())</span>
+<span id="cb5-99"><a href="#cb5-99" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Run the simulation</span></span>
+<span id="cb5-100"><a href="#cb5-100" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.env.run(until<span class="op">=</span><span class="va">self</span>.param.run_length)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><br></p>
+<div class="sourceCode" id="cb6" data-code-line-numbers=""><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create resource</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="va">self</span>.doctor <span class="op">=</span> simpy.Resource(                                       </span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="va">self</span>.env, capacity<span class="op">=</span><span class="va">self</span>.param.number_of_doctors                 </span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>This creates a resource called doctor using SimPy. It represents the group of doctors, with the number available set up <code>number_of_doctors</code>.</p>
+<p>In simulations, a resource is something a process (here, a patient) needs to use, but only a limited number can access it at once - patients will wait if all doctors are busy.</p>
+<p><br></p>
+<div class="sourceCode" id="cb7" data-code-line-numbers=""><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>seeds <span class="op">=</span> ss.spawn(<span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>We now create two seeds: one for patient arrivals and one for consultations.</p>
+<p><br></p>
+<div class="sourceCode" id="cb8" data-code-line-numbers=""><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="va">self</span>.consult_dist <span class="op">=</span> Exponential(mean<span class="op">=</span><span class="va">self</span>.param.consultation_time,  </span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>                                random_seed<span class="op">=</span>seeds[<span class="dv">1</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Alike arrivals, the length of each consultation is sampled from an exponential distribution using the sim-tools <code>Exponential</code> class.</p>
+<p><br></p>
+<div class="sourceCode" id="cb9" data-code-line-numbers=""><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Start process of consultation                                 </span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="va">self</span>.env.process(<span class="va">self</span>.consultation(patient))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>As soon as a patient arrives, we tell SimPy to begin handling this patient’s consultation using <code>self.env.process()</code>. SimPy will run this in parallel with other events like arrivals, so multiple patients and activities can progress at the same time.</p>
+<p><br></p>
+<div class="sourceCode" id="cb10" data-code-line-numbers=""><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> consultation(<span class="va">self</span>, patient):</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="co">    Process that simulates a consultation.</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="co">    Parameters</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="co">    ----------</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="co">    patient :</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="co">        Instance of the Patient() class representing a single patient.</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span>  </span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">with</span> <span class="va">self</span>.doctor.request() <span class="im">as</span> req:</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>        <span class="cf">yield</span> req</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"Patient </span><span class="sc">{</span>patient<span class="sc">.</span>patient_id<span class="sc">}</span><span class="ss"> starts consultation "</span> <span class="op">+</span></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>                <span class="ss">f"at: </span><span class="sc">{</span><span class="va">self</span><span class="sc">.</span>env<span class="sc">.</span>now<span class="sc">:.3f}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Each patient asks for a doctor using <code>self.doctor.request()</code>. If they’re all busy, the patient waits in a queue until one is free.</p>
+<p>Once a doctor is available, SimPy assigns the resource to that patient, and the consultation start time is printed.</p>
+<div class="sourceCode" id="cb11" data-code-line-numbers=""><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>time_with_doctor <span class="op">=</span> <span class="va">self</span>.consult_dist.sample()</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="cf">yield</span> <span class="va">self</span>.env.timeout(time_with_doctor)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>The duration of the consultation is then randomly sampled from the distribution set up earlier. The simulation then waits for this amount of time using <code>timeout()</code>, after which the doctor is released and free for the next patient.</p>
+</section>
+<section id="run-the-model" class="level3">
+<h3 class="anchored" data-anchor-id="run-the-model">Run the model</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>param <span class="op">=</span> Parameters()</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> Model(param<span class="op">=</span>param, run_number<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>model.run()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre data-code-line-numbers=""><code>Patient 1 arrives at time: 16.468
+Patient 1 starts consultation at: 16.468
+Patient 2 arrives at time: 20.283
+Patient 2 starts consultation at: 20.283
+Patient 3 arrives at time: 26.545
+Patient 3 starts consultation at: 26.545
+Patient 4 arrives at time: 27.675
+Patient 4 starts consultation at: 27.675
+Patient 5 arrives at time: 28.779
+Patient 5 starts consultation at: 28.779
+Patient 6 arrives at time: 37.778
+Patient 6 starts consultation at: 37.778
+Patient 7 arrives at time: 38.108
+Patient 7 starts consultation at: 38.108
+Patient 8 arrives at time: 42.611
+Patient 9 arrives at time: 44.088
+Patient 8 starts consultation at: 47.598</code></pre>
+</div>
+</div>
+</section>
+</div>
+<div class="r-content">
+<section id="parameter-function" class="level3">
+<h3 class="anchored" data-anchor-id="parameter-function">Parameter function</h3>
+<p>There are two new parameters: <code>consultation_time</code> and <code>number_of_doctors</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14" data-source-line-numbers="nil" data-code-line-numbers="4,5,6,14,15,21,22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co">#' Generate parameter list.</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="co">#'</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="co">#' @param interarrival_time Numeric. Time between arrivals (minutes).</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="co">#' @param consultation_time Numeric. Mean length of doctor's</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="co">#'   consultation (minutes).</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="co">#' @param number_of_doctors Numeric. Number of doctors.</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="co">#' @param run_length Numeric. Total duration of simulation (minutes).</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a><span class="co">#' @param verbose Boolean. Whether to print messages as simulation runs.</span></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a><span class="co">#'</span></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a><span class="co">#' @return A named list of parameters.</span></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>create_params <span class="ot">&lt;-</span> <span class="cf">function</span>(</span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">interarrival_time =</span> <span class="dv">5</span>L,</span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">consultation_time =</span> <span class="dv">10</span>L,</span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">number_of_doctors =</span> <span class="dv">3</span>L,</span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">run_length =</span> <span class="dv">50</span>L,</span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">verbose =</span> <span class="cn">TRUE</span></span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a>) {</span>
+<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(</span>
+<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">interarrival_time =</span> interarrival_time,</span>
+<span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">consultation_time =</span> consultation_time,</span>
+<span id="cb14-22"><a href="#cb14-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">number_of_doctors =</span> number_of_doctors,</span>
+<span id="cb14-23"><a href="#cb14-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">run_length =</span> run_length,</span>
+<span id="cb14-24"><a href="#cb14-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">verbose =</span> verbose</span>
+<span id="cb14-25"><a href="#cb14-25" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb14-26"><a href="#cb14-26" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="model-function" class="level3">
+<h3 class="anchored" data-anchor-id="model-function">Model function</h3>
+<p>We make two main changes to the <code>model()</code> function.</p>
+<ul>
+<li><p><strong>Patient trajectory.</strong> Patients must now wait for a doctor, spend a random amount of time in consultation (<code>timeout()</code> with <code>rexp()</code> function), and then release a doctor.</p></li>
+<li><p><strong>Doctor resource setup.</strong> The simulation environment adds a “doctor” resource with a specified capacity (<code>number_of_doctors</code>) using the <code>add_resource()</code> function.</p></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15" data-source-line-numbers="nil" data-code-line-numbers="18,19,20,21,22,25,26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co">#' Run simulation.</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="co">#'</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="co">#' @param param List. Model parameters.</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="co">#' @param run_number Int. Run number for random seed generation.</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="co">#'</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="co">#' @importFrom simmer add_generator run simmer timeout trajectory</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="cf">function</span>(param, run_number) {</span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Set random seed based on run number</span></span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set.seed</span>(run_number)</span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Create simmer environment</span></span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>  env <span class="ot">&lt;-</span> <span class="fu">simmer</span>(<span class="st">"simulation"</span>, <span class="at">verbose =</span> param[[<span class="st">"verbose"</span>]])</span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Define the patient trajectory</span></span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>  patient <span class="ot">&lt;-</span> <span class="fu">trajectory</span>(<span class="st">"consultation"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a>    <span class="fu">seize</span>(<span class="st">"doctor"</span>, <span class="dv">1</span>L) <span class="sc">|&gt;</span></span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a>    <span class="fu">timeout</span>(<span class="cf">function</span>() {</span>
+<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a>      <span class="fu">rexp</span>(<span class="at">n =</span> <span class="dv">1</span>L, <span class="at">rate =</span> <span class="dv">1</span>L <span class="sc">/</span> param[[<span class="st">"consultation_time"</span>]])</span>
+<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a>    }) <span class="sc">|&gt;</span></span>
+<span id="cb15-22"><a href="#cb15-22" aria-hidden="true" tabindex="-1"></a>    <span class="fu">release</span>(<span class="st">"doctor"</span>, <span class="dv">1</span>L)</span>
+<span id="cb15-23"><a href="#cb15-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-24"><a href="#cb15-24" aria-hidden="true" tabindex="-1"></a>  env <span class="ot">&lt;-</span> env <span class="sc">|&gt;</span></span>
+<span id="cb15-25"><a href="#cb15-25" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Add doctor resource</span></span>
+<span id="cb15-26"><a href="#cb15-26" aria-hidden="true" tabindex="-1"></a>    <span class="fu">add_resource</span>(<span class="st">"doctor"</span>, param[[<span class="st">"number_of_doctors"</span>]]) <span class="sc">|&gt;</span></span>
+<span id="cb15-27"><a href="#cb15-27" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Add patient generator</span></span>
+<span id="cb15-28"><a href="#cb15-28" aria-hidden="true" tabindex="-1"></a>    <span class="fu">add_generator</span>(<span class="st">"patient"</span>, patient, <span class="cf">function</span>() {</span>
+<span id="cb15-29"><a href="#cb15-29" aria-hidden="true" tabindex="-1"></a>      <span class="fu">rexp</span>(<span class="at">n =</span> <span class="dv">1</span>L, <span class="at">rate =</span> <span class="dv">1</span>L <span class="sc">/</span> param[[<span class="st">"interarrival_time"</span>]])</span>
+<span id="cb15-30"><a href="#cb15-30" aria-hidden="true" tabindex="-1"></a>    }) <span class="sc">|&gt;</span></span>
+<span id="cb15-31"><a href="#cb15-31" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Run the simulation</span></span>
+<span id="cb15-32"><a href="#cb15-32" aria-hidden="true" tabindex="-1"></a>    simmer<span class="sc">::</span><span class="fu">run</span>(<span class="at">until =</span> param[[<span class="st">"run_length"</span>]])</span>
+<span id="cb15-33"><a href="#cb15-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-34"><a href="#cb15-34" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="run-the-model-1" class="level3">
+<h3 class="anchored" data-anchor-id="run-the-model-1">Run the model</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>param <span class="ot">&lt;-</span> <span class="fu">create_params</span>()</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="fu">model</span>(<span class="at">param =</span> param, <span class="at">run_number =</span> <span class="dv">1</span>L)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre data-code-line-numbers=""><code>         0 |    source: patient          |       new: patient0         | 3.77591
+   3.77591 |   arrival: patient0         |  activity: Seize            | doctor, 1, 0 paths
+   3.77591 |  resource: doctor           |   arrival: patient0         | SERVE
+   3.77591 |    source: patient          |       new: patient1         | 9.68412
+   3.77591 |   arrival: patient0         |  activity: Timeout          | function()
+   5.23298 |   arrival: patient0         |  activity: Release          | doctor, 1
+   5.23298 |  resource: doctor           |   arrival: patient0         | DEPART
+   5.23298 |      task: Post-Release     |          :                  | 
+   9.68412 |   arrival: patient1         |  activity: Seize            | doctor, 1, 0 paths
+   9.68412 |  resource: doctor           |   arrival: patient1         | SERVE
+   9.68412 |    source: patient          |       new: patient2         | 10.3831
+   9.68412 |   arrival: patient1         |  activity: Timeout          | function()
+   10.3831 |   arrival: patient2         |  activity: Seize            | doctor, 1, 0 paths
+   10.3831 |  resource: doctor           |   arrival: patient2         | SERVE
+   10.3831 |    source: patient          |       new: patient3         | 24.8579
+   10.3831 |   arrival: patient2         |  activity: Timeout          | function()
+   14.0448 |   arrival: patient1         |  activity: Release          | doctor, 1
+   14.0448 |  resource: doctor           |   arrival: patient1         | DEPART
+   14.0448 |      task: Post-Release     |          :                  | 
+   22.6787 |   arrival: patient2         |  activity: Release          | doctor, 1
+   22.6787 |  resource: doctor           |   arrival: patient2         | DEPART
+   22.6787 |      task: Post-Release     |          :                  | 
+   24.8579 |   arrival: patient3         |  activity: Seize            | doctor, 1, 0 paths
+   24.8579 |  resource: doctor           |   arrival: patient3         | SERVE
+   24.8579 |    source: patient          |       new: patient4         | 27.5564
+   24.8579 |   arrival: patient3         |  activity: Timeout          | function()
+   27.5564 |   arrival: patient4         |  activity: Seize            | doctor, 1, 0 paths
+   27.5564 |  resource: doctor           |   arrival: patient4         | SERVE
+   27.5564 |    source: patient          |       new: patient5         | 28.2916
+   27.5564 |   arrival: patient4         |  activity: Timeout          | function()
+   28.2916 |   arrival: patient5         |  activity: Seize            | doctor, 1, 0 paths
+   28.2916 |  resource: doctor           |   arrival: patient5         | SERVE
+   28.2916 |    source: patient          |       new: patient6         | 32.1017
+   28.2916 |   arrival: patient5         |  activity: Timeout          | function()
+   32.1017 |   arrival: patient6         |  activity: Seize            | doctor, 1, 0 paths
+   32.1017 |  resource: doctor           |   arrival: patient6         | ENQUEUE
+   32.1017 |    source: patient          |       new: patient7         | 54.2214
+   34.4236 |   arrival: patient3         |  activity: Release          | doctor, 1
+   34.4236 |  resource: doctor           |   arrival: patient3         | DEPART
+   34.4236 |      task: Post-Release     |          :                  | 
+   34.4236 |  resource: doctor           |   arrival: patient6         | SERVE
+   34.4236 |   arrival: patient6         |  activity: Timeout          | function()
+   40.6676 |   arrival: patient5         |  activity: Release          | doctor, 1
+   40.6676 |  resource: doctor           |   arrival: patient5         | DEPART
+   40.6676 |      task: Post-Release     |          :                  | 
+   41.4637 |   arrival: patient4         |  activity: Release          | doctor, 1
+   41.4637 |  resource: doctor           |   arrival: patient4         | DEPART
+   41.4637 |      task: Post-Release     |          :                  | 
+    44.969 |   arrival: patient6         |  activity: Release          | doctor, 1
+    44.969 |  resource: doctor           |   arrival: patient6         | DEPART
+    44.969 |      task: Post-Release     |          :                  | </code></pre>
+</div>
+</div>
+<p><br></p>
+<div class="callout callout-style-default callout-note callout-titled" title="How to interpret simmer's print messages">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+How to interpret simmer’s print messages
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Now we’ve added a resource-based process, this output may appear a little confusing! To make sense of it, let’s work through some examples…</p>
+<p><br></p>
+<p><strong>Example with no waiting: <code>patient0</code></strong></p>
+<p>The patient arrives at 3.77591.</p>
+<pre data-code-line-numbers=""><code>         0 |    source: patient          |       new: patient0         | 3.77591</code></pre>
+<p>Immediately, they request a doctor (<code>Seize</code>). There is one available (<code>SERVE</code>).</p>
+<pre data-code-line-numbers=""><code>   3.77591 |   arrival: patient0         |  activity: Seize            | doctor, 1, 0 paths
+   3.77591 |  resource: doctor           |   arrival: patient0         | SERVE</code></pre>
+<p>The consultation begins (<code>Timeout</code>).</p>
+<pre data-code-line-numbers=""><code>   3.77591 |   arrival: patient0         |  activity: Timeout          | function()</code></pre>
+<p>The consultation finishes at 5.23298, and the patient leaves.</p>
+<pre data-code-line-numbers=""><code>   5.23298 |   arrival: patient0         |  activity: Release          | doctor, 1
+   5.23298 |  resource: doctor           |   arrival: patient0         | DEPART
+   5.23298 |      task: Post-Release     |          :                  | </code></pre>
+<p><br></p>
+<p><strong>Example with waiting: <code>patient6</code></strong></p>
+<p>The patient arrives at 32.1017.</p>
+<pre data-code-line-numbers=""><code>   28.2916 |    source: patient          |       new: patient6         | 32.1017</code></pre>
+<p>They request a doctor (<code>Seize</code>), but none are available, so they join a queue (<code>ENQUEUE</code>).</p>
+<pre data-code-line-numbers=""><code>   32.1017 |   arrival: patient6         |  activity: Seize            | doctor, 1, 0 paths
+   32.1017 |  resource: doctor           |   arrival: patient6         | ENQUEUE</code></pre>
+<p>At 34.4236, a doctor becomes available (<code>SERVE</code>) and their consultation begins (<code>Timeout</code>).</p>
+<pre data-code-line-numbers=""><code>   34.4236 |  resource: doctor           |   arrival: patient6         | SERVE
+   34.4236 |   arrival: patient6         |  activity: Timeout          | function()</code></pre>
+<p>At 44.969, their consultation ends.</p>
+<pre data-code-line-numbers=""><code>    44.969 |   arrival: patient6         |  activity: Release          | doctor, 1
+    44.969 |  resource: doctor           |   arrival: patient6         | DEPART
+    44.969 |      task: Post-Release     |          :                  | </code></pre>
+<p><br></p>
+<p>You can create custom logs which are easier to interpret - see the <a href="../../pages/verification_validation/logs.html">Logging</a> page.</p>
+</div>
+</div>
+</section>
+</div>
+</section>
+<section id="explore-the-example-models" class="level2">
+<h2 class="anchored" data-anchor-id="explore-the-example-models">🔍 Explore the example models</h2>
+<div class="h3-tight">
+
+</div>
+<section id="nurse-visit-simulation" class="level3">
+<h3 class="anchored" data-anchor-id="nurse-visit-simulation">🩺 Nurse visit simulation</h3>
+<div class="python-content">
+<p><a href="https://github.com/pythonhealthdatascience/pydesrap_mms" target="_blank" style="text-decoration: none;"> <span style="display: inline-flex; align-items: center; background: #1d7898;
+  color: #fff; border-radius: 20px; padding: 0.4em 1em; font-weight: 600;
+  gap: 0.5em;"> <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/github.svg" alt="GitHub" width="20" height="20" style="filter: brightness(0)
+    invert(1);"> Click to visit pydesrap_mms repository </span> </a></p>
+<div class="blue-table">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 80%">
+</colgroup>
+<tbody>
+<tr class="odd">
+<td><strong>Key file</strong></td>
+<td><code>simulation/param.py</code><br><code>simulation/patient.py</code><br><code>simulation/model.py</code><br><code>simulation/monitoredresource.py</code></td>
+</tr>
+<tr class="even">
+<td><strong>What to look for?</strong></td>
+<td>This is similar to our example above - though it uses a custom <code>MonitoredResource</code> class instead of <code>simpy.Resource()</code>. Additionally, the patient’s times (e.g.&nbsp;arrival, consultation length) are saved as attributes.</td>
+</tr>
+<tr class="odd">
+<td><strong>Why it matters?</strong></td>
+<td><code>MonitoredResource</code> is introduced to support performance measurement (see <a href="../../pages/output_analysis/outputs.html">Performance measures</a>). For the core process of seizing a resource, it functions the same as a standard <code>simpy.Resource()</code>. Storing the times is also only relevant for later performance analysis.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="r-content">
+<p><a href="https://github.com/pythonhealthdatascience/rdesrap_mms" target="_blank" style="text-decoration: none;"> <span style="display: inline-flex; align-items: center; background: #1d7898;
+  color: #fff; border-radius: 20px; padding: 0.4em 1em; font-weight: 600;
+  gap: 0.5em;"> <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/github.svg" alt="GitHub" width="20" height="20" style="filter: brightness(0)
+    invert(1);"> Click to visit rdesrap_mms repository </span> </a></p>
+<div class="blue-table">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 80%">
+</colgroup>
+<tbody>
+<tr class="odd">
+<td><strong>Key file</strong></td>
+<td><code>R/parameters.R</code><br><code>R/model.R</code></td>
+</tr>
+<tr class="even">
+<td><strong>What to look for?</strong></td>
+<td>This is similar to our example above, except that the time spent with the nurse resource is sampled and set as an attribute (<code>set_attribute()</code>), then the <code>timeout()</code> function retrieves this attribute.</td>
+</tr>
+<tr class="odd">
+<td><strong>Why it matters?</strong></td>
+<td>This general process of adding and seizing resources is pretty simple, but the model uses attributes as we needed a record of their time with the resource for a <a href="../../pages/output_analysis/outputs.html">performance measure</a></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="stroke-pathway-simulation" class="level3">
+<h3 class="anchored" data-anchor-id="stroke-pathway-simulation">🧠 Stroke pathway simulation</h3>
+<div class="python-content">
+<p><a href="https://github.com/pythonhealthdatascience/pydesrap_stroke" target="_blank" style="text-decoration: none;"> <span style="display: inline-flex; align-items: center; background: #1d7898;
+  color: #fff; border-radius: 20px; padding: 0.4em 1em; font-weight: 600;
+  gap: 0.5em;"> <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/github.svg" alt="GitHub" width="20" height="20" style="filter: brightness(0)
+    invert(1);"> Click to visit pydesrap_stroke repository </span> </a></p>
+<div class="blue-table">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 80%">
+</colgroup>
+<tbody>
+<tr class="odd">
+<td><strong>Key file</strong></td>
+<td><code>simulation/patient.py</code><br><code>simulation/model.py</code></td>
+</tr>
+<tr class="even">
+<td><strong>What to look for?</strong></td>
+<td>No <code>simpy.Resource()</code> are used! Instead of a consultation length, they will sample their length of stay and transfer destination.</td>
+</tr>
+<tr class="odd">
+<td><strong>Why it matters?</strong></td>
+<td>The hospital units are modelled as having infinite capacity - so no resources are used, as patients never have to queue. This means that occupancy metrics reflect demand without artificial caps, so the model provides unbiased estimates of how many beds would be needed at any moment, and how often real-world capacity could be exceeded.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="r-content">
+<p><a href="https://github.com/pythonhealthdatascience/rdesrap_stroke" target="_blank" style="text-decoration: none;"> <span style="display: inline-flex; align-items: center; background: #1d7898;
+  color: #fff; border-radius: 20px; padding: 0.4em 1em; font-weight: 600;
+  gap: 0.5em;"> <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/github.svg" alt="GitHub" width="20" height="20" style="filter: brightness(0)
+    invert(1);"> Click to visit rdesrap_stroke repository </span> </a></p>
+<div class="blue-table">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 80%">
+</colgroup>
+<tbody>
+<tr class="odd">
+<td><strong>Key file</strong></td>
+<td><code>R/model.R</code><br><code>R/create_asu_trajectory.R</code><br><code>R/create_rehab_trajectory.R</code></td>
+</tr>
+<tr class="even">
+<td><strong>What to look for?</strong></td>
+<td>For this model, the resources are beds in an acute stroke unit (<code>asu</code>) or rehabilitation unit (<code>rehab</code>). They are set to have an infinite capacity - <code>add_resource (.env = env, name = paste0(unit, "_bed"), capacity = Inf )</code>. The patients will request these bed resources - e.g.&nbsp;<code>seize("asu_bed", 1L)</code> - but never have to queue. Instead of a consultation length, they will sample their length of stay and transfer destination.</td>
+</tr>
+<tr class="odd">
+<td><strong>Why it matters?</strong></td>
+<td>Setting bed resources to infinite capacity means that occupancy metrics reflect demand without artificial caps, so the model provides unbiased estimates of how many beds would be needed at any moment, and how often real-world capacity could be exceeded. The patient trajectories for this model are defined in separate files due to the amount of code.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+</section>
+<section id="test-yourself" class="level2">
+<h2 class="anchored" data-anchor-id="test-yourself">🧪 Test yourself</h2>
+<p>If you haven’t already, try adding a resource-based process for your model.</p>
+<p><strong>Task:</strong></p>
+<ul>
+<li><p>Copy over the modifications above and run model.</p></li>
+<li><p>Try changing parameters like <code>consultation_time</code> or <code>number_of_doctors</code> - how do the results change?</p></li>
+</ul>
+</section>
+<section id="further-information" class="level2">
+<h2 class="anchored" data-anchor-id="further-information">🔗 Further information</h2>
+<div class="python-content">
+<ul>
+<li><p>“<a href="https://des.hsma.co.uk/">HSMA - little book of DES</a>” from Sammi Rosser, Dan Chalk and Amy Heather 2025</p>
+<p><em>Introduction to writing discrete event simulation models for healthcare in SimPy.</em></p></li>
+</ul>
+</div>
+<div class="r-content">
+<p>N/A</p>
+</div>
 <p><br><br></p>
 
 
+</section>
 
 </main> <!-- /main -->
 <script>
@@ -1130,4 +1781,5 @@ Text licence: <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="
 
 
 
+<script src="../../site_libs/quarto-contrib/line-highlight-1.0.0/line-highlight.js" defer="true"></script>
 </body></html>
