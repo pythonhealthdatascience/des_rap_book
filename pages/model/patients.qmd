@@ -126,7 +126,7 @@ class Parameters:
     Attributes
     ----------
     interarrival_time : float
-        Time between arrivals (minutes).
+        Mean time between arrivals (minutes).
     run_length : int
         Total duration of simulation (minutes).
     """
@@ -222,8 +222,10 @@ class Model:
         self.patients = []
 
         # Initialise distributions
-        self.arrival_dist = Exponential(mean=self.param.interarrival_time,
-                                        random_seed=seeds[0])
+        self.arrival_dist = Exponential(
+            mean=self.param.interarrival_time,
+            random_seed=seeds[0]
+        )
 
     def generate_arrivals(self):
         """
@@ -240,7 +242,7 @@ class Model:
   
             # Print arrival time
             print(f"Patient {patient.patient_id} arrives " +
-                  f"at time: {self.env.now}")
+                  f"at time: {self.env.now:.3f}")
 
     def run(self):
         """
@@ -310,8 +312,10 @@ The `patients` list will store the `Patient` instances created for each arrival.
 
 ```{.python}
 # Initialise distributions
-self.arrival_dist = Exponential(mean=self.param.interarrival_time,
-                                random_seed=seeds[0])
+self.arrival_dist = Exponential(
+    mean=self.param.interarrival_time,
+    random_seed=seeds[0]
+)
 ```
 
 We've used the `Exponential` distribution from `sim-tools` to generate inter-arrival times for patients.
@@ -357,7 +361,7 @@ Create an instance of the `Patient` class for each arrival, with a `patient_id`.
 ```{.python}
 # Print arrival time
 print(f"Patient {patient.patient_id} arrives " +
-      f"at time: {self.env.now}")
+      f"at time: {self.env.now:.3f}")
 ```
 
 Printing the time of each arrival gives a quick and visible check that the arrival process is working as expected. For now, simple print statements are effective, but this can later be replaced by a more sophisticated logging approach (see [Logging](../verification_validation/logs.qmd)).
@@ -445,7 +449,7 @@ model <- function(param, run_number) {
   env <- simmer("simulation", verbose = param[["verbose"]])
 
   # Define the patient trajectory
-  patient <- trajectory("patient_path") |>
+  patient <- trajectory("consultation") |>
     timeout(1L)
 
   env <- env |>
@@ -504,7 +508,7 @@ The `verbose` argument is set to `TRUE` in `param`, and enables activity informa
 
 ```{.r}
 # Define the patient trajectory
-patient <- trajectory("patient_path") |>
+patient <- trajectory("consultation") |>
   timeout(1)
 ```
 
@@ -547,7 +551,7 @@ The `DistributionRegistry` class from `sim-tools` provides a structured way to o
 
 This will feel excessive for our basic example, but having a distribution registry can make things easier for larger models.
 
-### Changes in `Parameter` class
+### Parameter class
 
 In the `Parameters` class, distributions are now specified in a nested dictionary called `dist_config`. Each entry describes the distribution type and its parameters.
 
@@ -560,8 +564,8 @@ class Parameters:
 
     Attributes
     ----------
-    dist_config : dict                                                      #<<
-        Holds all distribution specifications.                              #<<
+    dist_config : dict#<<
+        Holds all distribution specifications.#<<
     run_length : int
         Total duration of simulation (minutes).
     """
@@ -578,20 +582,20 @@ class Parameters:
         run_length : int
             Total duration of simulation (minutes).
         """
-        self.dist_config = {                                                #<<
-            "interarrival_time": {                                          #<<
-                "class_name": "Exponential",                                #<<
-                "params": {"mean": interarrival_time}                       #<<
-            }                                                               #<<
-        }                                                                   #<<
+        self.dist_config = {#<<
+            "interarrival_time": {#<<
+                "class_name": "Exponential",#<<
+                "params": {"mean": interarrival_time}#<<
+            }#<<
+        }#<<
         self.run_length = run_length
 ```
 
-### `Patient` class
+### Patient class
 
 No changes needed!
 
-### Changes in `Model` class
+### Model class
 
 The model now uses `DistributionRegistry.create_batch()` to set up all required distributions at once.
 
@@ -637,10 +641,10 @@ class Model:
         # Create patient list
         self.patients = []
 
-        # Create all the distributions                                      #<<
-        self.dist = DistributionRegistry.create_batch(                      #<<
-            config=dict(self.param.dist_config), main_seed=self.run_number  #<<
-        )                                                                   #<<
+        # Create all the distributions#<<
+        self.dist = DistributionRegistry.create_batch(#<<
+            config=dict(self.param.dist_config), main_seed=self.run_number#<<
+        )#<<
         print(self.dist)
 
     def generate_arrivals(self):
@@ -649,7 +653,7 @@ class Model:
         """
         while True:
             # Sample and pass time to next arrival
-            sampled_iat = self.dist["interarrival_time"].sample()           #<<
+            sampled_iat = self.dist["interarrival_time"].sample()#<<
             yield self.env.timeout(sampled_iat)
 
             # Create a new patient
@@ -658,7 +662,7 @@ class Model:
 
             # Print arrival time
             print(f"Patient {patient.patient_id} arrives " +
-                  f"at time: {self.env.now}")
+                  f"at time: {self.env.now:.3f}")
 
     def run(self):
         """
@@ -690,7 +694,7 @@ One solution is to write a `DistributionRegistry` class (based on that in the Py
 
 This will feel excessive for our basic example, but having a distribution registry can make things easier for larger models.
 
-### `DistributionRegistry`
+### DistributionRegistry
 
 This is coped from the R stroke pathway example simulation model.
 
@@ -879,7 +883,7 @@ DistributionRegistry <- R6Class("DistributionRegistry", list( # nolint: object_n
 )
 ```
 
-### Changes in `create_params` function
+### Parameter function
 
 In the `create_params` function, distributions are now specified in a nested list called `dist_config`. Each entry describes the distribution type and its parameters.
 
@@ -898,19 +902,19 @@ create_params <- function(interarrival_time = 5L,
                           run_length = 50L,
                           verbose = TRUE) {
   list(
-    dist_config = list(                                                     #<<
-      interarrival_time = list(                                             #<<
-        class_name = "exponential",                                         #<<
-        params = list(mean = interarrival_time)                             #<<
-      )                                                                     #<<
-    ),                                                                      #<<
+    dist_config = list(#<<
+      interarrival_time = list(#<<
+        class_name = "exponential",#<<
+        params = list(mean = interarrival_time)#<<
+      )#<<
+    ),#<<
     run_length = run_length,
     verbose = verbose
   )
 }
 ```
 
-### Changes in `model` function
+### Model function
 
 ```{r}
 #' Run simulation.
@@ -928,20 +932,20 @@ model <- function(param, run_number) {
   # Create simmer environment
   env <- simmer("simulation", verbose = param[["verbose"]])
 
-  # Set up sampling distributions                                           #<<
-  registry <- DistributionRegistry$new()                                    #<<
-  param[["dist"]] <- registry$create_batch(                                 #<<
-    as.list(param[["dist_config"]])                                         #<<
-  )                                                                         #<<
+  # Set up sampling distributions#<<
+  registry <- DistributionRegistry$new()#<<
+  param[["dist"]] <- registry$create_batch(#<<
+    as.list(param[["dist_config"]])#<<
+  )#<<
 
   # Define the patient trajectory
-  patient <- trajectory("patient_path") |>
+  patient <- trajectory("consultation") |>
     timeout(1L)
 
   env <- env |>
     # Add patient generator
     add_generator("patient", patient, function() {
-      param[["dist"]][["interarrival_time"]]()                              #<<
+      param[["dist"]][["interarrival_time"]]()#<<
     }) |>
     # Run the simulation
     simmer::run(until = param[["run_length"]])
@@ -1017,7 +1021,7 @@ model(param = param, run_number = 1L)
 ::: {.blue-table}
 | | |
 | - | - |
-| **Key file** | `R/parameters.R`<br>`R/model.R`<br>`R/distribution_registry.R` |
+| **Key file** | `inst/extdata/parameters.json`<br>`R/parameters.R`<br>`R/model.R`<br>`R/distribution_registry.R` |
 | **What to look for?** | The model uses a `DistributionRegistry` class to manage multiple distributions for different entities and processes. The `dist_config` from `parameters()` is used by the registry. The list of distributions is nested for easy access - restructured as `dist[type][unit][patient]`. The arrival generator is created using the `add_patient_generator()` functions, which sets up an appropriate distribution to sample based on patient type and unit. |
 | **Why it matters?** | Using a distribution registry and a flexible arrival generator method avoids repeated, hard-coded logic and simplifies maintenance in this more complex model. |
 : {tbl-colwidths="[20,80]"}
