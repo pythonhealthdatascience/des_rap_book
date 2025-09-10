@@ -1,5 +1,5 @@
 ---
-title: ❌ Entity processing
+title: Entity processing
 filters:
   - line-highlight
 ---
@@ -316,7 +316,7 @@ model.run()
 
 :::
 
-::: {.r-content}
+:::: {.r-content}
 
 ### Parameter function
 
@@ -337,7 +337,7 @@ There are two new parameters: `consultation_time` and `number_of_doctors`.
 create_params <- function(
     interarrival_time = 5L,
     consultation_time = 10L,#<<
-    number_of_doctors=3L,#<<
+    number_of_doctors = 3L,#<<
     run_length = 50L,
     verbose = TRUE
 ) {
@@ -403,7 +403,160 @@ param <- create_params()
 model(param = param, run_number = 1L)
 ```
 
+<br>
+
+::: {.callout-note title="How to interpret simmer's print messages"}
+
+Now we've added a resource-based process, this output may appear a little confusing! To make sense of it, let's work through some examples...
+
+<br>
+
+**Example with no waiting: `patient0`**
+
+The patient arrives at 3.77591.
+
+```
+         0 |    source: patient          |       new: patient0         | 3.77591
+```
+
+Immediately, they request a doctor (`Seize`). There is one available (`SERVE`).
+
+```
+   3.77591 |   arrival: patient0         |  activity: Seize            | doctor, 1, 0 paths
+   3.77591 |  resource: doctor           |   arrival: patient0         | SERVE
+```
+
+The consultation begins (`Timeout`).
+
+```
+   3.77591 |   arrival: patient0         |  activity: Timeout          | function()
+```
+
+The consultation finishes at 5.23298, and the patient leaves.
+
+```
+   5.23298 |   arrival: patient0         |  activity: Release          | doctor, 1
+   5.23298 |  resource: doctor           |   arrival: patient0         | DEPART
+   5.23298 |      task: Post-Release     |          :                  | 
+```
+
+<br>
+
+**Example with waiting: `patient6`**
+
+The patient arrives at 32.1017.
+
+```
+   28.2916 |    source: patient          |       new: patient6         | 32.1017
+```
+
+They request a doctor (`Seize`), but none are available, so they join a queue (`ENQUEUE`).
+
+```
+   32.1017 |   arrival: patient6         |  activity: Seize            | doctor, 1, 0 paths
+   32.1017 |  resource: doctor           |   arrival: patient6         | ENQUEUE
+```
+
+At 34.4236, a doctor becomes available (`SERVE`) and their consultation begins (`Timeout`).
+
+```
+   34.4236 |  resource: doctor           |   arrival: patient6         | SERVE
+   34.4236 |   arrival: patient6         |  activity: Timeout          | function()
+```
+
+At 44.969, their consultation ends.
+
+```
+    44.969 |   arrival: patient6         |  activity: Release          | doctor, 1
+    44.969 |  resource: doctor           |   arrival: patient6         | DEPART
+    44.969 |      task: Post-Release     |          :                  | 
+```
+
+<br>
+
+You can create custom logs which are easier to interpret - see the [Logging](../verification_validation/logs.qmd) page.
+
 :::
+
+::::
+
+## 🔍 Explore the example models
+
+<div class="h3-tight"></div>
+
+### 🩺 Nurse visit simulation
+
+:::: {.python-content}
+
+{{< include ../../html/pydesrapmms.html >}}
+
+::: {.blue-table}
+| | |
+| - | - |
+| **Key file** | `simulation/param.py`<br>`simulation/patient.py`<br>`simulation/model.py`<br>`simulation/monitoredresource.py` |
+| **What to look for?** | This is similar to our example above - though it uses a custom `MonitoredResource` class instead of `simpy.Resource()`. Additionally, the patient's times (e.g. arrival, consultation length) are saved as attributes. |
+| **Why it matters?** | `MonitoredResource` is introduced to support performance measurement (see [Performance measures](../output_analysis/outputs.qmd)). For the core process of seizing a resource, it functions the same as a standard `simpy.Resource()`. Storing the times is also only relevant for later performance analysis. |
+: {tbl-colwidths="[20,80]"}
+:::
+
+::::
+
+:::: {.r-content}
+
+{{< include ../../html/rdesrapmms.html >}}
+
+::: {.blue-table}
+| | |
+| - | - |
+| **Key file** | `R/parameters.R`<br>`R/model.R` |
+| **What to look for?** | This is similar to our example above, except that the time spent with the nurse resource is sampled and set as an attribute (`set_attribute()`), then the `timeout()` function retrieves this attribute. |
+| **Why it matters?** | This general process of adding and seizing resources is pretty simple, but the model uses attributes as we needed a record of their time with the resource for a [performance measure](../output_analysis/outputs.qmd) |
+: {tbl-colwidths="[20,80]"}
+:::
+
+::::
+
+### 🧠 Stroke pathway simulation
+
+:::: {.python-content}
+
+{{< include ../../html/pydesrapstroke.html >}}
+
+::: {.blue-table}
+| | |
+| - | - |
+| **Key file** | `simulation/patient.py`<br>`simulation/model.py` |
+| **What to look for?** | No `simpy.Resource()` are used! Instead of a consultation length, they will sample their length of stay and transfer destination. |
+| **Why it matters?** | The hospital units are modelled as having infinite capacity - so no resources are used, as patients never have to queue. This means that occupancy metrics reflect demand without artificial caps, so the model provides unbiased estimates of how many beds would be needed at any moment, and how often real-world capacity could be exceeded. |
+: {tbl-colwidths="[20,80]"}
+:::
+
+::::
+
+:::: {.r-content}
+
+{{< include ../../html/rdesrapstroke.html >}}
+
+::: {.blue-table}
+| | |
+| - | - |
+| **Key file** | `R/model.R`<br>`R/create_asu_trajectory.R`<br>`R/create_rehab_trajectory.R` |
+| **What to look for?** | For this model, the resources are beds in an acute stroke unit (`asu`) or rehabilitation unit (`rehab`). They are set to have an infinite capacity - `add_resource (.env = env, name = paste0(unit, "_bed"), capacity = Inf )`. The patients will request these bed resources - e.g. `seize("asu_bed", 1L)` - but never have to queue. Instead of a consultation length, they will sample their length of stay and transfer destination. |
+| **Why it matters?** | Setting bed resources to infinite capacity means that occupancy metrics reflect demand without artificial caps, so the model provides unbiased estimates of how many beds would be needed at any moment, and how often real-world capacity could be exceeded. The patient trajectories for this model are defined in separate files due to the amount of code. |
+: {tbl-colwidths="[20,80]"}
+:::
+
+::::
+
+## 🧪 Test yourself
+
+If you haven't already, try adding a resource-based process for your model.
+
+**Task:**
+
+* Copy over the modifications above and run model.
+
+* Try changing parameters like `consultation_time` or `number_of_doctors` - how do the results change?
 
 ## 🔗 Further information
 
