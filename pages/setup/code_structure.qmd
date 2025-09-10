@@ -24,13 +24,8 @@ This page helps you meet reproducibility criteria from:
 :::
 
 ```{python, echo=FALSE}
-# pylint: disable=missing-function-docstring,missing-class-docstring
 # pylint: disable=wrong-import-position
 ```
-
-> 🔍 **Note:** This pages includes some simplified, standalone examples to illustrate how functions and classes work. They are not taken from the full example simulation models in this book.
->
-> To keep things simple, docstrings are not shown here. If you’d like to see examples that include docstrings, please refer to the [docstrings](../style_docs/docstrings.qmd) page.
 
 ## ♻️ Reusing code
 
@@ -58,6 +53,21 @@ Here, estimation of wait time based on the queue length and average service time
 
 ```{python}
 def estimate_wait_time(queue_length, avg_service_time):
+    """
+    Estimate the total wait time in a queue.
+
+    Parameters
+    ----------
+    queue_length : int
+        Number of people currently ahead in the queue.
+    avg_service_time : float
+        Average service time per person.
+
+    Returns
+    -------
+    float
+        Estimated total wait time.
+    """
     return queue_length * avg_service_time
 
 
@@ -69,6 +79,13 @@ print(estimate_wait_time(queue_length=4, avg_service_time=15))
 ::: {.r-content}
 
 ```{r}
+#' Estimate the total wait time in a queue.
+#'
+#' @param queue_length Numeric. Number of people currently ahead in the queue.
+#' @param avg_service_time Numeric. Average service time per person.
+#'
+#' @return Estimated total wait time.
+
 estimate_wait_time <- function(queue_length, avg_service_time) {
   queue_length * avg_service_time
 }
@@ -76,6 +93,7 @@ estimate_wait_time <- function(queue_length, avg_service_time) {
 # There are 4 patients ahead, average service time is 15 minutes
 print(estimate_wait_time(queue_length = 4L, avg_service_time = 15L))
 ```
+
 :::
 
 ## 🧱 Classes
@@ -97,15 +115,43 @@ Example:
 
 ```{python}
 class Patient:
+    """
+    Represents a patient in a healthcare system queue.
+
+    Attributes
+    ----------
+    patient_id : int
+        Unique identifier for the patient.
+    arrival_time : float
+        Recorded arrival time for the patient.
+    status : str
+        Current status of the patient.
+    """
     def __init__(self, patient_id, arrival_time):
+        """
+        Initialise a new Patient instance.
+
+        Parameters
+        ----------
+        patient_id : int
+            Unique identifier for the patient.
+        arrival_time : float
+            Recorded arrival time for the patient.
+        """
         self.patient_id = patient_id
         self.arrival_time = arrival_time
         self.status = "waiting"
 
     def admit(self):
+        """
+        Mark the patient as admitted.
+        """
         self.status = "admitted"
 
     def discharge(self):
+        """
+        Mark the patient as discharged.
+        """
         self.status = "discharged"
 
 
@@ -138,19 +184,34 @@ The example below uses **R6**, since this style is closest to how Python handles
 ```{r}
 library(R6)
 
+#' @title Patient class
+#'
+#' Represents a patient in a healthcare system queue.
+#'
+#' @field patient_id Numeric. Unique identifier for the patient.
+#' @field arrival_time Numeric. Recorded arrival time for the patient.
+#' @field status Character. Current status of the patient.
+
 Patient <- R6Class("Patient",  # nolint: object_name_linter
   public = list(
     patient_id = NULL,
     arrival_time = NULL,
     status = NULL,
+
     initialize = function(patient_id, arrival_time) {
       self$patient_id <- patient_id
       self$arrival_time <- arrival_time
       self$status <- "waiting"
     },
+
+    #' @description
+    #' Mark the patient as admitted.
     admit = function() {
       self$status <- "admitted"
     },
+
+    #' @description
+    #' Mark the patient as discharged.
     discharge = function() {
       self$status <- "discharged"
     }
@@ -185,11 +246,43 @@ Here, an emergency patient with an extra attribute (`severity`) and method (`tri
 
 ```{python}
 class EmergencyPatient(Patient):
+    """
+    Represents an emergency patient with severity-based triage.
+
+    Inherits from `Patient` and adds severity information to determine
+    treatment priority.
+
+    Attributes
+    ----------
+    patient_id : int
+        Unique identifier for the patient.
+    arrival_time : float
+        Recorded arrival time of the patient.
+    status : str
+        Current status of the patient, inherited from `Patient`.
+    severity : int
+        Severity score of the patient.
+    """
     def __init__(self, patient_id, arrival_time, severity):
+        """
+        Initialise a new EmergencyPatient instance.
+
+        Parameters
+        ----------
+        patient_id : int
+            Unique identifier for the patient.
+        arrival_time : float
+            Recorded arrival time of the patient.
+        severity : int
+            Severity score of the patient.
+        """
         super().__init__(patient_id, arrival_time)
         self.severity = severity
 
     def triage(self):
+        """
+        Determine treatment priority based on severity level.
+        """
         if self.severity > 7:
             return "High priority"
         return "Standard priority"
@@ -214,14 +307,28 @@ print(ben.triage())
 ::: {.r-content}
 
 ```{r}
+#' @title Emergency patient class
+#'
+#' Represents an emergency patient with severity-based triage. Inherits from
+#' `Patient` and adds severity information to determine treatment priority.
+#'
+#' @field patient_id Numeric. Unique identifier for the patient.
+#' @field arrival_time Numeric. Recorded arrival time for the patient.
+#' @field status Character. Current status of the patient.
+#' @field severity Numeric. Severity score of the patient.
+
 EmergencyPatient <- R6Class("EmergencyPatient",  # nolint: object_name_linter
   inherit = Patient,
   public = list(
     severity = NULL,
+
     initialize = function(patient_id, arrival_time, severity) {
       super$initialize(patient_id, arrival_time)
       self$severity <- severity
     },
+
+    #' @description
+    #' Determine treatment priority based on severity level.
     triage = function() {
       if (self$severity > 7L) {
         "High priority"
