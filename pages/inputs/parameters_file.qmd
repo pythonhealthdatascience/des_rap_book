@@ -4,29 +4,51 @@ title: Parameters from file
 
 {{< include ../../scripts/_reticulate-setup.md >}}
 
-::: {.pale-blue}
+```{python, echo=FALSE}
+# pylint: disable=wrong-import-position,reimported,wrong-import-order
+# pylint: disable=ungrouped-imports,too-many-instance-attributes
+# pylint: disable=too-many-arguments, too-many-positional-arguments
+# pylint: disable=too-few-public-methods,redefined-outer-name
+# pylint: disable=function-redefined
+```
 
-🎯 **Objectives**
+:::: {.pale-blue}
 
-Discrete-event simulations (DES) require many parameters - like arrival rates, resource times, and probabilities - which often need to be changed for different scenarios and analyses. Managing these parameters well makes your simulations easier to update, track, and reuse.
+**Learning objectives:**
 
-This page focuses on the storage of parameters within a file.
+* Know the **advantages** of using external parameter files in simulation workflows  
+* Learn how to create a **parameter file** and **data dictionary**.
+* Understand methods for **importing** parameters.
 
-* **❓ Why use external parameter files?**
-* **📝 Create parameter file**
-* **📖 Create data dictionary**
-* **📥 Methods for importing parameters**
-
-If you want to see how to store parameters within a script, see the [parameters from script](parameters_script.qmd) page.
-
-[🔗](../intro/guidelines.qmd) **Reproducibility guidelines**
-
-This page helps you meet reproducibility criteria from:
+**Relevant reproducibility guidelines:**
 
 * STARS Reproducibility Recommendations: Avoid hard-coded parameters.
 * NHS Levels of RAP (🥈): Data is handled and output in a Tidy data format.
 
+**Required packages:**
+
+This should be available from environment setup in the "🧪 Test yourself" section of [Environments](../setup/environment.qmd). 
+
+::: {.python-content}
+
+```{python}
+import pandas as pd
+import json
+from collections import defaultdict
+```
+
 :::
+
+::: {.r-content}
+
+```{r}
+library(jsonlite)
+library(R6)
+```
+
+:::
+
+::::
 
 :::: {.python-content}
 
@@ -90,32 +112,7 @@ def print_dict(dictionary, max_items_per_level):
 
 :::
 
-```{python, echo=FALSE}
-# pylint: disable=wrong-import-position,reimported,wrong-import-order
-# pylint: disable=ungrouped-imports,too-many-instance-attributes
-# pylint: disable=too-many-arguments, too-many-positional-arguments
-# pylint: disable=too-few-public-methods,redefined-outer-name
-# pylint: disable=function-redefined
-```
-
-```{python}
-import pandas as pd
-import json
-from collections import defaultdict
-```
-
 ::::
-
-::: {.r-content}
-
-```{r}
-# nolint start: undesirable_function_linter
-library(jsonlite)
-library(R6)
-# nolint end
-```
-
-:::
 
 ## ❓ Why use external parameter files?
 

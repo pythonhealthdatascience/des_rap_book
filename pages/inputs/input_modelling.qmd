@@ -6,28 +6,54 @@ bibliography: input_modelling_resources/references.bib
 
 {{< include ../../scripts/_reticulate-setup.md >}}
 
-::: {.pale-blue}
+:::: {.pale-blue}
 
-🎯 **Objectives**
+**Learning objectives:**
 
-This page has step-by-step instructions for input modelling in Python or R, with inspiration from @Robinson2007 and @Monks2024.
+* Identify what **data** is needed for input modelling and why **quality** matters.
+* Understand how input data forms the basis for **randomness** in simulated systems.
+* **Inspect, fit, and select probability distributions** for your model using both **targeted and comprehensive** approaches.
 
-* **📂 Data:** Identify what data is needed for input modelling and why quality matters.
-* **➡️ How is this data used in the model?** Understand how input data forms the basis for randomness in simulated systems.
-* **📈 Input modelling:** Inspect, fit, and select probability distributions for your model using both targeted and comprehensive approaches, with steps:
-    * **🔧 Set-up**
-    * **🔍 Step 1. Identify possible distributions**
-    * **📊 Step 2. Fit distributions and compare goodness-of fit**
-    * **✅ Step 3. Choose distributions**
-    * **⚙️ Parameters**
+**Required packages:**
 
-For advice on making your input modelling workflow **reproducible** and **sharing data or scripts with sensitive content**, see the [page on input data management](input_data.qmd).
+This should be available from environment setup in the "🧪 Test yourself" section of [Environments](../setup/environment.qmd). 
 
-[🔗](../intro/guidelines.qmd) **Reproducibility guidelines**
+::: {.python-content}
 
-While not directly meeting specific criteria, this page encourages recording clear, reproducible input modelling processes to improve transparency and verification in your simulation work.
+```{python}
+from distfit import distfit
+import numpy as np
+import pandas as pd
+import plotly.express as px
+import plotly.graph_objects as go
+from scipy import stats
+```
+
+```{python, echo=FALSE}
+# To ensure renders correctly in quarto
+import plotly.io as pio
+pio.renderers.default = "plotly_mimetype"
+```
 
 :::
+
+::: {.r-content}
+
+```{r, message=FALSE}
+library(dplyr)
+library(fitdistrplus)
+library(ggplot2)
+library(lubridate)
+library(plotly)
+library(readr)
+library(tidyr)
+```
+
+:::
+
+**Acknowledgements:** Inspired by @Robinson2007 and @Monks2024.
+
+::::
 
 ## 📂 Data
 
@@ -98,44 +124,6 @@ We'll run the analysis in a R Markdown file. To create a file from the command l
 
 ```{.bash}
 touch rmarkdown/input_modelling.Rmd
-```
-
-:::
-
-Before you begin, ensure the following packages are available. They should already be installed if you set up the environment in the "*🧪 Test yourself*" section of the [Environments](../setup/environment.qmd) page.
-
-::: {.python-content}
-
-```{python}
-# Import required packages
-from distfit import distfit
-import numpy as np
-import pandas as pd
-import plotly.express as px
-import plotly.graph_objects as go
-from scipy import stats
-```
-
-```{python, echo=FALSE}
-import plotly.io as pio
-pio.renderers.default = "plotly_mimetype"
-```
-
-:::
-
-::: {.r-content}
-
-```{r, message=FALSE}
-# nolint start: undesirable_function_linter.
-# Import required packages
-library(dplyr)
-library(fitdistrplus)
-library(ggplot2)
-library(lubridate)
-library(plotly)
-library(readr)
-library(tidyr)
-# nolint end
 ```
 
 :::
