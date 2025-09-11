@@ -138,6 +138,8 @@ RETICULATE_CONDA=/home/amy/mambaforge/bin/conda
 
 To cite this work, see the `CITATION.cff` file in this repository or use the "Cite this repository" button on GitHub.
 
+You can also cite the archived version of this work on Zenodo: https://doi.org/10.5281/zenodo.17094155.
+
 <br>
 
 ## Linting
