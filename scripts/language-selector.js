@@ -1,3 +1,5 @@
+<script>
+
 function setLanguage(lang) {
   // Store the selected language in localStorage
   localStorage.setItem('preferredLanguage', lang);
@@ -24,3 +26,5 @@ document.addEventListener('DOMContentLoaded', function() {
   const lang = localStorage.getItem('preferredLanguage') || 'python';
   setLanguage(lang);
 });
+
+</script>
