@@ -1,5 +1,346 @@
 ---
 title: ❌ Initialisation bias
+filters:
+  - line-highlight
 ---
+
+{{< include ../../scripts/_reticulate-setup.md >}}
+
+:::: {.pale-blue}
+
+**Learning objectives:**
+
+* Understand **initialisation bias** and how to handle it  
+* Add a **warm-up period** to a model  
+
+**Pre-reading:**
+
+This page continues on from: [Entity processing](../model/process.qmd).
+
+**Required packages:**
+
+These should be available from environment setup in the "🧪 Test yourself" section of [Environments](../setup/environment.qmd). 
+
+::: {.python-content}
+
+```{python}
+import numpy as np
+import simpy
+from sim_tools.distributions import Exponential
+```
+
+:::
+
+::: {.r-content}
+
+```{r}
+library(simmer)
+```
+
+:::
+
+::::
+
+## Initialisation bias
+
+TODO
+
+## Adding a warm-up period to the model
+
+::: {.python-content}
+
+<div class="h3-tight"></div>
+
+### Parameter class
+
+The `run_length` parameter has been replaced by two new parameters:
+
+* `warm_up_period`
+* `data_collection_period`
+
+```{python}
+class Parameters:
+    """
+    Parameter class.
+
+    Attributes
+    ----------
+    interarrival_time : float
+        Mean time between arrivals (minutes).
+    consultation_time : float
+        Mean length of doctor's consultation (minutes).
+    number_of_doctors : int
+        Number of doctors.
+    warm_up_period : int#<<
+        Duration of the warm-up period (minutes).#<<
+    data_collection_period : int#<<
+        Duration of the data collection period (minutes).#<<
+    """
+    def __init__(
+        self, interarrival_time=5, consultation_time=10,
+        number_of_doctors=3, warm_up_period=30, data_collection_period=40#<<
+    ):
+        """
+        Initialise Parameters instance.
+
+        Parameters
+        ----------
+        interarrival_time : float
+            Time between arrivals (minutes).
+        consultation_time : float
+            Length of consultation (minutes).
+        number_of_doctors : int
+            Number of doctors.
+        warm_up_period : int#<<
+            Duration of the warm-up period (minutes).#<<
+        data_collection_period : int#<<
+            Duration of the data collection period (minutes).#<<
+        """
+        self.interarrival_time = interarrival_time
+        self.consultation_time = consultation_time
+        self.number_of_doctors = number_of_doctors
+        self.warm_up_period = warm_up_period#<<
+        self.data_collection_period = data_collection_period#<<
+```
+
+### Patient class
+
+The new attribute `period` stores a marker which we can use in `print()` messages to more easily distinguish patients who arrive in the warm-up (🔸 WU) v.s. the data collection period (🔹 DC).
+
+```{python}
+class Patient:
+    """
+    Represents a patient.
+
+    Attributes
+    ----------
+    patient_id : int
+        Unique patient identifier.
+    period : str#<<
+        Arrival period (warm up or data collection) with emoji.#<<
+    """
+    def __init__(self, patient_id, period):
+        """
+        Initialises a new patient.
+
+        Parameters
+        ----------
+        patient_id : int
+            Unique patient identifier.
+        period : str#<<
+            Arrival period (warm up or data collection) with emoji.#<<
+        """
+        self.patient_id = patient_id
+        self.period = period#<<
+```
+
+### Model class
+
+The changes to `Model` are explained below...
+
+```{python}
+class Model:
+    """
+    Simulation model.
+
+    Attributes
+    ----------
+    param : Parameters
+        Simulation parameters.
+    run_number : int
+        Run number for random seed generation.
+    env : simpy.Environment
+        The SimPy environment for the simulation.
+    doctor : simpy.Resource
+        SimPy resource representing doctors.
+    patients : list
+        List of Patient objects.
+    arrival_dist : Exponential
+        Distribution used to generate random patient inter-arrival times.
+    consult_dist : Exponential
+        Distribution used to generate length of a doctor's consultation.
+    """
+    def __init__(self, param, run_number):
+        """
+        Create a new Model instance.
+
+        Parameters
+        ----------
+        param : Parameters
+            Simulation parameters.
+        run_number : int
+            Run number for random seed generation.
+        """
+        self.param = param
+        self.run_number = run_number
+
+        # Create SimPy environment
+        self.env = simpy.Environment()
+
+        # Create resource
+        self.doctor = simpy.Resource(
+            self.env, capacity=self.param.number_of_doctors
+        )
+
+        # Create a random seed sequence based on the run number
+        ss = np.random.SeedSequence(self.run_number)
+        seeds = ss.spawn(2)
+
+        # Create patient list
+        self.patients = []
+
+        # Initialise distributions
+        self.arrival_dist = Exponential(mean=self.param.interarrival_time,
+                                        random_seed=seeds[0])
+        self.consult_dist = Exponential(mean=self.param.consultation_time,
+                                        random_seed=seeds[1])
+
+    def generate_arrivals(self):
+        """
+        Process that generates patient arrivals.
+        """
+        while True:
+            # Sample and pass time to next arrival
+            sampled_iat = self.arrival_dist.sample()
+            yield self.env.timeout(sampled_iat)
+
+            # Check whether arrived during warm-up or data collection#<<
+            if self.env.now < self.param.warm_up_period:#<<
+                period = "\U0001F538 WU"#<<
+            else:#<<
+                period = "\U0001F539 DC"#<<
+
+            # Create a new patient
+            patient = Patient(patient_id=len(self.patients)+1, period=period)#<<
+            self.patients.append(patient)
+
+            # Print arrival time
+            print(f"{patient.period} Patient {patient.patient_id} arrives " +#<<
+                  f"at time: {self.env.now:.3f}")
+
+            # Start process of consultation
+            self.env.process(self.consultation(patient))
+
+    def consultation(self, patient):
+        """
+        Process that simulates a consultation.
+
+        Parameters
+        ----------
+        patient :
+            Instance of the Patient() class representing a single patient.
+        """
+        with self.doctor.request() as req:
+            yield req
+            print(f"{patient.period} Patient {patient.patient_id} starts consultation " +
+                  f"at: {self.env.now:.3f}")
+            time_with_doctor = self.consult_dist.sample()
+            yield self.env.timeout(time_with_doctor)
+
+    def reset_results(self):#<<
+        """#<<
+        Reset results.#<<
+        """#<<
+        self.patients = []#<<
+
+    def warmup(self):#<<
+        """#<<
+        Reset result collection after the warm-up period.#<<
+        """#<<
+        if self.param.warm_up_period > 0:#<<
+            # Delay process until warm-up period has completed#<<
+            yield self.env.timeout(self.param.warm_up_period)#<<
+            # Reset results variables#<<
+            self.reset_results()#<<
+            print(f"Warm up period ended at time: {self.env.now}")#<<
+
+    def run(self):
+        """
+        Run the simulation.
+        """
+        # Schedule arrival generator and warm-up#<<
+        self.env.process(self.generate_arrivals())#<<
+        self.env.process(self.warmup())
+        # Run the simulation
+        self.env.run(until=(self.param.warm_up_period +#<<
+                            self.param.data_collection_period))#<<
+```
+
+<br>
+
+```{.python}
+# Check whether arrived during warm-up or data collection
+if self.env.now < self.param.warm_up_period:
+    period = "\U0001F538 WU"
+else:
+    period = "\U0001F539 DC"
+
+# Create a new patient
+patient = Patient(patient_id=len(self.patients)+1, period=period)
+self.patients.append(patient)
+
+# Print arrival time
+print(f"{patient.period} Patient {patient.patient_id} arrives " +
+        f"at time: {self.env.now:.3f}")
+```
+
+<br>
+
+```{.python}
+def reset_results(self):
+    """
+    Reset results.
+    """
+    self.patients = []
+```
+
+The `reset_results()` method clears the `self.patients` list so that arrivals recorded during the warm-up period do not contribute to the results.
+
+<br>
+
+```{.python}
+def warmup(self):
+    """
+    Reset result collection after the warm-up period.
+    """
+    if self.param.warm_up_period > 0:
+        # Delay process until warm-up period has completed
+        yield self.env.timeout(self.param.warm_up_period)
+        # Reset results variables
+        self.reset_results()
+        print(f"Warm up period ended at time: {self.env.now}")
+```
+
+<br>
+
+```{.python}
+def run(self):
+    """
+    Run the simulation.
+    """
+    # Schedule arrival generator and warm-up
+    self.env.process(self.generate_arrivals())
+    self.env.process(self.warmup())
+    # Run the simulation
+    self.env.run(until=(self.param.warm_up_period +
+                        self.param.data_collection_period))
+```
+
+In the `run()` method, there were two changes:
+
+* Adding `warmup()` as a SimPy process using `self.env.process()`.
+* The total run time is now the sum of `warm_up_period` and `data_collection_period`.
+
+### Run the model
+
+```{python}
+param = Parameters()
+model = Model(param=param, run_number=0)
+model.run()
+```
+
+<!--TODO: Change param so some WU have consultation after period ends.. will need to change on patients, process and R too..-->
+
+:::
 
 <br><br>
