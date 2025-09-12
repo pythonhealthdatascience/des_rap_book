@@ -1,5 +1,5 @@
 ---
-title: ❌ Initialisation bias
+title: Initialisation bias
 filters:
   - line-highlight
 ---
@@ -10,7 +10,7 @@ filters:
 
 **Learning objectives:**
 
-* Understand **initialisation bias** and how to handle it.
+* Understand **initialisation bias** and know options for handling it.
 * Add a **warm-up period** to a model.
 
 **Pre-reading:**
@@ -33,7 +33,8 @@ from sim_tools.distributions import Exponential
 
 ::: {.r-content}
 
-```{r}
+```{r, output=FALSE}
+library(dplyr)
 library(simmer)
 ```
 
@@ -41,7 +42,7 @@ library(simmer)
 
 ::::
 
-## Initialisation bias
+## 🧊 Initialisation bias
 
 **Initialisation bias** happens in discrete event simulation when the model starts in an "empty" state that does not match how the real system normally operates.
 
@@ -56,7 +57,7 @@ There are two main strategies for addressing initialisation bias:
 
 Since finding suitable initial conditions can be complicated, this book will focus on the warm-up method.
 
-## Adding a warm-up period to the model
+## ⏳ Adding a warm-up period to the model
 
 <div class="h3-tight"></div>
 
@@ -404,6 +405,8 @@ create_params <- function(
 
 ### Model function
 
+Add `get_mon_arrivals()` and `get_mon_resources()`.
+
 ```{r}
 #' Run simulation.
 #'
@@ -437,7 +440,8 @@ model <- function(param, run_number) {
       rexp(n = 1L, rate = 1L / param[["interarrival_time"]])
     }) |>
     # Run the simulation
-    simmer::run(until = param[["run_length"]])
+    simmer::run(until = (param[["warm_up_period"]] +
+                         param[["data_collection_period"]]))
 
   # Extract information on arrivals and resources from simmer environment
   result <- list(
@@ -450,18 +454,240 @@ model <- function(param, run_number) {
 
 ### Run the model
 
+now get two tables... arrivals has patient start time end time activity time for given resource... resources has doctor when they go available non available etc.
+
 ```{r}
 param <- create_params()
-model(param = param, run_number = 1L)
+result <- model(param = param, run_number = 1L)
+result
 ```
 
 ### Warm-up function
 
-TODO: introduce monitored arrivals and resources when do entity generation
+To implement a warm-up period in `simmer`, we need to modify these output dataframes. We have produced a function to do this - `filter_warmup()`:
 
 ```{r}
+#' Filters arrivals and resources to remove warm-up results.
+#'
+#' @param result Named list with two tables: monitored arrivals & resources.
+#' @param warm_up_period Length of warm-up period.
+#'
+#' @importFrom dplyr ungroup arrange slice n filter
+#'
+#' @return The name list `result`, but with the tables (`arrivals` and
+#' `resources`) filtered to remove warm-up results.
+#' @export
+
+filter_warmup <- function(result, warm_up_period) {
+  # Skip filtering if the warm-up period is zero
+  if (warm_up_period == 0L) return(result)
+
+  # Arrivals: Keep only patients who came during the data collection period
+  result[["arrivals"]] <- result[["arrivals"]] |>
+    group_by(.data[["name"]]) |>
+    filter(all(.data[["start_time"]] >= warm_up_period)) |>
+    ungroup()
+
+  # Resources: Filter to resource events in the data collection period
+  dc_resources <- filter(result[["resources"]],
+                         .data[["time"]] >= warm_up_period)
+
+  if (nrow(dc_resources) > 0L) {
+
+    # For each resource, get the last even during warm-up, and replace time
+    # for that event with the start time of the data collection period
+    last_usage <- result[["resources"]] |>
+      filter(.data[["time"]] < warm_up_period) |>
+      arrange(.data[["time"]]) |>
+      group_by(.data[["resource"]]) |>
+      slice(n()) |>
+      mutate(time = warm_up_period) |>
+      ungroup()
+
+    # Set that last event of the resource/s as the first row of the dataframe
+    # else calculations would assume all resources were idle at the start of
+    # the data collection period
+    result[["resources"]] <- rbind(last_usage, dc_resources)
+
+  } else {
+    # No events after warm-up; use filtered resource table as is
+    result[["resources"]] <- dc_resources
+  }
+
+  return(result) # nolint: return_linter
+}
+```
+
+#### Explaining the warm-up function...
+
+```{.r}
+#' Filters arrivals and resources to remove warm-up patients.
+#'
+#' @param result Named list with two tables: monitored arrivals & resources.
+#' @param warm_up_period Length of warm-up period.
+#'
+#' @importFrom dplyr ungroup arrange slice n filter
+#'
+#' @return The name list `result`, but with the tables (`arrivals` and
+#' `resources`) filtered to remove warm-up patients.
+#' @export
+
+filter_warmup <- function(result, warm_up_period) {
+```
+
+The function accepts two inputs: `result` and `warm_up_period`.
+
+```{.r}
+# Skip filtering if the warm-up period is zero
+if (warm_up_period == 0L) return(result)
+```
+
+If `warm_up_period` is zero, the function instantly returns the original results list unchanged, as no filtering is needed.
+
+<br>
+
+```{.r}
+# Arrivals: Keep only patients who came during the data collection period
+result[["arrivals"]] <- result[["arrivals"]] |>
+  group_by(.data[["name"]]) |>
+  filter(all(.data[["start_time"]] >= warm_up_period)) |>
+  ungroup()
+```
+
+The `arrivals` table is filtered to remove patients who arrived during the warm-up period (even if they have activity times after warm-up).
+
+<br>
+
+```{.r}
+# Resources: Filter to resource events in the data collection period
+dc_resources <- filter(result[["resources"]],
+                       .data[["time"]] >= warm_up_period)
+```
+
+The `resources` table is filtered so it only includes events that occurred after the warm-up period.
+
+<br>
+
+```{.r}
+if (nrow(dc_resources) > 0L) {
+
+  # For each resource, get the last even during warm-up, and replace time
+  # for that event with the start time of the data collection period
+  last_usage <- result[["resources"]] |>
+    filter(.data[["time"]] < warm_up_period) |>
+    arrange(.data[["time"]]) |>
+    group_by(.data[["resource"]]) |>
+    slice(n()) |>
+    mutate(time = warm_up_period) |>
+    ungroup()
+
+  # Set that last event of the resource/s as the first row of the dataframe
+  # else calculations would assume all resources were idle at the start of
+  # the data collection period
+  result[["resources"]] <- rbind(last_usage, dc_resources)
+
+} else {
+  # No events after warm-up; use filtered resource table as is
+  result[["resources"]] <- dc_resources
+}
+
+return(result)
+```
+
+The `resources` table requires an extra change: we add a row for each resource representing their last known state (i.e., number of resources occupied) from the warm-up period, settings its timestamp to the start of data collection.
+
+Without this step, any statistics (e.g., utilisation) would falsely assume the resources were unused at the beginning of the data collection window. This adjustments preserves the true initial state of each resource at that timepoint.
+
+### Run `filter_warmup()`
+
+Our warm-up period is 30:
+
+```{r}
+param[["warm_up_period"]]
+```
+
+We can see that both tables now have no `start_time` or `time` before 30.
+
+We can also see the first row in `resources` setting the state at the start of the data collection period.
+
+```{r}
+filter_warmup(result = result, warm_up_period = param[["warm_up_period"]])
 ```
 
 :::
+
+## 🔍 Explore the example models
+
+<div class="h3-tight"></div>
+
+### 🩺 Nurse visit simulation
+
+:::: {.python-content}
+
+{{< include ../../html/pydesrapmms.html >}}
+
+::: {.blue-table}
+| | |
+| - | - |
+| **Key file** | `simulation/param.py`<br>`simulation/model.py` |
+| **What to look for?** | The model has a 27-day warm-up period. The implementation of a warm-up period is like our example above, with a `warm_up_complete()` function that triggers a function `init_results_variables()` to clear results when the warm-up period has passed. |
+: {tbl-colwidths="[20,80]"}
+:::
+
+::::
+
+:::: {.r-content}
+
+{{< include ../../html/rdesrapmms.html >}}
+
+::: {.blue-table}
+| | |
+| - | - |
+| **Key file** | `R/parameters.R`<br>`R/model.R`<br>`R/warmup.R` |
+| **What to look for?** | The model has a 27-day warm-up period. The implementation is consistent with above - with a `filter_warmup()` function applied to the results. |
+: {tbl-colwidths="[20,80]"}
+:::
+
+::::
+
+### 🧠 Stroke pathway simulation
+
+:::: {.python-content}
+
+{{< include ../../html/pydesrapstroke.html >}}
+
+::: {.blue-table}
+| | |
+| - | - |
+| **Key file** | `simulation/parameters.py`<br>`simulation/model.py` |
+| **What to look for?** | The model has a 3-year warm-up period. The implementation is again consistent with above - with a `warm_up()` function that triggers the function `reset_results()` to clear results when the warm-up period has passed. |
+: {tbl-colwidths="[20,80]"}
+:::
+
+::::
+
+:::: {.r-content}
+
+{{< include ../../html/rdesrapstroke.html >}}
+
+::: {.blue-table}
+| | |
+| - | - |
+| **Key file** | `R/parameters.R`<br>`R/model.R`<br>`R/warmup.R` |
+| **What to look for?** | The model has a 3-year warm-up period. The implementation of the warm-up period is simpler than above, as this model only uses the dataframe from `get_mon_arrivals()` (and not `get_mon_resources()`), so the `filter_warmup()` function is much shorter! |
+: {tbl-colwidths="[20,80]"}
+:::
+
+::::
+
+## 🧪 Test yourself
+
+If you haven't already, try adding a warm-up period to your model.
+
+**Task:**
+
+* Copy over the modifications above and run the model.
+
+* Try changing the `warm_up_period` and `data_collection_period` parameters - how does this affect which patients are included in results?
 
 <br><br>
