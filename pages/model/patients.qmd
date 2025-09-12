@@ -95,9 +95,11 @@ class Parameters:
         Mean time between arrivals (minutes).
     run_length : int
         Total duration of simulation (minutes).
+    verbose : bool
+        Whether to print messages as simulation runs.
     """
     def __init__(
-        self, interarrival_time=5, run_length=50
+        self, interarrival_time=5, run_length=50, verbose=True
     ):
         """
         Initialise Parameters instance.
@@ -108,9 +110,12 @@ class Parameters:
             Time between arrivals (minutes).
         run_length : int
             Total duration of simulation (minutes).
+        verbose : bool
+            Whether to print messages as simulation runs.
         """
         self.interarrival_time = interarrival_time
         self.run_length = run_length
+        self.verbose = verbose
 ```
 
 ### Patient class
@@ -184,7 +189,7 @@ class Model:
         ss = np.random.SeedSequence(self.run_number)
         seeds = ss.spawn(1)
 
-        # Create patient list
+        # Set up attributes to store results
         self.patients = []
 
         # Initialise distributions
@@ -207,8 +212,9 @@ class Model:
             self.patients.append(patient)
 
             # Print arrival time
-            print(f"Patient {patient.patient_id} arrives " +
-                  f"at time: {self.env.now:.3f}")
+            if self.param.verbose:
+                print(f"Patient {patient.patient_id} arrives " +
+                      f"at time: {self.env.now:.3f}")
 
     def run(self):
         """
@@ -268,7 +274,7 @@ A random seed sequence is created based on the `run_number`.
 <br>
 
 ```{.python}
-# Create patient list
+# Set up attributes to store results
 self.patients = []
 ```
 
@@ -326,8 +332,9 @@ Create an instance of the `Patient` class for each arrival, with a `patient_id`.
 
 ```{.python}
 # Print arrival time
-print(f"Patient {patient.patient_id} arrives " +
-      f"at time: {self.env.now:.3f}")
+if self.param.verbose:
+    print(f"Patient {patient.patient_id} arrives " +
+          f"at time: {self.env.now:.3f}")
 ```
 
 Printing the time of each arrival gives a quick and visible check that the arrival process is working as expected. For now, simple print statements are effective, but this can later be replaced by a more sophisticated logging approach (see [Logging](../verification_validation/logs.qmd)).
@@ -534,9 +541,11 @@ class Parameters:
         Holds all distribution specifications.#<<
     run_length : int
         Total duration of simulation (minutes).
+    verbose : bool
+        Whether to print messages as simulation runs.
     """
     def __init__(
-        self, interarrival_time=5, run_length=50
+        self, interarrival_time=5, run_length=50, verbose=True
     ):
         """
         Initialise Parameters instance.
@@ -547,6 +556,8 @@ class Parameters:
             Time between arrivals (minutes).
         run_length : int
             Total duration of simulation (minutes).
+        verbose : bool
+            Whether to print messages as simulation runs.
         """
         self.dist_config = {#<<
             "interarrival_time": {#<<
@@ -555,6 +566,7 @@ class Parameters:
             }#<<
         }#<<
         self.run_length = run_length
+        self.verbose = verbose
 ```
 
 ### Patient class
@@ -604,14 +616,15 @@ class Model:
         # Create SimPy environment
         self.env = simpy.Environment()
 
-        # Create patient list
+        # Set up attributes to store results
         self.patients = []
 
         # Create all the distributions#<<
         self.dist = DistributionRegistry.create_batch(#<<
             config=dict(self.param.dist_config), main_seed=self.run_number#<<
         )#<<
-        print(self.dist)
+        if self.param.verbose:#<<
+            print(self.dist)#<<
 
     def generate_arrivals(self):
         """
@@ -627,8 +640,9 @@ class Model:
             self.patients.append(patient)
 
             # Print arrival time
-            print(f"Patient {patient.patient_id} arrives " +
-                  f"at time: {self.env.now:.3f}")
+            if self.param.verbose:
+                print(f"Patient {patient.patient_id} arrives " +
+                      f"at time: {self.env.now:.3f}")
 
     def run(self):
         """

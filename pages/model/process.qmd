@@ -20,6 +20,8 @@ filters:
 
 This page continues on from: [Entity generation](patients.qmd).
 
+> *Entity generation → Entity processing*
+
 **Required packages:**
 
 These should be available from environment setup in the "🧪 Test yourself" section of [Environments](../setup/environment.qmd). 
@@ -71,10 +73,12 @@ class Parameters:
         Number of doctors.#<<
     run_length : int
         Total duration of simulation (minutes).
+    verbose : bool
+        Whether to print messages as simulation runs.
     """
     def __init__(
         self, interarrival_time=5, consultation_time=10,#<<
-        number_of_doctors=3, run_length=50#<<
+        number_of_doctors=3, run_length=50, verbose=True#<<
     ):
         """
         Initialise Parameters instance.
@@ -89,11 +93,14 @@ class Parameters:
             Number of doctors.#<<
         run_length : int
             Total duration of simulation (minutes).
+        verbose : bool
+            Whether to print messages as simulation runs.
         """
         self.interarrival_time = interarrival_time
         self.consultation_time = consultation_time#<<
         self.number_of_doctors = number_of_doctors#<<
         self.run_length = run_length
+        self.verbose = verbose
 ```
 
 ### Patient class
@@ -174,7 +181,7 @@ class Model:
         ss = np.random.SeedSequence(self.run_number)
         seeds = ss.spawn(2)#<<
 
-        # Create patient list
+        # Set up attributes to store results
         self.patients = []
 
         # Initialise distributions
@@ -212,10 +219,14 @@ class Model:
         patient :#<<
             Instance of the Patient() class representing a single patient.#<<
         """#<<
+        # Patient requests access to a doctor (resource)#<<
         with self.doctor.request() as req:#<<
             yield req#<<
+
             print(f"Patient {patient.patient_id} starts consultation " +#<<
                   f"at: {self.env.now:.3f}")#<<
+
+            # Sample consultation duration and pass time spent with doctor#<<
             time_with_doctor = self.consult_dist.sample()#<<
             yield self.env.timeout(time_with_doctor)#<<
 
@@ -281,8 +292,10 @@ def consultation(self, patient):
     patient :
         Instance of the Patient() class representing a single patient.
     """  
+    # Patient requests access to a doctor (resource)
     with self.doctor.request() as req:
         yield req
+
         print(f"Patient {patient.patient_id} starts consultation " +
                 f"at: {self.env.now:.3f}")
 
@@ -293,6 +306,7 @@ Each patient asks for a doctor using `self.doctor.request()`. If they're all bus
 Once a doctor is available, SimPy assigns the resource to that patient, and the consultation start time is printed.
 
 ```{.python}
+# Sample consultation duration and pass time spent with doctor
 time_with_doctor = self.consult_dist.sample()
 yield self.env.timeout(time_with_doctor)
 ```
