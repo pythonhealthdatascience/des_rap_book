@@ -1,5 +1,7 @@
 ---
 title: ❌ Performance measures
+filters:
+  - line-highlight
 ---
 
 {{< include ../../scripts/_reticulate-setup.md >}}
@@ -30,6 +32,7 @@ These should be available from environment setup in the "🧪 Test yourself" sec
 
 ```{python}
 import numpy as np
+import pandas as pd
 import simpy
 from sim_tools.distributions import Exponential
 ```
@@ -54,57 +57,184 @@ Where relevant, we have included **corresponding terms from queueing theory** fo
 
 <!--TODO: interval audit v.s. not... use of interval audit... etc.etc.-->
 
-## 🚶‍♀️ Arrivals
+## ✏️ Preparation for results collection
 
-<!-- TODO count of arrivals rather than arrival rate... but arrival rate would be lambda...-->
+Before we start calculating any simulation performance measures, some set-up is required.
 
-### Parameters class
+### Parameter class
+
+Set `verbose` to `False` in the `Parameters` class. This lets the workflow focus on the calculated results rather than individual patient activities.
+
+```{python}
+{{< include outputs_resources/parameters.py >}}
+```
+
+### Patient class
+
+No changes are required for `Patient` at this stage.
+
+```{python}
+#| echo: false
+{{< include outputs_resources/patient.py >}}
+```
+
+### Model class
+
+We need to update the `Model` class so its `run` method returns a list of patient attributes. This makes patient-level data easy to analyse after simulation runs.
+
+```{python}
+{{< include outputs_resources/model.py >}}
+```
+
+### Runner class
+
+We're also introducing a new `Runner` class, responsible for running simulations and performing results calculations. This keeps calculation logic separate from the core modelling code. Also, this class will be modified to perform multiple model runs on the [Replications](n_reps.qmd) page.
+
+The basic structure of `Runner` is as follows. It initialises with simulation parameters, runs the model for a single replication, and organises results into separate patient-level and run-level outputs.
+
+```{python}
+{{< include outputs_resources/runner.py >}}
+```
+
+Running the model via `Runner` produces our new structured results.
+
+```{python}
+runner = Runner(param=Parameters())
+result = runner.run_single(run=0)
+print(result["patient"])
+print(result["run"])
+```
+
+Now we're ready to record some performance measures. 😎
+
+## 🚶‍♀️ Total arrivals
+
+<details>
+
+<summary>View how to record the total arrivals</summary>
 
 ::: {.python-content}
 
+<br>
+
+Recording the total number of arrivals is super simple! We just need to find the length of the patient list.
+
+### Parameter class
+
+No changes required.
+
 ```{python}
-class Parameters:
+#| echo: false
+{{< include outputs_resources/parameters.py >}}
+```
+
+### Patient class
+
+No changes required.
+
+```{python}
+#| echo: false
+{{< include outputs_resources/patient.py >}}
+```
+
+### Model class
+
+No changes required.
+
+```{python}
+#| echo: false
+{{< include outputs_resources/model.py >}}
+```
+
+### Runner class
+
+```{python}
+class Runner:
     """
-    Parameter class.
+    Run the simulation.
 
     Attributes
     ----------
-    interarrival_time : float
-        Mean time between arrivals (minutes).
-    consultation_time : float
-        Mean length of doctor's consultation (minutes).
-    number_of_doctors : int
-        Number of doctors.
-    warm_up_period : int
-        Duration of the warm-up period (minutes).
-    data_collection_period : int
-        Duration of the data collection period (minutes).
+    param : Parameters
+        Simulation parameters.
     """
-    def __init__(
-        self, interarrival_time=5, consultation_time=10,
-        number_of_doctors=3, warm_up_period=30, data_collection_period=40
-    ):
+    def __init__(self, param):
         """
-        Initialise Parameters instance.
+        Initialise a new instance of the Runner class.
 
         Parameters
         ----------
-        interarrival_time : float
-            Time between arrivals (minutes).
-        consultation_time : float
-            Length of consultation (minutes).
-        number_of_doctors : int
-            Number of doctors.
-        warm_up_period : int
-            Duration of the warm-up period (minutes).
-        data_collection_period : int
-            Duration of the data collection period (minutes).
+        param : Parameters
+            Simulation parameters.
         """
-        self.interarrival_time = interarrival_time
-        self.consultation_time = consultation_time
-        self.number_of_doctors = number_of_doctors
-        self.warm_up_period = warm_up_period
-        self.data_collection_period = data_collection_period
+        self.param = param
+
+    def run_single(self, run):
+        """
+        Runs the simulation once and performs results calculations.
+
+        Parameters
+        ----------
+        run : int
+            Run number for the simulation.
+
+        Returns
+        -------
+        dict
+            Contains patient-level results and results from each run.
+        """
+        model = Model(param=self.param, run_number=run)
+        model.run()
+
+        # Patient results
+        patient_results = pd.DataFrame(model.results_list)
+        patient_results["run"] = run
+
+        # Run results
+        run_results = {
+            "run_number": run,
+            "arrivals": len(patient_results)#<<
+        }
+
+        return {
+            "patient": patient_results,
+            "run": run_results
+        }
+```
+
+### Run the model
+
+```{python}
+runner = Runner(param=Parameters())
+result = runner.run_single(run=0)
+print(result["run"])
+```
+
+:::
+
+::: {.r-content}
+
+:::
+
+</details>
+
+## ⏱️ Mean wait time
+
+> **Corresponding term in queueing theory:** Average wait time in queue, $\\W_q$
+
+<details>
+
+<summary>View how to record the mean wait time</summary>
+
+::: {.python-content}
+
+### Parameter class
+
+No changes required.
+
+```{python}
+#| echo: false
+{{< include outputs_resources/parameters.py >}}
 ```
 
 ### Patient class
@@ -120,6 +250,8 @@ class Patient:
         Unique patient identifier.
     period : str
         Arrival period (warm up or data collection) with emoji.
+    wait_time : float#<<
+        Time spent waiting for the doctor (minutes).#<<
     """
     def __init__(self, patient_id, period):
         """
@@ -134,6 +266,7 @@ class Patient:
         """
         self.patient_id = patient_id
         self.period = period
+        self.wait_time = np.nan#<<
 ```
 
 ### Model class
@@ -155,6 +288,8 @@ class Model:
         SimPy resource representing doctors.
     patients : list
         List of Patient objects.
+    results_list : list
+        List of dictionaries with the attributes of each patient.
     arrival_dist : Exponential
         Distribution used to generate random patient inter-arrival times.
     consult_dist : Exponential
@@ -186,8 +321,9 @@ class Model:
         ss = np.random.SeedSequence(self.run_number)
         seeds = ss.spawn(2)
 
-        # Create patient list
+        # Set up attributes to store results
         self.patients = []
+        self.results_list = []
 
         # Initialise distributions
         self.arrival_dist = Exponential(mean=self.param.interarrival_time,
@@ -216,8 +352,9 @@ class Model:
             self.patients.append(patient)
 
             # Print arrival time
-            print(f"{patient.period} Patient {patient.patient_id} " +
-                  f"arrives at time: {self.env.now:.3f}")
+            if self.param.verbose:
+                print(f"{patient.period} Patient {patient.patient_id} " +
+                      f"arrives at time: {self.env.now:.3f}")
 
             # Start process of consultation
             self.env.process(self.consultation(patient))
@@ -231,10 +368,19 @@ class Model:
         patient :
             Instance of the Patient() class representing a single patient.
         """
+        start_wait = self.env.now#<<
+        # Patient requests access to a doctor (resource)
         with self.doctor.request() as req:
             yield req
-            print(f"{patient.period} Patient {patient.patient_id} starts " +
-                  f"consultation at: {self.env.now:.3f}")
+
+            # Record how long patient waited before consultation#<<
+            patient.wait_time = self.env.now - start_wait#<<
+
+            if self.param.verbose:
+                print(f"{patient.period} Patient {patient.patient_id} starts" +
+                      f" consultation at: {self.env.now:.3f}")
+
+            # Sample consultation duration and pass time spent with doctor
             time_with_doctor = self.consult_dist.sample()
             yield self.env.timeout(time_with_doctor)
 
@@ -253,7 +399,8 @@ class Model:
             yield self.env.timeout(self.param.warm_up_period)
             # Reset results variables
             self.reset_results()
-            print(f"Warm up period ended at time: {self.env.now}")
+            if self.param.verbose:
+                print(f"Warm up period ended at time: {self.env.now}")
 
     def run(self):
         """
@@ -265,25 +412,137 @@ class Model:
         # Run the simulation
         self.env.run(until=(self.param.warm_up_period +
                             self.param.data_collection_period))
+        # Create list of dictionaries containing each patient's attributes
+        self.results_list = [x.__dict__ for x in self.patients]
+```
+
+### Runner class
+
+```{python}
+class Runner:
+    """
+    Run the simulation.
+
+    Attributes
+    ----------
+    param : Parameters
+        Simulation parameters.
+    """
+    def __init__(self, param):
+        """
+        Initialise a new instance of the Runner class.
+
+        Parameters
+        ----------
+        param : Parameters
+            Simulation parameters.
+        """
+        self.param = param
+
+    def run_single(self, run):
+        """
+        Runs the simulation once and performs results calculations.
+
+        Parameters
+        ----------
+        run : int
+            Run number for the simulation.
+
+        Returns
+        -------
+        dict
+            Contains patient-level results and results from each run.
+        """
+        model = Model(param=self.param, run_number=run)
+        model.run()
+
+        # Patient results
+        patient_results = pd.DataFrame(model.results_list)
+        patient_results["run"] = run
+
+        # Run results
+        run_results = {
+            "run_number": run,
+            "mean_wait_time": patient_results["wait_time"].mean()#<<
+        }
+
+        return {
+            "patient": patient_results,
+            "run": run_results
+        }
 ```
 
 ### Run the model
 
 ```{python}
-param = Parameters()
-model = Model(param=param, run_number=0)
-model.run()
+runner = Runner(param=Parameters())
+result = runner.run_single(run=0)
+print(result["run"])
 ```
 
 :::
 
-## ⏱️ Mean wait time
+::: {.r-content}
 
-> **Corresponding term in queueing theory:** Average wait time in queue, $\\W_q$
+:::
+
+</details>
 
 ## 🩺 Mean time in consultation
 
 > **Corresponding term in queueing theory:** Service time, 1/$\mu$
+
+<details>
+
+<summary>View how to record the mean time spent in the consultation</summary>
+
+::: {.python-content}
+
+### Parameter class
+
+No changes required.
+
+```{python}
+#| echo: false
+{{< include outputs_resources/parameters.py >}}
+```
+
+### Patient class
+
+```{python}
+#| echo: false
+{{< include outputs_resources/patient.py >}}
+```
+
+### Model class
+
+```{python}
+#| echo: false
+{{< include outputs_resources/model.py >}}
+```
+
+### Runner class
+
+```{python}
+#| echo: false
+{{< include outputs_resources/runner.py >}}
+```
+
+### Run the model
+
+```{python}
+runner = Runner(param=Parameters())
+result = runner.run_single(run=0)
+print(result["run"])
+```
+
+:::
+
+::: {.r-content}
+
+:::
+
+</details>
 
 ## 👨‍⚕️ Mean doctor utilisation
 
@@ -291,29 +550,253 @@ model.run()
 
 <!--TODO: standard v.s. time-weighted-->
 
+<details>
+
+<summary>View how to record utilisation</summary>
+
+::: {.python-content}
+
+### Parameter class
+
+```{python}
+#| echo: false
+{{< include outputs_resources/parameters.py >}}
+```
+
+### Patient class
+
+```{python}
+#| echo: false
+{{< include outputs_resources/patient.py >}}
+```
+
+### Model class
+
+```{python}
+#| echo: false
+{{< include outputs_resources/model.py >}}
+```
+
+### Runner class
+
+```{python}
+#| echo: false
+{{< include outputs_resources/runner.py >}}
+```
+
+### Run the model
+
+```{python}
+runner = Runner(param=Parameters())
+result = runner.run_single(run=0)
+print(result["run"])
+```
+
+:::
+
+::: {.r-content}
+
+:::
+
+</details>
+
 ## 📏 Mean queue length
 
 > **Corresponding term in queueing theory:** Average number in queue, $L_q$
+
+<details>
+
+<summary>View how to record the mean queue length</summary>
+
+::: {.python-content}
+
+### Parameter class
+
+```{python}
+#| echo: false
+{{< include outputs_resources/parameters.py >}}
+```
+
+### Patient class
+
+```{python}
+#| echo: false
+{{< include outputs_resources/patient.py >}}
+```
+
+### Model class
+
+```{python}
+#| echo: false
+{{< include outputs_resources/model.py >}}
+```
+
+### Runner class
+
+```{python}
+#| echo: false
+{{< include outputs_resources/runner.py >}}
+```
+
+### Run the model
+
+```{python}
+runner = Runner(param=Parameters())
+result = runner.run_single(run=0)
+print(result["run"])
+```
+
+:::
+
+::: {.r-content}
+
+:::
+
+</details>
 
 ## ⏳ Mean time in system
 
 > **Corresponding term in queueing theory:** Average time in system, $\\W$
 
+<details>
+
+<summary>View how to record the mean time in system</summary>
+
+::: {.python-content}
+
+### Parameter class
+
+```{python}
+#| echo: false
+{{< include outputs_resources/parameters.py >}}
+```
+
+### Patient class
+
+```{python}
+#| echo: false
+{{< include outputs_resources/patient.py >}}
+```
+
+### Model class
+
+```{python}
+#| echo: false
+{{< include outputs_resources/model.py >}}
+```
+
+### Runner class
+
+```{python}
+#| echo: false
+{{< include outputs_resources/runner.py >}}
+```
+
+### Run the model
+
+```{python}
+runner = Runner(param=Parameters())
+result = runner.run_single(run=0)
+print(result["run"])
+```
+
+:::
+
+::: {.r-content}
+
+:::
+
+</details>
+
 ## 👥 Mean number of patients in the system
 
 > **Corresponding term in queueing theory:** Mean system size or average number in the system, $L$
 
-## 🙈 Unseen patients
+<details>
+
+<summary>View how to record the mean number of patients in the system</summary>
+
+::: {.python-content}
+
+### Parameter class
+
+```{python}
+#| echo: false
+{{< include outputs_resources/parameters.py >}}
+```
+
+### Patient class
+
+```{python}
+#| echo: false
+{{< include outputs_resources/patient.py >}}
+```
+
+### Model class
+
+```{python}
+#| echo: false
+{{< include outputs_resources/model.py >}}
+```
+
+### Runner class
+
+```{python}
+#| echo: false
+{{< include outputs_resources/runner.py >}}
+```
+
+### Run the model
+
+```{python}
+runner = Runner(param=Parameters())
+result = runner.run_single(run=0)
+print(result["run"])
+```
+
+:::
+
+::: {.r-content}
+
+:::
+
+</details>
+
+## 🙈 Unseen (backlogged) patients
 
 Backlogged/unfinished patients (remaining in the system at termination).
 
 <!--TODO: why to measure... what you miss if you don't-->
 
-### Unseen patients: count
+### Backlogged patient count
 
-### Unseen patients: mean wait time
+<details>
+
+<summary>View how to record the backlogged patient count</summary>
+
+</details>
+
+### Backlogged patient mean wait time
+
+<details>
+
+<summary>View how to record the backlogged patient mean wait time</summary>
+
+</details>
 
 ## 📋 Summary of performance measures
+
+| Performance measure | - | - |
+| - | - | - |
+| Total arrivals |
+| Mean wait time |
+| Mean time in consultation |
+| Mean doctor utilisation |
+| Mean queue length |
+| Mean time in system |
+| Mean number of patients in the system |
+| Backlogged patient count |
+| Backlogged patient mean wait time |
 
 <!--TODO: table... which include what patients i.e. warmup, not, unseen-->
 
