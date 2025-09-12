@@ -223,12 +223,13 @@ class Model:
                 period = "\U0001F539 DC"#<<
 
             # Create a new patient
-            patient = Patient(patient_id=len(self.patients)+1, period=period)#<<
+            patient = Patient(patient_id=len(self.patients)+1,
+                              period=period)#<<
             self.patients.append(patient)
 
             # Print arrival time
-            print(f"{patient.period} Patient {patient.patient_id} arrives " +#<<
-                  f"at time: {self.env.now:.3f}")
+            print(f"{patient.period} Patient {patient.patient_id} " +#<<
+                  f"arrives at time: {self.env.now:.3f}")
 
             # Start process of consultation
             self.env.process(self.consultation(patient))
@@ -244,8 +245,8 @@ class Model:
         """
         with self.doctor.request() as req:
             yield req
-            print(f"{patient.period} Patient {patient.patient_id} starts consultation " +
-                  f"at: {self.env.now:.3f}")
+            print(f"{patient.period} Patient {patient.patient_id} starts " +#<<
+                  f"consultation at: {self.env.now:.3f}")
             time_with_doctor = self.consult_dist.sample()
             yield self.env.timeout(time_with_doctor)
 
@@ -288,12 +289,18 @@ else:
     period = "\U0001F539 DC"
 
 # Create a new patient
-patient = Patient(patient_id=len(self.patients)+1, period=period)
+patient = Patient(patient_id=len(self.patients)+1,
+                  period=period)
 self.patients.append(patient)
 
 # Print arrival time
 print(f"{patient.period} Patient {patient.patient_id} arrives " +
         f"at time: {self.env.now:.3f}")
+
+...
+
+print(f"{patient.period} Patient {patient.patient_id} starts " +#<<
+      f"consultation at: {self.env.now:.3f}")
 ```
 
 When a patient arrives, we now check whether this occurred during the warm-up period (`self.env.now < self.param.warm_up_period`). Each patient is then labelled as either warm-up (🔸 WU) or data collection (🔹 DC), stored as an attribute.
@@ -385,19 +392,19 @@ Also, `verbose` is now set as `FALSE` as warmup we dont do on those we do on res
 #' @return A named list of parameters.
 
 create_params <- function(
-    interarrival_time = 5L,
-    consultation_time = 10L,
-    number_of_doctors = 3L,
-    warm_up_period = 30L,#<<
-    data_collection_period = 40L,#<<
-    verbose = FALSE#<<
+  interarrival_time = 5L,
+  consultation_time = 10L,
+  number_of_doctors = 3L,
+  warm_up_period = 30L, #<<
+  data_collection_period = 40L, #<<
+  verbose = FALSE#<<
 ) {
   list(
     interarrival_time = interarrival_time,
     consultation_time = consultation_time,
     number_of_doctors = number_of_doctors,
-    warm_up_period = warm_up_period,#<<
-    data_collection_period = data_collection_period,#<<
+    warm_up_period = warm_up_period, #<<
+    data_collection_period = data_collection_period, #<<
     verbose = verbose#<<
   )
 }
@@ -441,14 +448,14 @@ model <- function(param, run_number) {
     }) |>
     # Run the simulation
     simmer::run(until = (param[["warm_up_period"]] +
-                         param[["data_collection_period"]]))
+                           param[["data_collection_period"]]))
 
   # Extract information on arrivals and resources from simmer environment
   result <- list(
-    arrivals = get_mon_arrivals(env, per_resource = TRUE, ongoing = TRUE),#<<
+    arrivals = get_mon_arrivals(env, per_resource = TRUE, ongoing = TRUE), #<<
     resources = get_mon_resources(env)#<<
   )
-  return(result)
+  result
 }
 ```
 
@@ -514,7 +521,7 @@ filter_warmup <- function(result, warm_up_period) {
     result[["resources"]] <- dc_resources
   }
 
-  return(result) # nolint: return_linter
+  result
 }
 ```
 
