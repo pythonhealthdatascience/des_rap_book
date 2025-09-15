@@ -99,8 +99,8 @@ class Model:
             yield req
 
             if self.param.verbose:
-                print(f"{patient.period} Patient {patient.patient_id} starts " +
-                      f"consultation at: {self.env.now:.3f}")
+                print(f"{patient.period} Patient {patient.patient_id} " +
+                      f"starts consultation at: {self.env.now:.3f}")
 
             # Sample consultation duration and pass time spent with doctor
             time_with_doctor = self.consult_dist.sample()
@@ -131,8 +131,10 @@ class Model:
         # Schedule arrival generator and warm-up
         self.env.process(self.generate_arrivals())
         self.env.process(self.warmup())
+
         # Run the simulation
         self.env.run(until=(self.param.warm_up_period +
                             self.param.data_collection_period))
+
         # Create list of dictionaries containing each patient's attributes#<<
         self.results_list = [x.__dict__ for x in self.patients]#<<

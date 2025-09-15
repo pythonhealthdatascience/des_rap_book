@@ -255,8 +255,8 @@ class Model:
         with self.doctor.request() as req:
             yield req
 
-            print(f"{patient.period} Patient {patient.patient_id} starts " +#<<
-                  f"consultation at: {self.env.now:.3f}")
+            print(f"{patient.period} Patient {patient.patient_id} " +#<<
+                  f"starts consultation at: {self.env.now:.3f}")
 
             # Sample consultation duration and pass time spent with doctor
             time_with_doctor = self.consult_dist.sample()
@@ -284,8 +284,9 @@ class Model:
         Run the simulation.
         """
         # Schedule arrival generator and warm-up#<<
-        self.env.process(self.generate_arrivals())#<<
-        self.env.process(self.warmup())
+        self.env.process(self.generate_arrivals())
+        self.env.process(self.warmup())#<<
+
         # Run the simulation
         self.env.run(until=(self.param.warm_up_period +#<<
                             self.param.data_collection_period))#<<
@@ -311,8 +312,8 @@ print(f"{patient.period} Patient {patient.patient_id} arrives " +
 
 ...
 
-print(f"{patient.period} Patient {patient.patient_id} starts " +#<<
-      f"consultation at: {self.env.now:.3f}")
+print(f"{patient.period} Patient {patient.patient_id} " +#<<
+      f"starts consultation at: {self.env.now:.3f}")
 ```
 
 When a patient arrives, we now check whether this occurred during the warm-up period (`self.env.now < self.param.warm_up_period`). Each patient is then labelled as either warm-up (🔸 WU) or data collection (🔹 DC), stored as an attribute.
@@ -358,6 +359,7 @@ def run(self):
     # Schedule arrival generator and warm-up
     self.env.process(self.generate_arrivals())
     self.env.process(self.warmup())
+
     # Run the simulation
     self.env.run(until=(self.param.warm_up_period +
                         self.param.data_collection_period))
