@@ -57,6 +57,8 @@ Where relevant, we have included **corresponding terms from queueing theory** fo
 
 <!--TODO: interval audit v.s. not... use of interval audit... etc.etc.-->
 
+<!--TODO: add section after preparation before metrics on time-weighted calculations, like in the pydesrapmms notebook -->
+
 ## ✏️ Preparation for results collection
 
 ::: {.python-content}
@@ -435,9 +437,11 @@ class Model:
         # Schedule arrival generator and warm-up
         self.env.process(self.generate_arrivals())
         self.env.process(self.warmup())
+
         # Run the simulation
         self.env.run(until=(self.param.warm_up_period +
                             self.param.data_collection_period))
+
         # Create list of dictionaries containing each patient's attributes
         self.results_list = [x.__dict__ for x in self.patients]
 ```
@@ -708,9 +712,11 @@ class Model:
         # Schedule arrival generator and warm-up
         self.env.process(self.generate_arrivals())
         self.env.process(self.warmup())
+
         # Run the simulation
         self.env.run(until=(self.param.warm_up_period +
                             self.param.data_collection_period))
+
         # Create list of dictionaries containing each patient's attributes
         self.results_list = [x.__dict__ for x in self.patients]
 ```
@@ -800,11 +806,13 @@ print(result["run"])
 
 :::: {.python-content}
 
-We have suggested two different approaches for measuring utilisation.
+Mean utilisation measures the proportion of available doctor time that is actually used during the data collection period. We have suggested two different approaches for measuring utilisation - both return the same result.
 
-In this first approach...
+The first approach is **easier to understand**, as it just sums consultation times for each patient. However, it relies on making **corrections** when consultations overlap the end of the simulation or span the warm-up and data collection periods.
 
 ::: {.callout title="▶&nbsp;&nbsp;View how to record utilisation" collapse="true"}
+
+<div class="h3-tight"></div>
 
 ### Parameter class
 
@@ -944,8 +952,8 @@ class Model:
             yield req
 
             if self.param.verbose:
-                print(f"{patient.period} Patient {patient.patient_id} starts " +
-                      f"consultation at: {self.env.now:.3f}")
+                print(f"{patient.period} Patient {patient.patient_id} " +
+                      f"starts consultation at: {self.env.now:.3f}")
 
             # Sample consultation duration
             time_with_doctor = self.consult_dist.sample()
@@ -1003,16 +1011,18 @@ class Model:
         # Schedule arrival generator and warm-up
         self.env.process(self.generate_arrivals())
         self.env.process(self.warmup())
+
         # Run the simulation
         self.env.run(until=(self.param.warm_up_period +
                             self.param.data_collection_period))
+
         # Create list of dictionaries containing each patient's attributes
         self.results_list = [x.__dict__ for x in self.patients]
 ```
 
 ### Runner class
 
-Mean utilisation measures the proportion of available doctor time that is actually used during the data collection period. It is calculated here as:
+Mean utilisation can now be calculated as:
 
 $$
 \text{mean utilisation} = \frac{\text{doctor\_time\_used}}{\text{number of doctors} \times \text{data collection period}}
@@ -1077,7 +1087,513 @@ class Runner:
 
 ### Run the model
 
-In `result["run"]`, we can see the mean utilisation.
+```{python}
+runner = Runner(param=Parameters())
+result = runner.run_single(run=0)
+print(result["run"])
+```
+
+:::
+
+While this method introduces a **new class** and may initially seem **harder to grasp**, it has the advantage of requiring **fewer changes** to the rest of the simulation code.
+
+::: {.callout title="▶&nbsp;&nbsp;View how to record utilisation (time-weighted approach)" collapse="true"}
+
+<div class="h3-tight"></div>
+
+### Parameter class
+
+No changes required.
+
+```{python}
+#| echo: false
+{{< include outputs_resources/parameters.py >}}
+```
+
+### Patient class
+
+No changes required.
+
+```{python}
+#| echo: false
+{{< include outputs_resources/patient.py >}}
+```
+
+### Monitored resource class
+
+For this approach, we create a new class called `MonitoredResource`. This is explained line-by-line below.
+
+```{python}
+class MonitoredResource(simpy.Resource):
+    """
+    SimPy Resource subclass that tracks resource utilisation.
+
+    Attributes
+    ----------
+    time_last_event : list
+        Time of the most recent resource request or release event.
+    area_resource_busy : list
+        Cumulative time resources were busy, for computing utilisation.
+
+    Notes
+    -----
+    Class adapted from Monks, Harper and Heather 2025.
+    """
+
+    def __init__(self, *args, **kwargs):
+        """
+        Initialise the MonitoredResource, resetting monitoring statistics.
+
+        Parameters
+        ----------
+        *args :
+            Positional arguments to be passed to the parent class.
+        **kwargs :
+            Keyword arguments to be passed to the parent class.
+        """
+        # Initialise a SimPy Resource
+        super().__init__(*args, **kwargs)
+        # Run the init_results() method
+        self.init_results()
+
+    def init_results(self):
+        """
+        Reset monitoring attributes.
+        """
+        self.time_last_event = [self._env.now]
+        self.area_resource_busy = [0.0]
+
+    def request(self, *args, **kwargs):
+        """
+        Update time-weighted statistics before requesting a resource.
+
+        Parameters
+        ----------
+        *args :
+            Positional arguments to be passed to the parent class.
+        **kwargs :
+            Keyword arguments to be passed to the parent class.
+
+        Returns
+        -------
+        simpy.events.Event
+            Event for the resource request.
+        """
+        # Update time-weighted statistics
+        self.update_time_weighted_stats()
+        # Request a resource
+        return super().request(*args, **kwargs)
+
+    def release(self, *args, **kwargs):
+        """
+        Update time-weighted statistics before releasing a resource.
+
+        Parameters
+        ----------
+        *args :
+            Positional arguments to be passed to the parent class.
+        **kwargs :
+            Keyword arguments to be passed to the parent class.
+
+        Returns
+        -------
+        simpy.events.Event
+            Event for the resource release.
+        """
+        # Update time-weighted statistics
+        self.update_time_weighted_stats()
+        # Release a resource
+        return super().release(*args, **kwargs)
+
+    def update_time_weighted_stats(self):
+        """
+        Update the time-weighted statistics for resource usage.
+
+        At each resource request or release, adds time resources were busy
+        (number of resources in use x duration).
+
+        Notes
+        -----
+        - These sums can be referred to as "the area under the curve".
+        - They are called "time-weighted" statistics as they account for how
+          long certain events or states (such as resource use or queue length)
+          persist over time.
+        """
+        # Calculate time since last event
+        time_since_last_event = self._env.now - self.time_last_event[-1]
+
+        # Add record of current time
+        self.time_last_event.append(self._env.now)
+
+        # Add "area under curve" of resources in use
+        # self.count is the number of resources in use
+        self.area_resource_busy.append(self.count * time_since_last_event)
+```
+
+#### Explaining `MonitoredResource`...
+
+```{.python}
+class MonitoredResource(simpy.Resource):
+    """
+    SimPy Resource subclass that tracks resource utilisation.
+
+    Attributes
+    ----------
+    time_last_event : list
+        Time of the most recent resource request or release event.
+    area_resource_busy : list
+        Cumulative time resources were busy, for computing utilisation.
+
+    Notes
+    -----
+    Class adapted from Monks, Harper and Heather 2025.
+    """
+
+    def __init__(self, *args, **kwargs):
+        """
+        Initialise the MonitoredResource, resetting monitoring statistics.
+
+        Parameters
+        ----------
+        *args :
+            Positional arguments to be passed to the parent class.
+        **kwargs :
+            Keyword arguments to be passed to the parent class.
+        """
+        # Initialise a SimPy Resource
+        super().__init__(*args, **kwargs)
+        # Run the init_results() method
+        self.init_results()
+```
+
+This class inherits SimPy's `Resource` class (if new to inheritance, see the [Code organisation](../setup/code_structure.qmd) page for an introduction). This means it has same functionality, but we can modify, etcetc.
+
+In the `__init__` method, the class is initialised as it would be for a standard resource class, but then also calls the new `init_results` method.
+
+<br>
+
+```{.python}
+def init_results(self):
+    """
+    Reset monitoring attributes.
+    """
+    self.time_last_event = [self._env.now]
+    self.area_resource_busy = [0.0]
+```
+
+This method resets all tracking attributes. This is called when the object is created or when usage statistics need to be cleared, such as after a warm-up period.
+
+<br>
+
+```{.python}
+def request(self, *args, **kwargs):
+    """
+    Update time-weighted statistics before requesting a resource.
+
+    Parameters
+    ----------
+    *args :
+        Positional arguments to be passed to the parent class.
+    **kwargs :
+        Keyword arguments to be passed to the parent class.
+
+    Returns
+    -------
+    simpy.events.Event
+        Event for the resource request.
+    """
+    # Update time-weighted statistics
+    self.update_time_weighted_stats()
+    # Request a resource
+    return super().request(*args, **kwargs)
+```
+
+Whenever a resource is requested, this method first updates time-weighted statistics based on the current system state. It then makes the actual resource request via the parent class, ensuring all tracking is up to date.
+
+<br>
+
+```{.python}
+def release(self, *args, **kwargs):
+    """
+    Update time-weighted statistics before releasing a resource.
+
+    Parameters
+    ----------
+    *args :
+        Positional arguments to be passed to the parent class.
+    **kwargs :
+        Keyword arguments to be passed to the parent class.
+
+    Returns
+    -------
+    simpy.events.Event
+        Event for the resource release.
+    """
+    # Update time-weighted statistics
+    self.update_time_weighted_stats()
+    # Release a resource
+    return super().release(*args, **kwargs)
+```
+
+Just as we did with the `request()` method, the `release()` method updates usage statistics before a resource if released.
+
+<br>
+
+```{.python}
+def update_time_weighted_stats(self):
+    """
+    Update the time-weighted statistics for resource usage.
+
+    At each resource request or release, adds time resources were busy
+    (number of resources in use x duration).
+
+    Notes
+    -----
+    - These sums can be referred to as "the area under the curve".
+    - They are called "time-weighted" statistics as they account for how
+        long certain events or states (such as resource use or queue length)
+        persist over time.
+    """
+    # Calculate time since last event
+    time_since_last_event = self._env.now - self.time_last_event[-1]
+
+    # Add record of current time
+    self.time_last_event.append(self._env.now)
+
+    # Add "area under curve" of resources in use
+    # self.count is the number of resources in use
+    self.area_resource_busy.append(self.count * time_since_last_event)
+```
+
+Calculates and records usage statistics since the last resource event (request or release). It determines how long the resource usage lasted, then adds its "area under the curve" to the running total.
+
+### Model class
+
+In `Model`, we make three changes:
+
+1. The `doctor` attribute is now set up using `MonitoredResource` (instead of `simpy.Resource`).
+
+2. In `reset_results()`, we call the `MonitoredResource` method `init_results()` to reset their monitoring at the end of a warm-up period.
+
+3. In `run()`, once the simulation ends, the `MonitoredResource` method `update_time_weighted_stats()` is called one final time, to update with the usage between the last record resource event (request or release) and the simulation end.
+
+```{python}
+class Model:
+    """
+    Simulation model.
+
+    Attributes
+    ----------
+    param : Parameters
+        Simulation parameters.
+    run_number : int
+        Run number for random seed generation.
+    env : simpy.Environment
+        The SimPy environment for the simulation.
+    doctor : simpy.Resource
+        SimPy resource representing doctors.
+    patients : list
+        List of Patient objects.
+    results_list : list
+        List of dictionaries with the attributes of each patient.
+    arrival_dist : Exponential
+        Distribution used to generate random patient inter-arrival times.
+    consult_dist : Exponential
+        Distribution used to generate length of a doctor's consultation.
+    """
+    def __init__(self, param, run_number):
+        """
+        Create a new Model instance.
+
+        Parameters
+        ----------
+        param : Parameters
+            Simulation parameters.
+        run_number : int
+            Run number for random seed generation.
+        """
+        self.param = param
+        self.run_number = run_number
+
+        # Create SimPy environment
+        self.env = simpy.Environment()
+
+        # Create resource
+        self.doctor = MonitoredResource(#<<
+            self.env, capacity=self.param.number_of_doctors
+        )
+
+        # Create a random seed sequence based on the run number
+        ss = np.random.SeedSequence(self.run_number)
+        seeds = ss.spawn(2)
+
+        # Set up attributes to store results
+        self.patients = []
+        self.results_list = []
+
+        # Initialise distributions
+        self.arrival_dist = Exponential(mean=self.param.interarrival_time,
+                                        random_seed=seeds[0])
+        self.consult_dist = Exponential(mean=self.param.consultation_time,
+                                        random_seed=seeds[1])
+
+    def generate_arrivals(self):
+        """
+        Process that generates patient arrivals.
+        """
+        while True:
+            # Sample and pass time to next arrival
+            sampled_iat = self.arrival_dist.sample()
+            yield self.env.timeout(sampled_iat)
+
+            # Check whether arrived during warm-up or data collection
+            if self.env.now < self.param.warm_up_period:
+                period = "\U0001F538 WU"
+            else:
+                period = "\U0001F539 DC"
+
+            # Create a new patient
+            patient = Patient(patient_id=len(self.patients)+1,
+                              period=period)
+            self.patients.append(patient)
+
+            # Print arrival time
+            if self.param.verbose:
+                print(f"{patient.period} Patient {patient.patient_id} " +
+                      f"arrives at time: {self.env.now:.3f}")
+
+            # Start process of consultation
+            self.env.process(self.consultation(patient))
+
+    def consultation(self, patient):
+        """
+        Process that simulates a consultation.
+
+        Parameters
+        ----------
+        patient :
+            Instance of the Patient() class representing a single patient.
+        """
+        # Patient requests access to a doctor (resource)
+        with self.doctor.request() as req:
+            yield req
+
+            if self.param.verbose:
+                print(f"{patient.period} Patient {patient.patient_id} " +
+                      f"starts consultation at: {self.env.now:.3f}")
+
+            # Sample consultation duration and pass time spent with doctor
+            time_with_doctor = self.consult_dist.sample()
+            yield self.env.timeout(time_with_doctor)
+
+    def reset_results(self):
+        """
+        Reset results.
+        """
+        self.patients = []
+        self.doctor.init_results()#<<
+
+    def warmup(self):
+        """
+        Reset result collection after the warm-up period.
+        """
+        if self.param.warm_up_period > 0:
+            # Delay process until warm-up period has completed
+            yield self.env.timeout(self.param.warm_up_period)
+            # Reset results variables
+            self.reset_results()
+            if self.param.verbose:
+                print(f"Warm up period ended at time: {self.env.now}")
+
+    def run(self):
+        """
+        Run the simulation.
+        """
+        # Schedule arrival generator and warm-up
+        self.env.process(self.generate_arrivals())
+        self.env.process(self.warmup())
+
+        # Run the simulation
+        self.env.run(until=(self.param.warm_up_period +
+                            self.param.data_collection_period))
+
+        # At simulation end, update time-weighted statistics for any#<<
+        # resources in use or requests in queue by accounting for the time#<<
+        # from the last event up to the simulation finish.#<<
+        self.doctor.update_time_weighted_stats()#<<
+
+        # Create list of dictionaries containing each patient's attributes
+        self.results_list = [x.__dict__ for x in self.patients]
+```
+
+### Runner class
+
+Mean utilisation can now be calculated as:
+
+$$
+\text{mean utilisation} = \frac{\text{area\_under\_the\_curve}}{\text{number of doctors} \times \text{data collection period}}
+$$
+
+```{python}
+class Runner:
+    """
+    Run the simulation.
+
+    Attributes
+    ----------
+    param : Parameters
+        Simulation parameters.
+    """
+    def __init__(self, param):
+        """
+        Initialise a new instance of the Runner class.
+
+        Parameters
+        ----------
+        param : Parameters
+            Simulation parameters.
+        """
+        self.param = param
+
+    def run_single(self, run):
+        """
+        Runs the simulation once and performs results calculations.
+
+        Parameters
+        ----------
+        run : int
+            Run number for the simulation.
+
+        Returns
+        -------
+        dict
+            Contains patient-level results and results from each run.
+        """
+        model = Model(param=self.param, run_number=run)
+        model.run()
+
+        # Patient results
+        patient_results = pd.DataFrame(model.results_list)
+        patient_results["run"] = run
+
+        # Run results
+        run_results = {
+            "run_number": run,
+            "mean_utilisation_tw": (#<<
+                sum(model.doctor.area_resource_busy) / (#<<
+                    self.param.number_of_doctors *#<<
+                    self.param.data_collection_period#<<
+                )#<<
+            )#<<
+        }
+
+        return {
+            "patient": patient_results,
+            "run": run_results
+        }
+```
+
+### Run the model
 
 ```{python}
 runner = Runner(param=Parameters())
@@ -1087,15 +1603,11 @@ print(result["run"])
 
 :::
 
-In this second approach, the calculation is time-weighted...
-
-::: {.callout title="▶&nbsp;&nbsp;View how to record utilisation (time-weighted approach)" collapse="true"}
-
-:::
-
 ::::
 
 ::: {.r-content}
+
+Mean utilisation measures the proportion of available doctor time that is actually used during the data collection period.
 
 ::: {.callout title="▶&nbsp;&nbsp;View how to record utilisation (time-weighted approach)" collapse="true"}
 
@@ -1362,5 +1874,9 @@ Backlogged/unfinished patients (remaining in the system at termination).
 ::::
 
 ## 🧪 Test yourself
+
+## Acknowledgements
+
+The MonitoredResource class is based on Tom Monks, Alison Harper and Amy Heather (2025) An introduction to Discrete-Event Simulation (DES) using Free and Open Source Software (https://github.com/pythonhealthdatascience/intro-open-sim/tree/main) (MIT Licence). They based it on the method described in Law. Simulation Modeling and Analysis 4th Ed. Pages 14 - 17.
 
 <br><br>
