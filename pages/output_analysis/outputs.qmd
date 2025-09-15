@@ -71,9 +71,7 @@ Before we start calculating any simulation performance measures, some set-up is 
 
 :::
 
-<details>
-
-<summary>View preparation steps</summary>
+:::: {.callout title="▶&nbsp;&nbsp;View preparation steps" collapse="true"}
 
 ::: {.python-content}
 
@@ -129,13 +127,11 @@ Now we're ready to record some performance measures. 😎
 
 :::
 
-</details>
+::::
 
 ## 🚶‍♀️ Total arrivals
 
-<details>
-
-<summary>View how to record the total arrivals</summary>
+:::: {.callout title="▶&nbsp;&nbsp;View how to record the total arrivals" collapse="true"}
 
 ::: {.python-content}
 
@@ -240,15 +236,13 @@ print(result["run"])
 
 :::
 
-</details>
+::::
 
 ## ⏱️ Mean wait time
 
 > **Corresponding term in queueing theory:** Average wait time in queue, $\\W_q$
 
-<details>
-
-<summary>View how to record the mean wait time</summary>
+:::: {.callout title="▶&nbsp;&nbsp;View how to record the mean wait time" collapse="true"}
 
 ::: {.python-content}
 
@@ -523,15 +517,13 @@ print(result["run"])
 
 :::
 
-</details>
+::::
 
 ## 🩺 Mean time in consultation
 
 > **Corresponding term in queueing theory:** Service time, 1/$\mu$
 
-<details>
-
-<summary>View how to record the mean time spent in the consultation</summary>
+:::: {.callout title="▶&nbsp;&nbsp;View how to record the mean time spent in the consultation" collapse="true"}
 
 ::: {.python-content}
 
@@ -800,21 +792,23 @@ print(result["run"])
 
 :::
 
-</details>
+::::
 
 ## 👨‍⚕️ Mean doctor utilisation
 
 > **Corresponding term in queueing theory:** Server utilisation, $\rho$
 
-<!--TODO: standard v.s. time-weighted-->
+:::: {.python-content}
 
-<details>
+We have suggested two different approaches for measuring utilisation.
 
-<summary>View how to record utilisation</summary>
+In this first approach...
 
-::: {.python-content}
+::: {.callout title="▶&nbsp;&nbsp;View how to record utilisation" collapse="true"}
 
 ### Parameter class
+
+No changes required.
 
 ```{python}
 #| echo: false
@@ -823,6 +817,8 @@ print(result["run"])
 
 ### Patient class
 
+No changes required.
+
 ```{python}
 #| echo: false
 {{< include outputs_resources/patient.py >}}
@@ -830,19 +826,258 @@ print(result["run"])
 
 ### Model class
 
+A new attribute `doctor_time_used` is used to record the total time patients spend with doctor. This value is reset at the end of any warm-up period, so that only data from the main collection phase is analysed.
+
+Recording the time used requires two corrections:
+
+**End of simulation overrun**. If a consultation begins during the data collection period and extends past the simulation end, only the time up to simulation end is included. This prevents overestimating usage by excluding extra time beyond the simulation window.
+
+**Warm-up overrun**. For models with a warm-up, consultations that begin during warm-up but finish during data collection would be missed after the reset, leading to underestimated usage. To correct for this, any time overlapping data collection (for these patients) is recorded in the `doctor_time_used_correction` attribute and added back in after the warm-up reset.
+
 ```{python}
-#| echo: false
-{{< include outputs_resources/model.py >}}
+class Model:
+    """
+    Simulation model.
+
+    Attributes
+    ----------
+    param : Parameters
+        Simulation parameters.
+    run_number : int
+        Run number for random seed generation.
+    env : simpy.Environment
+        The SimPy environment for the simulation.
+    doctor : simpy.Resource
+        SimPy resource representing doctors.
+    patients : list
+        List of Patient objects.
+    doctor_time_used : float#<<
+        Total time that doctor resources were used for (minutes).#<<
+    doctor_time_used_correction : float#<<
+        Adjustment for doctor time. Without this, usage is underestimated#<<
+        since patients whose consultations began in warm-up but ended#<<
+        during data collection are excluded.#<<
+    results_list : list
+        List of dictionaries with the attributes of each patient.
+    arrival_dist : Exponential
+        Distribution used to generate random patient inter-arrival times.
+    consult_dist : Exponential
+        Distribution used to generate length of a doctor's consultation.
+    """
+    def __init__(self, param, run_number):
+        """
+        Create a new Model instance.
+
+        Parameters
+        ----------
+        param : Parameters
+            Simulation parameters.
+        run_number : int
+            Run number for random seed generation.
+        """
+        self.param = param
+        self.run_number = run_number
+
+        # Create SimPy environment
+        self.env = simpy.Environment()
+
+        # Create resource
+        self.doctor = simpy.Resource(
+            self.env, capacity=self.param.number_of_doctors
+        )
+
+        # Create a random seed sequence based on the run number
+        ss = np.random.SeedSequence(self.run_number)
+        seeds = ss.spawn(2)
+
+        # Set up attributes to store results
+        self.patients = []
+        self.results_list = []
+        self.doctor_time_used = 0#<<
+        self.doctor_time_used_correction = 0#<<
+
+        # Initialise distributions
+        self.arrival_dist = Exponential(mean=self.param.interarrival_time,
+                                        random_seed=seeds[0])
+        self.consult_dist = Exponential(mean=self.param.consultation_time,
+                                        random_seed=seeds[1])
+
+    def generate_arrivals(self):
+        """
+        Process that generates patient arrivals.
+        """
+        while True:
+            # Sample and pass time to next arrival
+            sampled_iat = self.arrival_dist.sample()
+            yield self.env.timeout(sampled_iat)
+
+            # Check whether arrived during warm-up or data collection
+            if self.env.now < self.param.warm_up_period:
+                period = "\U0001F538 WU"
+            else:
+                period = "\U0001F539 DC"
+
+            # Create a new patient
+            patient = Patient(patient_id=len(self.patients)+1,
+                              period=period)
+            self.patients.append(patient)
+
+            # Print arrival time
+            if self.param.verbose:
+                print(f"{patient.period} Patient {patient.patient_id} " +
+                      f"arrives at time: {self.env.now:.3f}")
+
+            # Start process of consultation
+            self.env.process(self.consultation(patient))
+
+    def consultation(self, patient):
+        """
+        Process that simulates a consultation.
+
+        Parameters
+        ----------
+        patient :
+            Instance of the Patient() class representing a single patient.
+        """
+        # Patient requests access to a doctor (resource)
+        with self.doctor.request() as req:
+            yield req
+
+            if self.param.verbose:
+                print(f"{patient.period} Patient {patient.patient_id} starts " +
+                      f"consultation at: {self.env.now:.3f}")
+
+            # Sample consultation duration
+            time_with_doctor = self.consult_dist.sample()
+
+            # Add to total doctor time used#<<
+            # If it runs past simulation end, only count the time until end#<<
+            remaining_time = (#<<
+                self.param.warm_up_period +#<<
+                self.param.data_collection_period) - self.env.now#<<
+            self.doctor_time_used += min(#<<
+                time_with_doctor, remaining_time)#<<
+
+            # During warm-up: check if consultation continues past warm-up.#<<
+            # If so, record the portion overlapping with data collection in#<<
+            # doctor_time_used_correction (capped at the simulation end).#<<
+            remaining_warmup = self.param.warm_up_period - self.env.now#<<
+            if remaining_warmup > 0:#<<
+                time_exceeding_warmup = time_with_doctor - remaining_warmup#<<
+                if time_exceeding_warmup > 0:#<<
+                    self.doctor_time_used_correction += min(#<<
+                        time_exceeding_warmup,#<<
+                        self.param.data_collection_period)#<<
+
+            # Pass time spent with the doctor
+            yield self.env.timeout(time_with_doctor)
+
+    def reset_results(self):
+        """
+        Reset results.
+        """
+        self.patients = []
+        self.doctor_time_used = 0#<<
+
+    def warmup(self):
+        """
+        Reset result collection after the warm-up period.
+        """
+        if self.param.warm_up_period > 0:
+            # Delay process until warm-up period has completed
+            yield self.env.timeout(self.param.warm_up_period)
+
+            # Reset results variables
+            self.reset_results()
+            if self.param.verbose:
+                print(f"Warm up period ended at time: {self.env.now}")
+
+            # Add correction for patients whose consultations began in#<<
+            # warm-up but continued into data collection.#<<
+            self.doctor_time_used += self.doctor_time_used_correction#<<
+
+    def run(self):
+        """
+        Run the simulation.
+        """
+        # Schedule arrival generator and warm-up
+        self.env.process(self.generate_arrivals())
+        self.env.process(self.warmup())
+        # Run the simulation
+        self.env.run(until=(self.param.warm_up_period +
+                            self.param.data_collection_period))
+        # Create list of dictionaries containing each patient's attributes
+        self.results_list = [x.__dict__ for x in self.patients]
 ```
 
 ### Runner class
 
+Mean utilisation measures the proportion of available doctor time that is actually used during the data collection period. It is calculated here as:
+
+$$
+\text{mean utilisation} = \frac{\text{doctor\_time\_used}}{\text{number of doctors} \times \text{data collection period}}
+$$
+
 ```{python}
-#| echo: false
-{{< include outputs_resources/runner.py >}}
+class Runner:
+    """
+    Run the simulation.
+
+    Attributes
+    ----------
+    param : Parameters
+        Simulation parameters.
+    """
+    def __init__(self, param):
+        """
+        Initialise a new instance of the Runner class.
+
+        Parameters
+        ----------
+        param : Parameters
+            Simulation parameters.
+        """
+        self.param = param
+
+    def run_single(self, run):
+        """
+        Runs the simulation once and performs results calculations.
+
+        Parameters
+        ----------
+        run : int
+            Run number for the simulation.
+
+        Returns
+        -------
+        dict
+            Contains patient-level results and results from each run.
+        """
+        model = Model(param=self.param, run_number=run)
+        model.run()
+
+        # Patient results
+        patient_results = pd.DataFrame(model.results_list)
+        patient_results["run"] = run
+
+        # Run results
+        run_results = {
+            "run_number": run,
+            "mean_utilisation": model.doctor_time_used / (#<<
+                self.param.number_of_doctors *#<<
+                self.param.data_collection_period#<<
+            )#<<
+        }
+
+        return {
+            "patient": patient_results,
+            "run": run_results
+        }
 ```
 
 ### Run the model
+
+In `result["run"]`, we can see the mean utilisation.
 
 ```{python}
 runner = Runner(param=Parameters())
@@ -852,19 +1087,27 @@ print(result["run"])
 
 :::
 
-::: {.r-content}
+In this second approach, the calculation is time-weighted...
+
+::: {.callout title="▶&nbsp;&nbsp;View how to record utilisation (time-weighted approach)" collapse="true"}
 
 :::
 
-</details>
+::::
+
+::: {.r-content}
+
+::: {.callout title="▶&nbsp;&nbsp;View how to record utilisation (time-weighted approach)" collapse="true"}
+
+::::
+
+::::
 
 ## 📏 Mean queue length
 
 > **Corresponding term in queueing theory:** Average number in queue, $L_q$
 
-<details>
-
-<summary>View how to record the mean queue length</summary>
+:::: {.callout title="▶&nbsp;&nbsp;View how to record mean queue length" collapse="true"}
 
 ::: {.python-content}
 
@@ -910,15 +1153,13 @@ print(result["run"])
 
 :::
 
-</details>
+::::
 
 ## ⏳ Mean time in system
 
 > **Corresponding term in queueing theory:** Average time in system, $\\W$
 
-<details>
-
-<summary>View how to record the mean time in system</summary>
+:::: {.callout title="▶&nbsp;&nbsp;View how to record mean time in system" collapse="true"}
 
 ::: {.python-content}
 
@@ -964,15 +1205,13 @@ print(result["run"])
 
 :::
 
-</details>
+::::
 
 ## 👥 Mean number of patients in the system
 
 > **Corresponding term in queueing theory:** Mean system size or average number in the system, $L$
 
-<details>
-
-<summary>View how to record the mean number of patients in the system</summary>
+:::: {.callout title="▶&nbsp;&nbsp;View how to record mean number of patients in the system" collapse="true"}
 
 ::: {.python-content}
 
@@ -1018,7 +1257,7 @@ print(result["run"])
 
 :::
 
-</details>
+::::
 
 ## 🙈 Unseen (backlogged) patients
 
@@ -1028,19 +1267,15 @@ Backlogged/unfinished patients (remaining in the system at termination).
 
 ### Backlogged patient count
 
-<details>
+:::: {.callout title="▶&nbsp;&nbsp;View how to record the backlogged patient count" collapse="true"}
 
-<summary>View how to record the backlogged patient count</summary>
-
-</details>
+::::
 
 ### Backlogged patient mean wait time
 
-<details>
+:::: {.callout title="▶&nbsp;&nbsp;View how to record the backlogged patient mean wait time" collapse="true"}
 
-<summary>View how to record the backlogged patient mean wait time</summary>
-
-</details>
+::::
 
 ## 📋 Summary of performance measures
 
