@@ -11,6 +11,7 @@ filters:
 **Learning objectives:**
 
 * Learn **how to record various performance measures** within the simulation model.
+* Understand how **time-weighted calculations** work.
 
 **Relevant reproducibility guidelines:**
 
@@ -43,6 +44,14 @@ from sim_tools.distributions import Exponential
 
 ```{r}
 library(simmer)
+```
+
+```{r}
+#| echo: false
+#| output: false
+# For illustrative plot only, code hidden
+library(ggplot2)
+library(plotly)
 ```
 
 :::
@@ -2463,6 +2472,73 @@ print(result["run"])
 :::
 
 ::::
+
+## ⚖️ Time-weighted averages
+
+A **time-weighted average** calculates the mean value of a performance measure by weighting each observed value by the length of time it persisted, then dividing by the total time observed.
+
+This is used by three of the performance measures above: **utilisation, queue length and patients in system**. But why do we use it? Let's use **queue length** as an example...
+
+Consider a queue with the following time periods and sizes:
+
+| Interval    | Queue Size | Duration |
+|-------------|------------|----------|
+| 0 - 14.4    | 0          | 14.4     |
+| 14.4 - 15.2 | 1          | 0.8      |
+| 15.2 - 16.1 | 2          | 0.9      |
+| 16.1 - 17.0 | 3          | 0.9      |
+
+
+::: {.pale-red}
+
+**Simple (unweighted) average**
+
+This method ignores duration and only averages the observed queue sizes:
+
+$$
+\text{Simple average} = \frac{0 + 1 + 2 + 3}{4} = 1.5
+$$
+
+It overestimates the typical queue size because most of the time, the queue was empty.
+
+:::
+
+::: {.pale-green}
+
+**Time-weighted average**
+
+This method weights each value by how long it lasted:
+
+$$
+\text{Time-weighted average} = \frac{(0 \times 14.4) + (1 \times 0.8) + (2 \times 0.9) + (3 \times 0.9)}{17.0} \approx 0.312
+$$
+
+The value is much closer to the true "average" experienced in time, because the queue was empty for most of the observation period.
+
+:::
+
+The same logic applies for the other performance measures. In the code, we track the product of value and duration ("area under the curve") for each metric, then divide the total by the observation time.
+
+It's called "**area under the curve**" because, when you plot the measure (e.g., queue length) over time, the total area of all the rectangles you get under the curve (height=queue x width=time) returns your average.
+
+```{r}
+#| echo: false
+# Create a data frame for queue size and time
+queue_df <- data.frame(
+  time = c(0.0, 14.4, 15.2, 16.1, 17.0),
+  queue = c(0, 1, 2, 3, 3)
+)
+
+# Use geom_step for step plot, horizontal-then-vertical (hv) style
+p <- ggplot(queue_df, aes(x = time, y = queue)) +
+  geom_step(direction = "hv", color = "blue", linewidth = 1.2) +
+  scale_x_continuous(breaks = seq(0, 18, by = 2)) +
+  scale_y_continuous(breaks = seq(0, 3, by = 1)) +
+  labs(x = "Time", y = "Queue size") +
+  theme_minimal()
+
+ggplotly(p)
+```
 
 ## 🔍 Explore the example models
 
