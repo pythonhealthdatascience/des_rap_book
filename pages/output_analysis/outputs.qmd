@@ -43,6 +43,8 @@ from sim_tools.distributions import Exponential
 ::: {.r-content}
 
 ```{r}
+#| output: false
+library(dplyr)
 library(simmer)
 ```
 
@@ -63,8 +65,6 @@ library(plotly)
 Where relevant, we have included **corresponding terms from queueing theory** for each measure.
 
 > **What is queueing theory?** Queueing theory is a field of mathematics that analyses queues under strict assumptions, and is suitable for simple well-characterised systems. Discrete event simulation (DES) can be applied in similar ways (e.g., replicating classic queueing models like M/M/s), but more often extends beyond simple theory to handle a wider range of arrival and service patterns and more complex resource constraints.
-
-<!--TODO: interval audit v.s. not... use of interval audit... etc.etc.-->
 
 ## ✏️ Preparation for results collection
 
@@ -129,7 +129,7 @@ class Parameters:
 
 ### Patient class
 
-No changes are required for `Patient` at this stage.
+No changes required for `Patient` at this stage.
 
 ```{python}
 #| echo: false
@@ -157,10 +157,7 @@ The basic structure of `Runner` is as follows. It initialises with simulation pa
 Running the model via `Runner` produces our new structured results.
 
 ```{python}
-runner = Runner(param=Parameters())
-result = runner.run_single(run=0)
-print(result["patient"])
-print(result["run"])
+{{< include outputs_resources/run.py >}}
 ```
 
 Now we're ready to record some performance measures. 😎
@@ -169,7 +166,71 @@ Now we're ready to record some performance measures. 😎
 
 ::: {.r-content}
 
-Before we start calculating any simulation performance measures, some set-up is required.
+Before we start calculating any simulation performance measures, some set-up is required. This includes calling `filter_warmup()` from within `model()` and making a new function `get_run_results()`.
+
+### Parameter function
+
+No changes required.
+
+```{r}
+#| echo: false
+{{< include outputs_resources/create_params.R >}}
+```
+
+### Warm-up function
+
+No changes required.
+
+```{r}
+#| echo: false
+{{< include outputs_resources/filter_warmup.R >}}
+```
+
+### Model function
+
+Having introduced the `filter_warmup()` function on the [Initialisation bias](warmup.qmd) page, we'll now call it from within `model()` (so we don't forget to after running `model()`!).
+
+```{r}
+{{< include outputs_resources/model.R >}}
+```
+
+### Run results function
+
+Let's create a new function `get_run_results()`. This will be used to combine the performance measures we calculate into a single table.
+
+```{r}
+#' Get average results for the provided single run.
+#'
+#' @param results Named list with `arrivals` from `get_mon_arrivals()` and
+#'   `resources` from `get_mon_resources()`
+#'   (`per_resource = TRUE` and `ongoing = TRUE`).
+#' @param run_number Integer index of current simulation run.
+#'
+#' @importFrom dplyr bind_cols
+#' @importFrom tibble tibble
+#'
+#' @return Tibble with processed results from replication.
+#' @export
+
+get_run_results <- function(results, run_number) {
+    metrics <- list()
+    dplyr::bind_cols(tibble(replication = run_number), metrics)
+}
+```
+
+### Run the model
+
+As we haven't yet calculated any average performance measures, the table from `get_run_results()` looks a little empty!
+
+```{r}
+param <- create_params()
+result <- model(param = param, run_number = 1L)
+print(result[["arrivals"]])
+print(result[["resources"]])
+get_run_results(result = result, run_number = 1L)
+```
+
+Let's add some performance measures. 😎
 
 :::
 
@@ -258,15 +319,88 @@ class Runner:
 ### Run the model
 
 ```{python}
-runner = Runner(param=Parameters())
-result = runner.run_single(run=0)
-print(result["patient"])
-print(result["run"])
+{{< include outputs_resources/run.py >}}
 ```
 
 :::
 
 ::: {.r-content}
+
+<div class="h3-tight"></div>
+
+### Warm-up function
+
+No changes required.
+
+```{r}
+#| echo: false
+{{< include outputs_resources/filter_warmup.R >}}
+```
+
+### Model function
+
+No changes required.
+
+```{r}
+#| echo: false
+{{< include outputs_resources/model.R >}}
+```
+
+### Arrivals function
+
+We introduce a new function `calc_arrivals()`. This determines the number of arrivals by counting the number of unique patient names in the arrival records.
+
+```{r}
+#' Calculate the number of arrivals
+#'
+#' @param arrivals Dataframe with times for each patient with each resource.
+#'
+#' @return Tibble with column containing total number of arrivals.
+#' @export
+
+calc_arrivals <- function(arrivals) {
+  arrivals |>
+    summarise(arrivals = n_distinct(.data[["name"]])) |>
+    ungroup()
+}
+```
+
+### Run results function
+
+In `get_run_results()`, the table `results[["arrivals"]]` is passed to `calc_arrivals()`.
+
+```{r}
+#' Get average results for the provided single run.
+#'
+#' @param results Named list with `arrivals` from `get_mon_arrivals()` and
+#'   `resources` from `get_mon_resources()`
+#'   (`per_resource = TRUE` and `ongoing = TRUE`).
+#' @param run_number Integer index of current simulation run.
+#'
+#' @importFrom dplyr bind_cols
+#' @importFrom tibble tibble
+#'
+#' @return Tibble with processed results from replication.
+#' @export
+
+get_run_results <- function(results, run_number) {
+    metrics <- list(
+        calc_arrivals(results[["arrivals"]])#<<
+    )
+    dplyr::bind_cols(tibble(replication = run_number), metrics)
+}
+```
+
+### Run the model
+
+In `arrivals` we can see six patients listed, which aligns with our results table listing `arrivals = 6`.
+
+```{r}
+param <- create_params()
+result <- model(param = param, run_number = 1L)
+print(result[["arrivals"]])
+get_run_results(result = result, run_number = 1L)
+```
 
 :::
 
@@ -530,15 +664,48 @@ class Runner:
 We can see each patient's wait time in `result["patient"]`, and the mean wait time in `result["run"]`.
 
 ```{python}
-runner = Runner(param=Parameters())
-result = runner.run_single(run=0)
-print(result["patient"])
-print(result["run"])
+{{< include outputs_resources/run.py >}}
 ```
 
 :::
 
 ::: {.r-content}
+
+<div class="h3-tight"></div>
+
+### Warm-up function
+
+No changes required.
+
+```{r}
+#| echo: false
+{{< include outputs_resources/filter_warmup.R >}}
+```
+
+### Model function
+
+No changes required.
+
+```{r}
+#| echo: false
+{{< include outputs_resources/model.R >}}
+```
+
+### ? function
+
+### Run results function
+
+```{r}
+```
+
+### Run the model
+
+```{r}
+param <- create_params()
+result <- model(param = param, run_number = 1L)
+print(result[["arrivals"]])
+get_run_results(result = result, run_number = 1L)
+```
 
 :::
 
@@ -635,15 +802,48 @@ class Runner:
 We can see each patient's consultation length in `result["patient"]`, and the mean time in `result["run"]`.
 
 ```{python}
-runner = Runner(param=Parameters())
-result = runner.run_single(run=0)
-print(result["patient"])
-print(result["run"])
+{{< include outputs_resources/run.py >}}
 ```
 
 :::
 
 ::: {.r-content}
+
+<div class="h3-tight"></div>
+
+### Warm-up function
+
+No changes required.
+
+```{r}
+#| echo: false
+{{< include outputs_resources/filter_warmup.R >}}
+```
+
+### Model function
+
+No changes required.
+
+```{r}
+#| echo: false
+{{< include outputs_resources/model.R >}}
+```
+
+### ? function
+
+### Run results function
+
+```{r}
+```
+
+### Run the model
+
+```{r}
+param <- create_params()
+result <- model(param = param, run_number = 1L)
+print(result[["arrivals"]])
+get_run_results(result = result, run_number = 1L)
+```
 
 :::
 
@@ -928,10 +1128,7 @@ class Runner:
 ### Run the model
 
 ```{python}
-runner = Runner(param=Parameters())
-result = runner.run_single(run=0)
-print(result["patient"])
-print(result["run"])
+{{< include outputs_resources/run.py >}}
 ```
 
 :::
@@ -1275,23 +1472,56 @@ class Runner:
 ### Run the model
 
 ```{python}
-runner = Runner(param=Parameters())
-result = runner.run_single(run=0)
-print(result["patient"])
-print(result["run"])
+{{< include outputs_resources/run.py >}}
 ```
 
 :::
 
 ::::
 
-::: {.r-content}
+:::: {.r-content}
 
 Mean utilisation measures the proportion of available doctor time that is actually used during the data collection period.
 
-::: {.callout title="▶&nbsp;&nbsp;View how to record utilisation (time-weighted approach)" collapse="true"}
+::: {.callout title="▶&nbsp;&nbsp;View how to record utilisation" collapse="true"}
 
-::::
+<div class="h3-tight"></div>
+
+### Warm-up function
+
+No changes required.
+
+```{r}
+#| echo: false
+{{< include outputs_resources/filter_warmup.R >}}
+```
+
+### Model function
+
+No changes required.
+
+```{r}
+#| echo: false
+{{< include outputs_resources/model.R >}}
+```
+
+### ? function
+
+### Run results function
+
+```{r}
+```
+
+### Run the model
+
+```{r}
+param <- create_params()
+result <- model(param = param, run_number = 1L)
+print(result[["arrivals"]])
+get_run_results(result = result, run_number = 1L)
+```
+
+:::
 
 ::::
 
@@ -1501,15 +1731,48 @@ class Runner:
 ### Run the model
 
 ```{python}
-runner = Runner(param=Parameters())
-result = runner.run_single(run=0)
-print(result["patient"])
-print(result["run"])
+{{< include outputs_resources/run.py >}}
 ```
 
 :::
 
 ::: {.r-content}
+
+<div class="h3-tight"></div>
+
+### Warm-up function
+
+No changes required.
+
+```{r}
+#| echo: false
+{{< include outputs_resources/filter_warmup.R >}}
+```
+
+### Model function
+
+No changes required.
+
+```{r}
+#| echo: false
+{{< include outputs_resources/model.R >}}
+```
+
+### ? function
+
+### Run results function
+
+```{r}
+```
+
+### Run the model
+
+```{r}
+param <- create_params()
+result <- model(param = param, run_number = 1L)
+print(result[["arrivals"]])
+get_run_results(result = result, run_number = 1L)
+```
 
 :::
 
@@ -1777,15 +2040,48 @@ class Runner:
 ### Run the model
 
 ```{python}
-runner = Runner(param=Parameters())
-result = runner.run_single(run=0)
-print(result["patient"])
-print(result["run"])
+{{< include outputs_resources/run.py >}}
 ```
 
 :::
 
 ::: {.r-content}
+
+<div class="h3-tight"></div>
+
+### Warm-up function
+
+No changes required.
+
+```{r}
+#| echo: false
+{{< include outputs_resources/filter_warmup.R >}}
+```
+
+### Model function
+
+No changes required.
+
+```{r}
+#| echo: false
+{{< include outputs_resources/model.R >}}
+```
+
+### ? function
+
+### Run results function
+
+```{r}
+```
+
+### Run the model
+
+```{r}
+param <- create_params()
+result <- model(param = param, run_number = 1L)
+print(result[["arrivals"]])
+get_run_results(result = result, run_number = 1L)
+```
 
 :::
 
@@ -2077,15 +2373,48 @@ class Runner:
 ### Run the model
 
 ```{python}
-runner = Runner(param=Parameters())
-result = runner.run_single(run=0)
-print(result["patient"])
-print(result["run"])
+{{< include outputs_resources/run.py >}}
 ```
 
 :::
 
 ::: {.r-content}
+
+<div class="h3-tight"></div>
+
+### Warm-up function
+
+No changes required.
+
+```{r}
+#| echo: false
+{{< include outputs_resources/filter_warmup.R >}}
+```
+
+### Model function
+
+No changes required.
+
+```{r}
+#| echo: false
+{{< include outputs_resources/model.R >}}
+```
+
+### ? function
+
+### Run results function
+
+```{r}
+```
+
+### Run the model
+
+```{r}
+param <- create_params()
+result <- model(param = param, run_number = 1L)
+print(result[["arrivals"]])
+get_run_results(result = result, run_number = 1L)
+```
 
 :::
 
@@ -2182,10 +2511,47 @@ class Runner:
 In `result["patient"]` we can see one person had NaN for `time_with_doctor`. Correspondingly, the `unseen_count` in `result["run"]` is 1.
 
 ```{python}
-runner = Runner(param=Parameters())
-result = runner.run_single(run=0)
-print(result["patient"])
-print(result["run"])
+{{< include outputs_resources/run.py >}}
+```
+
+:::
+
+::: {.r-content}
+
+<div class="h3-tight"></div>
+
+### Warm-up function
+
+No changes required.
+
+```{r}
+#| echo: false
+{{< include outputs_resources/filter_warmup.R >}}
+```
+
+### Model function
+
+No changes required.
+
+```{r}
+#| echo: false
+{{< include outputs_resources/model.R >}}
+```
+
+### ? function
+
+### Run results function
+
+```{r}
+```
+
+### Run the model
+
+```{r}
+param <- create_params()
+result <- model(param = param, run_number = 1L)
+print(result[["arrivals"]])
+get_run_results(result = result, run_number = 1L)
 ```
 
 :::
@@ -2461,10 +2827,47 @@ class Runner:
 #### Run the model
 
 ```{python}
-runner = Runner(param=Parameters())
-result = runner.run_single(run=0)
-print(result["patient"])
-print(result["run"])
+{{< include outputs_resources/run.py >}}
+```
+
+:::
+
+::: {.r-content}
+
+<div class="h3-tight"></div>
+
+### Warm-up function
+
+No changes required.
+
+```{r}
+#| echo: false
+{{< include outputs_resources/filter_warmup.R >}}
+```
+
+### Model function
+
+No changes required.
+
+```{r}
+#| echo: false
+{{< include outputs_resources/model.R >}}
+```
+
+### ? function
+
+### Run results function
+
+```{r}
+```
+
+### Run the model
+
+```{r}
+param <- create_params()
+result <- model(param = param, run_number = 1L)
+print(result[["arrivals"]])
+get_run_results(result = result, run_number = 1L)
 ```
 
 :::
