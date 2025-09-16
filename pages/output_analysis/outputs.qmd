@@ -70,7 +70,54 @@ Before we start calculating any simulation performance measures, some set-up is 
 Set `verbose` to `False` in the `Parameters` class. This lets the workflow focus on the calculated results rather than individual patient activities.
 
 ```{python}
-{{< include outputs_resources/parameters.py >}}
+class Parameters:
+    """
+    Parameter class.
+
+    Attributes
+    ----------
+    interarrival_time : float
+        Mean time between arrivals (minutes).
+    consultation_time : float
+        Mean length of doctor's consultation (minutes).
+    number_of_doctors : int
+        Number of doctors.
+    warm_up_period : int
+        Duration of the warm-up period (minutes).
+    data_collection_period : int
+        Duration of the data collection period (minutes).
+    verbose : bool
+        Whether to print messages as simulation runs.
+    """
+    def __init__(
+        self, interarrival_time=5, consultation_time=10,
+        number_of_doctors=3, warm_up_period=30, data_collection_period=40,
+        verbose=False#<<
+    ):
+        """
+        Initialise Parameters instance.
+
+        Parameters
+        ----------
+        interarrival_time : float
+            Time between arrivals (minutes).
+        consultation_time : float
+            Length of consultation (minutes).
+        number_of_doctors : int
+            Number of doctors.
+        warm_up_period : int
+            Duration of the warm-up period (minutes).
+        data_collection_period : int
+            Duration of the data collection period (minutes).
+        verbose : bool
+            Whether to print messages as simulation runs.
+        """
+        self.interarrival_time = interarrival_time
+        self.consultation_time = consultation_time
+        self.number_of_doctors = number_of_doctors
+        self.warm_up_period = warm_up_period
+        self.data_collection_period = data_collection_period
+        self.verbose = verbose
 ```
 
 ### Patient class
@@ -126,15 +173,6 @@ Before we start calculating any simulation performance measures, some set-up is 
 ::: {.python-content}
 
 Recording the total number of arrivals is super simple! We just need to find the **length of the patient list**.
-
-### Parameter class
-
-No changes required.
-
-```{python}
-#| echo: false
-{{< include outputs_resources/parameters.py >}}
-```
 
 ### Patient class
 
@@ -236,15 +274,6 @@ print(result["run"])
 ::: {.python-content}
 
 For this measure, we need to record the **time each patient spent waiting** for the doctor.
-
-### Parameter class
-
-No changes required.
-
-```{python}
-#| echo: false
-{{< include outputs_resources/parameters.py >}}
-```
 
 ### Patient class
 
@@ -518,47 +547,12 @@ print(result["run"])
 
 <div class="h3-tight"></div>
 
-### Parameter class
-
-No changes required.
-
-```{python}
-#| echo: false
-{{< include outputs_resources/parameters.py >}}
-```
-
 ### Patient class
 
 A new attribute `time_with_doctor` is add to the `Patient` class.
 
 ```{python}
-class Patient:
-    """
-    Represents a patient.
-
-    Attributes
-    ----------
-    patient_id : int
-        Unique patient identifier.
-    period : str
-        Arrival period (warm up or data collection) with emoji.
-    time_with_doctor : float#<<
-        Time spent in consultation with a doctor (minutes).#<<
-    """
-    def __init__(self, patient_id, period):
-        """
-        Initialises a new patient.
-
-        Parameters
-        ----------
-        patient_id : int
-            Unique patient identifier.
-        period : str
-            Arrival period (warm up or data collection) with emoji.
-        """
-        self.patient_id = patient_id
-        self.period = period
-        self.time_with_doctor = np.nan#<<
+{{< include outputs_resources/patient_timewithdoctor.py >}}
 ```
 
 ### Model class
@@ -566,146 +560,7 @@ class Patient:
 Within `Model.consultation()`, the sampled time with the doctor is saved under `patient.time_with_doctor`.
 
 ```{python}
-class Model:
-    """
-    Simulation model.
-
-    Attributes
-    ----------
-    param : Parameters
-        Simulation parameters.
-    run_number : int
-        Run number for random seed generation.
-    env : simpy.Environment
-        The SimPy environment for the simulation.
-    doctor : simpy.Resource
-        SimPy resource representing doctors.
-    patients : list
-        List of Patient objects.
-    results_list : list
-        List of dictionaries with the attributes of each patient.
-    arrival_dist : Exponential
-        Distribution used to generate random patient inter-arrival times.
-    consult_dist : Exponential
-        Distribution used to generate length of a doctor's consultation.
-    """
-    def __init__(self, param, run_number):
-        """
-        Create a new Model instance.
-
-        Parameters
-        ----------
-        param : Parameters
-            Simulation parameters.
-        run_number : int
-            Run number for random seed generation.
-        """
-        self.param = param
-        self.run_number = run_number
-
-        # Create SimPy environment
-        self.env = simpy.Environment()
-
-        # Create resource
-        self.doctor = simpy.Resource(
-            self.env, capacity=self.param.number_of_doctors
-        )
-
-        # Create a random seed sequence based on the run number
-        ss = np.random.SeedSequence(self.run_number)
-        seeds = ss.spawn(2)
-
-        # Set up attributes to store results
-        self.patients = []
-        self.results_list = []
-
-        # Initialise distributions
-        self.arrival_dist = Exponential(mean=self.param.interarrival_time,
-                                        random_seed=seeds[0])
-        self.consult_dist = Exponential(mean=self.param.consultation_time,
-                                        random_seed=seeds[1])
-
-    def generate_arrivals(self):
-        """
-        Process that generates patient arrivals.
-        """
-        while True:
-            # Sample and pass time to next arrival
-            sampled_iat = self.arrival_dist.sample()
-            yield self.env.timeout(sampled_iat)
-
-            # Check whether arrived during warm-up or data collection
-            if self.env.now < self.param.warm_up_period:
-                period = "\U0001F538 WU"
-            else:
-                period = "\U0001F539 DC"
-
-            # Create a new patient
-            patient = Patient(patient_id=len(self.patients)+1,
-                              period=period)
-            self.patients.append(patient)
-
-            # Print arrival time
-            if self.param.verbose:
-                print(f"{patient.period} Patient {patient.patient_id} " +
-                      f"arrives at time: {self.env.now:.3f}")
-
-            # Start process of consultation
-            self.env.process(self.consultation(patient))
-
-    def consultation(self, patient):
-        """
-        Process that simulates a consultation.
-
-        Parameters
-        ----------
-        patient :
-            Instance of the Patient() class representing a single patient.
-        """
-        # Patient requests access to a doctor (resource)
-        with self.doctor.request() as req:
-            yield req
-
-            if self.param.verbose:
-                print(f"{patient.period} Patient {patient.patient_id} starts" +
-                      f" consultation at: {self.env.now:.3f}")
-
-            # Sample consultation duration and pass time spent with doctor
-            patient.time_with_doctor = self.consult_dist.sample()#<<
-            yield self.env.timeout(patient.time_with_doctor)#<<
-
-    def reset_results(self):
-        """
-        Reset results.
-        """
-        self.patients = []
-
-    def warmup(self):
-        """
-        Reset result collection after the warm-up period.
-        """
-        if self.param.warm_up_period > 0:
-            # Delay process until warm-up period has completed
-            yield self.env.timeout(self.param.warm_up_period)
-            # Reset results variables
-            self.reset_results()
-            if self.param.verbose:
-                print(f"Warm up period ended at time: {self.env.now}")
-
-    def run(self):
-        """
-        Run the simulation.
-        """
-        # Schedule arrival generator and warm-up
-        self.env.process(self.generate_arrivals())
-        self.env.process(self.warmup())
-
-        # Run the simulation
-        self.env.run(until=(self.param.warm_up_period +
-                            self.param.data_collection_period))
-
-        # Create list of dictionaries containing each patient's attributes
-        self.results_list = [x.__dict__ for x in self.patients]
+{{< include outputs_resources/model_timewithdoctor.py >}}
 ```
 
 ### Runner class
@@ -800,15 +655,6 @@ The first approach is **easier to understand**, as it just sums consultation tim
 ::: {.callout title="▶&nbsp;&nbsp;View how to record utilisation" collapse="true"}
 
 <div class="h3-tight"></div>
-
-### Parameter class
-
-No changes required.
-
-```{python}
-#| echo: false
-{{< include outputs_resources/parameters.py >}}
-```
 
 ### Patient class
 
@@ -1088,15 +934,6 @@ While this method introduces a **new class** and may initially seem **harder to 
 ::: {.callout title="▶&nbsp;&nbsp;View how to record utilisation (time-weighted approach)" collapse="true"}
 
 <div class="h3-tight"></div>
-
-### Parameter class
-
-No changes required.
-
-```{python}
-#| echo: false
-{{< include outputs_resources/parameters.py >}}
-```
 
 ### Patient class
 
@@ -1461,15 +1298,6 @@ Mean utilisation measures the proportion of available doctor time that is actual
 
 <div class="h3-tight"></div>
 
-### Parameter class
-
-No changes required.
-
-```{python}
-#| echo: false
-{{< include outputs_resources/parameters.py >}}
-```
-
 ### Patient class
 
 No changes required.
@@ -1689,15 +1517,6 @@ print(result["run"])
 ::: {.python-content}
 
 <div class="h3-tight"></div>
-
-### Parameter class
-
-No changes required.
-
-```{python}
-#| echo: false
-{{< include outputs_resources/parameters.py >}}
-```
 
 ### Patient class
 
@@ -1974,15 +1793,6 @@ print(result["run"])
 ::: {.python-content}
 
 This is a time-weighted calculation, but unlike utilisation and queue length, we record this within `Model` itself (and not with an additional `MonitoredResource` class).
-
-### Parameter class
-
-No changes required.
-
-```{python}
-#| echo: false
-{{< include outputs_resources/parameters.py >}}
-```
 
 ### Patient class
 
@@ -2276,13 +2086,102 @@ print(result["run"])
 
 ## 🙈 Unseen (backlogged) patients
 
-Backlogged/unfinished patients (remaining in the system at termination).
+Unseen patients are those **still waiting in the queue**, having not started their consultation when the simulation ends.
 
-<!--TODO: why to measure... what you miss if you don't-->
+Measuring them is important, otherwise **system congestion** and long wait times may be missed. Their wait time is not included with completed consultations because these waits are **censored** - i.e., the full duration is unknown until consultation begins. Tracking them separately avoids distorting the calculated averages, whilst accurately reflecting **system backlog** at simulation end.
 
 ### Backlogged patient count
 
 :::: {.callout title="▶&nbsp;&nbsp;View how to record the backlogged patient count" collapse="true"}
+
+::: {.python-content}
+
+#### Patient class
+
+This requires the same change as for mean time in consultation - adding an attribute `time_with_doctor`.
+
+```{python}
+{{< include outputs_resources/patient_timewithdoctor.py >}}
+```
+
+#### Model class
+
+Again, we make the same change as for mean time in consultation - recording the sampled time with the doctor as `patient.time_with_doctor` during `Model.consultation()`.
+
+```{python}
+{{< include outputs_resources/model_timewithdoctor.py >}}
+```
+
+#### Runner class
+
+We can count the number of unseen patients by finding how many have `np.nan` for `time_with_doctor`.
+
+```{python}
+class Runner:
+    """
+    Run the simulation.
+
+    Attributes
+    ----------
+    param : Parameters
+        Simulation parameters.
+    """
+    def __init__(self, param):
+        """
+        Initialise a new instance of the Runner class.
+
+        Parameters
+        ----------
+        param : Parameters
+            Simulation parameters.
+        """
+        self.param = param
+
+    def run_single(self, run):
+        """
+        Runs the simulation once and performs results calculations.
+
+        Parameters
+        ----------
+        run : int
+            Run number for the simulation.
+
+        Returns
+        -------
+        dict
+            Contains patient-level results and results from each run.
+        """
+        model = Model(param=self.param, run_number=run)
+        model.run()
+
+        # Patient results
+        patient_results = pd.DataFrame(model.results_list)
+        patient_results["run"] = run
+
+        # Run results
+        run_results = {
+            "run_number": run,
+            "unseen_count": patient_results["time_with_doctor"].isna().sum()#<<
+        }
+
+        return {
+            "patient": patient_results,
+            "run": run_results
+        }
+```
+
+#### Run the model
+
+In `result["patient"]` we can see one person had NaN for `time_with_doctor`. Correspondingly, the `unseen_count` in `result["run"]` is 1.
+
+```{python}
+runner = Runner(param=Parameters())
+result = runner.run_single(run=0)
+print(result["patient"])
+print(result["run"])
+```
+
+:::
 
 ::::
 
@@ -2290,21 +2189,280 @@ Backlogged/unfinished patients (remaining in the system at termination).
 
 :::: {.callout title="▶&nbsp;&nbsp;View how to record the backlogged patient mean wait time" collapse="true"}
 
+::: {.python-content}
+
+#### Patient class
+
+Here, we add new attributes just as we have done for other measures:
+
+* `arrival_time` (like for mean time in system).
+* `time_with_doctor` (like for mean time in consultation and unseen patient count).
+
+```{python}
+class Patient:
+    """
+    Represents a patient.
+
+    Attributes
+    ----------
+    patient_id : int
+        Unique patient identifier.
+    period : str
+        Arrival period (warm up or data collection) with emoji.
+    arrival_time : float#<<
+        Time that patient arrives (minutes).#<<
+    time_with_doctor : float#<<
+        Time spent in consultation with a doctor (minutes).#<<
+    """
+    def __init__(self, patient_id, period):
+        """
+        Initialises a new patient.
+
+        Parameters
+        ----------
+        patient_id : int
+            Unique patient identifier.
+        period : str
+            Arrival period (warm up or data collection) with emoji.
+        """
+        self.patient_id = patient_id
+        self.period = period
+        self.arrival_time = np.nan#<<
+        self.time_with_doctor = np.nan#<<
+```
+
+#### Model class
+
+We also repeat previous changes to `Model`:
+
+* Storing the arrival time in `Model.generate_arrivals()` as `patient.arrival_time` (like for mean time in system).
+* Storing the sampled consultation length in `Model.consultation()` as `patient.time_with_doctor` (like for mean time in consultation and unseen patient count).
+
+```{python}
+class Model:
+    """
+    Simulation model.
+
+    Attributes
+    ----------
+    param : Parameters
+        Simulation parameters.
+    run_number : int
+        Run number for random seed generation.
+    env : simpy.Environment
+        The SimPy environment for the simulation.
+    doctor : simpy.Resource
+        SimPy resource representing doctors.
+    patients : list
+        List of Patient objects.
+    results_list : list
+        List of dictionaries with the attributes of each patient.
+    arrival_dist : Exponential
+        Distribution used to generate random patient inter-arrival times.
+    consult_dist : Exponential
+        Distribution used to generate length of a doctor's consultation.
+    """
+    def __init__(self, param, run_number):
+        """
+        Create a new Model instance.
+
+        Parameters
+        ----------
+        param : Parameters
+            Simulation parameters.
+        run_number : int
+            Run number for random seed generation.
+        """
+        self.param = param
+        self.run_number = run_number
+
+        # Create SimPy environment
+        self.env = simpy.Environment()
+
+        # Create resource
+        self.doctor = simpy.Resource(
+            self.env, capacity=self.param.number_of_doctors
+        )
+
+        # Create a random seed sequence based on the run number
+        ss = np.random.SeedSequence(self.run_number)
+        seeds = ss.spawn(2)
+
+        # Set up attributes to store results
+        self.patients = []
+        self.results_list = []
+
+        # Initialise distributions
+        self.arrival_dist = Exponential(mean=self.param.interarrival_time,
+                                        random_seed=seeds[0])
+        self.consult_dist = Exponential(mean=self.param.consultation_time,
+                                        random_seed=seeds[1])
+
+    def generate_arrivals(self):
+        """
+        Process that generates patient arrivals.
+        """
+        while True:
+            # Sample and pass time to next arrival
+            sampled_iat = self.arrival_dist.sample()
+            yield self.env.timeout(sampled_iat)
+
+            # Check whether arrived during warm-up or data collection
+            if self.env.now < self.param.warm_up_period:
+                period = "\U0001F538 WU"
+            else:
+                period = "\U0001F539 DC"
+
+            # Create a new patient
+            patient = Patient(patient_id=len(self.patients)+1,
+                              period=period)
+            self.patients.append(patient)
+
+            # Record and print the arrival time#<<
+            patient.arrival_time = self.env.now#<<
+            if self.param.verbose:
+                print(f"{patient.period} Patient {patient.patient_id} " +
+                      f"arrives at time: {patient.arrival_time:.3f}")#<<
+
+            # Start process of consultation
+            self.env.process(self.consultation(patient))
+
+    def consultation(self, patient):
+        """
+        Process that simulates a consultation.
+
+        Parameters
+        ----------
+        patient :
+            Instance of the Patient() class representing a single patient.
+        """
+        # Patient requests access to a doctor (resource)
+        with self.doctor.request() as req:
+            yield req
+
+            if self.param.verbose:
+                print(f"{patient.period} Patient {patient.patient_id} starts" +
+                      f" consultation at: {self.env.now:.3f}")
+
+            # Sample consultation duration and pass time spent with doctor
+            patient.time_with_doctor = self.consult_dist.sample()#<<
+            yield self.env.timeout(patient.time_with_doctor)#<<
+
+    def reset_results(self):
+        """
+        Reset results.
+        """
+        self.patients = []
+
+    def warmup(self):
+        """
+        Reset result collection after the warm-up period.
+        """
+        if self.param.warm_up_period > 0:
+            # Delay process until warm-up period has completed
+            yield self.env.timeout(self.param.warm_up_period)
+            # Reset results variables
+            self.reset_results()
+            if self.param.verbose:
+                print(f"Warm up period ended at time: {self.env.now}")
+
+    def run(self):
+        """
+        Run the simulation.
+        """
+        # Schedule arrival generator and warm-up
+        self.env.process(self.generate_arrivals())
+        self.env.process(self.warmup())
+
+        # Run the simulation
+        self.env.run(until=(self.param.warm_up_period +
+                            self.param.data_collection_period))
+
+        # Create list of dictionaries containing each patient's attributes
+        self.results_list = [x.__dict__ for x in self.patients]
+```
+
+#### Runner class
+
+After the simulation finishes, we check whether patients have been seen yet by a doctor by looking for missing values in the `time_with_doctor` column.
+
+For those patients, their waiting time (`unseen_wait_time`) is calculated as the difference between the current simulation time and their recorded arrival time. We can then find the mean of this column.
+
+Patients who have already seen a doctor have their `unseen_wait_time` set to `NaN`, indicating that it does not apply to them.
+
+```{python}
+class Runner:
+    """
+    Run the simulation.
+
+    Attributes
+    ----------
+    param : Parameters
+        Simulation parameters.
+    """
+    def __init__(self, param):
+        """
+        Initialise a new instance of the Runner class.
+
+        Parameters
+        ----------
+        param : Parameters
+            Simulation parameters.
+        """
+        self.param = param
+
+    def run_single(self, run):
+        """
+        Runs the simulation once and performs results calculations.
+
+        Parameters
+        ----------
+        run : int
+            Run number for the simulation.
+
+        Returns
+        -------
+        dict
+            Contains patient-level results and results from each run.
+        """
+        model = Model(param=self.param, run_number=run)
+        model.run()
+
+        # Patient results
+        patient_results = pd.DataFrame(model.results_list)
+        patient_results["run"] = run
+
+        # For each patient, if they haven't seen a doctor yet, calculate#<<
+        # their wait as current time minus arrival, else set as missing#<<
+        patient_results["unseen_wait_time"] = np.where(#<<
+            patient_results["time_with_doctor"].isna(),#<<
+            model.env.now - patient_results["arrival_time"], np.nan#<<
+        )#<<
+
+        # Run results
+        run_results = {
+            "run_number": run,
+            "unseen_wait_time": patient_results["unseen_wait_time"].mean()#<<
+        }
+
+        return {
+            "patient": patient_results,
+            "run": run_results
+        }
+```
+
+#### Run the model
+
+```{python}
+runner = Runner(param=Parameters())
+result = runner.run_single(run=0)
+print(result["patient"])
+print(result["run"])
+```
+
+:::
+
 ::::
-
-## 📋 Summary of performance measures
-
-| Performance measure | Time-weighted? | Includes warm-up patients still there during in data collection period? |
-| - | - | - |
-| Total arrivals | No | No |
-| Mean wait time | No | No |
-| Mean time in consultation | No | No |
-| Mean doctor utilisation | Both | Yes |
-| Mean queue length | Yes | Yes |
-| Mean time in system | No | No |
-| Mean number of patients in the system | Yes | Yes |
-| Backlogged patient count | No | Yes |
-| Backlogged patient mean wait time | No | Yes |
 
 ## 🔍 Explore the example models
 
@@ -2378,6 +2536,6 @@ Backlogged/unfinished patients (remaining in the system at termination).
 
 ## Acknowledgements
 
-The MonitoredResource class is based on Tom Monks, Alison Harper and Amy Heather (2025) An introduction to Discrete-Event Simulation (DES) using Free and Open Source Software (<https://github.com/pythonhealthdatascience/intro-open-sim/tree/main>) (MIT Licence). They based it on the method described in Law. Simulation Modeling and Analysis 4th Ed. Pages 14 - 17.
+The `MonitoredResource` class is based on Tom Monks, Alison Harper and Amy Heather (2025) An introduction to Discrete-Event Simulation (DES) using Free and Open Source Software (<https://github.com/pythonhealthdatascience/intro-open-sim/tree/main>) (MIT Licence). They based it on the method described in Law. Simulation Modeling and Analysis 4th Ed. Pages 14 - 17.
 
 <br><br>
