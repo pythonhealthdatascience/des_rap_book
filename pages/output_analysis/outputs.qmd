@@ -65,20 +65,6 @@ Where relevant, we have included **corresponding terms from queueing theory** fo
 
 Before we start calculating any simulation performance measures, some set-up is required. This includes initial changes to `Parameters` and `Model`, and the creation of a new class: `Runner`.
 
-:::
-
-::: {.r-content}
-
-Before we start calculating any simulation performance measures, some set-up is required.
-
-:::
-
-:::: {.callout title="▶&nbsp;&nbsp;View preparation steps" collapse="true"}
-
-::: {.python-content}
-
-<div class="h3-tight"></div>
-
 ### Parameter class
 
 Set `verbose` to `False` in the `Parameters` class. This lets the workflow focus on the calculated results rather than individual patient activities.
@@ -129,9 +115,9 @@ Now we're ready to record some performance measures. 😎
 
 ::: {.r-content}
 
-:::
+Before we start calculating any simulation performance measures, some set-up is required.
 
-::::
+:::
 
 ## 🚶‍♀️ Total arrivals
 
@@ -229,6 +215,7 @@ class Runner:
 ```{python}
 runner = Runner(param=Parameters())
 result = runner.run_single(run=0)
+print(result["patient"])
 print(result["run"])
 ```
 
@@ -1090,6 +1077,7 @@ class Runner:
 ```{python}
 runner = Runner(param=Parameters())
 result = runner.run_single(run=0)
+print(result["patient"])
 print(result["run"])
 ```
 
@@ -1370,152 +1358,7 @@ In `Model`, we make three changes:
 3. In `run()`, once the simulation ends, the `MonitoredResource` method `update_time_weighted_stats()` is called one final time, to update with the usage between the last record resource event (request or release) and the simulation end.
 
 ```{python}
-class Model:
-    """
-    Simulation model.
-
-    Attributes
-    ----------
-    param : Parameters
-        Simulation parameters.
-    run_number : int
-        Run number for random seed generation.
-    env : simpy.Environment
-        The SimPy environment for the simulation.
-    doctor : simpy.Resource
-        SimPy resource representing doctors.
-    patients : list
-        List of Patient objects.
-    results_list : list
-        List of dictionaries with the attributes of each patient.
-    arrival_dist : Exponential
-        Distribution used to generate random patient inter-arrival times.
-    consult_dist : Exponential
-        Distribution used to generate length of a doctor's consultation.
-    """
-    def __init__(self, param, run_number):
-        """
-        Create a new Model instance.
-
-        Parameters
-        ----------
-        param : Parameters
-            Simulation parameters.
-        run_number : int
-            Run number for random seed generation.
-        """
-        self.param = param
-        self.run_number = run_number
-
-        # Create SimPy environment
-        self.env = simpy.Environment()
-
-        # Create resource
-        self.doctor = MonitoredResource(#<<
-            self.env, capacity=self.param.number_of_doctors
-        )
-
-        # Create a random seed sequence based on the run number
-        ss = np.random.SeedSequence(self.run_number)
-        seeds = ss.spawn(2)
-
-        # Set up attributes to store results
-        self.patients = []
-        self.results_list = []
-
-        # Initialise distributions
-        self.arrival_dist = Exponential(mean=self.param.interarrival_time,
-                                        random_seed=seeds[0])
-        self.consult_dist = Exponential(mean=self.param.consultation_time,
-                                        random_seed=seeds[1])
-
-    def generate_arrivals(self):
-        """
-        Process that generates patient arrivals.
-        """
-        while True:
-            # Sample and pass time to next arrival
-            sampled_iat = self.arrival_dist.sample()
-            yield self.env.timeout(sampled_iat)
-
-            # Check whether arrived during warm-up or data collection
-            if self.env.now < self.param.warm_up_period:
-                period = "\U0001F538 WU"
-            else:
-                period = "\U0001F539 DC"
-
-            # Create a new patient
-            patient = Patient(patient_id=len(self.patients)+1,
-                              period=period)
-            self.patients.append(patient)
-
-            # Print arrival time
-            if self.param.verbose:
-                print(f"{patient.period} Patient {patient.patient_id} " +
-                      f"arrives at time: {self.env.now:.3f}")
-
-            # Start process of consultation
-            self.env.process(self.consultation(patient))
-
-    def consultation(self, patient):
-        """
-        Process that simulates a consultation.
-
-        Parameters
-        ----------
-        patient :
-            Instance of the Patient() class representing a single patient.
-        """
-        # Patient requests access to a doctor (resource)
-        with self.doctor.request() as req:
-            yield req
-
-            if self.param.verbose:
-                print(f"{patient.period} Patient {patient.patient_id} " +
-                      f"starts consultation at: {self.env.now:.3f}")
-
-            # Sample consultation duration and pass time spent with doctor
-            time_with_doctor = self.consult_dist.sample()
-            yield self.env.timeout(time_with_doctor)
-
-    def reset_results(self):
-        """
-        Reset results.
-        """
-        self.patients = []
-        self.doctor.init_results()#<<
-
-    def warmup(self):
-        """
-        Reset result collection after the warm-up period.
-        """
-        if self.param.warm_up_period > 0:
-            # Delay process until warm-up period has completed
-            yield self.env.timeout(self.param.warm_up_period)
-            # Reset results variables
-            self.reset_results()
-            if self.param.verbose:
-                print(f"Warm up period ended at time: {self.env.now}")
-
-    def run(self):
-        """
-        Run the simulation.
-        """
-        # Schedule arrival generator and warm-up
-        self.env.process(self.generate_arrivals())
-        self.env.process(self.warmup())
-
-        # Run the simulation
-        self.env.run(until=(self.param.warm_up_period +
-                            self.param.data_collection_period))
-
-        # At simulation end, update time-weighted statistics for any#<<
-        # resources in use by accounting for the time from the last#<<
-        # event up to the simulation finish.#<<
-        self.doctor.update_time_weighted_stats()#<<
-
-        # Create list of dictionaries containing each patient's attributes
-        self.results_list = [x.__dict__ for x in self.patients]
+{{< include outputs_resources/model_monitored.py >}}
 ```
 
 ### Runner class
@@ -1590,6 +1433,7 @@ class Runner:
 ```{python}
 runner = Runner(param=Parameters())
 result = runner.run_single(run=0)
+print(result["patient"])
 print(result["run"])
 ```
 
@@ -1637,9 +1481,9 @@ No changes required.
 
 ### Monitored resource class
 
-For this approach, we create a new class called `MonitoredResource`. This is explained line-by-line above, where we describe how to calculate time-weighted utilisation.
+We need the new `MonitoredResource` class (introduced and explained under time-weighted utilisation).
 
-This class is similar, except that we are monitoring `area_n_in_queue` (`len(self.queue) * time_since_last_event`) instead of `area_resource_busy`. These changes are highlighted.
+For queue length, the class is similar, except that we are monitoring `area_n_in_queue` (`len(self.queue) * time_since_last_event`) instead of `area_resource_busy`. These changes are highlighted.
 
 ```{python}
 class MonitoredResource(simpy.Resource):
@@ -1747,161 +1591,11 @@ class MonitoredResource(simpy.Resource):
 
 ### Model class
 
-In `Model`, we make three changes (same as we did for time-weighted utilisation):
-
-1. The `doctor` attribute is now set up using `MonitoredResource` (instead of `simpy.Resource`).
-
-2. In `reset_results()`, we call the `MonitoredResource` method `init_results()` to reset their monitoring at the end of a warm-up period.
-
-3. In `run()`, once the simulation ends, the `MonitoredResource` method `update_time_weighted_stats()` is called one final time, to update with the usage between the last record resource event (request or release) and the simulation end.
+Same changes as made for time-weighted utilisation.
 
 ```{python}
-class Model:
-    """
-    Simulation model.
-
-    Attributes
-    ----------
-    param : Parameters
-        Simulation parameters.
-    run_number : int
-        Run number for random seed generation.
-    env : simpy.Environment
-        The SimPy environment for the simulation.
-    doctor : simpy.Resource
-        SimPy resource representing doctors.
-    patients : list
-        List of Patient objects.
-    results_list : list
-        List of dictionaries with the attributes of each patient.
-    arrival_dist : Exponential
-        Distribution used to generate random patient inter-arrival times.
-    consult_dist : Exponential
-        Distribution used to generate length of a doctor's consultation.
-    """
-    def __init__(self, param, run_number):
-        """
-        Create a new Model instance.
-
-        Parameters
-        ----------
-        param : Parameters
-            Simulation parameters.
-        run_number : int
-            Run number for random seed generation.
-        """
-        self.param = param
-        self.run_number = run_number
-
-        # Create SimPy environment
-        self.env = simpy.Environment()
-
-        # Create resource
-        self.doctor = MonitoredResource(#<<
-            self.env, capacity=self.param.number_of_doctors
-        )
-
-        # Create a random seed sequence based on the run number
-        ss = np.random.SeedSequence(self.run_number)
-        seeds = ss.spawn(2)
-
-        # Set up attributes to store results
-        self.patients = []
-        self.results_list = []
-
-        # Initialise distributions
-        self.arrival_dist = Exponential(mean=self.param.interarrival_time,
-                                        random_seed=seeds[0])
-        self.consult_dist = Exponential(mean=self.param.consultation_time,
-                                        random_seed=seeds[1])
-
-    def generate_arrivals(self):
-        """
-        Process that generates patient arrivals.
-        """
-        while True:
-            # Sample and pass time to next arrival
-            sampled_iat = self.arrival_dist.sample()
-            yield self.env.timeout(sampled_iat)
-
-            # Check whether arrived during warm-up or data collection
-            if self.env.now < self.param.warm_up_period:
-                period = "\U0001F538 WU"
-            else:
-                period = "\U0001F539 DC"
-
-            # Create a new patient
-            patient = Patient(patient_id=len(self.patients)+1,
-                              period=period)
-            self.patients.append(patient)
-
-            # Print arrival time
-            if self.param.verbose:
-                print(f"{patient.period} Patient {patient.patient_id} " +
-                      f"arrives at time: {self.env.now:.3f}")
-
-            # Start process of consultation
-            self.env.process(self.consultation(patient))
-
-    def consultation(self, patient):
-        """
-        Process that simulates a consultation.
-
-        Parameters
-        ----------
-        patient :
-            Instance of the Patient() class representing a single patient.
-        """
-        # Patient requests access to a doctor (resource)
-        with self.doctor.request() as req:
-            yield req
-
-            if self.param.verbose:
-                print(f"{patient.period} Patient {patient.patient_id} " +
-                      f"starts consultation at: {self.env.now:.3f}")
-
-            # Sample consultation duration and pass time spent with doctor
-            time_with_doctor = self.consult_dist.sample()
-            yield self.env.timeout(time_with_doctor)
-
-    def reset_results(self):
-        """
-        Reset results.
-        """
-        self.patients = []
-        self.doctor.init_results()#<<
-
-    def warmup(self):
-        """
-        Reset result collection after the warm-up period.
-        """
-        if self.param.warm_up_period > 0:
-            # Delay process until warm-up period has completed
-            yield self.env.timeout(self.param.warm_up_period)
-            # Reset results variables
-            self.reset_results()
-            if self.param.verbose:
-                print(f"Warm up period ended at time: {self.env.now}")
-
-    def run(self):
-        """
-        Run the simulation.
-        """
-        # Schedule arrival generator and warm-up
-        self.env.process(self.generate_arrivals())
-        self.env.process(self.warmup())
-
-        # Run the simulation
-        self.env.run(until=(self.param.warm_up_period +
-                            self.param.data_collection_period))
-
-        # At simulation end, update time-weighted statistics for any#<<
-        # requests in queue by accounting for the time from the last#<<
-        # event up to the simulation finish.#<<
-        self.doctor.update_time_weighted_stats()#<<
-
-        # Create list of dictionaries containing each patient's attributes
-        self.results_list = [x.__dict__ for x in self.patients]
+#| echo: false
+{{< include outputs_resources/model_monitored.py >}}
 ```
 
 ### Runner class
@@ -1974,6 +1668,7 @@ class Runner:
 ```{python}
 runner = Runner(param=Parameters())
 result = runner.run_single(run=0)
+print(result["patient"])
 print(result["run"])
 ```
 
@@ -2258,6 +1953,7 @@ class Runner:
 ```{python}
 runner = Runner(param=Parameters())
 result = runner.run_single(run=0)
+print(result["patient"])
 print(result["run"])
 ```
 
@@ -2277,9 +1973,11 @@ print(result["run"])
 
 ::: {.python-content}
 
-<div class="h3-tight"></div>
+This is a time-weighted calculation, but unlike utilisation and queue length, we record this within `Model` itself (and not with an additional `MonitoredResource` class).
 
 ### Parameter class
+
+No changes required.
 
 ```{python}
 #| echo: false
@@ -2288,6 +1986,8 @@ print(result["run"])
 
 ### Patient class
 
+No changes required.
+
 ```{python}
 #| echo: false
 {{< include outputs_resources/patient.py >}}
@@ -2295,16 +1995,266 @@ print(result["run"])
 
 ### Model class
 
+We introduce three new attributes:
+
+* `area_n_in_system` - a list storing the area under the curve for the number of patients in the system over time.
+* `time_last_n_in_system` - records last time the number-in-system statistic was updated
+* `n_in_system` - maintains current count of patients (whether waiting or being served)
+
+When a patient arrives or leaves, we call a new `update_n_in_system(inc)` method. This:
+
+1. Calculates the time since the last update, then appends `n_in_system x duration` to `area_n_in_system`.
+2. Then updates `time_last_n_insystem` and `n_in_system` accordingly.
+
+Warmup logic resets only the necessary area and timing components, preserving the correct patient count for accurate post-warmup statistics.
+
+At the simulation end, a final update with `inc=0` ensures statistics reflect the last interval up to the end of the run.
+
 ```{python}
-#| echo: false
-{{< include outputs_resources/model.py >}}
+class Model:
+    """
+    Simulation model.
+
+    Attributes
+    ----------
+    param : Parameters
+        Simulation parameters.
+    run_number : int
+        Run number for random seed generation.
+    env : simpy.Environment
+        The SimPy environment for the simulation.
+    doctor : simpy.Resource
+        SimPy resource representing doctors.
+    patients : list
+        List of Patient objects.
+    results_list : list
+        List of dictionaries with the attributes of each patient.
+    area_n_in_system : list of float#<<
+        List containing incremental area contributions used for time-weighted statistics of the number of patients in the system.
+    time_last_n_in_system : float#<<
+        Simulation time at last update of the number-in-system statistic.#<<
+    n_in_system: int#<<
+        Current number of patients present in the system, including#<<
+        waiting and being served.#<<
+    arrival_dist : Exponential
+        Distribution used to generate random patient inter-arrival times.
+    consult_dist : Exponential
+        Distribution used to generate length of a doctor's consultation.
+    """
+    def __init__(self, param, run_number):
+        """
+        Create a new Model instance.
+
+        Parameters
+        ----------
+        param : Parameters
+            Simulation parameters.
+        run_number : int
+            Run number for random seed generation.
+        """
+        self.param = param
+        self.run_number = run_number
+
+        # Create SimPy environment
+        self.env = simpy.Environment()
+
+        # Create resource
+        self.doctor = simpy.Resource(
+            self.env, capacity=self.param.number_of_doctors
+        )
+
+        # Create a random seed sequence based on the run number
+        ss = np.random.SeedSequence(self.run_number)
+        seeds = ss.spawn(2)
+
+        # Set up attributes to store results
+        self.patients = []
+        self.results_list = []
+        self.area_n_in_system = [0]#<<
+        self.time_last_n_in_system = self.env.now#<<
+        self.n_in_system = 0#<<
+
+        # Initialise distributions
+        self.arrival_dist = Exponential(mean=self.param.interarrival_time,
+                                        random_seed=seeds[0])
+        self.consult_dist = Exponential(mean=self.param.consultation_time,
+                                        random_seed=seeds[1])
+
+    def update_n_in_system(self, inc):#<<
+        """#<<
+        Update the time-weighted statistics for number of patients in system.#<<
+
+        Parameters#<<
+        ----------#<<
+        inc : int#<<
+            Change in the number of patients (+1, 0, -1).#<<
+        """#<<
+        # Compute time since last event and calculate area under curve for that#<<
+        duration = self.env.now - self.time_last_n_in_system#<<
+        self.area_n_in_system.append(self.n_in_system * duration)#<<
+        # Update time and n in system#<<
+        self.time_last_n_in_system = self.env.now#<<
+        self.n_in_system += inc#<<
+
+    def generate_arrivals(self):
+        """
+        Process that generates patient arrivals.
+        """
+        while True:
+            # Sample and pass time to next arrival
+            sampled_iat = self.arrival_dist.sample()
+            yield self.env.timeout(sampled_iat)
+
+            # Check whether arrived during warm-up or data collection
+            if self.env.now < self.param.warm_up_period:
+                period = "\U0001F538 WU"
+            else:
+                period = "\U0001F539 DC"
+
+            # Create a new patient
+            patient = Patient(patient_id=len(self.patients)+1,
+                              period=period)
+            self.patients.append(patient)
+
+            # Update the number in the system#<<
+            self.update_n_in_system(inc=1)#<<
+
+            # Print arrival time
+            if self.param.verbose:
+                print(f"{patient.period} Patient {patient.patient_id} " +
+                      f"arrives at time: {self.env.now:.3f}")
+
+            # Start process of consultation
+            self.env.process(self.consultation(patient))
+
+    def consultation(self, patient):
+        """
+        Process that simulates a consultation.
+
+        Parameters
+        ----------
+        patient :
+            Instance of the Patient() class representing a single patient.
+        """
+        # Patient requests access to a doctor (resource)
+        with self.doctor.request() as req:
+            yield req
+
+            if self.param.verbose:
+                print(f"{patient.period} Patient {patient.patient_id} " +
+                      f"starts consultation at: {self.env.now:.3f}")
+
+            # Sample consultation duration and pass time spent with doctor
+            time_with_doctor = self.consult_dist.sample()
+            yield self.env.timeout(time_with_doctor)
+
+            # Update number in system#<<
+            self.update_n_in_system(inc=-1)#<<
+
+    def reset_results(self):
+        """
+        Reset results.
+        """
+        self.patients = []
+        # For number in system, we reset area and time but not the count, as#<<
+        # it should include any remaining warm-up patients in the count#<<
+        self.area_n_in_system = [0]#<<
+        self.time_last_n_in_system = self.env.now#<<
+
+    def warmup(self):
+        """
+        Reset result collection after the warm-up period.
+        """
+        if self.param.warm_up_period > 0:
+            # Delay process until warm-up period has completed
+            yield self.env.timeout(self.param.warm_up_period)
+            # Reset results variables
+            self.reset_results()
+            if self.param.verbose:
+                print(f"Warm up period ended at time: {self.env.now}")
+
+    def run(self):
+        """
+        Run the simulation.
+        """
+        # Schedule arrival generator and warm-up
+        self.env.process(self.generate_arrivals())
+        self.env.process(self.warmup())
+
+        # Run the simulation
+        self.env.run(until=(self.param.warm_up_period +
+                            self.param.data_collection_period))
+
+        # Run final calculation of number in system#<<
+        self.update_n_in_system(inc=0)#<<
+
+        # Create list of dictionaries containing each patient's attributes
+        self.results_list = [x.__dict__ for x in self.patients]
 ```
 
 ### Runner class
 
+Mean number of patients in the system is calculated as:
+
+$$
+\text{mean patients in system} = \frac{\text{area\_under\_the\_curve}}{\text{data collection period}}
+$$
+
 ```{python}
-#| echo: false
-{{< include outputs_resources/runner.py >}}
+class Runner:
+    """
+    Run the simulation.
+
+    Attributes
+    ----------
+    param : Parameters
+        Simulation parameters.
+    """
+    def __init__(self, param):
+        """
+        Initialise a new instance of the Runner class.
+
+        Parameters
+        ----------
+        param : Parameters
+            Simulation parameters.
+        """
+        self.param = param
+
+    def run_single(self, run):
+        """
+        Runs the simulation once and performs results calculations.
+
+        Parameters
+        ----------
+        run : int
+            Run number for the simulation.
+
+        Returns
+        -------
+        dict
+            Contains patient-level results and results from each run.
+        """
+        model = Model(param=self.param, run_number=run)
+        model.run()
+
+        # Patient results
+        patient_results = pd.DataFrame(model.results_list)
+        patient_results["run"] = run
+
+        # Run results
+        run_results = {
+            "run_number": run,
+            "mean_patients_in_system": (#<<
+                sum(model.area_n_in_system) /#<<
+                self.param.data_collection_period#<<
+            )#<<
+        }
+
+        return {
+            "patient": patient_results,
+            "run": run_results
+        }
 ```
 
 ### Run the model
@@ -2312,6 +2262,7 @@ print(result["run"])
 ```{python}
 runner = Runner(param=Parameters())
 result = runner.run_single(run=0)
+print(result["patient"])
 print(result["run"])
 ```
 
@@ -2343,19 +2294,17 @@ Backlogged/unfinished patients (remaining in the system at termination).
 
 ## 📋 Summary of performance measures
 
-| Performance measure | - | - |
+| Performance measure | Time-weighted? | Includes warm-up patients still there during in data collection period? |
 | - | - | - |
-| Total arrivals |
-| Mean wait time |
-| Mean time in consultation |
-| Mean doctor utilisation |
-| Mean queue length |
-| Mean time in system |
-| Mean number of patients in the system |
-| Backlogged patient count |
-| Backlogged patient mean wait time |
-
-<!--TODO: table... which include what patients i.e. warmup, not, unseen-->
+| Total arrivals | No | No |
+| Mean wait time | No | No |
+| Mean time in consultation | No | No |
+| Mean doctor utilisation | Both | Yes |
+| Mean queue length | Yes | Yes |
+| Mean time in system | No | No |
+| Mean number of patients in the system | Yes | Yes |
+| Backlogged patient count | No | Yes |
+| Backlogged patient mean wait time | No | Yes |
 
 ## 🔍 Explore the example models
 
@@ -2429,6 +2378,6 @@ Backlogged/unfinished patients (remaining in the system at termination).
 
 ## Acknowledgements
 
-The MonitoredResource class is based on Tom Monks, Alison Harper and Amy Heather (2025) An introduction to Discrete-Event Simulation (DES) using Free and Open Source Software (https://github.com/pythonhealthdatascience/intro-open-sim/tree/main) (MIT Licence). They based it on the method described in Law. Simulation Modeling and Analysis 4th Ed. Pages 14 - 17.
+The MonitoredResource class is based on Tom Monks, Alison Harper and Amy Heather (2025) An introduction to Discrete-Event Simulation (DES) using Free and Open Source Software (<https://github.com/pythonhealthdatascience/intro-open-sim/tree/main>) (MIT Licence). They based it on the method described in Law. Simulation Modeling and Analysis 4th Ed. Pages 14 - 17.
 
 <br><br>
