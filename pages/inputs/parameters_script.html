@@ -368,14 +368,14 @@ cookieconsent.run({
       <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/output_analysis/outputs.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">❌ Performance measures</span></a>
+  <a href="../../pages/output_analysis/warmup.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Initialisation bias</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/output_analysis/warmup.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">❌ Initialisation bias</span></a>
+  <a href="../../pages/output_analysis/outputs.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Performance measures</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -608,28 +608,27 @@ cookieconsent.run({
 
 
 <div class="pale-blue">
-<p>🎯 <strong>Objectives</strong></p>
-<p>Discrete-event simulations (DES) require many parameters - like arrival rates, resource times, and probabilities - which often need to be changed for different scenarios and analyses. Managing these parameters well makes your simulations easier to update, track, and reuse.</p>
-<p>This page explains best practices for managing model parameters directly within scripts.</p>
+<p><strong>Learning objectives:</strong></p>
 <ul>
-<li><strong>🚫 What not to do: hardcoding parameters.</strong></li>
-<li><strong>📄 A slight improvement: global parameters.</strong></li>
-<li><strong>✅ Recommendation for managing parameters in DES:</strong> grouping parameters into a dedicated object and passing that object explicitly to your model.</li>
-<li><strong>🧮 Handling a large number of parameters</strong>.</li>
+<li>Recognise the <strong>drawbacks of hardcoding</strong> parameters in simulation models.</li>
+<li>Learn about <strong>methods and best practices</strong> for parameter management.</li>
+<li>Note ways to keep models organised when working with <strong>many</strong> parameters .</li>
 </ul>
-<p>If you want to see how to store parameters in a separate file, see the <a href="../../pages/inputs/parameters_file.html">parameters from file</a> page.</p>
-<p><a href="../../pages/intro/guidelines.html">🔗</a> <strong>Reproducibility guidelines</strong></p>
-<p>This page helps you meet reproducibility criteria from:</p>
+<p><strong>Relevant reproducibility guidelines:</strong></p>
 <ul>
 <li>STARS Reproducibility Recommendations: Avoid hard-coded parameters.</li>
 </ul>
-</div>
 <div class="r-content">
+<p><strong>Required packages:</strong></p>
+<p>This should be available from environment setup in the “🧪 Test yourself” section of <a href="../../pages/setup/environment.html">Environments</a>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load required packages</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(R6)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(R6)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
+</div>
+<p><br></p>
+<p>Discrete-event simulations (DES) require many parameters - like arrival rates, resource times, and probabilities - which often need to be changed for different scenarios and analyses. Managing these parameters well makes your simulations easier to update, track, and reuse.</p>
+<p>This page explains best practices for managing model parameters <strong>directly within scripts</strong>.</p>
 <section id="what-not-to-do-hardcoding-parameters" class="level2">
 <h2 class="anchored" data-anchor-id="what-not-to-do-hardcoding-parameters">🚫 What not to do: hardcoding parameters</h2>
 <p><strong>Hardcoding</strong> means writing parameter values directly into your code. For example:</p>
@@ -2033,8 +2032,8 @@ When creating multiple scenarios that differ by only one parameter, what is a ro
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<div id="radio_NAHKMWMQDV" class="webex-radiogroup">
-<label><input type="radio" autocomplete="off" name="radio_NAHKMWMQDV" value=""> <span>Directly edit the parameter in the original script.</span></label><label><input type="radio" autocomplete="off" name="radio_NAHKMWMQDV" value=""> <span>Duplicate the entire script for each scenario.</span></label><label><input type="radio" autocomplete="off" name="radio_NAHKMWMQDV" value="answer"> <span>Create a new parameter object with only the changed value.</span></label>
+<div id="radio_TQYBEKDXPG" class="webex-radiogroup">
+<label><input type="radio" autocomplete="off" name="radio_TQYBEKDXPG" value=""> <span>Directly edit the parameter in the original script.</span></label><label><input type="radio" autocomplete="off" name="radio_TQYBEKDXPG" value=""> <span>Duplicate the entire script for each scenario.</span></label><label><input type="radio" autocomplete="off" name="radio_TQYBEKDXPG" value="answer"> <span>Create a new parameter object with only the changed value.</span></label>
 </div>
 </div>
 </div>
@@ -2048,8 +2047,8 @@ Why is it important to pass parameters explicitly to the model instead of relyin
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<div id="radio_XHKBJZYNIV" class="webex-radiogroup">
-<label><input type="radio" autocomplete="off" name="radio_XHKBJZYNIV" value="answer"> <span>It ensures that each scenario only uses the parameters intended for it, and avoids accidental reuse between runs.</span></label><label><input type="radio" autocomplete="off" name="radio_XHKBJZYNIV" value=""> <span>It always makes your code shorter.</span></label><label><input type="radio" autocomplete="off" name="radio_XHKBJZYNIV" value=""> <span>It allows you to skip documenting your parameters.</span></label>
+<div id="radio_ATXOFWWEDD" class="webex-radiogroup">
+<label><input type="radio" autocomplete="off" name="radio_ATXOFWWEDD" value="answer"> <span>It ensures that each scenario only uses the parameters intended for it, and avoids accidental reuse between runs.</span></label><label><input type="radio" autocomplete="off" name="radio_ATXOFWWEDD" value=""> <span>It always makes your code shorter.</span></label><label><input type="radio" autocomplete="off" name="radio_ATXOFWWEDD" value=""> <span>It allows you to skip documenting your parameters.</span></label>
 </div>
 </div>
 </div>
@@ -2288,6 +2287,36 @@ window.onload = function() {
 
   update_total_correct();
 }
+
+</script>
+<script>
+
+function setLanguage(lang) {
+  // Store the selected language in localStorage
+  localStorage.setItem('preferredLanguage', lang);
+
+  // Update button active state
+  document.querySelectorAll('.language-button').forEach(btn => {
+      btn.classList.remove('active');
+      if (btn.textContent.toLowerCase() === lang || (lang === 'both' && btn.textContent.toLowerCase() === 'both')) {
+          btn.classList.add('active');
+      }
+  });
+  // Show/hide the appropriate content
+  if (lang === 'python') {
+      document.querySelectorAll('.python-content').forEach(el => el.style.display = 'block');
+      document.querySelectorAll('.r-content').forEach(el => el.style.display = 'none');
+  } else if (lang === 'r') {
+      document.querySelectorAll('.python-content').forEach(el => el.style.display = 'none');
+      document.querySelectorAll('.r-content').forEach(el => el.style.display = 'block');
+  }
+}
+
+// On page load, set the language based on localStorage or default to Python
+document.addEventListener('DOMContentLoaded', function() {
+  const lang = localStorage.getItem('preferredLanguage') || 'python';
+  setLanguage(lang);
+});
 
 </script>
 <script id="quarto-html-after-body" type="application/javascript">
@@ -2632,7 +2661,6 @@ Text licence: <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="
     </div>
   </div>
 </footer>
-<script type="application/javascript" src="../../scripts/language-selector.js"></script>
 
 
 

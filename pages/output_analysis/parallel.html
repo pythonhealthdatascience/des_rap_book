@@ -137,7 +137,7 @@ cookieconsent.run({
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../pages/output_analysis/outputs.html">Output analysis</a></li><li class="breadcrumb-item"><a href="../../pages/output_analysis/parallel.html">❌ Parallel processing</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../pages/output_analysis/warmup.html">Output analysis</a></li><li class="breadcrumb-item"><a href="../../pages/output_analysis/parallel.html">❌ Parallel processing</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -333,14 +333,14 @@ cookieconsent.run({
       <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/output_analysis/outputs.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">❌ Performance measures</span></a>
+  <a href="../../pages/output_analysis/warmup.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Initialisation bias</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/output_analysis/warmup.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">❌ Initialisation bias</span></a>
+  <a href="../../pages/output_analysis/outputs.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Performance measures</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -542,7 +542,7 @@ cookieconsent.run({
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../pages/output_analysis/outputs.html">Output analysis</a></li><li class="breadcrumb-item"><a href="../../pages/output_analysis/parallel.html">❌ Parallel processing</a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../pages/output_analysis/warmup.html">Output analysis</a></li><li class="breadcrumb-item"><a href="../../pages/output_analysis/parallel.html">❌ Parallel processing</a></li></ol></nav>
 <div class="quarto-title">
 <h1 class="title">❌ Parallel processing</h1>
 </div>
@@ -788,6 +788,36 @@ window.onload = function() {
 
   update_total_correct();
 }
+
+</script>
+<script>
+
+function setLanguage(lang) {
+  // Store the selected language in localStorage
+  localStorage.setItem('preferredLanguage', lang);
+
+  // Update button active state
+  document.querySelectorAll('.language-button').forEach(btn => {
+      btn.classList.remove('active');
+      if (btn.textContent.toLowerCase() === lang || (lang === 'both' && btn.textContent.toLowerCase() === 'both')) {
+          btn.classList.add('active');
+      }
+  });
+  // Show/hide the appropriate content
+  if (lang === 'python') {
+      document.querySelectorAll('.python-content').forEach(el => el.style.display = 'block');
+      document.querySelectorAll('.r-content').forEach(el => el.style.display = 'none');
+  } else if (lang === 'r') {
+      document.querySelectorAll('.python-content').forEach(el => el.style.display = 'none');
+      document.querySelectorAll('.r-content').forEach(el => el.style.display = 'block');
+  }
+}
+
+// On page load, set the language based on localStorage or default to Python
+document.addEventListener('DOMContentLoaded', function() {
+  const lang = localStorage.getItem('preferredLanguage') || 'python';
+  setLanguage(lang);
+});
 
 </script>
 <script id="quarto-html-after-body" type="application/javascript">
@@ -1132,7 +1162,6 @@ Text licence: <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="
     </div>
   </div>
 </footer>
-<script type="application/javascript" src="../../scripts/language-selector.js"></script>
 
 
 

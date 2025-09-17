@@ -368,14 +368,14 @@ cookieconsent.run({
       <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/output_analysis/outputs.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">❌ Performance measures</span></a>
+  <a href="../../pages/output_analysis/warmup.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Initialisation bias</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/output_analysis/warmup.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">❌ Initialisation bias</span></a>
+  <a href="../../pages/output_analysis/outputs.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Performance measures</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -605,30 +605,37 @@ cookieconsent.run({
 </header>
 
 
+<!--
+When a Quarto document contains R and Python code blocks, it will use the knitr engine (from R) to render the document. This means we need to load the reticulate package, which allows us to execute Python code within the R session, within the conda environment specified.
+
+Note: When a Quarto document just contains Python code blocks (and no R code), Quarto uses the Jupyter engine to render the document.
+-->
 <div class="pale-blue">
-<p>🎯 <strong>Objectives</strong></p>
-<p><strong>Parameter validation</strong> refers to checking that inputs provided to functions or classes are correct and as expected. This page focuses on two examples of validation we can perform.</p>
+<p><strong>Learning objectives:</strong></p>
 <ul>
-<li><strong>🚨 Accidental creation of new parameters:</strong> A dangerous but common mistake in discrete-event simulation (DES), where new parameters are created instead of modifying existing ones.</li>
-<li><strong>🛡️ Validating parameter values (e.g.&nbsp;range):</strong> to ensure they fall within the expected values.</li>
+<li>Learn how to avoid <strong>accidental creation</strong> of parameters.</li>
+<li><strong>Validate</strong> parameter values (e.g., range) to ensure they meet expected criteria.</li>
 </ul>
-<p><a href="../../pages/intro/guidelines.html">🔗</a> <strong>Reproducibility guidelines</strong></p>
-<p>Whilst this is not necessary to reproducibility or a reproducible analytical pipeline, it is good practice when working, and may help avoid mistakes.</p>
-</div>
+<p><strong>Pre-reading:</strong></p>
+<p>This page describes how to validate functions/classes introduced on:</p>
+<ul>
+<li><a href="../../pages/inputs/parameters_script.html">Parameters from script</a></li>
+<li><a href="../../pages/inputs/parameters_file.html">Parameters from file</a></li>
+</ul>
+<p><strong>Required packages:</strong></p>
 <div class="python-content">
+<p>These are part of the standard Python library, will be available in any base environment by default.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Import required packages</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> collections <span class="im">import</span> UserDict</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> inspect</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> collections <span class="im">import</span> UserDict</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> inspect</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
 <div class="r-content">
+<p>These should be available from environment setup in the “🧪 Test yourself” section of <a href="../../pages/setup/environment.html">Environments</a>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Import required packages</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="co"># nolint start: undesirable_function_linter</span></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(jsonlite)</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(R6)</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co"># nolint end</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(jsonlite)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(R6)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
 </div>
 </div>
 <section id="accidental-creation-of-new-parameters" class="level2">
@@ -1300,7 +1307,7 @@ Solution when using dictionaries (alone or for nested parameters in a function o
 <span id="cb38-12"><a href="#cb38-12" aria-hidden="true" tabindex="-1"></a><span class="cf">except</span> <span class="pp">KeyError</span> <span class="im">as</span> e:</span>
 <span id="cb38-13"><a href="#cb38-13" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"Error: </span><span class="sc">{</span>e<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Error: "Attempted to add or update key 'newattribute', which is not one of the original locked keys. This is likely due to a typo or unintended new parameter. Allowed top-level keys are: [{'param2', 'param1'}]"</code></pre>
+<pre><code>Error: "Attempted to add or update key 'newattribute', which is not one of the original locked keys. This is likely due to a typo or unintended new parameter. Allowed top-level keys are: [{'param1', 'param2'}]"</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb40"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(param)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -1334,7 +1341,7 @@ Solution when using dictionaries (alone or for nested parameters in a function o
 <span id="cb42-23"><a href="#cb42-23" aria-hidden="true" tabindex="-1"></a><span class="cf">except</span> <span class="pp">KeyError</span> <span class="im">as</span> e:</span>
 <span id="cb42-24"><a href="#cb42-24" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"Error: </span><span class="sc">{</span>e<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Error: "Attempted to add or update key 'new_attribute', which is not one of the original locked keys. This is likely due to a typo or unintended new parameter. Allowed top-level keys are: [{'param2', 'param1'}]"</code></pre>
+<pre><code>Error: "Attempted to add or update key 'new_attribute', which is not one of the original locked keys. This is likely due to a typo or unintended new parameter. Allowed top-level keys are: [{'param1', 'param2'}]"</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb44"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(param_instance.param_dict)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -2321,6 +2328,36 @@ window.onload = function() {
 }
 
 </script>
+<script>
+
+function setLanguage(lang) {
+  // Store the selected language in localStorage
+  localStorage.setItem('preferredLanguage', lang);
+
+  // Update button active state
+  document.querySelectorAll('.language-button').forEach(btn => {
+      btn.classList.remove('active');
+      if (btn.textContent.toLowerCase() === lang || (lang === 'both' && btn.textContent.toLowerCase() === 'both')) {
+          btn.classList.add('active');
+      }
+  });
+  // Show/hide the appropriate content
+  if (lang === 'python') {
+      document.querySelectorAll('.python-content').forEach(el => el.style.display = 'block');
+      document.querySelectorAll('.r-content').forEach(el => el.style.display = 'none');
+  } else if (lang === 'r') {
+      document.querySelectorAll('.python-content').forEach(el => el.style.display = 'none');
+      document.querySelectorAll('.r-content').forEach(el => el.style.display = 'block');
+  }
+}
+
+// On page load, set the language based on localStorage or default to Python
+document.addEventListener('DOMContentLoaded', function() {
+  const lang = localStorage.getItem('preferredLanguage') || 'python';
+  setLanguage(lang);
+});
+
+</script>
 <script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
     const icon = "";
@@ -2663,7 +2700,6 @@ Text licence: <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="
     </div>
   </div>
 </footer>
-<script type="application/javascript" src="../../scripts/language-selector.js"></script>
 
 
 

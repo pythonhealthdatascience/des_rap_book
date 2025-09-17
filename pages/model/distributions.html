@@ -371,14 +371,14 @@ cookieconsent.run({
       <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/output_analysis/outputs.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">❌ Performance measures</span></a>
+  <a href="../../pages/output_analysis/warmup.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Initialisation bias</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/output_analysis/warmup.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">❌ Initialisation bias</span></a>
+  <a href="../../pages/output_analysis/outputs.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Performance measures</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -615,32 +615,28 @@ When a Quarto document contains R and Python code blocks, it will use the knitr 
 Note: When a Quarto document just contains Python code blocks (and no R code), Quarto uses the Jupyter engine to render the document.
 -->
 <div class="pale-blue">
-<p>🎯 <strong>Objectives</strong></p>
-<p>This page covers:</p>
+<p><strong>Learning objectives:</strong></p>
 <ul>
-<li><strong>🎲 Randomness:</strong> sampling and pseudorandom number generators.</li>
-<li><strong>🛠️ Tools for random sampling:</strong> introducing options for drawing random samples.</li>
-<li><strong>⛓️‍💥 Independent random number streams:</strong> why using separate streams improves reproducibility and debugging.</li>
-<li><strong>❓ What’s next?</strong></li>
+<li>Understand <strong>randomness and pseudorandom</strong> number generators.</li>
+<li>Explore <strong>tools</strong> for random sampling.</li>
+<li>Learn about <strong>independent random number streams</strong>.</li>
 </ul>
-<p><a href="../../pages/intro/guidelines.html">🔗</a> <strong>Reproducibility guidelines</strong></p>
-<p>This page helps you meet reproducibility criteria from:</p>
+<p><strong>Relevant reproducibility guidelines:</strong></p>
 <ul>
 <li>STARS Reproducibility Recommendations: Control randomness.</li>
 </ul>
-</div>
-<p><br></p>
+<p><strong>Required packages:</strong></p>
+<p>These should be available from environment setup in the “🧪 Test yourself” section of <a href="../../pages/setup/environment.html">Environments</a>.</p>
 <div class="python-content">
-<p>This page uses the following packages. They should already be installed in you set up the environment in the “<em>🧪 Test yourself</em>” section of the <a href="../../pages/setup/environment.html">Environments</a> page.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sim_tools.distributions <span class="im">import</span> Exponential, Normal</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
 <div class="r-content">
-<p>This page uses base R and the <code>simEd</code> package. It should already be installed in you set up the environment in the “<em>🧪 Test yourself</em>” section of the <a href="../../pages/setup/environment.html">Environments</a> page.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">suppressMessages</span>(<span class="fu">library</span>(simEd))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(simEd)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
 </div>
 </div>
 <section id="randomness" class="level2">
@@ -666,7 +662,7 @@ Note: When a Quarto document just contains Python code blocks (and no R code), Q
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng()</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>rng.exponential(scale<span class="op">=</span><span class="dv">17</span>, size<span class="op">=</span><span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>array([ 5.81082453, 25.50688961, 97.31396635])</code></pre>
+<pre><code>array([10.22269284,  3.39450944,  2.310098  ])</code></pre>
 </div>
 </div>
 <p>To ensure the same results everytime the code runs, initialise with a fixed seed:</p>
@@ -1277,6 +1273,36 @@ window.onload = function() {
 }
 
 </script>
+<script>
+
+function setLanguage(lang) {
+  // Store the selected language in localStorage
+  localStorage.setItem('preferredLanguage', lang);
+
+  // Update button active state
+  document.querySelectorAll('.language-button').forEach(btn => {
+      btn.classList.remove('active');
+      if (btn.textContent.toLowerCase() === lang || (lang === 'both' && btn.textContent.toLowerCase() === 'both')) {
+          btn.classList.add('active');
+      }
+  });
+  // Show/hide the appropriate content
+  if (lang === 'python') {
+      document.querySelectorAll('.python-content').forEach(el => el.style.display = 'block');
+      document.querySelectorAll('.r-content').forEach(el => el.style.display = 'none');
+  } else if (lang === 'r') {
+      document.querySelectorAll('.python-content').forEach(el => el.style.display = 'none');
+      document.querySelectorAll('.r-content').forEach(el => el.style.display = 'block');
+  }
+}
+
+// On page load, set the language based on localStorage or default to Python
+document.addEventListener('DOMContentLoaded', function() {
+  const lang = localStorage.getItem('preferredLanguage') || 'python';
+  setLanguage(lang);
+});
+
+</script>
 <script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
     const icon = "";
@@ -1619,7 +1645,6 @@ Text licence: <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="
     </div>
   </div>
 </footer>
-<script type="application/javascript" src="../../scripts/language-selector.js"></script>
 <script>var lightboxQuarto = GLightbox({"closeEffect":"zoom","descPosition":"bottom","loop":false,"openEffect":"zoom","selector":".lightbox"});
 (function() {
   let previousOnload = window.onload;
