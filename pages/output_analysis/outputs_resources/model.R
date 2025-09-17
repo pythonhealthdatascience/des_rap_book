@@ -41,5 +41,9 @@ model <- function(param, run_number) {
 
   # Filter to remove results from the warm-up period#<<
   result <- filter_warmup(result, param[["warm_up_period"]])#<<
+
+  # Calculate the average results for that run#<<
+  result[["run_results"]] <- get_run_results(result, run_number)#<<
+
   result
 }

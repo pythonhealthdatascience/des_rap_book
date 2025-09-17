@@ -46,6 +46,7 @@ from sim_tools.distributions import Exponential
 #| output: false
 library(dplyr)
 library(simmer)
+library(tidyr)
 ```
 
 ```{r}
@@ -166,7 +167,7 @@ Now we're ready to record some performance measures. 😎
 
 ::: {.r-content}
 
-Before we start calculating any simulation performance measures, some set-up is required. This includes calling `filter_warmup()` from within `model()` and making a new function `get_run_results()`.
+Before we start calculating any simulation performance measures, some set-up is required. This includes making a new function `get_run_results()`, and calling that and `filter_warmup()` from within `model()`.
 
 ### Parameter function
 
@@ -184,14 +185,6 @@ No changes required.
 ```{r}
 #| echo: false
 {{< include outputs_resources/filter_warmup.R >}}
-```
-
-### Model function
-
-Having introduced the `filter_warmup()` function on the [Initialisation bias](warmup.qmd) page, we'll now call it from within `model()` (so we don't forget to after running `model()`!).
-
-```{r}
-{{< include outputs_resources/model.R >}}
 ```
 
 ### Run results function
@@ -218,19 +211,25 @@ get_run_results <- function(results, run_number) {
 }
 ```
 
-### Run the model
+### Model function
 
-As we haven't yet calculated any average performance measures, the table from `get_run_results()` looks a little empty!
+Having introduced the `filter_warmup()` function on the [Initialisation bias](warmup.qmd) page and `get_run_results()` above, we'll now call these from within `model()`.
+
+```{r}
+{{< include outputs_resources/model.R >}}
+```
+
+### Run the model
 
 ```{r}
 param <- create_params()
 result <- model(param = param, run_number = 1L)
-print(result[["arrivals"]])
-print(result[["resources"]])
-get_run_results(result = result, run_number = 1L)
+knitr::kable(result[["arrivals"]] |> arrange(start_time))
+knitr::kable(result[["resources"]])
+knitr::kable(result[["run_results"]])
 ```
 
-Let's add some performance measures. 😎
+At the moment, `result[["run_results"]]` is pretty empty (just has the replication number). Let's add some performance measures!
 
 :::
 
@@ -337,15 +336,6 @@ No changes required.
 {{< include outputs_resources/filter_warmup.R >}}
 ```
 
-### Model function
-
-No changes required.
-
-```{r}
-#| echo: false
-{{< include outputs_resources/model.R >}}
-```
-
 ### Arrivals function
 
 We introduce a new function `calc_arrivals()`. This determines the number of arrivals by counting the number of unique patient names in the arrival records.
@@ -391,6 +381,15 @@ get_run_results <- function(results, run_number) {
 }
 ```
 
+### Model function
+
+No changes required.
+
+```{r}
+#| echo: false
+{{< include outputs_resources/model.R >}}
+```
+
 ### Run the model
 
 In `arrivals` we can see six patients listed, which aligns with our results table listing `arrivals = 6`.
@@ -398,8 +397,8 @@ In `arrivals` we can see six patients listed, which aligns with our results tabl
 ```{r}
 param <- create_params()
 result <- model(param = param, run_number = 1L)
-print(result[["arrivals"]])
-get_run_results(result = result, run_number = 1L)
+knitr::kable(result[["arrivals"]] |> arrange(start_time))
+knitr::kable(result[["run_results"]])
 ```
 
 :::
@@ -671,8 +670,6 @@ We can see each patient's wait time in `result["patient"]`, and the mean wait ti
 
 ::: {.r-content}
 
-<div class="h3-tight"></div>
-
 ### Warm-up function
 
 No changes required.
@@ -682,29 +679,147 @@ No changes required.
 {{< include outputs_resources/filter_warmup.R >}}
 ```
 
-### Model function
+### Wait time function
 
-No changes required.
+A new `calc_mean_wait()` function
 
 ```{r}
-#| echo: false
-{{< include outputs_resources/model.R >}}
-```
+#' Calculate the mean wait time for each resource
+#'
+#' @param arrivals Dataframe with times for each patient with each resource.
+#'
+#' @importFrom tidyr drop_na
+#' 
+#' @return Tibble with columns containing result for each resource.
+#' @export
 
-### ? function
+calc_mean_wait <- function(arrivals) {
+
+  # Create subset of data that removes patients who were still waiting
+  complete_arrivals <- drop_na(arrivals, any_of("wait_time"))
+
+  # Calculate mean wait time for each resource
+  complete_arrivals |>
+    group_by(resource) |>
+    summarise(mean_wait_time = mean(wait_time)) |>
+    pivot_wider(names_from = "resource",
+                values_from = "mean_wait_time",
+                names_glue = "mean_wait_time_{resource}") |>
+    ungroup()
+}
+```
 
 ### Run results function
 
 ```{r}
+#' Get average results for the provided single run.
+#'
+#' @param results Named list with `arrivals` from `get_mon_arrivals()` and
+#'   `resources` from `get_mon_resources()`
+#'   (`per_resource = TRUE` and `ongoing = TRUE`).
+#' @param run_number Integer index of current simulation run.
+#'
+#' @importFrom dplyr bind_cols
+#' @importFrom tibble tibble
+#'
+#' @return Tibble with processed results from replication.
+#' @export
+
+get_run_results <- function(results, run_number) {
+    metrics <- list(
+      calc_mean_wait(results[["arrivals"]])#<<
+    )
+    dplyr::bind_cols(tibble(replication = run_number), metrics)
+}
+```
+
+### Model function
+
+```{r}
+#' Run simulation.
+#'
+#' @param param List. Model parameters.
+#' @param run_number Numeric. Run number for random seed generation.
+#'
+#' @importFrom dplyr mutate
+#' @importFrom simmer add_generator get_mon_arrivals get_mon_resources run
+#' @importFrom simmer simmer timeout trajectory
+
+model <- function(param, run_number) {
+
+  # Set random seed based on run number
+  set.seed(run_number)
+
+  # Create simmer environment
+  env <- simmer("simulation", verbose = param[["verbose"]])
+
+  # Define the patient trajectory
+  patient <- trajectory("consultation") |>
+    seize("doctor", 1L) |>
+    # Record time resource is obtained and sampled length of activity#<<
+    set_attribute("doctor_serve_start", function() now(env)) |>#<<
+    set_attribute("doctor_serve_length", function() {#<<
+      rexp(n = 1L, rate = 1L / param[["consultation_time"]])#<<
+    }) |>#<<
+    timeout(function() get_attribute(env, "doctor_serve_length")) |>#<<
+    release("doctor", 1L)
+
+  env <- env |>
+    # Add doctor resource
+    add_resource("doctor", param[["number_of_doctors"]]) |>
+    # Add patient generator (mon=2 so can get manual attributes)#<<
+    add_generator("patient", patient, function() {
+      rexp(n = 1L, rate = 1L / param[["interarrival_time"]])
+    }, mon = 2L) |>#<<
+    # Run the simulation
+    simmer::run(until = (param[["warm_up_period"]] +
+                           param[["data_collection_period"]]))
+
+  # Extract information on arrivals and resources from simmer environment
+  result <- list(
+    arrivals = get_mon_arrivals(env, per_resource = TRUE, ongoing = TRUE), 
+    resources = get_mon_resources(env)
+  )
+
+  # Get the extra arrivals attributes#<<
+  extra_attributes <- get_mon_attributes(env) |>#<<
+    select("name", "key", "value") |>#<<
+    # Add column with resource name, and remove that from key#<<
+    mutate(resource = gsub("_.+", "", .data[["key"]]),#<<
+           key = gsub("^[^_]+_", "", .data[["key"]])) |>#<<
+    pivot_wider(names_from = "key", values_from = "value")#<<
+
+  # Merge extra attributes with the arrival data#<<
+  result[["arrivals"]] <- left_join(#<<
+    result[["arrivals"]], extra_attributes, by = c("name", "resource")#<<
+  )#<<
+
+  # Filter to remove results from the warm-up period
+  result <- filter_warmup(result, param[["warm_up_period"]])
+
+  # Calculate wait time for each patient
+  result[["arrivals"]] <- result[["arrivals"]] |>#<<
+    mutate(wait_time = .data[["serve_start"]] - .data[["start_time"]])#<<
+
+  # Calculate the average results for that run
+  result[["run_results"]] <- get_run_results(result, run_number)
+
+  result
+}
 ```
 
 ### Run the model
 
+{{< include outputs_resources/set_attribute_note.md >}}
+
 ```{r}
 param <- create_params()
 result <- model(param = param, run_number = 1L)
-print(result[["arrivals"]])
-get_run_results(result = result, run_number = 1L)
+knitr::kable(result[["arrivals"]] |> arrange(start_time))
+```
+
+```{r}
+knitr::kable(result[["run_results"]])
 ```
 
 :::
@@ -820,18 +935,17 @@ No changes required.
 {{< include outputs_resources/filter_warmup.R >}}
 ```
 
-### Model function
-
-No changes required.
-
-```{r}
-#| echo: false
-{{< include outputs_resources/model.R >}}
-```
-
 ### ? function
 
+```{r}
+```
+
 ### Run results function
+
+```{r}
+```
+
+### Model function
 
 ```{r}
 ```
@@ -839,10 +953,6 @@ No changes required.
 ### Run the model
 
 ```{r}
-param <- create_params()
-result <- model(param = param, run_number = 1L)
-print(result[["arrivals"]])
-get_run_results(result = result, run_number = 1L)
 ```
 
 :::
@@ -1496,15 +1606,6 @@ No changes required.
 {{< include outputs_resources/filter_warmup.R >}}
 ```
 
-### Model function
-
-No changes required.
-
-```{r}
-#| echo: false
-{{< include outputs_resources/model.R >}}
-```
-
 ### ? function
 
 ### Run results function
@@ -1512,13 +1613,14 @@ No changes required.
 ```{r}
 ```
 
+### Model function
+
+```{r}
+```
+
 ### Run the model
 
 ```{r}
-param <- create_params()
-result <- model(param = param, run_number = 1L)
-print(result[["arrivals"]])
-get_run_results(result = result, run_number = 1L)
 ```
 
 :::
@@ -1749,15 +1851,6 @@ No changes required.
 {{< include outputs_resources/filter_warmup.R >}}
 ```
 
-### Model function
-
-No changes required.
-
-```{r}
-#| echo: false
-{{< include outputs_resources/model.R >}}
-```
-
 ### ? function
 
 ### Run results function
@@ -1765,13 +1858,14 @@ No changes required.
 ```{r}
 ```
 
+### Model function
+
+```{r}
+```
+
 ### Run the model
 
 ```{r}
-param <- create_params()
-result <- model(param = param, run_number = 1L)
-print(result[["arrivals"]])
-get_run_results(result = result, run_number = 1L)
 ```
 
 :::
@@ -2058,15 +2152,6 @@ No changes required.
 {{< include outputs_resources/filter_warmup.R >}}
 ```
 
-### Model function
-
-No changes required.
-
-```{r}
-#| echo: false
-{{< include outputs_resources/model.R >}}
-```
-
 ### ? function
 
 ### Run results function
@@ -2074,13 +2159,14 @@ No changes required.
 ```{r}
 ```
 
+### Model function
+
+```{r}
+```
+
 ### Run the model
 
 ```{r}
-param <- create_params()
-result <- model(param = param, run_number = 1L)
-print(result[["arrivals"]])
-get_run_results(result = result, run_number = 1L)
 ```
 
 :::
@@ -2391,15 +2477,6 @@ No changes required.
 {{< include outputs_resources/filter_warmup.R >}}
 ```
 
-### Model function
-
-No changes required.
-
-```{r}
-#| echo: false
-{{< include outputs_resources/model.R >}}
-```
-
 ### ? function
 
 ### Run results function
@@ -2407,13 +2484,14 @@ No changes required.
 ```{r}
 ```
 
+### Model function
+
+```{r}
+```
+
 ### Run the model
 
 ```{r}
-param <- create_params()
-result <- model(param = param, run_number = 1L)
-print(result[["arrivals"]])
-get_run_results(result = result, run_number = 1L)
 ```
 
 :::
@@ -2529,15 +2607,6 @@ No changes required.
 {{< include outputs_resources/filter_warmup.R >}}
 ```
 
-### Model function
-
-No changes required.
-
-```{r}
-#| echo: false
-{{< include outputs_resources/model.R >}}
-```
-
 ### ? function
 
 ### Run results function
@@ -2545,13 +2614,14 @@ No changes required.
 ```{r}
 ```
 
+### Model function
+
+```{r}
+```
+
 ### Run the model
 
 ```{r}
-param <- create_params()
-result <- model(param = param, run_number = 1L)
-print(result[["arrivals"]])
-get_run_results(result = result, run_number = 1L)
 ```
 
 :::
@@ -2845,18 +2915,17 @@ No changes required.
 {{< include outputs_resources/filter_warmup.R >}}
 ```
 
-### Model function
-
-No changes required.
-
-```{r}
-#| echo: false
-{{< include outputs_resources/model.R >}}
-```
-
 ### ? function
 
+```{r}
+```
+
 ### Run results function
+
+```{r}
+```
+
+### Model function
 
 ```{r}
 ```
@@ -2864,10 +2933,6 @@ No changes required.
 ### Run the model
 
 ```{r}
-param <- create_params()
-result <- model(param = param, run_number = 1L)
-print(result[["arrivals"]])
-get_run_results(result = result, run_number = 1L)
 ```
 
 :::
@@ -2946,6 +3011,8 @@ ggplotly(p)
 <div class="h3-tight"></div>
 
 ### 🩺 Nurse visit simulation
+
+<!--TODO: Mention that pydesrapmms/rdesrapmms have some exxtra stuff to stop if breaking for if there are zero arrivals...-->
 
 :::: {.python-content}
 
