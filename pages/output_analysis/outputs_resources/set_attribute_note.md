@@ -1,1 +1,0 @@
-**Why do the patient results look different?** This measure requires saving sampled times using `set_attribute()` ahead of resource use. This changes the order in which random numbers are drawn from the simulation's global random number generator. As a result, even with the same seed and parameters, the results will differ from previous runs.
