@@ -327,15 +327,6 @@ class Runner:
 
 <div class="h3-tight"></div>
 
-### Warm-up function
-
-No changes required.
-
-```{r}
-#| echo: false
-{{< include outputs_resources/filter_warmup.R >}}
-```
-
 ### Arrivals function
 
 We introduce a new function `calc_arrivals()`. This determines the number of arrivals by counting the number of unique patient names in the arrival records.
@@ -670,18 +661,11 @@ We can see each patient's wait time in `result["patient"]`, and the mean wait ti
 
 ::: {.r-content}
 
-### Warm-up function
-
-No changes required.
-
-```{r}
-#| echo: false
-{{< include outputs_resources/filter_warmup.R >}}
-```
+<div class="h3-tight"></div>
 
 ### Wait time function
 
-A new `calc_mean_wait()` function
+A new `calc_mean_wait()` function removes patients still waiting (since their wait times are censored and including them would underestimate the mean), then calculates the mean wait time for each resource.
 
 ```{r}
 #' Calculate the mean wait time for each resource
@@ -711,6 +695,8 @@ calc_mean_wait <- function(arrivals) {
 
 ### Run results function
 
+In `get_run_results()`, the table `results[["arrivals"]]` is passed to `calc_mean_wait()`.
+
 ```{r}
 #' Get average results for the provided single run.
 #'
@@ -735,6 +721,14 @@ get_run_results <- function(results, run_number) {
 
 ### Model function
 
+In `model()`, we save the time the patient started their consultation (`doctor_serve_start`) using `set_attribute()`.
+
+To retrieve this later using simmer's `get_mon_attributes()` function, we have to set `mon = 2L` within the patient generator, as this enables attribute monitoring beyond basic arrival tracking.
+
+When retrieving the attribute, we restructure the returned dataframe using a generic approach that handles any attributes following the pattern `resourcename_attribute` - for example, transforming `doctor_serve_start` into `serve_start` (aligned with the corresponding doctor rows).
+
+We can calculate the wait time for each patient by subtracting their arrival time (`start_time`) from when service began (`serve_start`).
+
 ```{r}
 #' Run simulation.
 #'
@@ -756,12 +750,11 @@ model <- function(param, run_number) {
   # Define the patient trajectory
   patient <- trajectory("consultation") |>
     seize("doctor", 1L) |>
-    # Record time resource is obtained and sampled length of activity#<<
+    # Record time resource is obtained#<<
     set_attribute("doctor_serve_start", function() now(env)) |>#<<
-    set_attribute("doctor_serve_length", function() {#<<
-      rexp(n = 1L, rate = 1L / param[["consultation_time"]])#<<
-    }) |>#<<
-    timeout(function() get_attribute(env, "doctor_serve_length")) |>#<<
+    timeout(function() {
+      rexp(n = 1L, rate = 1L / param[["consultation_time"]])
+    }) |>
     release("doctor", 1L)
 
   env <- env |>
@@ -810,15 +803,10 @@ model <- function(param, run_number) {
 
 ### Run the model
 
-{{< include outputs_resources/set_attribute_note.md >}}
-
 ```{r}
 param <- create_params()
 result <- model(param = param, run_number = 1L)
 knitr::kable(result[["arrivals"]] |> arrange(start_time))
-```
-
-```{r}
 knitr::kable(result[["run_results"]])
 ```
 
@@ -926,33 +914,143 @@ We can see each patient's consultation length in `result["patient"]`, and the me
 
 <div class="h3-tight"></div>
 
-### Warm-up function
+### Service length function
 
-No changes required.
-
-```{r}
-#| echo: false
-{{< include outputs_resources/filter_warmup.R >}}
-```
-
-### ? function
+A new function `calc_mean_serve_length()` finds the mean length of time patients spent with each resource using a new column we'll introduce in `model()` called `serve_length`.
 
 ```{r}
+#' Calculate the mean length of time patients spent with each resource
+#'
+#' @param arrivals Dataframe with times for each patient with each resource.
+#' @param resources Dataframe with times patients use or queue for resources.
+#' @param groups Optional list of columns to group by for the calculation.
+#'
+#' @return Tibble with columns containing result for each resource.
+#' @export
+
+calc_mean_serve_length <- function(arrivals, resources, groups = NULL) {
+
+  # Create subset of data that removes patients who were still waiting
+  complete_arrivals <- drop_na(arrivals, any_of("serve_length"))
+
+  # Calculate mean serve time for each resource
+  complete_arrivals |>
+    group_by(resource) |>
+    summarise(mean_serve_time = mean(serve_length)) |>
+    pivot_wider(names_from = "resource",
+                values_from = "mean_serve_time",
+                names_glue = "mean_time_with_{resource}") |>
+    ungroup()
+}
 ```
 
 ### Run results function
 
+In `get_run_results()`, the table `results[["arrivals"]]` is passed to `calc_mean_serve_length()`.
+
 ```{r}
+#' Get average results for the provided single run.
+#'
+#' @param results Named list with `arrivals` from `get_mon_arrivals()` and
+#'   `resources` from `get_mon_resources()`
+#'   (`per_resource = TRUE` and `ongoing = TRUE`).
+#' @param run_number Integer index of current simulation run.
+#'
+#' @importFrom dplyr bind_cols
+#' @importFrom tibble tibble
+#'
+#' @return Tibble with processed results from replication.
+#' @export
+
+get_run_results <- function(results, run_number) {
+    metrics <- list(
+        calc_mean_serve_length(results[["arrivals"]])#<<
+    )
+    dplyr::bind_cols(tibble(replication = run_number), metrics)
+}
 ```
 
 ### Model function
 
+In `model()`, we save the sampled length of the consultation (`doctor_serve_length`) using `set_attribute()`. This is then used for `timeout()`, retrieving it again with `get_attribute()`.
+
+Next, we repeat the steps we did for calculating mean wait time: setting `mon = 2L` in the patient generator, retrieving results using `get_mon_attributes()`, and restructuring the returned dataframe to transform `doctor_serve_length` into `serve_length` (aligned with the corresponding doctor rows).
+
 ```{r}
+#' Run simulation.
+#'
+#' @param param List. Model parameters.
+#' @param run_number Numeric. Run number for random seed generation.
+#'
+#' @importFrom dplyr mutate
+#' @importFrom simmer add_generator get_mon_arrivals get_mon_resources run
+#' @importFrom simmer simmer timeout trajectory
+
+model <- function(param, run_number) {
+
+  # Set random seed based on run number
+  set.seed(run_number)
+
+  # Create simmer environment
+  env <- simmer("simulation", verbose = param[["verbose"]])
+
+  # Define the patient trajectory
+  patient <- trajectory("consultation") |>
+    seize("doctor", 1L) |>
+    # Record sampled length of consultation#<<
+    set_attribute("doctor_serve_length", function() {#<<
+      rexp(n = 1L, rate = 1L / param[["consultation_time"]])#<<
+    }) |>#<<
+    timeout(function() get_attribute(env, "doctor_serve_length")) |>#<<
+    release("doctor", 1L)
+
+  env <- env |>
+    # Add doctor resource
+    add_resource("doctor", param[["number_of_doctors"]]) |>
+    # Add patient generator (mon=2 so can get manual attributes)#<<
+    add_generator("patient", patient, function() {
+      rexp(n = 1L, rate = 1L / param[["interarrival_time"]])
+    }, mon = 2L) |>#<<
+    # Run the simulation
+    simmer::run(until = (param[["warm_up_period"]] +
+                           param[["data_collection_period"]]))
+
+  # Extract information on arrivals and resources from simmer environment
+  result <- list(
+    arrivals = get_mon_arrivals(env, per_resource = TRUE, ongoing = TRUE), 
+    resources = get_mon_resources(env)
+  )
+
+  # Get the extra arrivals attributes#<<
+  extra_attributes <- get_mon_attributes(env) |>#<<
+    select("name", "key", "value") |>#<<
+    # Add column with resource name, and remove that from key#<<
+    mutate(resource = gsub("_.+", "", .data[["key"]]),#<<
+           key = gsub("^[^_]+_", "", .data[["key"]])) |>#<<
+    pivot_wider(names_from = "key", values_from = "value")#<<
+
+  # Merge extra attributes with the arrival data#<<
+  result[["arrivals"]] <- left_join(#<<
+    result[["arrivals"]], extra_attributes, by = c("name", "resource")#<<
+  )#<<
+
+  # Filter to remove results from the warm-up period
+  result <- filter_warmup(result, param[["warm_up_period"]])
+
+  # Calculate the average results for that run
+  result[["run_results"]] <- get_run_results(result, run_number)
+
+  result
+}
 ```
 
 ### Run the model
 
 ```{r}
+param <- create_params()
+result <- model(param = param, run_number = 1L)
+knitr::kable(result[["arrivals"]] |> arrange(start_time))
+knitr::kable(result[["run_results"]])
 ```
 
 :::
@@ -1597,30 +1695,236 @@ Mean utilisation measures the proportion of available doctor time that is actual
 
 <div class="h3-tight"></div>
 
-### Warm-up function
+### Utilisation function
+
+Our function for utilisation is a **time-weighted calculation**: it computes a weighted mean, multiplying each interval's utilisation by its interval duration.
+
+As described in the docstring, the calculation is adapted from the `plot.resources.utilization()` function in simmer.plot 0.1.18, which is shared under an MIT Licence (Ucar I, Smeets B (2023). simmer.plot: Plotting Methods for 'simmer'. <https://r-simmer.org> <https://github.com/r-simmer/simmer.plot>).
+
+The function is explained line-by-line below...
+
+```{r}
+#' Calculate the resource utilisation
+#'
+#' Utilisation is given by the total effective usage time (`in_use`) over
+#' the total time intervals considered (`dt`).
+#'
+#' Credit: The utilisation calculation is adapted from the
+#' `plot.resources.utilization()` function in simmer.plot 0.1.18, which is
+#' shared under an MIT Licence (Ucar I, Smeets B (2023). simmer.plot: Plotting
+#' Methods for 'simmer'. https://r-simmer.org
+#' https://github.com/r-simmer/simmer.plot.).
+#'
+#' @param resources Dataframe with times patients use or queue for resources.
+#' @param summarise If TRUE, return overall utilisation. If FALSE, just return
+#' the resource dataframe with the additional columns interval_duration,
+#' effective_capacity and utilisation.
+#'
+#' @return Tibble with columns containing result for each resource.
+#' @export
+
+calc_utilisation <- function(resources, summarise = TRUE) {
+
+  # Calculate utilisation
+  util_df <- resources |>
+    group_by(resource) |>
+    mutate(
+      # Time between this row and the next
+      interval_duration = lead(.data[["time"]]) - .data[["time"]],
+      # Ensures effective capacity is never less than number of servers in
+      # use (in case of situations where servers may exceed "capacity").
+      effective_capacity = pmax(.data[["capacity"]], .data[["server"]]),
+      # Divide number of servers in use by effective capacity
+      # Set to NA if effective capacity is 0
+      utilisation = ifelse(.data[["effective_capacity"]] > 0L,
+                           .data[["server"]] / .data[["effective_capacity"]],
+                           NA_real_)
+    )
+
+  # If summarise = TRUE, find total utilisation
+  if (summarise) {
+    util_df |>
+      summarise(
+        # Multiply each utilisation by its own unique duration. The total of
+        # those is then divided by the total duration of all intervals.
+        # Hence, we are calculated a time-weighted average utilisation.
+        utilisation = (sum(.data[["utilisation"]] *
+                             .data[["interval_duration"]], na.rm = TRUE) /
+                         sum(.data[["interval_duration"]], na.rm = TRUE))
+      ) |>
+      pivot_wider(names_from = "resource",
+                  values_from = "utilisation",
+                  names_glue = "utilisation_{resource}") |>
+      ungroup()
+  } else {
+    # If summarise = FALSE, just return the util_df with no further processing
+    ungroup(util_df)
+  }
+}
+```
+
+#### Explaining the utilisation function
+
+```{.r}
+#' Calculate the resource utilisation
+#'
+#' Utilisation is given by the total effective usage time (`in_use`) over
+#' the total time intervals considered (`dt`).
+#'
+#' Credit: The utilisation calculation is adapted from the
+#' `plot.resources.utilization()` function in simmer.plot 0.1.18, which is
+#' shared under an MIT Licence (Ucar I, Smeets B (2023). simmer.plot: Plotting
+#' Methods for 'simmer'. https://r-simmer.org
+#' https://github.com/r-simmer/simmer.plot.).
+#'
+#' @param resources Dataframe with times patients use or queue for resources.
+#' @param summarise If TRUE, return overall utilisation. If FALSE, just return
+#' the resource dataframe with the additional columns interval_duration,
+#' effective_capacity and utilisation.
+#'
+#' @return Tibble with columns containing result for each resource.
+#' @export
+
+calc_utilisation <- function(resources, summarise = TRUE) {
+```
+
+The function takes the resources dataframe from `get_mon_resources()`.
+
+The `summarise` parameter controls whether to return the overall time-weighted utilisation (`TRUE`), or a detailed dataframe with per-interval metrics (`FALSE`).
+
+<br>
+
+```{.r}
+# Calculate utilisation
+util_df <- resources |>
+  group_by(resource) |>
+  mutate(
+    ...
+```
+
+The code groups by resource, so we can calculate utilisation of each resource separately. The `mutate()` call will then add new columns to the dataframe...
+
+<br>
+
+```{.r}
+    ...
+    # Time between this row and the next
+    interval_duration = lead(.data[["time"]]) - .data[["time"]],
+    ...
+```
+
+The `interval_duration` column computes how long each state lasts by taking the time difference between consecutive events. This is the basis for time-weighting.
+
+<br>
+
+```{.r}
+    ...
+    # Ensures effective capacity is never less than number of servers in
+    # use (in case of situations where servers may exceed "capacity").
+    effective_capacity = pmax(.data[["capacity"]], .data[["server"]]),
+    ...
+```
+
+The `effective_capcaity` ensures the denominator in utilisation calculations is always at least as large as the number of servers in use.
+
+<br>
+
+```{.r}
+    ...
+    # Divide number of servers in use by effective capacity
+    # Set to NA if effective capacity is 0
+    utilisation = ifelse(.data[["effective_capacity"]] > 0L,
+                         .data[["server"]] / .data[["effective_capacity"]],
+                         NA_real_)
+  )
+```
+
+The `utilisation` column calculates, for each interval, the proportion of servers in use relative to available capacity. If capacity is zero, it returns NA.
+
+<br>
+
+```{.r}
+# If summarise = TRUE, find total utilisation
+if (summarise) {
+  util_df |>
+    summarise(
+      # Multiply each utilisation by its own unique duration. The total of
+      # those is then divided by the total duration of all intervals.
+      # Hence, we are calculated a time-weighted average utilisation.
+      utilisation = (sum(.data[["utilisation"]] *
+                           .data[["interval_duration"]], na.rm = TRUE) /
+                       sum(.data[["interval_duration"]], na.rm = TRUE))
+    ) |>
+    pivot_wider(names_from = "resource",
+                values_from = "utilisation",
+                names_glue = "utilisation_{resource}") |>
+    ungroup()
+```
+
+If `summarise` is true, the final result is a time-weighted average: per-interval utilisations are weighted by their durations and averaged. Output is one value per resource.
+
+<br>
+
+```{.r}
+} else {
+  # If summarise = FALSE, just return the util_df with no further processing
+  ungroup(util_df)
+}
+```
+
+When `summarise` is false, detailed interval-level results are returned for further analysis or plotting.
+
+### Run results function
+
+In `get_run_results()`, the table `results[["resources"]]` is passed to `calc_utilisation()`.
+
+```{r}
+#' Get average results for the provided single run.
+#'
+#' @param results Named list with `arrivals` from `get_mon_arrivals()` and
+#'   `resources` from `get_mon_resources()`
+#'   (`per_resource = TRUE` and `ongoing = TRUE`).
+#' @param run_number Integer index of current simulation run.
+#'
+#' @importFrom dplyr bind_cols
+#' @importFrom tibble tibble
+#'
+#' @return Tibble with processed results from replication.
+#' @export
+
+get_run_results <- function(results, run_number) {
+  metrics <- list(
+    calc_utilisation(results[["resources"]])#<<
+  )
+  dplyr::bind_cols(tibble(replication = run_number), metrics)
+}
+```
+
+### Model function
 
 No changes required.
 
 ```{r}
 #| echo: false
-{{< include outputs_resources/filter_warmup.R >}}
-```
-
-### ? function
-
-### Run results function
-
-```{r}
-```
-
-### Model function
-
-```{r}
+{{< include outputs_resources/model.R >}}
 ```
 
 ### Run the model
 
 ```{r}
+param <- create_params()
+result <- model(param = param, run_number = 1L)
+knitr::kable(result[["run_results"]])
+```
+
+<br>
+
+We can also view the result with `summarise = FALSE`:
+
+```{r}
+util_df <- calc_utilisation(resources = result[["resources"]],
+                            summarise = FALSE)
+knitr::kable(util_df)
 ```
 
 :::
@@ -1841,16 +2145,6 @@ class Runner:
 ::: {.r-content}
 
 <div class="h3-tight"></div>
-
-### Warm-up function
-
-No changes required.
-
-```{r}
-#| echo: false
-{{< include outputs_resources/filter_warmup.R >}}
-```
-
 ### ? function
 
 ### Run results function
@@ -2142,15 +2436,6 @@ class Runner:
 ::: {.r-content}
 
 <div class="h3-tight"></div>
-
-### Warm-up function
-
-No changes required.
-
-```{r}
-#| echo: false
-{{< include outputs_resources/filter_warmup.R >}}
-```
 
 ### ? function
 
@@ -2468,15 +2753,6 @@ class Runner:
 
 <div class="h3-tight"></div>
 
-### Warm-up function
-
-No changes required.
-
-```{r}
-#| echo: false
-{{< include outputs_resources/filter_warmup.R >}}
-```
-
 ### ? function
 
 ### Run results function
@@ -2597,15 +2873,6 @@ In `result["patient"]` we can see one person had NaN for `time_with_doctor`. Cor
 ::: {.r-content}
 
 <div class="h3-tight"></div>
-
-### Warm-up function
-
-No changes required.
-
-```{r}
-#| echo: false
-{{< include outputs_resources/filter_warmup.R >}}
-```
 
 ### ? function
 
@@ -2905,15 +3172,6 @@ class Runner:
 ::: {.r-content}
 
 <div class="h3-tight"></div>
-
-### Warm-up function
-
-No changes required.
-
-```{r}
-#| echo: false
-{{< include outputs_resources/filter_warmup.R >}}
-```
 
 ### ? function
 
