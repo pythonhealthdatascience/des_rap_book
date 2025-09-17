@@ -2,41 +2,44 @@
 title: Parameters from script
 ---
 
-::: {.pale-blue}
-
-🎯 **Objectives**
-
-Discrete-event simulations (DES) require many parameters - like arrival rates, resource times, and probabilities - which often need to be changed for different scenarios and analyses. Managing these parameters well makes your simulations easier to update, track, and reuse.
-
-This page explains best practices for managing model parameters directly within scripts.
-
-* **🚫 What not to do: hardcoding parameters.**
-* **📄 A slight improvement: global parameters.** 
-* **✅ Recommendation for managing parameters in DES:** grouping parameters into a dedicated object and passing that object explicitly to your model.
-* **🧮 Handling a large number of parameters**.
-
-If you want to see how to store parameters in a separate file, see the [parameters from file](parameters_file.qmd) page.
-
-[🔗](../intro/guidelines.qmd) **Reproducibility guidelines**
-
-This page helps you meet reproducibility criteria from:
-
-* STARS Reproducibility Recommendations: Avoid hard-coded parameters.
-
-:::
-
-```{python, echo=FALSE}
+```{python}
+#| echo: false
 # pylint: disable=function-redefined, too-many-instance-attributes
 # pylint: disable=too-many-arguments, too-many-positional-arguments
 # pylint: disable=too-few-public-methods
 ```
 
-:::{.r-content}
+:::: {.pale-blue}
+
+**Learning objectives:**
+
+* Recognise the **drawbacks of hardcoding** parameters in simulation models.
+* Learn about **methods and best practices** for parameter management.
+* Note ways to keep models organised when working with **many** parameters  .
+
+**Relevant reproducibility guidelines:**
+
+* STARS Reproducibility Recommendations: Avoid hard-coded parameters.
+
+::: {.r-content}
+
+**Required packages:**
+
+This should be available from environment setup in the "🧪 Test yourself" section of [Environments](../setup/environment.qmd). 
+
 ```{r}
-# Load required packages
 library(R6)
 ```
+
 :::
+
+::::
+
+<br>
+
+Discrete-event simulations (DES) require many parameters - like arrival rates, resource times, and probabilities - which often need to be changed for different scenarios and analyses. Managing these parameters well makes your simulations easier to update, track, and reuse.
+
+This page explains best practices for managing model parameters **directly within scripts**.
 
 ## 🚫 What not to do: hardcoding parameters
 
@@ -1237,7 +1240,8 @@ Not applicable as the stroke example stores [parameters in a file](parameters_fi
 
 ## 🧪 Test yourself
 
-```{r, echo = FALSE}
+```{r}
+#| echo: false
 library(webexercises) # nolint: library_call_linter
 ```
 
@@ -1245,7 +1249,9 @@ library(webexercises) # nolint: library_call_linter
 
 ## When creating multiple scenarios that differ by only one parameter, what is a robust approach?
 
-```{r, results="asis", echo = FALSE}
+```{r}
+#| output: asis
+#| echo: false
 cat(longmcq(c(
   "Directly edit the parameter in the original script.",
   "Duplicate the entire script for each scenario.",
@@ -1259,7 +1265,9 @@ cat(longmcq(c(
 
 ## Why is it important to pass parameters explicitly to the model instead of relying on global variables?
 
-```{r, results="asis", echo = FALSE}
+```{r}
+#| output: asis
+#| echo: false
 cat(longmcq(c(
   answer = paste0(
     "It ensures that each scenario only uses the parameters intended for it, ",

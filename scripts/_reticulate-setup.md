@@ -4,7 +4,8 @@ When a Quarto document contains R and Python code blocks, it will use the knitr 
 Note: When a Quarto document just contains Python code blocks (and no R code), Quarto uses the Jupyter engine to render the document.
 -->
 
-```{r, include=FALSE}
+```{r}
+#| include: false
 library(reticulate)
 use_condaenv("des-rap-book", required = TRUE)
 ```

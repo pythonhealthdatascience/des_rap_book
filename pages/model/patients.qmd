@@ -6,53 +6,31 @@ filters:
 
 {{< include ../../scripts/_reticulate-setup.md >}}
 
+```{python}
+#| echo: false
+# pylint: disable=undefined-variable, used-before-assignment
+# pylint: disable=too-few-public-methods,maybe-no-member,function-redefined
+# pylint: disable=attribute-defined-outside-init
+```
+
 :::: {.pale-blue}
 
-🎯 **Objectives**
+**Learning objectives:**
 
-::: {.python-content}
-This page creates a simple model that samples arrivals, with inspiration from Rosser et al. ([2025](https://des.hsma.co.uk/)).
-:::
-::: {.r-content}
-This page creates a simple model that samples arrivals.
-:::
+* Create a **simple arrivals model**.
+* Organise simulation distributions with a **registry**.
 
-* **⚙️ Set-up:** Pre-reading and imports.
-* **🚶 Creating a simple simulation model with arrivals:** Build a basic model that simulates random arrival times.
-* **📉 Distribution registry:** Alternative set-up that organises all simulation distributions in one place.
+**Pre-reading:**
 
-[🔗](../intro/guidelines.qmd) **Reproducibility guidelines**
+As this builds on concepts introduced in prior pages, we suggest first reading:
 
-Entity generation is not directly addressed by the guidelines, but is an essential step in building DES.
-
-::::
-
-<br>
-
-## ⚙️ Set-up
-
-<div class="h3-tight"></div>
-
-### Pre-reading
-
-::: {.python-content}
-
-On this page, we will start creating a very simple simulation model using `simpy`. As it builds on their content, it is recommended you review the following pages first:
-
-:::
-::: {.r-content}
-
-This page extends simulation concepts from previous sections. If new to these topics, review before proceeding:
-
-:::
-
-* [Parameters from script](../inputs/parameters_script.qmd).
-* [Parameters from file](../inputs/parameters_file.qmd).
+* [Parameters from script](../inputs/parameters_script.qmd)
+* [Parameters from file](../inputs/parameters_file.qmd)
 * [Randomness](distributions.qmd).
 
-### Environment
+**Required packages:**
 
-The examples here will use the following packages. These should already be available if you followed the environment setup in the "*🧪 Test yourself*" section of the [Environments](../setup/environment.qmd) page. If not, please install them before continuing.
+These should be available from environment setup in the "🧪 Test yourself" section of [Environments](../setup/environment.qmd). 
 
 ::: {.python-content}
 
@@ -64,47 +42,36 @@ from sim_tools.distributions import DistributionRegistry, Exponential
 
 :::
 
-:::: {.r-content}
+::: {.r-content}
 
 ```{r}
 library(R6)
 library(simmer)
 ```
 
-### How to use the example code
-
-On this page, we will start creating a very simple simulation model using `simmer`. You can follow along by:
-
-* Running code in a single script/Rmarkdown file (quick for testing)
-* Organising your code as a package (we recommend as best for reproducibility and good practice - more details in the [Structuring as a package](../setup/package.qmd) page).
-
-Setup and imports work differently in each approach. Using the correct method avoids confusion and makes it easier to run the examples...
-
-::: {.cream}
-
-**Single Script / R Markdown**
-
-* Start with `library(simmer)`.
-
-* Use simmer functions directly, or prefix with `simmer::` for clarity.
-
-* Roxygen `@importFrom` tags do **not** affect scripts - but are included in case you choose to use the package structure.
-
 :::
 
-::: {.cream}
-
-**Package Structure**
-
-* Include roxygen `@importFrom simmer ...` tags in function docstrings.
-
-* Run `devtools::document()` (to update imports in your `NAMESPACE`) and `devtools::load_all()` (to load your package and dependencies).
-
-* Do **not** use `library(simmer)` in scripts - the package loading makes all imported functions available automatically.
-
-:::
+**Acknowledgements:** Inspired by Rosser et al. ([2025](https://des.hsma.co.uk/)).
 
 ::::
+
+::: {.callout-note title = "How to run the example code" collapse="true"}
+
+The examples below can be run in a script, notebook, or as part of a package. Setup and imports differ slightly depending on your method; see below for details.
+
+**Script / Notebook**
+
+* Start with necessary imports (e.g., `library(simmer)`).
+* Use functions/class directly, or prefix with `simmer::`.
+* Roxygen `@importFrom` tags do **not** affect scripts - but are included in case you choose to use the package structure.
+
+**Package structure** - recommended (see [Structuring as a package](../setup/package.qmd) page for more details)
+
+* Use `@importFrom` in docstrings.
+* Run `devtools::document()` (to update imports in your `NAMESPACE`) and `devtools::load_all()` (to load your package and dependencies).
+* Do not need `library()` imports in script, as loading your package will make all imported functions available automatically.
+
+:::
 
 ## 🚶 Creating a simple simulation model with arrivals
 
@@ -129,9 +96,11 @@ class Parameters:
         Mean time between arrivals (minutes).
     run_length : int
         Total duration of simulation (minutes).
+    verbose : bool
+        Whether to print messages as simulation runs.
     """
     def __init__(
-        self, interarrival_time=5, run_length=50
+        self, interarrival_time=5, run_length=50, verbose=True
     ):
         """
         Initialise Parameters instance.
@@ -142,9 +111,12 @@ class Parameters:
             Time between arrivals (minutes).
         run_length : int
             Total duration of simulation (minutes).
+        verbose : bool
+            Whether to print messages as simulation runs.
         """
         self.interarrival_time = interarrival_time
         self.run_length = run_length
+        self.verbose = verbose
 ```
 
 ### Patient class
@@ -218,7 +190,7 @@ class Model:
         ss = np.random.SeedSequence(self.run_number)
         seeds = ss.spawn(1)
 
-        # Create patient list
+        # Set up attributes to store results
         self.patients = []
 
         # Initialise distributions
@@ -239,10 +211,11 @@ class Model:
             # Create a new patient
             patient = Patient(patient_id=len(self.patients)+1)
             self.patients.append(patient)
-  
+
             # Print arrival time
-            print(f"Patient {patient.patient_id} arrives " +
-                  f"at time: {self.env.now:.3f}")
+            if self.param.verbose:
+                print(f"Patient {patient.patient_id} arrives " +
+                      f"at time: {self.env.now:.3f}")
 
     def run(self):
         """
@@ -250,6 +223,7 @@ class Model:
         """
         # Schedule arrival generator
         self.env.process(self.generate_arrivals())
+
         # Run the simulation
         self.env.run(until=self.param.run_length)
 ```
@@ -302,7 +276,7 @@ A random seed sequence is created based on the `run_number`.
 <br>
 
 ```{.python}
-# Create patient list
+# Set up attributes to store results
 self.patients = []
 ```
 
@@ -360,8 +334,9 @@ Create an instance of the `Patient` class for each arrival, with a `patient_id`.
 
 ```{.python}
 # Print arrival time
-print(f"Patient {patient.patient_id} arrives " +
-      f"at time: {self.env.now:.3f}")
+if self.param.verbose:
+    print(f"Patient {patient.patient_id} arrives " +
+          f"at time: {self.env.now:.3f}")
 ```
 
 Printing the time of each arrival gives a quick and visible check that the arrival process is working as expected. For now, simple print statements are effective, but this can later be replaced by a more sophisticated logging approach (see [Logging](../verification_validation/logs.qmd)).
@@ -436,7 +411,7 @@ We'll then create a function for the model (explained line by line below).
 #' Run simulation.
 #'
 #' @param param List. Model parameters.
-#' @param run_number Int. Run number for random seed generation.
+#' @param run_number Numeric. Run number for random seed generation.
 #'
 #' @importFrom simmer add_generator run simmer timeout trajectory
 
@@ -469,7 +444,7 @@ model <- function(param, run_number) {
 #' Run simulation.
 #'
 #' @param param List. Model parameters.
-#' @param run_number Int. Run number for random seed generation.
+#' @param run_number Numeric. Run number for random seed generation.
 #' 
 #' @importFrom simmer add_generator run simmer timeout trajectory
 
@@ -568,9 +543,11 @@ class Parameters:
         Holds all distribution specifications.#<<
     run_length : int
         Total duration of simulation (minutes).
+    verbose : bool
+        Whether to print messages as simulation runs.
     """
     def __init__(
-        self, interarrival_time=5, run_length=50
+        self, interarrival_time=5, run_length=50, verbose=True
     ):
         """
         Initialise Parameters instance.
@@ -581,6 +558,8 @@ class Parameters:
             Time between arrivals (minutes).
         run_length : int
             Total duration of simulation (minutes).
+        verbose : bool
+            Whether to print messages as simulation runs.
         """
         self.dist_config = {#<<
             "interarrival_time": {#<<
@@ -589,6 +568,7 @@ class Parameters:
             }#<<
         }#<<
         self.run_length = run_length
+        self.verbose = verbose
 ```
 
 ### Patient class
@@ -638,14 +618,15 @@ class Model:
         # Create SimPy environment
         self.env = simpy.Environment()
 
-        # Create patient list
+        # Set up attributes to store results
         self.patients = []
 
         # Create all the distributions#<<
         self.dist = DistributionRegistry.create_batch(#<<
             config=dict(self.param.dist_config), main_seed=self.run_number#<<
         )#<<
-        print(self.dist)
+        if self.param.verbose:#<<
+            print(self.dist)#<<
 
     def generate_arrivals(self):
         """
@@ -661,8 +642,9 @@ class Model:
             self.patients.append(patient)
 
             # Print arrival time
-            print(f"Patient {patient.patient_id} arrives " +
-                  f"at time: {self.env.now:.3f}")
+            if self.param.verbose:
+                print(f"Patient {patient.patient_id} arrives " +
+                      f"at time: {self.env.now:.3f}")
 
     def run(self):
         """
@@ -670,6 +652,7 @@ class Model:
         """
         # Schedule arrival generator
         self.env.process(self.generate_arrivals())
+
         # Run the simulation
         self.env.run(until=self.param.run_length)
 ```
@@ -904,10 +887,10 @@ create_params <- function(interarrival_time = 5L,
   list(
     dist_config = list(#<<
       interarrival_time = list(#<<
-        class_name = "exponential",#<<
+        class_name = "exponential", #<<
         params = list(mean = interarrival_time)#<<
       )#<<
-    ),#<<
+    ), #<<
     run_length = run_length,
     verbose = verbose
   )
@@ -920,7 +903,7 @@ create_params <- function(interarrival_time = 5L,
 #' Run simulation.
 #'
 #' @param param List. Model parameters.
-#' @param run_number Int. Run number for random seed generation.
+#' @param run_number Numeric. Run number for random seed generation.
 #'
 #' @importFrom simmer add_generator run simmer timeout trajectory
 

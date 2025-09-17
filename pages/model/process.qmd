@@ -6,34 +6,26 @@ filters:
 
 {{< include ../../scripts/_reticulate-setup.md >}}
 
+```{python}
+#| echo: false
+# pylint: disable=redefined-outer-name,too-few-public-methods
+```
+
 :::: {.pale-blue}
 
-🎯 **Objectives**
+**Learning objectives:**
 
-::: {.python-content}
-This page adds a process to the model (which uses a resource), with inspiration from Rosser et al. ([2025](https://des.hsma.co.uk/)).
-:::
-::: {.r-content}
-This page adds a process to the model (which uses a resource).
-:::
+* Add a **resource-based process** (doctor consultation) to the model.
 
-* **🥼 Adding a consultation with a doctor to the model**.
+**Pre-reading:**
 
-[🔗](../intro/guidelines.qmd) **Reproducibility guidelines**
+This page continues on from: [Entity generation](patients.qmd).
 
-Entity processing is not directly addressed by the guidelines, but is an essential step in building DES.
+> *Entity generation → Entity processing*
 
-::::
+**Required packages:**
 
-<br>
-
-On the last page, we created a simple model with patient arrivals. As we continue building our model iteratively, we now add add a feature typical fo DES models: a process using a resource. In this case, a consultation with a doctor.
-
-> ⚠️ This page continues on from the [Entity generation](patients.qmd) page - work through that first!
-
-<br>
-
-Required packages:
+These should be available from environment setup in the "🧪 Test yourself" section of [Environments](../setup/environment.qmd). 
 
 ::: {.python-content}
 
@@ -53,11 +45,15 @@ library(simmer)
 
 :::
 
+**Acknowledgements:** Inspired by Rosser et al. ([2025](https://des.hsma.co.uk/)).
+
+::::
+
 ## 🥼 Adding a consultation with a doctor to the model
 
-::: {.python-content}
-
 <div class="h3-tight"></div>
+
+::: {.python-content}
 
 ### Parameter class
 
@@ -78,10 +74,12 @@ class Parameters:
         Number of doctors.#<<
     run_length : int
         Total duration of simulation (minutes).
+    verbose : bool
+        Whether to print messages as simulation runs.
     """
     def __init__(
         self, interarrival_time=5, consultation_time=10,#<<
-        number_of_doctors=3, run_length=50#<<
+        number_of_doctors=3, run_length=50, verbose=True#<<
     ):
         """
         Initialise Parameters instance.
@@ -96,11 +94,14 @@ class Parameters:
             Number of doctors.#<<
         run_length : int
             Total duration of simulation (minutes).
+        verbose : bool
+            Whether to print messages as simulation runs.
         """
         self.interarrival_time = interarrival_time
         self.consultation_time = consultation_time#<<
         self.number_of_doctors = number_of_doctors#<<
         self.run_length = run_length
+        self.verbose = verbose
 ```
 
 ### Patient class
@@ -181,7 +182,7 @@ class Model:
         ss = np.random.SeedSequence(self.run_number)
         seeds = ss.spawn(2)#<<
 
-        # Create patient list
+        # Set up attributes to store results
         self.patients = []
 
         # Initialise distributions
@@ -219,10 +220,14 @@ class Model:
         patient :#<<
             Instance of the Patient() class representing a single patient.#<<
         """#<<
+        # Patient requests access to a doctor (resource)#<<
         with self.doctor.request() as req:#<<
             yield req#<<
+
             print(f"Patient {patient.patient_id} starts consultation " +#<<
                   f"at: {self.env.now:.3f}")#<<
+
+            # Sample consultation duration and pass time spent with doctor#<<
             time_with_doctor = self.consult_dist.sample()#<<
             yield self.env.timeout(time_with_doctor)#<<
 
@@ -232,6 +237,7 @@ class Model:
         """
         # Schedule arrival generator
         self.env.process(self.generate_arrivals())
+
         # Run the simulation
         self.env.run(until=self.param.run_length)
 
@@ -288,8 +294,10 @@ def consultation(self, patient):
     patient :
         Instance of the Patient() class representing a single patient.
     """  
+    # Patient requests access to a doctor (resource)
     with self.doctor.request() as req:
         yield req
+
         print(f"Patient {patient.patient_id} starts consultation " +
                 f"at: {self.env.now:.3f}")
 
@@ -300,6 +308,7 @@ Each patient asks for a doctor using `self.doctor.request()`. If they're all bus
 Once a doctor is available, SimPy assigns the resource to that patient, and the consultation start time is printed.
 
 ```{.python}
+# Sample consultation duration and pass time spent with doctor
 time_with_doctor = self.consult_dist.sample()
 yield self.env.timeout(time_with_doctor)
 ```
@@ -335,16 +344,16 @@ There are two new parameters: `consultation_time` and `number_of_doctors`.
 #' @return A named list of parameters.
 
 create_params <- function(
-    interarrival_time = 5L,
-    consultation_time = 10L,#<<
-    number_of_doctors = 3L,#<<
-    run_length = 50L,
-    verbose = TRUE
+  interarrival_time = 5L,
+  consultation_time = 10L, #<<
+  number_of_doctors = 3L, #<<
+  run_length = 50L,
+  verbose = TRUE
 ) {
   list(
     interarrival_time = interarrival_time,
-    consultation_time = consultation_time,#<<
-    number_of_doctors = number_of_doctors,#<<
+    consultation_time = consultation_time, #<<
+    number_of_doctors = number_of_doctors, #<<
     run_length = run_length,
     verbose = verbose
   )
@@ -363,7 +372,7 @@ We make two main changes to the `model()` function.
 #' Run simulation.
 #'
 #' @param param List. Model parameters.
-#' @param run_number Int. Run number for random seed generation.
+#' @param run_number Numeric. Run number for random seed generation.
 #'
 #' @importFrom simmer add_generator run simmer timeout trajectory
 
@@ -377,15 +386,15 @@ model <- function(param, run_number) {
 
   # Define the patient trajectory
   patient <- trajectory("consultation") |>
-    seize("doctor", 1L) |>#<<
+    seize("doctor", 1L) |> #<<
     timeout(function() {#<<
       rexp(n = 1L, rate = 1L / param[["consultation_time"]])#<<
-    }) |>#<<
+    }) |> #<<
     release("doctor", 1L)#<<
 
   env <- env |>
     # Add doctor resource#<<
-    add_resource("doctor", param[["number_of_doctors"]]) |>#<<
+    add_resource("doctor", param[["number_of_doctors"]]) |> #<<
     # Add patient generator
     add_generator("patient", patient, function() {
       rexp(n = 1L, rate = 1L / param[["interarrival_time"]])

@@ -2,43 +2,53 @@
 title: Parameter validation
 ---
 
-::: {.pale-blue}
+{{< include ../../scripts/_reticulate-setup.md >}}
 
-🎯 **Objectives**
-
-**Parameter validation** refers to checking that inputs provided to functions or classes are correct and as expected. This page focuses on two examples of validation we can perform.
-
-* **🚨 Accidental creation of new parameters:** A dangerous but common mistake in discrete-event simulation (DES), where new parameters are created instead of modifying existing ones.
-* **🛡️ Validating parameter values (e.g. range):** to ensure they fall within the expected values.
-
-[🔗](../intro/guidelines.qmd) **Reproducibility guidelines**
-
-Whilst this is not necessary to reproducibility or a reproducible analytical pipeline, it is good practice when working, and may help avoid mistakes.
-
-:::
-
-```{python, echo=FALSE}
-# pylint: disable=undefined-variable, used-before-assignment
-# pylint: disable=too-few-public-methods,maybe-no-member,function-redefined
-# pylint: disable=attribute-defined-outside-init
+```{python}
+#| echo: false
+# pylint: disable=function-redefined,redefined-outer-name
+# pylint: disable=too-few-public-methods
 ```
 
-:::{.python-content}
+:::: {.pale-blue}
+
+**Learning objectives:**
+
+* Learn how to avoid **accidental creation** of parameters.
+* **Validate** parameter values (e.g., range) to ensure they meet expected criteria.
+
+**Pre-reading:**
+
+This page describes how to validate functions/classes introduced on:
+
+* [Parameters from script](parameters_script.qmd)
+* [Parameters from file](parameters_file.qmd)
+
+**Required packages:**
+
+::: {.python-content}
+
+These are part of the standard Python library, will be available in any base environment by default.
+
 ```{python}
-# Import required packages
 from collections import UserDict
 import inspect
 ```
+
 :::
-:::{.r-content}
+
+::: {.r-content}
+
+These should be available from environment setup in the "🧪 Test yourself" section of [Environments](../setup/environment.qmd).
+
 ```{r}
-# Import required packages
-# nolint start: undesirable_function_linter
 library(jsonlite)
 library(R6)
-# nolint end
 ```
+
 :::
+
+::::
 
 ## 🚨 Accidental creation of new parameters
 
