@@ -1,5 +1,5 @@
 ---
-title: ❌ Performance measures
+title: Performance measures
 filters:
   - line-highlight
 ---
@@ -3189,11 +3189,11 @@ Unseen patients are those **still waiting in the queue**, having not started the
 
 Measuring them is important, otherwise **system congestion** and long wait times may be missed. Their wait time is not included with completed consultations because these waits are **censored** - i.e., the full duration is unknown until consultation begins. Tracking them separately avoids distorting the calculated averages, whilst accurately reflecting **system backlog** at simulation end.
 
+:::: {.python-content}
+
 ### Backlogged patient count
 
 :::: {.callout title="▶&nbsp;&nbsp;View how to record the backlogged patient count" collapse="true"}
-
-::: {.python-content}
 
 #### Patient class
 
@@ -3279,168 +3279,9 @@ In `result["patient"]` we can see one person had NaN for `time_with_doctor`. Cor
 
 :::
 
-::: {.r-content}
-
-<div class="h3-tight"></div>
-
-### Count unseen patients function
-
-The `calc_unseen_n` functions finds the mean of a new column `wait_time_unseen`.
-
-```{r}
-#' Calculate the number of patients still waiting for resource at end
-#'
-#' @param arrivals Dataframe with times for each patient with each resource.
-#'
-#' @return Tibble with columns containing result for each resource.
-#' @export
-
-calc_unseen_n <- function(arrivals, groups = NULL) {
-  arrivals |>
-    group_by(resource) |>
-    summarise(value = sum(!is.na(.data[["wait_time_unseen"]]))) |>
-    pivot_wider(names_from = "resource",
-                values_from = "value",
-                names_glue = "count_unseen_{resource}") |>
-    ungroup()
-}
-```
-
-### Run results function
-
-In `get_run_results()`, the table `results[["arrivals"]]` is passed to `calc_unseen_n()`.
-
-```{r}
-#' Get average results for the provided single run.
-#'
-#' @param results Named list with `arrivals` from `get_mon_arrivals()` and
-#'   `resources` from `get_mon_resources()`
-#'   (`per_resource = TRUE` and `ongoing = TRUE`).
-#' @param run_number Integer index of current simulation run.
-#'
-#' @importFrom dplyr bind_cols
-#' @importFrom tibble tibble
-#'
-#' @return Tibble with processed results from replication.
-#' @export
-
-get_run_results <- function(results, run_number) {
-  metrics <- list(
-    calc_unseen_n(results[["arrivals"]])#<<
-  )
-  dplyr::bind_cols(tibble(replication = run_number), metrics)
-}
-```
-
-### Model function
-
-The modifications in `model()` are very similar to those described for calculating mean wait time of finished patients.
-
-The only difference here is that we make a column called `wait_time_unseen`, which records the time elapsed between their arrival and the end of the simulation, for patients who are unseen at the end of the simulation (i.e., their `serve_start` is NA).
-
-The earlier changes to add `serve_start` to the arrivals dataframe are the same as before though - saving with `set_attribute`, setting `mon = 2L` in the patient generator, retrieving results using `get_mon_attributes()`, and restructuring the returned dataframe to transform `doctor_serve_length` into `serve_length` (aligned with the corresponding doctor rows).
-
-```{r}
-#' Run simulation.
-#'
-#' @param param List. Model parameters.
-#' @param run_number Numeric. Run number for random seed generation.
-#'
-#' @importFrom dplyr mutate
-#' @importFrom simmer add_generator get_mon_arrivals get_mon_resources run
-#' @importFrom simmer set_attribute simmer timeout trajectory#<<
-
-model <- function(param, run_number) {
-
-  # Set random seed based on run number
-  set.seed(run_number)
-
-  # Create simmer environment
-  env <- simmer("simulation", verbose = param[["verbose"]])
-
-  # Define the patient trajectory
-  patient <- trajectory("consultation") |>
-    seize("doctor", 1L) |>
-    # Record time resource is obtained#<<
-    set_attribute("doctor_serve_start", function() now(env)) |>#<<
-    timeout(function() {
-      rexp(n = 1L, rate = 1L / param[["consultation_time"]])
-    }) |>
-    release("doctor", 1L)
-
-  env <- env |>
-    # Add doctor resource
-    add_resource("doctor", param[["number_of_doctors"]]) |>
-    # Add patient generator (mon=2 so can get manual attributes)#<<
-    add_generator("patient", patient, function() {
-      rexp(n = 1L, rate = 1L / param[["interarrival_time"]])
-    }, mon = 2L) |>#<<
-    # Run the simulation
-    simmer::run(until = (param[["warm_up_period"]] +
-                           param[["data_collection_period"]]))
-
-  # Extract information on arrivals and resources from simmer environment
-  result <- list(
-    arrivals = get_mon_arrivals(env, per_resource = TRUE, ongoing = TRUE), 
-    resources = get_mon_resources(env)
-  )
-
-  # Get the extra arrivals attributes#<<
-  extra_attributes <- get_mon_attributes(env) |>#<<
-    select("name", "key", "value") |>#<<
-    # Add column with resource name, and remove that from key#<<
-    mutate(resource = gsub("_.+", "", .data[["key"]]),#<<
-           key = gsub("^[^_]+_", "", .data[["key"]])) |>#<<
-    pivot_wider(names_from = "key", values_from = "value")#<<
-
-  # Merge extra attributes with the arrival data#<<
-  result[["arrivals"]] <- left_join(#<<
-    result[["arrivals"]], extra_attributes, by = c("name", "resource")#<<
-  )#<<
-
-  # Filter to remove results from the warm-up period
-  result <- filter_warmup(result, param[["warm_up_period"]])
-
-  # Replace "replication" value with appropriate run number
-  result[["arrivals"]] <- mutate(result[["arrivals"]],
-                                 replication = run_number)
-  result[["resources"]] <- mutate(result[["resources"]],
-                                  replication = run_number)
-
-  # Calculate wait time for each patients who remain unseen at the end of#<<
-  # the simulation#<<
-  result[["arrivals"]] <- result[["arrivals"]] |>#<<
-    mutate(#<<
-      wait_time_unseen = ifelse(#<<
-        is.na(.data[["serve_start"]]), now(env) - .data[["start_time"]], NA#<<
-      )#<<
-    )#<<
-
-  # Calculate the average results for that run
-  result[["run_results"]] <- get_run_results(result, run_number)
-
-  result
-}
-```
-
-### Run the model
-
-```{r}
-param <- create_params()
-result <- model(param = param, run_number = 1L)
-knitr::kable(result[["arrivals"]])
-knitr::kable(result[["run_results"]])
-```
-
-:::
-
-::::
-
 ### Backlogged patient mean wait time
 
-:::: {.callout title="▶&nbsp;&nbsp;View how to record the backlogged patient mean wait time" collapse="true"}
-
-::: {.python-content}
+::: {.callout title="▶&nbsp;&nbsp;View how to record the backlogged patient mean wait time" collapse="true"}
 
 #### Patient class
 
@@ -3710,28 +3551,186 @@ class Runner:
 
 :::
 
-::: {.r-content}
+::::
 
-<div class="h3-tight"></div>
+:::: {.r-content}
 
-### ? function
+::: {.callout title="▶&nbsp;&nbsp;View how to record the backlogged patient count and mean wait time" collapse="true"}
+
+We will record two performance measures here: the **count** of unseen patients and their **mean wait time** (ie., time between arrival and end of simulation).
+
+### Unseen patient count function
+
+The `calc_unseen_n` function finds the count of patients who have a result in the new `wait_time_unseen` column.
 
 ```{r}
+#' Calculate the number of patients still waiting for resource at end
+#'
+#' @param arrivals Dataframe with times for each patient with each resource.
+#'
+#' @return Tibble with columns containing result for each resource.
+#' @export
+
+calc_unseen_n <- function(arrivals, groups = NULL) {
+  arrivals |>
+    group_by(resource) |>
+    summarise(value = sum(!is.na(.data[["wait_time_unseen"]]))) |>
+    pivot_wider(names_from = "resource",
+                values_from = "value",
+                names_glue = "count_unseen_{resource}") |>
+    ungroup()
+}
+```
+
+### Unseen patient mean wait time function
+
+The `calc_unseen_mean` function finds the mean of a new column `wait_time_unseen`.
+
+```{r}
+#' Calculate the mean wait time of patients who are still waiting for a
+#' resource at the end of the simulation
+#'
+#' @param arrivals Dataframe with times for each patient with each resource.
+#'
+#' @return Tibble with columns containing result for each resource.
+#' @export
+
+calc_unseen_mean <- function(arrivals) {
+  arrivals |>
+    group_by(resource) |>
+    summarise(value = mean(.data[["wait_time_unseen"]], na.rm = TRUE)) |>
+    pivot_wider(names_from = "resource",
+                values_from = "value",
+                names_glue = "mean_waiting_time_unseen_{resource}") |>
+    ungroup()
+}
 ```
 
 ### Run results function
 
+In `get_run_results()`, the table `results[["arrivals"]]` is passed to `calc_unseen_n()` and `calc_unseen_mean`.
+
 ```{r}
+#' Get average results for the provided single run.
+#'
+#' @param results Named list with `arrivals` from `get_mon_arrivals()` and
+#'   `resources` from `get_mon_resources()`
+#'   (`per_resource = TRUE` and `ongoing = TRUE`).
+#' @param run_number Integer index of current simulation run.
+#'
+#' @importFrom dplyr bind_cols
+#' @importFrom tibble tibble
+#'
+#' @return Tibble with processed results from replication.
+#' @export
+
+get_run_results <- function(results, run_number) {
+  metrics <- list(
+    calc_unseen_n(results[["arrivals"]]),#<<
+    calc_unseen_mean(results[["arrivals"]])#<<
+  )
+  dplyr::bind_cols(tibble(replication = run_number), metrics)
+}
 ```
 
 ### Model function
 
+The modifications in `model()` are very similar to those described for calculating mean wait time of finished patients.
+
+The only difference here is that we make a column called `wait_time_unseen`, which records the time elapsed between their arrival and the end of the simulation, for patients who are unseen at the end of the simulation (i.e., their `serve_start` is NA).
+
+The earlier changes to add `serve_start` to the arrivals dataframe are the same as before though - saving with `set_attribute`, setting `mon = 2L` in the patient generator, retrieving results using `get_mon_attributes()`, and restructuring the returned dataframe to transform `doctor_serve_length` into `serve_length` (aligned with the corresponding doctor rows).
+
 ```{r}
+#' Run simulation.
+#'
+#' @param param List. Model parameters.
+#' @param run_number Numeric. Run number for random seed generation.
+#'
+#' @importFrom dplyr mutate
+#' @importFrom simmer add_generator get_mon_arrivals get_mon_resources run
+#' @importFrom simmer set_attribute simmer timeout trajectory#<<
+
+model <- function(param, run_number) {
+
+  # Set random seed based on run number
+  set.seed(run_number)
+
+  # Create simmer environment
+  env <- simmer("simulation", verbose = param[["verbose"]])
+
+  # Define the patient trajectory
+  patient <- trajectory("consultation") |>
+    seize("doctor", 1L) |>
+    # Record time resource is obtained#<<
+    set_attribute("doctor_serve_start", function() now(env)) |>#<<
+    timeout(function() {
+      rexp(n = 1L, rate = 1L / param[["consultation_time"]])
+    }) |>
+    release("doctor", 1L)
+
+  env <- env |>
+    # Add doctor resource
+    add_resource("doctor", param[["number_of_doctors"]]) |>
+    # Add patient generator (mon=2 so can get manual attributes)#<<
+    add_generator("patient", patient, function() {
+      rexp(n = 1L, rate = 1L / param[["interarrival_time"]])
+    }, mon = 2L) |>#<<
+    # Run the simulation
+    simmer::run(until = (param[["warm_up_period"]] +
+                           param[["data_collection_period"]]))
+
+  # Extract information on arrivals and resources from simmer environment
+  result <- list(
+    arrivals = get_mon_arrivals(env, per_resource = TRUE, ongoing = TRUE), 
+    resources = get_mon_resources(env)
+  )
+
+  # Get the extra arrivals attributes#<<
+  extra_attributes <- get_mon_attributes(env) |>#<<
+    select("name", "key", "value") |>#<<
+    # Add column with resource name, and remove that from key#<<
+    mutate(resource = gsub("_.+", "", .data[["key"]]),#<<
+           key = gsub("^[^_]+_", "", .data[["key"]])) |>#<<
+    pivot_wider(names_from = "key", values_from = "value")#<<
+
+  # Merge extra attributes with the arrival data#<<
+  result[["arrivals"]] <- left_join(#<<
+    result[["arrivals"]], extra_attributes, by = c("name", "resource")#<<
+  )#<<
+
+  # Filter to remove results from the warm-up period
+  result <- filter_warmup(result, param[["warm_up_period"]])
+
+  # Replace "replication" value with appropriate run number
+  result[["arrivals"]] <- mutate(result[["arrivals"]],
+                                 replication = run_number)
+  result[["resources"]] <- mutate(result[["resources"]],
+                                  replication = run_number)
+
+  # Calculate wait time for each patients who remain unseen at the end of#<<
+  # the simulation#<<
+  result[["arrivals"]] <- result[["arrivals"]] |>#<<
+    mutate(#<<
+      wait_time_unseen = ifelse(#<<
+        is.na(.data[["serve_start"]]), now(env) - .data[["start_time"]], NA#<<
+      )#<<
+    )#<<
+
+  # Calculate the average results for that run
+  result[["run_results"]] <- get_run_results(result, run_number)
+
+  result
+}
 ```
 
 ### Run the model
 
 ```{r}
+param <- create_params()
+result <- model(param = param, run_number = 1L)
+knitr::kable(result[["arrivals"]])
+knitr::kable(result[["run_results"]])
 ```
 
 :::
@@ -3811,8 +3810,6 @@ ggplotly(p)
 
 ### 🩺 Nurse visit simulation
 
-<!--TODO: Mention that pydesrapmms/rdesrapmms have some exxtra stuff to stop if breaking for if there are zero arrivals...-->
-
 :::: {.python-content}
 
 {{< include ../../html/pydesrapmms.html >}}
@@ -3822,7 +3819,7 @@ ggplotly(p)
 | - | - |
 | **Key files** | `simulation/patient.py`<br>`simulation/monitoredresource.py`<br>`simulation/model.py`<br>`simulation/runner.py` |
 | **What to look for?** | All of the metrics above can be seen in this example repository. |
-| **Why it matters?** | Seeing all these metrics together in the example repository can feel overwhelming! So this page breaks them down individually and shows how each is captured in the code. |
+| **Why it matters?** | Seeing all these metrics together in the example repository can feel overwhelming! So this page breaks them down individually and shows how each is captured in the code. In the nurse visit repository, there is some additional logic in places to allow the model to handle a scenario with zero arrivals. |
 : {tbl-colwidths="[20,80]"}
 :::
 
@@ -3835,9 +3832,9 @@ ggplotly(p)
 ::: {.blue-table}
 | | |
 | - | - |
-| **Key files** |  |
+| **Key files** | `R/get_run_results.R`<br>`R/model.R` |
 | **What to look for?** | All of the metrics above can be seen in this example repository. |
-| **Why it matters?** | Seeing all these metrics together in the example repository can feel overwhelming! So this page breaks them down individually and shows how each is captured in the code. |
+| **Why it matters?** | Seeing all these metrics together in the example repository can feel overwhelming! So this page breaks them down individually and shows how each is captured in the code. In the nurse visit repository, there is some additional logic in places to allow the model to handle a scenario with zero arrivals, and also to allow calculations to be performed by group. |
 : {tbl-colwidths="[20,80]"}
 :::
 
@@ -3867,7 +3864,7 @@ ggplotly(p)
 ::: {.blue-table}
 | | |
 | - | - |
-| **Key files** |  |
+| **Key files** | `R/get_occupancy_stats.R`<br>`R/model.R` |
 | **What to look for?** | This model computes less standard metrics: occupancy frequency, percentages, cumulative percentages, probability of delay, and "1 in n" delays. |
 | **Why it matters?** | While this page focuses on some common DES metrics, the stroke simulation shows examples of some more unusual metrics. Indeed, depending on your model structure, there is a huge array of metrics you could calculate, well beyond those described on this page. |
 : {tbl-colwidths="[20,80]"}
