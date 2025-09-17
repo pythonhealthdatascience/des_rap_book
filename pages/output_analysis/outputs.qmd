@@ -712,10 +712,10 @@ In `get_run_results()`, the table `results[["arrivals"]]` is passed to `calc_mea
 #' @export
 
 get_run_results <- function(results, run_number) {
-    metrics <- list(
-      calc_mean_wait(results[["arrivals"]])#<<
-    )
-    dplyr::bind_cols(tibble(replication = run_number), metrics)
+  metrics <- list(
+    calc_mean_wait(results[["arrivals"]])#<<
+  )
+  dplyr::bind_cols(tibble(replication = run_number), metrics)
 }
 ```
 
@@ -737,7 +737,7 @@ We can calculate the wait time for each patient by subtracting their arrival tim
 #'
 #' @importFrom dplyr mutate
 #' @importFrom simmer add_generator get_mon_arrivals get_mon_resources run
-#' @importFrom simmer simmer timeout trajectory
+#' @importFrom simmer set_attribute simmer timeout trajectory#<<
 
 model <- function(param, run_number) {
 
@@ -963,10 +963,10 @@ In `get_run_results()`, the table `results[["arrivals"]]` is passed to `calc_mea
 #' @export
 
 get_run_results <- function(results, run_number) {
-    metrics <- list(
-        calc_mean_serve_length(results[["arrivals"]])#<<
-    )
-    dplyr::bind_cols(tibble(replication = run_number), metrics)
+  metrics <- list(
+    calc_mean_serve_length(results[["arrivals"]])#<<
+  )
+  dplyr::bind_cols(tibble(replication = run_number), metrics)
 }
 ```
 
@@ -984,7 +984,7 @@ Next, we repeat the steps we did for calculating mean wait time: setting `mon = 
 #'
 #' @importFrom dplyr mutate
 #' @importFrom simmer add_generator get_mon_arrivals get_mon_resources run
-#' @importFrom simmer simmer timeout trajectory
+#' @importFrom simmer set_attribute simmer timeout trajectory#<<
 
 model <- function(param, run_number) {
 
@@ -1045,6 +1045,8 @@ model <- function(param, run_number) {
 ```
 
 ### Run the model
+
+{{< include outputs_resources/set_attribute_note.md >}}
 
 ```{r}
 param <- create_params()
@@ -2145,21 +2147,161 @@ class Runner:
 ::: {.r-content}
 
 <div class="h3-tight"></div>
-### ? function
+
+### Queue length function
+
+A new function `calc_mean_queue_length()` finds the **time-weighted** mean queue length for each resource. It does this by:
+
+* Sorting the arrivals by start time.
+* Calculating the duration until the next arrival for each patient.
+* Multiplying each observed queue length by its corresponding interval duration ("time weighting").
+
+The sum of these products is then divided by the total observed time to find the average queue length. This approach ensures that, for example, intervals where the queue was longer and persisted for more time have a greater effect on the mean than short-lived fluctuations.
+
+```{r}
+#' Calculate the time-weighted mean queue length.
+#'
+#' @param arrivals Dataframe with times for each patient with each resource.
+#'
+#' @return Tibble with column containing mean queue length.
+#' @export
+
+calc_mean_queue_length <- function(arrivals) {
+  arrivals |>
+    group_by(resource) |>
+    # Sort by arrival time
+    arrange(.data[["start_time"]]) |>
+    # Calculate time between this row and the next
+    mutate(
+      interval_duration = (lead(.data[["start_time"]]) - .data[["start_time"]])
+    ) |>
+    # Multiply each queue length by its own unique duration. The total of
+    # those is then divided by the total duration of all intervals.
+    # Hence, we are calculated a time-weighted average queue length.
+    summarise(mean_queue_length = (
+      sum(.data[["queue_on_arrival"]] *
+            .data[["interval_duration"]], na.rm = TRUE) /
+        sum(.data[["interval_duration"]], na.rm = TRUE)
+    )
+    ) |>
+    # Reshape dataframe
+    pivot_wider(names_from = "resource",
+                values_from = "mean_queue_length",
+                names_glue = "mean_queue_length_{resource}") |>
+    ungroup()
+}
+```
 
 ### Run results function
 
+In `get_run_results()`, the table `results[["arrivals"]]` is passed to `calc_mean_queue_length()`.
+
 ```{r}
+#' Get average results for the provided single run.
+#'
+#' @param results Named list with `arrivals` from `get_mon_arrivals()` and
+#'   `resources` from `get_mon_resources()`
+#'   (`per_resource = TRUE` and `ongoing = TRUE`).
+#' @param run_number Integer index of current simulation run.
+#'
+#' @importFrom dplyr bind_cols
+#' @importFrom tibble tibble
+#'
+#' @return Tibble with processed results from replication.
+#' @export
+
+get_run_results <- function(results, run_number) {
+  metrics <- list(
+    calc_mean_queue_length(results[["arrivals"]])#<<
+  )
+  dplyr::bind_cols(tibble(replication = run_number), metrics)
+}
 ```
 
 ### Model function
 
+We need to record the length of the queue when each patient arrives (`doctor_queue_on_arrival`).
+
+We can achieve this using `set_attribute()` and `get_queue_count()`.
+
+However, add this attribute to our patient results, we need to make the same changes described above for mean wait time (and mean time in consultation): setting `mon = 2L` in the patient generator, retrieving results using `get_mon_attributes()`, and restructuring the returned dataframe to transform `doctor_serve_length` into `serve_length` (aligned with the corresponding doctor rows).
+
 ```{r}
+#' Run simulation.
+#'
+#' @param param List. Model parameters.
+#' @param run_number Numeric. Run number for random seed generation.
+#'
+#' @importFrom simmer add_generator get_mon_arrivals get_mon_resources
+#' @importFrom simmer get_queue_count run set_attribute simmer#<<
+#' @importFrom simmer timeout trajectory
+
+model <- function(param, run_number) {
+
+  # Set random seed based on run number
+  set.seed(run_number)
+
+  # Create simmer environment
+  env <- simmer("simulation", verbose = param[["verbose"]])
+
+  # Define the patient trajectory
+  patient <- trajectory("consultation") |>
+    # Record queue length on arrival#<<
+    set_attribute("doctor_queue_on_arrival",#<<
+                  function() get_queue_count(env, "doctor")) |>#<<
+    seize("doctor", 1L) |>
+    timeout(function() {
+      rexp(n = 1L, rate = 1L / param[["consultation_time"]])
+    }) |>
+    release("doctor", 1L)
+
+  env <- env |>
+    # Add doctor resource
+    add_resource("doctor", param[["number_of_doctors"]]) |>
+    # Add patient generator (mon=2 so can get manual attributes)#<<
+    add_generator("patient", patient, function() {
+      rexp(n = 1L, rate = 1L / param[["interarrival_time"]])
+    }, mon = 2L) |>#<<
+    # Run the simulation
+    simmer::run(until = (param[["warm_up_period"]] +
+                           param[["data_collection_period"]]))
+
+  # Extract information on arrivals and resources from simmer environment
+  result <- list(
+    arrivals = get_mon_arrivals(env, per_resource = TRUE, ongoing = TRUE), 
+    resources = get_mon_resources(env)
+  )
+
+  # Get the extra arrivals attributes#<<
+  extra_attributes <- get_mon_attributes(env) |>#<<
+    dplyr::select("name", "key", "value") |>#<<
+    # Add column with resource name, and remove that from key#<<
+    mutate(resource = gsub("_.+", "", .data[["key"]]),#<<
+           key = gsub("^[^_]+_", "", .data[["key"]])) |>#<<
+    pivot_wider(names_from = "key", values_from = "value")#<<
+
+  # Merge extra attributes with the arrival data#<<
+  result[["arrivals"]] <- left_join(#<<
+    result[["arrivals"]], extra_attributes, by = c("name", "resource")#<<
+  )#<<
+
+  # Filter to remove results from the warm-up period
+  result <- filter_warmup(result, param[["warm_up_period"]])
+
+  # Calculate the average results for that run
+  result[["run_results"]] <- get_run_results(result, run_number)
+
+  result
+}
 ```
 
 ### Run the model
 
 ```{r}
+param <- create_params()
+result <- model(param = param, run_number = 1L)
+knitr::kable(result[["arrivals"]] |> arrange(start_time))
+knitr::kable(result[["run_results"]])
 ```
 
 :::
