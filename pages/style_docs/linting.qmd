@@ -15,14 +15,9 @@ white-space: pre-wrap !important;
 
 **Learning objectives:**
 
-Writing **clean and consistent** code is important: it makes code easier to **read, debug and maintain**.
-
-This page outlines the established conventions and tools to help you write high-quality code.
-
-* **📘 Style guides:** Follow recommended conventions for layout, naming, and formatting.
-* **🧹 Linters:** Detect syntax issues, code smells, and deviations from style guides.
-* **🪄 Code formatters:** Automatically format code to match consistent styling.
-* **💻 Using linters:** Run, configure, and manage linters for scripts, notebooks, and project directories.
+* Understand what style guides are.
+* Identify common linters and code formatters.
+* Learn how to run and configure some linters in practice.
 
 **Relevant reproducibility guidelines:**
 
@@ -47,20 +42,24 @@ A **style guide** is a set of rules and conventions for writing code. They cover
 
 ![](linting_resources/style_guides.png){width=40% fig-align="center"}
 
-:::{.python-content}
+::: {.python-content}
+
 Popular python style guides include:
 
 * [**PEP-8**](https://peps.python.org/pep-0008/) - the **official style guide** for Python. This is supported by other Python Enhancement Proposal (PEP) documents, like [PEP-257](https://peps.python.org/pep-0257/) which outlines [docstring](docstrings.qmd) conventions.
 
 * [**Google Python Style Guide**](https://google.github.io/styleguide/pyguide.html) - used at google.
+
 :::
 
-:::{.r-content}
+::: {.r-content}
+
 Popular R style guides include:
 
 * [**Tidyverse style guide**](https://style.tidyverse.org/) - developed by the tidyverse team (creators of packages like `dplyr`).
 
 * [**Google style guide**](https://google.github.io/styleguide/Rguide.html) - adapted from the tidyverse guide for used at google.
+
 :::
 
 You are not required to follow style guides, but they are recommended for writing clear, maintainable, and consistent code. The easiest way to enforce their requirements is using linters or code formatters.
@@ -76,7 +75,7 @@ They are often run from the terminal/command line, and return a list of suggesti
 
 ![](linting_resources/linting.png){width=60% fig-align="center"}
 
-:::{.python-content}
+::: {.python-content}
 
 Popular linters in Python include:
 
@@ -151,7 +150,8 @@ print(result.stdout)
 
 :::
 
-:::{.r-content}
+::: {.r-content}
+
 In R, the most popular and main option for linting is  [**lintr**](https://lintr.r-lib.org/). It enforces the tidyverse style guide, along with identifying some other wider issues like around efficiency and robustness. 
 
 As an example, we can run lintr on some poor quality code:
@@ -174,7 +174,8 @@ lintr::lint("linting_resources/code.R")  # nolint: nonportable_path_linter
 
 ![](linting_resources/code_formatters.png){width=90% fig-align="center"}
 
-:::{.python-content}
+::: {.python-content}
+
 Popular code formatters in Python include:
 
 * [**black**](https://github.com/psf/black) - very popular code formatter.
@@ -216,7 +217,8 @@ HTML(html_output)
 
 :::
 
-:::{.r-content}
+::: {.r-content}
+
 Code formatters in R include:
 
 * [**styler**](https://styler.r-lib.org/) - implements the tidyverse style guide (or can be customised to a different style).
@@ -238,16 +240,21 @@ diffobj::diffChr(original_code, styled_code)
 
 ## 💻 Using linters
 
-:::{.python-content}
+::: {.python-content}
+
 This section takes a closer look at how to use linters in practice, focusing on **`pylint`** as a widely used example.
+
 :::
-:::{.r-content}
+
+::: {.r-content}
+
 This section takes a closer look at how to use linters (specifically, **`lintr`**) in practice.
+
 :::
 
 ### Linting different file types
 
-:::{.python-content}
+::: {.python-content}
 
 First, make sure `pylint` is [installed into your environment](../setup/environment.qmd). It can be installed from conda or PyPI:
 
@@ -258,6 +265,8 @@ conda install pylint
 ```{.bash}
 pip install pylint
 ```
+
+<br>
 
 #### Using `pylint` on `.py` files
 
@@ -287,6 +296,8 @@ pylint .
 pylint dir
 ```
 
+<br>
+
 #### Using `pylint` on `.ipynb` files
 
 The popular [**`nbqa`**](https://github.com/nbQA-dev/nbQA) package is required to run `pylint` on Jupyter notebooks. 
@@ -304,6 +315,8 @@ To run it, the commands are the same above, except that they are prefixed by `nb
 ```{.bash}
 nbqa pylint file.ipynb
 ```
+
+<br>
 
 #### Using `pylint` on `.qmd` files
 
@@ -330,14 +343,17 @@ So, for example, to run `pylint` in the current directory (and sub-directories):
 ```{.bash}
 lintquarto -l pylint -p .
 ```
+
 :::
 
-:::{.r-content}
+::: {.r-content}
 First, make sure `lintr` is [installed into your environment](../setup/environment.qmd). It can be installed from CRAN:
 
 ```{.r}
 install.packages("lintr")
 ```
+
+<br>
 
 #### Using `lintr` on `.r` files
 
@@ -367,6 +383,8 @@ lint_dir(path = "R")
 lint_dir(path = ".")
 ```
 
+<br>
+
 #### Using `lintr` on `.Rmd` and `.qmd` files
 
 `lintr` supports linting R markdown (`.Rmd`) and Quarto (`.qmd`) files by default. You do not need an extra package.
@@ -382,11 +400,11 @@ lint("file.qmd")
 
 ### Disabling lint messages
 
-:::{.python-content}
+::: {.python-content}
 
 Linters will sometimes flag things that you don't want to change. For example:
 
-* In Jupyter notebooks (`.ipynb`) or Quarto markdown (`.qmd`), you wouldn't typically have a module docstring, and so will likely see:
+* In Jupyter notebooks (`.ipynb`), you wouldn't typically have a module docstring, and so will likely see:
 
     ```
     C0116: Missing module docstring (missing-module-docstring)
@@ -421,9 +439,11 @@ You can also disable multiple warnings at once by listing them, separated by com
 ```{.python}
 # pylint: disable=too-many-arguments,missing-module-docstring
 ```
+
 :::
 
-:::{.r-content}
+::: {.r-content}
+
 Linters will sometimes flag things that you don't want to change. For example, for an R6 class, though the convention is to use CamelCase, the linter will return an error:
 
 ```
@@ -456,7 +476,8 @@ MyClass <- R6::R6Class("MyClass",
 
 ### Customising linter settings for project
 
-:::{.python-content}
+::: {.python-content}
+
 You can customise how `pylint` checks the code by creating a `.pylintrc` file in the project directory.
 
 ```{.bash}
@@ -488,7 +509,8 @@ Some common customisations include...
     ```
 :::
 
-:::{.r-content}
+::: {.r-content}
+
 You can customise how `lintr` checks the code by creating a `.lintr` config file.
 
 ```{.bash}
@@ -512,6 +534,7 @@ Some common customisations include...
     object_name_linter = NULL
     )
     ```
+
 :::
 
 ### Bash scripts
@@ -526,7 +549,8 @@ touch lint.sh
 
 Then write your linting commands in `lint.sh`. These are simply a list of terminal commands to run in the provided order. For example:
 
-:::{.python-content}
+::: {.python-content}
+
 ```{.bash}
 #!/bin/bash
 
@@ -538,9 +562,11 @@ lintquarto flake8 docs
 pylint tests src
 flake8 tests src
 ```
+
 :::
 
-:::{.r-content}
+::: {.r-content}
+
 ```{.bash}
 #!/bin/bash
 
@@ -567,17 +593,93 @@ And then just run:
 lint.sh
 ```
 
+## 🔍 Explore the example models
+
+::: {.python-content}
+
+{{< include ../../html/pydesrapmms.html >}}
+
+{{< include ../../html/pydesrapstroke.html >}}
+
+These repositories use `pylint` for linting, and can run it on model code, tests and notebooks with a single command using `lint.sh`. They have a GitHub action described in `lint.yaml` which runs the script on pushes to main.
+
+:::
+
+::: {.r-content}
+
+{{< include ../../html/rdesrapmms.html >}}
+
+{{< include ../../html/rdesrapstroke.html >}}
+
+These repositories use `lintr`. They have a GitHub action described in `lint.yaml` which runs the linter on pushes to main. Settings are provided in `.lintr`.
+
+:::
+
+## 🧪 Test yourself
+
+The best way to get comfortable with linting is to try it out on your own code. Take a small script you've written and run your linter to see what it flags.
+
+If you don't have any code handy, here's a simple example function you can copy into a file and run through your linter. It works correctly, but has several style and formatting issues that linting tools will pick up.
+
+Try fixing the issues and re-running the linter/s.
+
+::: {.python-content}
+
+```{.python}
+def estimate_wait_time(queue_length, avg_service_time):
+    """
+    Estimate the total wait time in a queue.
+    Parameters
+    ----------
+    queue_length : int
+        Number of people currently ahead in the queue.
+    avg_service_time : float
+        Average service time per person.
+    Returns
+    -------
+    float
+        Estimated total wait time.
+    """
+    return queue_length * avg_service_time
+# There are 4 patients ahead, average service time is 15 minutes
+print(estimate_wait_time(queue_length=4, avg_service_time=15))
+```
+
+:::
+
+::: {.r-content}
+
+```{.r}
+#' Estimate the total wait time in a queue.
+#'
+#' @param queue_length Numeric. Number of people currently ahead in the queue.
+#' @param avg_service_time Numeric. Average service time per person.
+#'
+#' @return Estimated total wait time.
+estimate_wait_time <- function(queue_length,avg_service_time) {
+  queue_length * avg_service_time
+}
+
+# There are 4 patients ahead, average service time is 15 minutes
+print(estimate_wait_time(queue_length = 4L, avg_service_time = 15))
+```
+
+:::
+
 ## 📎 Further information
 
-:::{.python-content}
+::: {.python-content}
+
 * ["PEP and the Evolution of Python"](https://www.linkedin.com/pulse/pep-evolution-python-nuno-bispo-eytqe/) from Nuno Bispo 2024.
 
   *LinkedIn post providing a really clear explanation of PEP.*
 
 :::
 
-:::{.r-content}
+::: {.r-content}
+
 N/A
+
 :::
 
 <br><br>
