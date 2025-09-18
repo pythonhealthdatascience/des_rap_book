@@ -1,15 +1,658 @@
 ---
 title: ❌ Parallel processing
+filters:
+  - line-highlight
 ---
 
-:::{.guidelines}
+{{< include ../../scripts/_reticulate-setup.md >}}
+
+:::: {.pale-blue}
+
+**Learning objectives:**
+
+* Learn how to implement **parallel processing**.
+* Understand how to choose an appropriate **number of cores**.
+
+**Relevant reproducibility guidelines:**
+
 * STARS Reproducibility Recommendations: Optimise model run time.
+
+**Pre-reading:**
+
+This page continues on from: [Replications](replications.qmd).
+
+> *Entity generation → Entity processing → Initialisation bias → Performance measures → Replications → Parallel processing*
+
+**Required packages:**
+
+These should be available from environment setup in the "🧪 Test yourself" section of [Environments](../setup/environment.qmd). 
+
+::: {.python-content}
+
+```{python}
+from IPython.display import HTML
+from itables import to_html_datatable
+from joblib import Parallel, delayed, cpu_count
+import numpy as np
+import pandas as pd
+import plotly.express as px
+import scipy.stats as st
+import simpy
+from sim_tools.distributions import Exponential
+import time
+```
+
+```{python}
+#| echo: false
+# To ensure renders correctly in quarto
+import plotly.io as pio
+pio.renderers.default = "plotly_mimetype"
+```
+
 :::
 
-<!-- TODO:
+::: {.r-content}
 
-(if using replications to get accurate estimates, then can be handy to run them in parallel)
+```{r}
+#| output: false
+library(dplyr)
+library(kableExtra)
+library(knitr)
+library(simmer)
+library(tidyr)
+```
 
-in r, i investigated, but then, ended up just, doing seed based on run number, and then actually, using the parallel package's seeds, as independent --->
+:::
+
+::::
+
+<br>
+
+A computer's processor has multiple cores. Each core is like a worker that can do tasks.
+
+Normally, when you run a program, it only uses one core, so only one worker is doing the job. This is referred to as serial or sequential processing.
+
+**Parallel processing** means telling the computer to use more than one core at the same time. With more workers sharing the tasks, the work can be done **faster**.
+
+![](parallel_resources/parallel.drawio.png){fig-align="center" width=75%}
+
+## 🔀 How to add parallel processing
+
+:::: {.python-content}
+
+<div class="h3-tight"></div>
+
+### Parameter class
+
+```{python}
+class Parameters:
+    """
+    Parameter class.
+
+    Attributes
+    ----------
+    interarrival_time : float
+        Mean time between arrivals (minutes).
+    consultation_time : float
+        Mean length of doctor's consultation (minutes).
+    number_of_doctors : int
+        Number of doctors.
+    warm_up_period : int
+        Duration of the warm-up period (minutes).
+    data_collection_period : int
+        Duration of the data collection period (minutes).
+    number_of_runs : int
+        The number of runs (i.e., replications).
+    cores : int#<<
+        Number of CPU cores to use for parallel execution. For all#<<
+        available cores, set to -1. For sequential execution, set to 1.#<<
+    verbose : bool
+        Whether to print messages as simulation runs.
+    """
+    def __init__(
+        self, interarrival_time=5, consultation_time=10,
+        number_of_doctors=3, warm_up_period=30, data_collection_period=40,
+        number_of_runs=5, cores=1, verbose=False#<<
+    ):
+        """
+        Initialise Parameters instance.
+
+        Parameters
+        ----------
+        interarrival_time : float
+            Time between arrivals (minutes).
+        consultation_time : float
+            Length of consultation (minutes).
+        number_of_doctors : int
+            Number of doctors.
+        warm_up_period : int
+            Duration of the warm-up period (minutes).
+        data_collection_period : int
+            Duration of the data collection period (minutes).
+        number_of_runs : int
+            The number of runs (i.e., replications).
+        cores : int#<<
+            Number of CPU cores to use for parallel execution. For all#<<
+            available cores, set to -1. For sequential execution, set to 1.#<<
+        verbose : bool
+            Whether to print messages as simulation runs.
+        """
+        self.interarrival_time = interarrival_time
+        self.consultation_time = consultation_time
+        self.number_of_doctors = number_of_doctors
+        self.warm_up_period = warm_up_period
+        self.data_collection_period = data_collection_period
+        self.number_of_runs = number_of_runs
+        self.cores = cores#<<
+        self.verbose = verbose
+```
+
+### Patient class
+
+No changes required.
+
+::: {.callout title="▶&nbsp;&nbsp; Patient class" collapse="true" style="minimal"}
+
+```{python}
+class Patient:
+    """
+    Represents a patient.
+
+    Attributes
+    ----------
+    patient_id : int
+        Unique patient identifier.
+    period : str
+        Arrival period (warm up or data collection) with emoji.
+    wait_time : float
+        Time spent waiting for the doctor (minutes).
+    """
+    def __init__(self, patient_id, period):
+        """
+        Initialises a new patient.
+
+        Parameters
+        ----------
+        patient_id : int
+            Unique patient identifier.
+        period : str
+            Arrival period (warm up or data collection) with emoji.
+        """
+        self.patient_id = patient_id
+        self.period = period
+        self.wait_time = np.nan
+```
+
+:::
+
+### Model class
+
+No changes required.
+
+::: {.callout title="▶&nbsp;&nbsp;Model class" collapse="true" style="minimal"}
+
+```{python}
+class Model:
+    """
+    Simulation model.
+
+    Attributes
+    ----------
+    param : Parameters
+        Simulation parameters.
+    run_number : int
+        Run number for random seed generation.
+    env : simpy.Environment
+        The SimPy environment for the simulation.
+    doctor : simpy.Resource
+        SimPy resource representing doctors.
+    patients : list
+        List of Patient objects.
+    results_list : list
+        List of dictionaries with the attributes of each patient.
+    arrival_dist : Exponential
+        Distribution used to generate random patient inter-arrival times.
+    consult_dist : Exponential
+        Distribution used to generate length of a doctor's consultation.
+    """
+    def __init__(self, param, run_number):
+        """
+        Create a new Model instance.
+
+        Parameters
+        ----------
+        param : Parameters
+            Simulation parameters.
+        run_number : int
+            Run number for random seed generation.
+        """
+        self.param = param
+        self.run_number = run_number
+
+        # Create SimPy environment
+        self.env = simpy.Environment()
+
+        # Create resource
+        self.doctor = simpy.Resource(
+            self.env, capacity=self.param.number_of_doctors
+        )
+
+        # Create a random seed sequence based on the run number
+        ss = np.random.SeedSequence(self.run_number)
+        seeds = ss.spawn(2)
+
+        # Set up attributes to store results
+        self.patients = []
+        self.results_list = []
+
+        # Initialise distributions
+        self.arrival_dist = Exponential(mean=self.param.interarrival_time,
+                                        random_seed=seeds[0])
+        self.consult_dist = Exponential(mean=self.param.consultation_time,
+                                        random_seed=seeds[1])
+
+    def generate_arrivals(self):
+        """
+        Process that generates patient arrivals.
+        """
+        while True:
+            # Sample and pass time to next arrival
+            sampled_iat = self.arrival_dist.sample()
+            yield self.env.timeout(sampled_iat)
+
+            # Check whether arrived during warm-up or data collection
+            if self.env.now < self.param.warm_up_period:
+                period = "\U0001F538 WU"
+            else:
+                period = "\U0001F539 DC"
+
+            # Create a new patient
+            patient = Patient(patient_id=len(self.patients)+1,
+                              period=period)
+            self.patients.append(patient)
+
+            # Print arrival time
+            if self.param.verbose:
+                print(f"{patient.period} Patient {patient.patient_id} " +
+                      f"arrives at time: {self.env.now:.3f}")
+
+            # Start process of consultation
+            self.env.process(self.consultation(patient))
+
+    def consultation(self, patient):
+        """
+        Process that simulates a consultation.
+
+        Parameters
+        ----------
+        patient :
+            Instance of the Patient() class representing a single patient.
+        """
+        start_wait = self.env.now
+        # Patient requests access to a doctor (resource)
+        with self.doctor.request() as req:
+            yield req
+
+            # Record how long patient waited before consultation
+            patient.wait_time = self.env.now - start_wait
+
+            if self.param.verbose:
+                print(f"{patient.period} Patient {patient.patient_id} " +
+                      f"starts consultation at: {self.env.now:.3f}")
+
+            # Sample consultation duration and pass time spent with doctor
+            time_with_doctor = self.consult_dist.sample()
+            yield self.env.timeout(time_with_doctor)
+
+    def reset_results(self):
+        """
+        Reset results.
+        """
+        self.patients = []
+
+    def warmup(self):
+        """
+        Reset result collection after the warm-up period.
+        """
+        if self.param.warm_up_period > 0:
+            # Delay process until warm-up period has completed
+            yield self.env.timeout(self.param.warm_up_period)
+            # Reset results variables
+            self.reset_results()
+            if self.param.verbose:
+                print(f"Warm up period ended at time: {self.env.now}")
+
+    def run(self):
+        """
+        Run the simulation.
+        """
+        # Schedule arrival generator and warm-up
+        self.env.process(self.generate_arrivals())
+        self.env.process(self.warmup())
+
+        # Run the simulation
+        self.env.run(until=(self.param.warm_up_period +
+                            self.param.data_collection_period))
+
+        # Create list of dictionaries containing each patient's attributes
+        self.results_list = [x.__dict__ for x in self.patients]
+```
+
+:::
+
+### Summary statistics function
+
+No changes required.
+
+::: {.callout title="▶&nbsp;&nbsp; Patient class" collapse="true" style="minimal"}
+
+```{python}
+def summary_stats(data):
+    """
+    Calculate mean, standard deviation and 95% confidence interval (CI).
+
+    Parameters
+    ----------
+    data : pd.Series
+        Data to use in calculation.
+
+    Returns
+    -------
+    tuple
+        (mean, standard deviation, CI lower, CI upper).
+    """
+    # Remove any NaN from the series
+    data = data.dropna()
+
+    # Find number of observations
+    count = len(data)
+
+    # If there are no observations, then set all to NaN
+    if count == 0:
+        mean, std_dev, ci_lower, ci_upper = np.nan, np.nan, np.nan, np.nan
+    # If there is only one or two observations, can do mean but not others
+    elif count < 3:
+        mean = data.mean()
+        std_dev, ci_lower, ci_upper = np.nan, np.nan, np.nan
+    # With more than one observation, can calculate all...
+    else:
+        mean = data.mean()
+        std_dev = data.std()
+        # Special case for CI if variance is 0
+        if np.var(data) == 0:
+            ci_lower, ci_upper = mean, mean
+        else:
+            # Calculation of CI uses t-distribution, which is suitable for
+            # smaller sample sizes (n<30)
+            ci_lower, ci_upper = st.t.interval(
+                confidence=0.95,
+                df=count-1,
+                loc=mean,
+                scale=st.sem(data))
+    return mean, std_dev, ci_lower, ci_upper
+```
+
+:::
+
+### Runner class
+
+  # Check number of cores is valid - must be -1, or between 1 and
+            # total CPUs-1 (saving one for logic control).
+            # Done here rather than in model as this is called before model,
+            # and only relevant for Runner.
+
+```{python}
+class Runner:
+    """
+    Run the simulation.
+
+    Attributes
+    ----------
+    param : Parameters
+        Simulation parameters.
+    """
+    def __init__(self, param):
+        """
+        Initialise a new instance of the Runner class.
+
+        Parameters
+        ----------
+        param : Parameters
+            Simulation parameters.
+        """
+        self.param = param
+
+    def run_single(self, run):
+        """
+        Runs the simulation once and performs results calculations.
+
+        Parameters
+        ----------
+        run : int
+            Run number for the simulation.
+
+        Returns
+        -------
+        dict
+            Contains patient-level results and results from each run.
+        """
+        model = Model(param=self.param, run_number=run)
+        model.run()
+
+        # Patient results
+        patient_results = pd.DataFrame(model.results_list)
+        patient_results["run"] = run
+
+        # Run results
+        run_results = {
+            "run_number": run,
+            "arrivals": len(patient_results),
+            "mean_wait_time": patient_results["wait_time"].mean()
+        }
+
+        return {
+            "patient": patient_results,
+            "run": run_results
+        }
+
+    def run_reps(self):
+        """
+        Execute a single model configuration for multiple runs.
+        """
+        # Sequential execution#<<
+        if self.param.cores == 1:#<<
+            all_results = [self.run_single(run)
+                           for run in range(self.param.number_of_runs)]
+        # Parallel execution#<<
+        else:#<<
+            # Check number of cores is valid#<<
+            valid_cores = [-1] + list(range(1, cpu_count()))#<<
+            if self.param.cores not in valid_cores:#<<
+                raise ValueError(#<<
+                    f"Invalid cores: {self.param.cores}. Must be one of: " +#<<
+                    f"{valid_cores}."#<<
+                )#<<
+            # Execute replications#<<
+            all_results = Parallel(n_jobs=self.param.cores)(#<<
+                delayed(self.run_single)(run)#<<
+                for run in range(self.param.number_of_runs)#<<
+            )#<<
+
+        # Separate results from each run into appropriate lists
+        patient_results_list = [result["patient"] for result in all_results]
+        run_results_list = [result["run"] for result in all_results]
+
+        # Convert lists into dataframes
+        patient_results_df = pd.concat(
+            patient_results_list, ignore_index=True
+        )
+        run_results_df = pd.DataFrame(run_results_list)
+
+        # Calculate average results and uncertainty from across all runs
+        uncertainty_metrics = {}
+        run_col = run_results_df.columns
+
+        # Loop through the run performance measure columns
+        # Calculate mean, standard deviation and 95% confidence interval
+        for col in run_col[~run_col.isin(["run_number", "scenario"])]:
+            uncertainty_metrics[col] = dict(zip(
+                ["mean", "std_dev", "lower_95_ci", "upper_95_ci"],
+                summary_stats(run_results_df[col])
+            ))
+        # Convert to dataframe
+        overall_results_df = pd.DataFrame(uncertainty_metrics)
+
+        return {
+            "patient": patient_results_df,
+            "run": run_results_df,
+            "overall": overall_results_df
+        }
+```
+
+::::
+
+:::: {.r-content}
+
+::::
+
+## 🔢 Choosing an appropriate number of cores
+
+If choosing to run your simulation in parallel, the **maximum number of cores may not be the most efficient**.
+
+This is due to **overhead** in managing processes, passing data between them, and setting up the execution environment.
+
+To determine how many to choose, try running your model with a varying number of cores and record how long each took. For example:
+
+::: {.python-content}
+
+<!--We don't actually run to avoid issues with parallel / quarto / github pages / etc. The results shown are copied from those found when run locally.-->
+
+```{.python}
+speed = []
+
+# Run for 1 to 5 cores
+for i in range(1, 5):
+    # Start timer and run replications
+    start_time = time.time()
+    experiment = Runner(param = Parameters(cores=i))
+    experiment.run_reps()
+    # Find run time
+    run_time = time.time() - start_time
+    speed.append({"cores": i, "run_time": run_time})
+
+# Convert times to dataframe
+timing_results = pd.DataFrame(speed)
+HTML(to_html_datatable((timing_results)))
+```
+
+```{python}
+#| echo: false
+timing_results = pd.DataFrame({
+    "cores": [1, 2, 3, 4],
+    "run_time": [0.005306, 0.953398, 0.975153, 1.022335]
+})
+HTML(to_html_datatable((timing_results)))
+```
+
+```{python}
+# Plot time by number of cores
+fig = px.line(timing_results, x="cores", y="run_time")
+fig.update_layout(
+    xaxis = {"dtick": 1},
+    xaxis_title="Number of cores",
+    yaxis_title="Run time",
+    template="plotly_white"
+)
+```
+
+With this example, the **sequential (single-core) run is actually faster** than the parallel versions. This happens because the overhead of creating and coordinating multiple processes outweighs the benefits for such a small simulation.
+
+For larger-scale simulations, parallelisation will often bring performance improvements, but it is always worth running a quick benchmark to determine the most efficient number of cores for your case.
+
+:::
+
+::: {.r-content}
+
+:::
+
+## 🔍 Explore the example models
+
+<div class="h3-tight"></div>
+
+### 🩺 Nurse visit simulation
+
+:::: {.python-content}
+
+{{< include ../../html/pydesrapmms.html >}}
+
+::: {.blue-table}
+| | |
+| - | - |
+| **Key files** | `simulation/param.py`<br>`simulation/runner.py`<br>`notebooks/choosing_cores.ipynb` |
+| **What to look for?** | The repository currently uses parallel processing, with the default set to use the maximum number of available cores (`-1`). |
+| **Why it matters?** | Although this model runs quickly for small examples, performance can vary when running many replications or larger experiments. For lightweight analyses, the difference may not exceed a minute, but for heavier workloads, choosing an appropriate number of cores can make a significant impact on overall efficiency. |
+: {tbl-colwidths="[20,80]"}
+:::
+
+::::
+
+:::: {.r-content}
+
+{{< include ../../html/rdesrapmms.html >}}
+
+::: {.blue-table}
+| | |
+| - | - |
+| **Key files** | |
+| **What to look for?** | |
+| **Why it matters?** | |
+: {tbl-colwidths="[20,80]"}
+:::
+
+::::
+
+### 🧠 Stroke pathway simulation
+
+:::: {.python-content}
+
+{{< include ../../html/pydesrapstroke.html >}}
+
+::: {.blue-table}
+| | |
+| - | - |
+| **Key files** | `simulation/parameters.py`<br>`simulation/runner.py` |
+| **What to look for?** | The repository is set up to allow parallel processing, but currently defaults to running sequentially (`cores=1`). |
+| **Why it matters?** | For this example the model is quick to run, so leaving it sequential keeps things simpler. |
+: {tbl-colwidths="[20,80]"}
+:::
+
+::::
+
+:::: {.r-content}
+
+{{< include ../../html/rdesrapstroke.html >}}
+
+::: {.blue-table}
+| | |
+| - | - |
+| **Key files** | |
+| **What to look for?** | |
+| **Why it matters?** | |
+: {tbl-colwidths="[20,80]"}
+:::
+
+::::
+
+## 🧪 Test yourself
+
+Try adapting the model to use parallel processing and experiment with different numbers of cores:
+
+* Edit the parameters and model set up so parallelism is enabled.
+
+* Run the model using different values for the number of cores.
+
+* Record and plot the run times for each configuration to see how performance changes, and note whether there were any benefits to running in parallel.
+
+* When you increase the number of replications or the overall run time, do you notice greater benefits from parallel execution?
 
 <br><br>
