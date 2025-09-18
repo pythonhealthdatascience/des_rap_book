@@ -2,6 +2,147 @@
 title: ❌ Number of replications
 ---
 
-<!--separate seeds for each replication-->
+{{< include ../../scripts/_reticulate-setup.md >}}
+
+:::: {.pale-blue}
+
+**Learning objectives:**
+
+* TODO
+
+**Pre-reading:**
+
+This page continues on from: [Replications](outputs.qmd).
+
+> *Entity generation → Entity processing → Initialisation bias → Performance measures → Replications → Number of replications*
+
+**Required packages:**
+
+These should be available from environment setup in the "🧪 Test yourself" section of [Environments](../setup/environment.qmd). 
+
+::: {.python-content}
+
+```{python}
+from IPython.display import HTML
+from itables import to_html_datatable
+import numpy as np
+import pandas as pd
+import scipy.stats as st
+import simpy
+from sim_tools.distributions import Exponential
+```
+
+:::
+
+::: {.r-content}
+
+```{r}
+#| output: false
+library(dplyr)
+library(kableExtra)
+library(knitr)
+library(simmer)
+library(tidyr)
+```
+
+:::
+
+::::
+
+## Confidence interval method
+
+The **confidence interval method** can be used to select the number of replications to run. The more replications you run, the narrower your confidence interval becomes, leading to a more precise estimate of the model's mean performance.
+
+First, you select a **desired confidence interval** - for example, 95%. Then, run the model with an **increasing number of replications**, and identify the number required to achieve that precision in the estimate of a given metric - and also, to maintain that precision (as the intervals may converge or expand again later on).
+
+When selecting the number of replications you should **repeat the analysis for all performance measures** and select the highest value as your number of replications.
+
+We'll show two ways of implementing this: **manually** and **automated**.
+
+The model being used is that from the [Replications](replications.qmd) page.
+
+```{python}
+#| echo: false
+{{< include replications_resources/parameters.py >}}
+{{< include replications_resources/patient.py >}}
+{{< include replications_resources/model.py >}}
+{{< include replications_resources/summary_stats.py >}}
+{{< include replications_resources/runner.py >}}
+```
+
+```{r}
+#| echo: false
+{{< include replications_resources/create_params.R >}}
+{{< include replications_resources/filter_warmup.R >}}
+{{< include replications_resources/calc_arrivals.R >}}
+{{< include replications_resources/calc_mean_wait.R >}}
+{{< include replications_resources/get_run_results.R >}}
+{{< include replications_resources/model.R >}}
+{{< include replications_resources/runner.R >}}
+```
+
+## Manual inspection
+
+<!--TODO: Import from sim-tools...waiting for Tom's update...-->
+
+## Algorithm
+
+## 🔍 Explore the example models
+
+<div class="h3-tight"></div>
+
+### 🩺 Nurse visit simulation
+
+<!--TODO: Mention sensitivity analysis-->
+
+:::: {.python-content}
+
+{{< include ../../html/pydesrapmms.html >}}
+
+::: {.blue-table}
+| | |
+| - | - |
+| **Key files** | |
+| **What to look for?** | |
+: {tbl-colwidths="[20,80]"}
+:::
+
+::::
+
+:::: {.r-content}
+
+{{< include ../../html/rdesrapmms.html >}}
+
+::: {.blue-table}
+| | |
+| - | - |
+| **Key files** | |
+| **What to look for?** | |
+: {tbl-colwidths="[20,80]"}
+:::
+
+::::
+
+### 🧠 Stroke pathway simulation
+
+:::: {.python-content}
+
+{{< include ../../html/pydesrapstroke.html >}}
+
+Not relevant - replicating an existing model described in a paper, so just used the number of replications stated by the authors.
+
+::::
+
+:::: {.r-content}
+
+{{< include ../../html/rdesrapstroke.html >}}
+
+Not relevant - replicating an existing model described in a paper, so just used the number of replications stated by the authors.
+
+::::
+
+## 🧪 Test yourself
+
+TODO
 
 <br><br>
