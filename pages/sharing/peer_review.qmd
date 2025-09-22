@@ -1,5 +1,5 @@
 ---
-title: ❌ Peer review
+title: Code review
 ---
 
 ::: {.pale-blue}
@@ -7,7 +7,7 @@ title: ❌ Peer review
 **Learning objectives:**
 
 * Understand the purpose of code review.
-* Learn 
+* Identify when to use code review, tools for doing it, who should be involved, and what it should cover.
 
 **Pre-reading:**
 
@@ -114,16 +114,152 @@ The key is to find someone willing to try out your code and give honest feedback
 
 ## What should reviewers look for?
 
-TODO
+Reviewers don't need to check everything at once. The most important starting point is to see if the code can be set up, run, and produce the expected results. From there, you can look for improvements in quality, structure, and reproducibility.
+
+A useful way to approach review is to draw ideas from existing checklists and guidance, such as the [UK Government Analytical Community's Quality Assurance of Code](https://best-practice-and-impact.github.io/qa-of-code-guidance/) for Analysis and Research and the [NHS RAP Community of Practice](https://nhsdigital.github.io/rap-community-of-practice/implementing_RAP/workflow/code-review/).
+
+### Ideas from the NHS RAP Community of Practice
+
+The [NHS Community of Practice]((https://nhsdigital.github.io/rap-community-of-practice/implementing_RAP/workflow/code-review/)) guidance on code review suggests reviewers start with the following questions:
+
+* Does the code work as expected?
+* Does the work actually meet the acceptance criteria in the user story?
+* Is the code well structured or would it benefit from redesign/refactoring?
+* Could the code be made simpler? Is this level of complexity justified?
+* Would another developer be able to easily understand and use this code when they come across it in the future?
+* Does the code include appropriate tests?
+* Does the code follow our style guides?
+
+They also provide a more detailed [quality assurance checklist](https://nhsdigital.github.io/rap-community-of-practice/implementing_RAP/workflow/quality-assuring-analytical-outputs/
+).
+
+*(© 2025 Crown Copyright (NHS England). Content under the Open Government Licence v3.0.)*
+
+### Ideas from the UK Government Analytical Community's Quality Assurance of Code
+
+Within their book, the [UK Government Analytical Community](https://best-practice-and-impact.github.io/qa-of-code-guidance/) provide three detailed quality assurance checklists covering different levels (lower, moderate and higher quality).
+
+::: {.callout-note title="Example: View the lower quality assurance checklist" collapse="true"}
+
+```{.markdown}
+## Quality assurance checklist
+
+Quality assurance checklist from [the quality assurance of code for analysis and research guidance](https://best-practice-and-impact.github.io/qa-of-code-guidance/intro.html).
+
+### Modular code
+
+- [ ] Individual pieces of logic are written as functions. Classes are used if more appropriate.
+- [ ] Repetition in the code is minimalised. For example, by moving reusable code into functions or classes.
+
+### Good coding practices
+
+- [ ] Names used in the code are informative and concise.
+- [ ] Code logic is clear and avoids unnecessary complexity.
+- [ ] Code follows a standard style, e.g. [PEP8 for Python](https://www.python.org/dev/peps/pep-0008/) and [Google](https://google.github.io/styleguide/Rguide.html) or [tidyverse](https://style.tidyverse.org/) for R.
+
+### Project structure
+
+- [ ] A clear, standard directory structure is used to separate input data, outputs, code and documentation.
+
+### Code documentation
+
+- [ ] Comments are used to describe why code is written in a particular way, rather than describing what the code is doing.
+- [ ] Comments are kept up to date, so they do not confuse the reader.
+- [ ] Code is not commented out to adjust which lines of code run.
+- [ ] All functions and classes are documented to describe what they do, what inputs they take and what they return.
+- [ ] Python code is [documented using docstrings](https://www.python.org/dev/peps/pep-0257/). R code is [documented using `roxygen2` comments](https://cran.r-project.org/web/packages/roxygen2/vignettes/roxygen2.html).
+
+### Project documentation
+
+- [ ] A README file details the purpose of the project, basic installation instructions, and examples of usage.
+- [ ] Where appropriate, guidance for prospective contributors is available including a code of conduct.
+- [ ] If the code's users are not familiar with the code, desk instructions are provided to guide lead users through example use cases.
+- [ ] The extent of analytical quality assurance conducted on the project is clearly documented.
+- [ ] Assumptions in the analysis and their quality are documented next to the code that implements them. These are also made available to users.
+- [ ] Copyright and licenses are specified for both documentation and code.
+- [ ] Instructions for how to cite the project are given.
+
+### Version control
+
+- [ ] Code is [version controlled using Git](https://git-scm.com/).
+- [ ] Code is committed regularly, preferably when a discrete unit of work has been completed.
+- [ ] An appropriate branching strategy is defined and used throughout development.
+- [ ] Code is open-sourced. Any sensitive data are omitted or replaced with dummy data.
+
+### Configuration
+
+- [ ] Credentials and other secrets are not written in code but are configured as environment variables.
+- [ ] Configuration is clearly separated from code used for analysis, so that it is simple to identify and update.
+- [ ] The configuration used to generate particular outputs, releases and publications is recorded.
+
+### Data management
+
+- [ ] Published outputs meet [accessibility regulations](https://analysisfunction.civilservice.gov.uk/area_of_work/accessibility/).
+- [ ] All data for analysis are stored in an open format, so that specific software is not required to access them.
+- [ ] Input data are stored safely and are treated as read-only.
+- [ ] Input data are versioned. All changes to the data result in new versions being created, or [changes are recorded as new records](https://en.wikipedia.org/wiki/Slowly_changing_dimension).
+- [ ] All input data is documented in a data register, including where they come from and their importance to the analysis.
+- [ ] Outputs from your analysis are disposable and are regularly deleted and regenerated while analysis develops. Your analysis code is able to reproduce them at any time.
+- [ ] Non-sensitive data are made available to users. If data are sensitive, dummy data is made available so that the code can be run by others.
+- [ ] Data quality is monitored, as per [the government data quality framework](https://www.gov.uk/government/publications/the-government-data-quality-framework/the-government-data-quality-framework).
+
+### Peer review
+
+- [ ] Peer review is conducted and recorded near to the code. Merge or pull requests are used to document review, when relevant.
+
+### Testing
+
+- [ ] Core functionality is unit tested as code. See [`pytest` for Python](https://docs.pytest.org/en/stable/) and [`testthat` for R](https://testthat.r-lib.org/). 
+- [ ] Code based tests are run regularly, ideally being automated using continuous integration.
+- [ ] Bug fixes include implementing new unit tests to ensure that the same bug does not reoccur.
+- [ ] Informal tests are recorded near to the code.
+- [ ] Stakeholder or user acceptance sign-offs are recorded near to the code.
+
+### Dependency management
+
+- [ ] Required passwords, secrets and tokens are documented, but are stored outside of version control.
+- [ ] Required libraries and packages are documented, including their versions.
+- [ ] Working operating system environments are documented.
+- [ ] Example configuration files are provided.
+
+### Logging
+
+- [ ] Misuse or failure in the code produces informative error messages.
+- [ ] Code configuration is recorded when the code is run.
+
+### Project management
+
+- [ ] The roles and responsibilities of team members are clearly defined.
+- [ ] An issue tracker (e.g GitHub Project, Trello or Jira) is used to record development tasks.
+- [ ] New issues or tasks are guided by users’ needs and stories.
+- [ ] Acceptance criteria are noted for issues and tasks. Fulfilment of acceptance criteria is recorded.
+- [ ] Quality assurance standards and processes for the project are defined. These are based around [the quality assurance of code for analysis and research guidance document](https://best-practice-and-impact.github.io/qa-of-code-guidance/intro.html).
+```
+
+:::
+
+*(UK Government Analytical Community. 2020. Quality assurance of code for analysis and research (version 2025.1). Office for National Statistics, Analytical Standards and Pipelines hub. Content under the Open Government Licence v3.0.)*
 
 ## Further information
 
-* [Developers perception of peer code review in research software development](https://doi.org/10.1007/s10664-021-10053-x) by Eisty and Carver 2022
+* [Quality assurance of code for analysis and research](https://best-practice-and-impact.github.io/qa-of-code-guidance/) from the UK Government Analytical Community 2020
 
-    *Interviews research software developers - with discussion including their perceived benefits from doing code review.*
+    *Comprehensive detailed resource on quality assurance for analysis and research, with Python and R examples.*
+
+* [Ten simple rules for scientific code review](https://doi.org/10.1371/journal.pcbi.1012375) from Ariel Rokem 2024
+
+    *Article providing some clear helpful advice on code review.*
 
 * [Code Review for Research Code](https://www.carolinemorton.co.uk/blog/code-review-for-research-code/) by Caroline Morton 2024.
 
     *Beginner friendly explanation on using pull requests for research code review.*
+
+* [Developers perception of peer code review in research software development](https://doi.org/10.1007/s10664-021-10053-x) by Eisty and Carver 2022
+
+    *Study that interviewed research software developers about their code review practices.*
+
+* [Recommendations for Peer Code Review in Research Software Development](https://bssw.io/blog_posts/recommendations-for-peer-code-review-in-research-software-development) by Nasir Eisty 2022
+
+    *Blog post based on the Eisty and Carver paper that helps clearly summarise key points.*
 
 <br><br>
