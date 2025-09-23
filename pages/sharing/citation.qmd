@@ -1,5 +1,7 @@
 ---
 title: Citation
+filters:
+  - line-highlight
 ---
 
 <style>
@@ -15,10 +17,10 @@ pre code {
 
 This page explains why and how to provide citation instructions in your simulation repository.
 
-* **❓ Why provide citation information?**
-* **📝 How to provide citation information**
-* **💬 Using multiple citation methods:** Help different users find citation details, wherever they look.
-* **🤝 Citing and acknowledging others**
+* Understand **why** providing citation information is important.
+* Learn **how** to include clear citation instructions in a repository.
+* Use **multiple methods** to make citation details easy to find.
+* Recognise the importance of citing and **acknowledging** others.
 
 :::
 
@@ -281,35 +283,49 @@ You should include attributions alongside the code - for example, **in a functio
 In this example from [pydesrap_mms](https://github.com/pythonhealthdatascience/pydesrap_mms), we have used a module docstring which we refer to from our class docstrings:
 
 ```{.python}
-"""Selecting the number of replications.
+"""
+MonitoredResource.
 
-Credit:
-    > These functions are adapted from Tom Monks (2021) sim-tools:
-    fundamental tools to support the simulation process in python
-    (https://github.com/TomMonks/sim-tools) (MIT Licence).
-    > In sim-tools, they cite that their implementation is of the "replications
-    algorithm" from: Hoad, Robinson, & Davies (2010). Automated selection of
-    the number of replications for a discrete-event simulation. Journal of the
-    Operational Research Society. https://www.jstor.org/stable/40926090.
-
-Licence:
-    This project is licensed under the MIT Licence. See the LICENSE file for
-    more details.
+Acknowledgements#<<
+----------------#<<
+The MonitoredResource class is based on Tom Monks, Alison Harper and Amy#<<
+Heather (2025) An introduction to Discrete-Event Simulation (DES) using Free#<<
+and Open Source Software#<<
+(https://github.com/pythonhealthdatascience/intro-open-sim/tree/main)#<<
+(MIT Licence). They based it on the method described in Law. Simulation#<<
+Modeling and Analysis 4th Ed. Pages 14 - 17.#<<
 """
 
-...
+from simpy import Resource
 
-class OnlineStatistics:
+
+class MonitoredResource(Resource):
     """
-    Computes running sample mean and variance (using Welford's algorithm),
-    which then allows computation of confidence intervals (CIs).
+    Subclass of simpy.Resource used to monitor resource usage during the run.
 
-    ...
+    Calculates resource utilisation and the queue length during the model run.
 
-    Acknowledgements:
-        - Class adapted from Monks 2021.
+    Attributes
+    ----------
+    time_last_event : list
+        Time of last resource request or release.
+    area_n_in_queue : list
+        Time that patients have spent queueing for the resource
+        (i.e. sum of the times each patient spent waiting). Used to
+        calculate the average queue length.
+    area_resource_busy : list
+        Time that resources have been in use during the simulation
+        (i.e. sum of the times each individual resource was busy). Used
+        to calculated utilisation.
+
+    Notes#<<
+    -----#<<
+    Class adapted from Monks, Harper and Heather 2025.#<<
     """
-    ...
+
+    def __init__(self, *args, **kwargs):
+        """
+        ...
 ```
 :::
 
@@ -322,11 +338,11 @@ Example from [rdesrap_mms](https://github.com/pythonhealthdatascience/rdesrap_mm
 #'
 #' ...
 #' 
-#' Credit: The utilisation calculation is adapted from the
-#' `plot.resources.utilization()` function in simmer.plot 0.1.18, which is
-#' shared under an MIT Licence (Ucar I, Smeets B (2023). simmer.plot: Plotting
-#' Methods for 'simmer'. https://r-simmer.org
-#' https://github.com/r-simmer/simmer.plot.).
+#' Credit: The utilisation calculation is adapted from the#<<
+#' `plot.resources.utilization()` function in simmer.plot 0.1.18, which is#<<
+#' shared under an MIT Licence (Ucar I, Smeets B (2023). simmer.plot:#<<
+#' Plotting Methods for 'simmer'. https://r-simmer.org#<<
+#' https://github.com/r-simmer/simmer.plot.).#<<
 #'
 #' ...
 calc_utilisation <- function(resources, groups = NULL, summarise = TRUE) {
@@ -350,7 +366,7 @@ This repository was developed with thanks to several others sources. These are a
 | - | - |
 | ... | |
 | NHS Digital (2024) RAP repository template (<https://github.com/NHSDigital/rap-package-template>) (MIT Licence) | `simulation/logging.py`<br>`docs/nhs_rap.md` |
-| Sammi Rosser and Dan Chalk (2024) HSMA - the little book of DES (<https://github.com/hsma-programme/hsma6_des_book>) (MIT Licence) | `simulation/model.py`<br>`notebooks/choosing_cores.ipynb` |
+| Sammi Rosser and Dan Chalk (2024) HSMA - the little book of DES (<https://github.com/hsma-programme/hsma6_des_book>) (MIT Licence) | `simulation/model.py`<br>`simulation/patient.py`<br>`simulation/runner.py`<br>`notebooks/choosing_cores.ipynb` |
 | ... | |
 :::
 :::
@@ -406,6 +422,87 @@ The simulation was developed in Python X.X.X [cite] using SimPy X.X.X [cite], wi
 The simulation was developed in R X.X.X [cite] using simmer X.X.X [cite], with the model and analysis structured based on examples from the DES RAP Book [cite].
 :::
 :::
+
+## 🔍 Explore the example models
+
+::: {.python-content}
+
+{{< include ../../html/pydesrapmms.html >}}
+
+{{< include ../../html/pydesrapstroke.html >}}
+
+These repositories have `CITATION.cff` files and citation details in the `README.md`, with ORCID iDs provided. Author names are provided within the `pyproject.toml` file. Where relevant, acknowledgements are provided within the README and code.
+
+:::
+
+::: {.r-content}
+
+{{< include ../../html/rdesrapmms.html >}}
+
+{{< include ../../html/rdesrapstroke.html >}}
+
+These repositories have `CITATION.cff` files and citation details in the `README.md`, with ORCID iDs provided. Author names are provided within the `DESCRIPTION` file. Where relevant, acknowledgements are provided within the README and code.
+
+:::
+
+## 🧪 Test yourself
+
+```{r}
+#| echo: false
+library(webexercises)
+```
+
+::: {.callout-note}
+
+## If citation instructions are missing from your codebase, what might happen when others try to reference your software?
+
+```{r}
+#| output: asis
+#| echo: false
+cat(longmcq(c(
+  "They will always use a journal reference.",
+  "They will cite the instution's name.",
+  answer = "They may only use the repository owner’s username or incomplete information."
+)))
+```
+
+:::
+
+::: {.callout-note}
+
+## A benefit of supplying structured citation metadata like `CITATION.cff` is:
+
+```{r}
+#| output: asis
+#| echo: false
+cat(longmcq(c(
+  answer = "It facilitates direct import to reference managers and supports BibTeX conversion.",
+  "It makes the work look more professional.",
+  "It replaces the need for citation details elsewhere."
+)))
+```
+
+:::
+
+::: {.callout-note}
+
+## How does providing your name and contact information in citation details benefit your project?
+
+```{r}
+#| output: asis
+#| echo: false
+cat(longmcq(c(
+  "It leads to unwanted attention.",
+  answer = "It makes collaboration, feedback, and questions easier for others.",
+  "It replaces project documentation."
+)))
+```
+
+:::
+
+<br>
+
+**Try it out for yourself!** Have a go at adding citation information to your codebase. For example, visit [cffinit](https://citation-file-format.github.io/cff-initializer-javascript/#/) to create a `CITATION.cff` file and add it to your repository.
 
 ## 📎 Further information
 
