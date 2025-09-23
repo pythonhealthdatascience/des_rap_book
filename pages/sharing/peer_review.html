@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>❌ Peer review – Reproducible Discrete-Event Simulation in Python and R</title>
+<title>Code review – Reproducible Discrete-Event Simulation in Python and R</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -19,6 +19,41 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -46,6 +81,9 @@ ul.task-list li input[type="checkbox"] {
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="../../site_libs/bootstrap/bootstrap-a9a0fd5b61c9cea950178fdce98d8424.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="../../site_libs/quarto-contrib/glightbox/glightbox.min.js"></script>
+<link href="../../site_libs/quarto-contrib/glightbox/glightbox.min.css" rel="stylesheet">
+<link href="../../site_libs/quarto-contrib/glightbox/lightbox.css" rel="stylesheet">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -140,7 +178,7 @@ cookieconsent.run({
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../pages/sharing/peer_review.html">Collaboration &amp; sharing</a></li><li class="breadcrumb-item"><a href="../../pages/sharing/peer_review.html">❌ Peer review</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../pages/sharing/peer_review.html">Collaboration &amp; sharing</a></li><li class="breadcrumb-item"><a href="../../pages/sharing/peer_review.html">Code review</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -489,19 +527,13 @@ cookieconsent.run({
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../../pages/sharing/peer_review.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text">❌ Peer review</span></a>
+ <span class="menu-text">Code review</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../../pages/sharing/licence.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">❌ Licensing</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../../pages/sharing/archive.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">❌ Sharing and archiving</span></a>
+ <span class="menu-text">Licensing</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -513,7 +545,13 @@ cookieconsent.run({
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../../pages/sharing/changelog.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">❌ Changelog</span></a>
+ <span class="menu-text">Changelog</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../pages/sharing/archive.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Sharing and archiving</span></a>
   </div>
 </li>
       </ul>
@@ -540,15 +578,27 @@ cookieconsent.run({
 </nav>
 <div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul class="collapse">
+  <li><a href="#what-is-code-review-and-why-do-it" id="toc-what-is-code-review-and-why-do-it" class="nav-link active" data-scroll-target="#what-is-code-review-and-why-do-it">🧐 What is code review and why do it?</a></li>
+  <li><a href="#when-to-do-code-review" id="toc-when-to-do-code-review" class="nav-link" data-scroll-target="#when-to-do-code-review">📅 When to do code review?</a></li>
+  <li><a href="#structures-and-tools-for-review" id="toc-structures-and-tools-for-review" class="nav-link" data-scroll-target="#structures-and-tools-for-review">🛠️ Structures and tools for review</a></li>
+  <li><a href="#who-should-review-your-code" id="toc-who-should-review-your-code" class="nav-link" data-scroll-target="#who-should-review-your-code">🧑‍🤝‍🧑 Who should review your code?</a></li>
+  <li><a href="#what-should-reviewers-look-for" id="toc-what-should-reviewers-look-for" class="nav-link" data-scroll-target="#what-should-reviewers-look-for">🔎 What should reviewers look for?</a></li>
+  <li><a href="#test-yourself" id="toc-test-yourself" class="nav-link" data-scroll-target="#test-yourself">🧪 Test yourself</a></li>
+  <li><a href="#further-information" id="toc-further-information" class="nav-link" data-scroll-target="#further-information">📎 Further information</a></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../pages/sharing/peer_review.html">Collaboration &amp; sharing</a></li><li class="breadcrumb-item"><a href="../../pages/sharing/peer_review.html">❌ Peer review</a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../pages/sharing/peer_review.html">Collaboration &amp; sharing</a></li><li class="breadcrumb-item"><a href="../../pages/sharing/peer_review.html">Code review</a></li></ol></nav>
 <div class="quarto-title">
-<h1 class="title">❌ Peer review</h1>
+<h1 class="title">Code review</h1>
 </div>
 
 
@@ -565,15 +615,328 @@ cookieconsent.run({
 </header>
 
 
-<div class="guidelines">
-<p><a href="../../pages/intro/guidelines.html">🔗</a> <strong>Reproducibility guidelines:</strong></p>
+<!-- Hide as no python-content or r-content blocks -->
+<style>
+      #quarto-announcement {
+        display: none !important;
+      }
+</style>
+<div class="pale-blue">
+<p><strong>Learning objectives:</strong></p>
+<ul>
+<li>Understand the <strong>purpose</strong> of code review.</li>
+<li>Identify <strong>when</strong> to use code review, <strong>tools</strong> for doing it, <strong>who</strong> should be involved, and <strong>what</strong> it should cover.</li>
+</ul>
+<p><strong>Pre-reading:</strong></p>
+<p>You may find it helpful to read the <a href="../../pages/setup/version.html">Version control</a> page, as tools like GitHub pull requests are common for code review.</p>
+<p><strong>Relevant reproducibility guidelines:</strong></p>
 <ul>
 <li>NHS Levels of RAP (🥉): Code has been peer reviewed.</li>
 </ul>
 </div>
+<section id="what-is-code-review-and-why-do-it" class="level2">
+<h2 class="anchored" data-anchor-id="what-is-code-review-and-why-do-it">🧐 What is code review and why do it?</h2>
+<p><strong>Code review (or “peer review”)</strong> involves having another person examine your code.</p>
+<p>This can be used to check <strong>reproducibility</strong>: can the reviewer set up your environment, run your code and get the same results? Providing automated tests gives reviewers a straightforward way to confirm that your code produces consistent results in different setups (for more on setting up tests, see the <a href="../../pages/verification_validation/tests.html">Tests</a> page).</p>
+<p>It’ll also improve code <strong>quality</strong>. Reviewers can identify errors, bugs, and logic problems so these can be fixed before results are published or used by others. They suggest missing features, possible improvements or alternative approaches.</p>
+<p>When <strong>team members</strong> review code, it increases shared understanding of the codebase and can also allow them to gain new insights by seeing different coding styles and approaches. Regular review also makes it much easier to hand projects over when staff join, leave, or change roles, since more people are familiar with how the code works.</p>
+</section>
+<section id="when-to-do-code-review" class="level2">
+<h2 class="anchored" data-anchor-id="when-to-do-code-review">📅 When to do code review?</h2>
+<p><strong>During development.</strong> The earlier you catch issues, the easier they are to fix. If you leave review until the end of the project and find a deep issue, it can be painful.</p>
+<p><strong>Regularly.</strong> If you do it little and often, review is usually quicker and can go into more detail than if reviewers are faced with the entire codebase all at once.</p>
+<p>That said, this approach is often more ideal than realistic. In research, work doesn’t always follow tidy steps, and it’s common to end up with just one or two big review moments instead of regular check-ins. Even so, any review - whether early, late, or somewhere in between - helps strengthen your code.</p>
+</section>
+<section id="structures-and-tools-for-review" class="level2">
+<h2 class="anchored" data-anchor-id="structures-and-tools-for-review">🛠️ Structures and tools for review</h2>
+<div class="h3-tight">
+
+</div>
+<section id="pull-requests" class="level3">
+<h3 class="anchored" data-anchor-id="pull-requests">Pull requests</h3>
+<p>In research software, peer review most often happens through pull requests (<a href="https://doi.org/10.1007/s10664-021-10053-x">Eisty and Carver 2022</a>). As explained on the <a href="../../pages/setup/version.html">Version control</a> page, a pull request is created when you merge a branch back into the main codebase.</p>
+<p>This is a natural point for peer review, and platforms like GitHub make it easy to request feedback from others. For example, you can request <strong>reviewers</strong>, who will be notified to look over your changes.</p>
+<p>It’s also a good point to run automated tests with GitHub Actions, checking your code before it’s merged (see the <a href="../../pages/style_docs/github_actions.html">GitHub actions</a> page for details).</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><a href="peer_review_resources/pull_request_reviewer.png" class="lightbox" data-gallery="quarto-lightbox-gallery-1" title="Screenshot of requesting a reviewer in a GitHub pull request"><img src="peer_review_resources/pull_request_reviewer.png" class="img-fluid figure-img" alt="Screenshot of requesting a reviewer in a GitHub pull request"></a></p>
+<figcaption>Screenshot of requesting a reviewer in a GitHub pull request</figcaption>
+</figure>
+</div>
+<p><br></p>
+<p>You can use pull requests with just main and dev branches, but that approach often means either not reviewing every merge, or letting branches grow large and unwieldy over time.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><a href="peer_review_resources/git_branch_review.drawio.png" class="lightbox" data-gallery="quarto-lightbox-gallery-2"><img src="peer_review_resources/git_branch_review.drawio.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:80.0%"></a></p>
+</figure>
+</div>
+<p>A more flexible and common setup uses main, dev, and feature branches. Team members work on feature branches that merge into dev, with reviews at merge points, or as changes are merged into main. This keeps branches focused and helps avoid accumulating too many changes in one place.</p>
+<p><a href="peer_review_resources/git_branch_feature.drawio.png" class="lightbox" data-gallery="quarto-lightbox-gallery-3"><img src="peer_review_resources/git_branch_feature.drawio.png" class="img-fluid"></a></p>
+<p><br></p>
+<p>These are recommendations, and its rare to follow them perfectly in research. If you only have time for occasional peer review, you might:</p>
+<ul>
+<li><strong>Target reviews for specific pull requests</strong> into main, rather than every change.</li>
+<li><strong>Invite reviewers to create a fork</strong>, make suggestions and changes there, and then <strong>submit a pull request</strong> including their feedback.</li>
+</ul>
+<p>When reviews are less frequent, more informal methods like GitHub issues can also be a good option.</p>
+</section>
+<section id="github-issues" class="level3">
+<h3 class="anchored" data-anchor-id="github-issues">GitHub issues</h3>
+<p><strong>GitHub issues</strong> are discussion threads attached to a repository. They offer a flexible, informal way to talk about code without being linked to specific sets of changes.</p>
+<p>To start one, just click &nbsp;<span style="background: #597341; color: #fff; border-radius:4px; padding:2px 8px; font-family:monospace; font-weight:bold; font-size:90%;">New issue</span>&nbsp; on the GitHub repository and fill in the details.</p>
+<p><a href="peer_review_resources/issues.png" class="lightbox" data-gallery="quarto-lightbox-gallery-4"><img src="peer_review_resources/issues.png" class="img-fluid"></a></p>
+<p>Issues work well for more occasional reviews, letting you track comments and discussions over time. If review happens elsewhere (like email or in person), <strong>writing a summary in an issue</strong> helps keep a transparent record in one place, making it easy to refer back later.</p>
+<p>You can also create <strong>templates</strong> for GitHub issues. A template provides a pre-set structure, making reviews more consistent and easier to follow. You can set them up by going to the repository <strong>⚙ Settings</strong>, then scrolling down to <strong>Features</strong> and selecting &nbsp;<span style="background: #597341; color: #fff; border-radius:4px; padding:2px 8px; font-family:monospace; font-weight:bold; font-size:90%;">Set up templates</span>&nbsp;.</p>
+<p><a href="peer_review_resources/set_up_template.png" class="lightbox" data-gallery="quarto-lightbox-gallery-5"><img src="peer_review_resources/set_up_template.png" class="img-fluid"></a></p>
+<p>You can then select <strong>Custom template</strong>, then <strong>Preview and edit</strong>, and the pencil symbol ✎ to edit the template. When you’re ready, you can propose and commit changes to add the template to the repository.</p>
+<p><a href="peer_review_resources/review_template.png" class="lightbox" data-gallery="quarto-lightbox-gallery-6"><img src="peer_review_resources/review_template.png" class="img-fluid"></a></p>
+<p>Now, when reviewers select &nbsp;<span style="background: #597341; color: #fff; border-radius:4px; padding:2px 8px; font-family:monospace; font-weight:bold; font-size:90%;">New issue</span>&nbsp;, they are prompted to choose between starting a blank issue or using a template. Selecting the template will open a draft issue with the template questions/structure you created.</p>
+<p><a href="peer_review_resources/new_issue_options.png" class="lightbox" data-gallery="quarto-lightbox-gallery-7"><img src="peer_review_resources/new_issue_options.png" class="img-fluid"></a></p>
+<p><a href="peer_review_resources/new_issue_edit.png" class="lightbox" data-gallery="quarto-lightbox-gallery-8"><img src="peer_review_resources/new_issue_edit.png" class="img-fluid"></a></p>
+<p><br></p>
+<section id="tip-checklists-github-tasklists" class="level4">
+<h4 class="anchored" data-anchor-id="tip-checklists-github-tasklists">Tip: Checklists (GitHub tasklists)</h4>
+<p>Checklists can be used to break down complex issues into actionable steps. To add a checklist using Markdown:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ss">* </span><span class="va">[ ]</span> First task</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="ss">* </span><span class="va">[ ]</span> Another task to complete</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="ss">* </span><span class="va">[x]</span> Completed task</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Checklists are interactive, so anyone with write access can mark items as complete or re-order them.</p>
+<p>If a task mentions an issue or pull request (e.g., <code>* [ ] #123</code>) the box will update automatically when those linked items are completed.</p>
+<p><a href="https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting/about-tasklists">→ Find out more about tasklists</a></p>
+<p><br></p>
+</section>
+<section id="tip-sub-issues" class="level4">
+<h4 class="anchored" data-anchor-id="tip-sub-issues">Tip: Sub-issues</h4>
+<p>Sub-issues are great for more detailed actions.</p>
+<p>You can create sub-issues from existing checklist items, or by scrolling to the bottom of an existing issue and clicking <strong>Create sub-issue</strong>:</p>
+<p><a href="peer_review_resources/subissue.png" class="lightbox" data-gallery="quarto-lightbox-gallery-9"><img src="peer_review_resources/subissue.png" class="img-fluid"></a></p>
+<p>The new sub-issue will be nested as part of the larger task.</p>
+<p><a href="https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/adding-sub-issues">→ Find out more about sub-issues</a></p>
+<p><br></p>
+</section>
+<section id="tip-github-projects" class="level4">
+<h4 class="anchored" data-anchor-id="tip-github-projects">Tip: GitHub projects</h4>
+<p>GitHub Projects help organize issues, pull requests, checklists, and sub-issues visually. You can set-up a project using the <strong>Project</strong> tab:</p>
+<p><a href="peer_review_resources/projects.png" class="lightbox" data-gallery="quarto-lightbox-gallery-10"><img src="peer_review_resources/projects.png" class="img-fluid"></a></p>
+<p>GitHub provide several templates for projects. A common example is a board with columns like “To review”, “In progress”, or “Done”.</p>
+<p><a href="peer_review_resources/project_templates.png" class="lightbox" data-gallery="quarto-lightbox-gallery-11"><img src="peer_review_resources/project_templates.png" class="img-fluid"></a></p>
+<p><a href="https://docs.github.com/en/issues/planning-and-tracking-with-projects/learning-about-projects/about-projects">→ Find out more about GitHub Projects.</a></p>
+</section>
+</section>
+<section id="conversations" class="level3">
+<h3 class="anchored" data-anchor-id="conversations">Conversations</h3>
+<p><strong>Meeting in person or virtually</strong> to talk through code can help clarify questions, resolve confusion, and share knowledge within the team.</p>
+<p>Afterwards, you could add a summary of the discussion to a GitHub issue to keep a clear record for future reference.</p>
+</section>
+</section>
+<section id="who-should-review-your-code" class="level2">
+<h2 class="anchored" data-anchor-id="who-should-review-your-code">🧑‍🤝‍🧑 Who should review your code?</h2>
+<p>It’s helpful to have reviewers with knowledge of the research area, project context, and coding experience. They <strong>don’t have to be experts</strong> though; different perspectives can spot different issues, so involving <strong>more than one person</strong> is ideal.</p>
+<p>If you don’t have anyone internal who can review your code, there are other options:</p>
+<ul>
+<li><p><strong>Generative AI tools:</strong> These can provide automated feedback, but have limits. They may miss context, give false positives, and you must check internal policies on AI use and avoid sharing sensitive information.</p></li>
+<li><p><strong>Online communities:</strong> Communities for researchers using Python or R might have channels for sharing and reviewing code. You may be able to arrange peer review swaps, like “you review for me, I’ll review for you”.</p></li>
+</ul>
+<p>The key is to find someone willing to try out your code and give honest feedback - even informal review is valuable.</p>
+</section>
+<section id="what-should-reviewers-look-for" class="level2">
+<h2 class="anchored" data-anchor-id="what-should-reviewers-look-for">🔎 What should reviewers look for?</h2>
+<p>Reviewers don’t need to check everything at once. The most important starting point is to see if the code can be set up, run, and produce the expected results. From there, you can look for improvements in quality, structure, and reproducibility.</p>
+<p>A useful way to approach review is to draw ideas from existing checklists and guidance, such as the <a href="https://best-practice-and-impact.github.io/qa-of-code-guidance/">UK Government Analytical Community’s Quality Assurance of Code</a> for Analysis and Research and the <a href="https://nhsdigital.github.io/rap-community-of-practice/implementing_RAP/workflow/code-review/">NHS RAP Community of Practice</a>.</p>
+<section id="ideas-from-the-nhs-rap-community-of-practice" class="level3">
+<h3 class="anchored" data-anchor-id="ideas-from-the-nhs-rap-community-of-practice">Ideas from the NHS RAP Community of Practice</h3>
+<p>The <a href="(https://nhsdigital.github.io/rap-community-of-practice/implementing_RAP/workflow/code-review/)">NHS Community of Practice</a> guidance on code review suggests reviewers start with the following questions:</p>
+<ul>
+<li>Does the code work as expected?</li>
+<li>Does the work actually meet the acceptance criteria in the user story?</li>
+<li>Is the code well structured or would it benefit from redesign/refactoring?</li>
+<li>Could the code be made simpler? Is this level of complexity justified?</li>
+<li>Would another developer be able to easily understand and use this code when they come across it in the future?</li>
+<li>Does the code include appropriate tests?</li>
+<li>Does the code follow our style guides?</li>
+</ul>
+<p>They also provide a more detailed <a href="https://nhsdigital.github.io/rap-community-of-practice/implementing_RAP/workflow/quality-assuring-analytical-outputs/">quality assurance checklist</a>.</p>
+<p><em>(© 2025 Crown Copyright (NHS England). Content under the Open Government Licence v3.0.)</em></p>
+</section>
+<section id="ideas-from-the-uk-government-analytical-communitys-quality-assurance-of-code" class="level3">
+<h3 class="anchored" data-anchor-id="ideas-from-the-uk-government-analytical-communitys-quality-assurance-of-code">Ideas from the UK Government Analytical Community’s Quality Assurance of Code</h3>
+<p>Within their book, the <a href="https://best-practice-and-impact.github.io/qa-of-code-guidance/">UK Government Analytical Community</a> provide three detailed quality assurance checklists covering different levels (lower, moderate and higher quality).</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Example: View the lower quality assurance checklist">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Example: View the lower quality assurance checklist
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-1" class="callout-1-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">## Quality assurance checklist</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>Quality assurance checklist from <span class="co">[</span><span class="ot">the quality assurance of code for analysis and research guidance</span><span class="co">](https://best-practice-and-impact.github.io/qa-of-code-guidance/intro.html)</span>.</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="fu">### Modular code</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="va">[ ]</span> Individual pieces of logic are written as functions. Classes are used if more appropriate.</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="va">[ ]</span> Repetition in the code is minimalised. For example, by moving reusable code into functions or classes.</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="fu">### Good coding practices</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="va">[ ]</span> Names used in the code are informative and concise.</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="va">[ ]</span> Code logic is clear and avoids unnecessary complexity.</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="va">[ ]</span> Code follows a standard style, e.g. <span class="co">[</span><span class="ot">PEP8 for Python</span><span class="co">](https://www.python.org/dev/peps/pep-0008/)</span> and <span class="co">[</span><span class="ot">Google</span><span class="co">](https://google.github.io/styleguide/Rguide.html)</span> or <span class="co">[</span><span class="ot">tidyverse</span><span class="co">](https://style.tidyverse.org/)</span> for R.</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="fu">### Project structure</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="va">[ ]</span> A clear, standard directory structure is used to separate input data, outputs, code and documentation.</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a><span class="fu">### Code documentation</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="va">[ ]</span> Comments are used to describe why code is written in a particular way, rather than describing what the code is doing.</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="va">[ ]</span> Comments are kept up to date, so they do not confuse the reader.</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="va">[ ]</span> Code is not commented out to adjust which lines of code run.</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="va">[ ]</span> All functions and classes are documented to describe what they do, what inputs they take and what they return.</span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="va">[ ]</span> Python code is <span class="co">[</span><span class="ot">documented using docstrings</span><span class="co">](https://www.python.org/dev/peps/pep-0257/)</span>. R code is <span class="co">[</span><span class="ot">documented using `roxygen2` comments</span><span class="co">](https://cran.r-project.org/web/packages/roxygen2/vignettes/roxygen2.html)</span>.</span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a><span class="fu">### Project documentation</span></span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="va">[ ]</span> A README file details the purpose of the project, basic installation instructions, and examples of usage.</span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="va">[ ]</span> Where appropriate, guidance for prospective contributors is available including a code of conduct.</span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="va">[ ]</span> If the code's users are not familiar with the code, desk instructions are provided to guide lead users through example use cases.</span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="va">[ ]</span> The extent of analytical quality assurance conducted on the project is clearly documented.</span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="va">[ ]</span> Assumptions in the analysis and their quality are documented next to the code that implements them. These are also made available to users.</span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="va">[ ]</span> Copyright and licenses are specified for both documentation and code.</span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="va">[ ]</span> Instructions for how to cite the project are given.</span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a><span class="fu">### Version control</span></span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="va">[ ]</span> Code is <span class="co">[</span><span class="ot">version controlled using Git</span><span class="co">](https://git-scm.com/)</span>.</span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="va">[ ]</span> Code is committed regularly, preferably when a discrete unit of work has been completed.</span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="va">[ ]</span> An appropriate branching strategy is defined and used throughout development.</span>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="va">[ ]</span> Code is open-sourced. Any sensitive data are omitted or replaced with dummy data.</span>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a><span class="fu">### Configuration</span></span>
+<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="va">[ ]</span> Credentials and other secrets are not written in code but are configured as environment variables.</span>
+<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="va">[ ]</span> Configuration is clearly separated from code used for analysis, so that it is simple to identify and update.</span>
+<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="va">[ ]</span> The configuration used to generate particular outputs, releases and publications is recorded.</span>
+<span id="cb2-50"><a href="#cb2-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a><span class="fu">### Data management</span></span>
+<span id="cb2-52"><a href="#cb2-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-53"><a href="#cb2-53" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="va">[ ]</span> Published outputs meet <span class="co">[</span><span class="ot">accessibility regulations</span><span class="co">](https://analysisfunction.civilservice.gov.uk/area_of_work/accessibility/)</span>.</span>
+<span id="cb2-54"><a href="#cb2-54" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="va">[ ]</span> All data for analysis are stored in an open format, so that specific software is not required to access them.</span>
+<span id="cb2-55"><a href="#cb2-55" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="va">[ ]</span> Input data are stored safely and are treated as read-only.</span>
+<span id="cb2-56"><a href="#cb2-56" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="va">[ ]</span> Input data are versioned. All changes to the data result in new versions being created, or <span class="co">[</span><span class="ot">changes are recorded as new records</span><span class="co">](https://en.wikipedia.org/wiki/Slowly_changing_dimension)</span>.</span>
+<span id="cb2-57"><a href="#cb2-57" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="va">[ ]</span> All input data is documented in a data register, including where they come from and their importance to the analysis.</span>
+<span id="cb2-58"><a href="#cb2-58" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="va">[ ]</span> Outputs from your analysis are disposable and are regularly deleted and regenerated while analysis develops. Your analysis code is able to reproduce them at any time.</span>
+<span id="cb2-59"><a href="#cb2-59" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="va">[ ]</span> Non-sensitive data are made available to users. If data are sensitive, dummy data is made available so that the code can be run by others.</span>
+<span id="cb2-60"><a href="#cb2-60" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="va">[ ]</span> Data quality is monitored, as per <span class="co">[</span><span class="ot">the government data quality framework</span><span class="co">](https://www.gov.uk/government/publications/the-government-data-quality-framework/the-government-data-quality-framework)</span>.</span>
+<span id="cb2-61"><a href="#cb2-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-62"><a href="#cb2-62" aria-hidden="true" tabindex="-1"></a><span class="fu">### Peer review</span></span>
+<span id="cb2-63"><a href="#cb2-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-64"><a href="#cb2-64" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="va">[ ]</span> Peer review is conducted and recorded near to the code. Merge or pull requests are used to document review, when relevant.</span>
+<span id="cb2-65"><a href="#cb2-65" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-66"><a href="#cb2-66" aria-hidden="true" tabindex="-1"></a><span class="fu">### Testing</span></span>
+<span id="cb2-67"><a href="#cb2-67" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-68"><a href="#cb2-68" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="va">[ ]</span> Core functionality is unit tested as code. See <span class="co">[</span><span class="ot">`pytest` for Python</span><span class="co">](https://docs.pytest.org/en/stable/)</span> and <span class="co">[</span><span class="ot">`testthat` for R</span><span class="co">](https://testthat.r-lib.org/)</span>. </span>
+<span id="cb2-69"><a href="#cb2-69" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="va">[ ]</span> Code based tests are run regularly, ideally being automated using continuous integration.</span>
+<span id="cb2-70"><a href="#cb2-70" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="va">[ ]</span> Bug fixes include implementing new unit tests to ensure that the same bug does not reoccur.</span>
+<span id="cb2-71"><a href="#cb2-71" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="va">[ ]</span> Informal tests are recorded near to the code.</span>
+<span id="cb2-72"><a href="#cb2-72" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="va">[ ]</span> Stakeholder or user acceptance sign-offs are recorded near to the code.</span>
+<span id="cb2-73"><a href="#cb2-73" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-74"><a href="#cb2-74" aria-hidden="true" tabindex="-1"></a><span class="fu">### Dependency management</span></span>
+<span id="cb2-75"><a href="#cb2-75" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-76"><a href="#cb2-76" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="va">[ ]</span> Required passwords, secrets and tokens are documented, but are stored outside of version control.</span>
+<span id="cb2-77"><a href="#cb2-77" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="va">[ ]</span> Required libraries and packages are documented, including their versions.</span>
+<span id="cb2-78"><a href="#cb2-78" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="va">[ ]</span> Working operating system environments are documented.</span>
+<span id="cb2-79"><a href="#cb2-79" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="va">[ ]</span> Example configuration files are provided.</span>
+<span id="cb2-80"><a href="#cb2-80" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-81"><a href="#cb2-81" aria-hidden="true" tabindex="-1"></a><span class="fu">### Logging</span></span>
+<span id="cb2-82"><a href="#cb2-82" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-83"><a href="#cb2-83" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="va">[ ]</span> Misuse or failure in the code produces informative error messages.</span>
+<span id="cb2-84"><a href="#cb2-84" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="va">[ ]</span> Code configuration is recorded when the code is run.</span>
+<span id="cb2-85"><a href="#cb2-85" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-86"><a href="#cb2-86" aria-hidden="true" tabindex="-1"></a><span class="fu">### Project management</span></span>
+<span id="cb2-87"><a href="#cb2-87" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-88"><a href="#cb2-88" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="va">[ ]</span> The roles and responsibilities of team members are clearly defined.</span>
+<span id="cb2-89"><a href="#cb2-89" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="va">[ ]</span> An issue tracker (e.g GitHub Project, Trello or Jira) is used to record development tasks.</span>
+<span id="cb2-90"><a href="#cb2-90" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="va">[ ]</span> New issues or tasks are guided by users’ needs and stories.</span>
+<span id="cb2-91"><a href="#cb2-91" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="va">[ ]</span> Acceptance criteria are noted for issues and tasks. Fulfilment of acceptance criteria is recorded.</span>
+<span id="cb2-92"><a href="#cb2-92" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="va">[ ]</span> Quality assurance standards and processes for the project are defined. These are based around <span class="co">[</span><span class="ot">the quality assurance of code for analysis and research guidance document</span><span class="co">](https://best-practice-and-impact.github.io/qa-of-code-guidance/intro.html)</span>.</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><em>(UK Government Analytical Community. 2020. Quality assurance of code for analysis and research (version 2025.1). Office for National Statistics, Analytical Standards and Pipelines hub. Content under the Open Government Licence v3.0.)</em></p>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="test-yourself" class="level2">
+<h2 class="anchored" data-anchor-id="test-yourself">🧪 Test yourself</h2>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>When is the best time to do code review?
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<div id="radio_ORLQSAXRNT" class="webex-radiogroup">
+<label><input type="radio" autocomplete="off" name="radio_ORLQSAXRNT" value=""> <span>Only at the very end of the project.</span></label><label><input type="radio" autocomplete="off" name="radio_ORLQSAXRNT" value=""> <span>After publishing results.</span></label><label><input type="radio" autocomplete="off" name="radio_ORLQSAXRNT" value="answer"> <span>Early and regularly during development.</span></label>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Which tool is commonly used for managing code reviews in collaborative research projects?
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<div id="radio_KAVHAYIXHQ" class="webex-radiogroup">
+<label><input type="radio" autocomplete="off" name="radio_KAVHAYIXHQ" value="answer"> <span>GitHub pull requests.</span></label><label><input type="radio" autocomplete="off" name="radio_KAVHAYIXHQ" value=""> <span>Slack chat threads.</span></label><label><input type="radio" autocomplete="off" name="radio_KAVHAYIXHQ" value=""> <span>Emails.</span></label>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Why is peer code review important for teams?
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<div id="radio_IXAUTUILJB" class="webex-radiogroup">
+<label><input type="radio" autocomplete="off" name="radio_IXAUTUILJB" value=""> <span>It avoids the need for documentation.</span></label><label><input type="radio" autocomplete="off" name="radio_IXAUTUILJB" value="answer"> <span>It makes projects easier to hand over and increases shared knowledge.</span></label><label><input type="radio" autocomplete="off" name="radio_IXAUTUILJB" value=""> <span>It means you don't need automated testing.</span></label>
+</div>
+</div>
+</div>
+</section>
+<section id="further-information" class="level2">
+<h2 class="anchored" data-anchor-id="further-information">📎 Further information</h2>
+<ul>
+<li><p><a href="https://best-practice-and-impact.github.io/qa-of-code-guidance/">Quality assurance of code for analysis and research</a> from the UK Government Analytical Community 2020</p>
+<p><em>Comprehensive detailed resource on quality assurance for analysis and research, with Python and R examples.</em></p></li>
+<li><p><a href="https://doi.org/10.1371/journal.pcbi.1012375">Ten simple rules for scientific code review</a> from Ariel Rokem 2024</p>
+<p><em>Article providing some clear helpful advice on code review.</em></p></li>
+<li><p><a href="https://www.carolinemorton.co.uk/blog/code-review-for-research-code/">Code Review for Research Code</a> by Caroline Morton 2024.</p>
+<p><em>Beginner friendly explanation on using pull requests for research code review.</em></p></li>
+<li><p><a href="https://doi.org/10.1007/s10664-021-10053-x">Developers perception of peer code review in research software development</a> by Eisty and Carver 2022</p>
+<p><em>Study that interviewed research software developers about their code review practices.</em></p></li>
+<li><p><a href="https://bssw.io/blog_posts/recommendations-for-peer-code-review-in-research-software-development">Recommendations for Peer Code Review in Research Software Development</a> by Nasir Eisty 2022</p>
+<p><em>Blog post based on the Eisty and Carver paper that helps clearly summarise key points.</em></p></li>
+</ul>
 <p><br><br></p>
 
 
+</section>
 
 </main> <!-- /main -->
 <script>
@@ -1137,8 +1500,8 @@ document.addEventListener('DOMContentLoaded', function() {
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../../pages/sharing/licence.html" class="pagination-link" aria-label="❌ Licensing">
-        <span class="nav-page-text">❌ Licensing</span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../../pages/sharing/licence.html" class="pagination-link" aria-label="Licensing">
+        <span class="nav-page-text">Licensing</span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
@@ -1158,10 +1521,46 @@ Text licence: <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="
 </ul>
     <div class="cookie-consent-footer"><a href="#" id="open_preferences_center">Cookie Preferences</a></div></div>
     <div class="nav-footer-right">
-      &nbsp;
+      <ul class="footer-items list-unstyled">
+    <li class="nav-item">
+ Heather, A., Monks, T., Mustafee, N., &amp; Harper, A. (2025). DES RAP Book: Reproducible Discrete-Event Simulation in Python and R. https://github.com/pythonhealthdatascience/des_rap_book. https://doi.org/10.5281/zenodo.17094155.
+  </li>  
+</ul>
     </div>
   </div>
 </footer>
+<script>var lightboxQuarto = GLightbox({"closeEffect":"zoom","descPosition":"bottom","loop":false,"openEffect":"zoom","selector":".lightbox"});
+(function() {
+  let previousOnload = window.onload;
+  window.onload = () => {
+    if (previousOnload) {
+      previousOnload();
+    }
+    lightboxQuarto.on('slide_before_load', (data) => {
+      const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+      const href = trigger.getAttribute('href');
+      if (href !== null) {
+        const imgEl = window.document.querySelector(`a[href="${href}"] img`);
+        if (imgEl !== null) {
+          const srcAttr = imgEl.getAttribute("src");
+          if (srcAttr && srcAttr.startsWith("data:")) {
+            slideConfig.href = srcAttr;
+          }
+        }
+      } 
+    });
+  
+    lightboxQuarto.on('slide_after_load', (data) => {
+      const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(slideNode);
+      }
+    });
+  
+  };
+  
+})();
+          </script>
 
 
 
