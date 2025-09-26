@@ -6,6 +6,11 @@ filters:
 
 {{< include ../../scripts/_reticulate-setup.md >}}
 
+```{python}
+#| echo: false
+# pylint: disable=unused-import
+```
+
 :::: {.pale-blue}
 
 **Learning objectives:**
@@ -30,6 +35,8 @@ These should be available from environment setup in the "🧪 Test yourself" sec
 ::: {.python-content}
 
 ```{python}
+import time
+
 from IPython.display import HTML
 from itables import to_html_datatable
 from joblib import Parallel, delayed, cpu_count
@@ -39,13 +46,12 @@ import plotly.express as px
 import scipy.stats as st
 import simpy
 from sim_tools.distributions import Exponential
-import time
 ```
 
 ```{python}
 #| echo: false
 # To ensure renders correctly in quarto
-import plotly.io as pio
+import plotly.io as pio  # pylint: disable=ungrouped-imports
 pio.renderers.default = "plotly_mimetype"
 ```
 
@@ -942,7 +948,7 @@ HTML(to_html_datatable((timing_results)))
 # Plot time by number of cores
 fig = px.line(timing_results, x="cores", y="run_time")
 fig.update_layout(
-    xaxis = {"dtick": 1},
+    xaxis={"dtick": 1},
     xaxis_title="Number of cores",
     yaxis_title="Run time",
     template="plotly_white"

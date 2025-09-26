@@ -4,6 +4,13 @@ title: Parameter validation
 
 {{< include ../../scripts/_reticulate-setup.md >}}
 
+```{python}
+#| echo: false
+# pylint: disable=undefined-variable,used-before-assignment,no-member
+# pylint: disable=assigning-non-slot,attribute-defined-outside-init
+```
+
+
 :::: {.pale-blue}
 
 **Learning objectives:**
@@ -53,26 +60,6 @@ library(R6)
 :::{.python-content}
 
 If you **mistype** a parameter name when defining parameters, no error is raised. Instead, a **new (unused) parameter** is created. This means your intended parameter remains unchanged, which can **silently** invalidate your results.
-
-```{python}
-class Params:
-  __slots__ = ["transfer_prob"]
-  def __init__(self, transfer_prob):
-    self.transfer_prob = transfer_prob
-  def __repr__(self):
-    return f"Params(transfer_prob={self.transfer_prob})"
-
-
-params = Params(0.3)
-params.transfer_prob = 0.4
-
-try:
-    params.transfer_probs = 0.7
-except AttributeError as e:
-    print(e)
-
-print(params)
-```
 
 #### Function example
 
@@ -272,9 +259,24 @@ This approach works best with smaller parameter sets. While you could use `__slo
 
 ```{python}
 class Param:
+    """
+    Parameter class.
+    """
     __slots__ = ["transfer_prob", "service_time", "arrival_rate"]
-    
+
     def __init__(self, transfer_prob=0.3, service_time=2.5, arrival_rate=1.2):
+        """
+        Initialise Param instance.
+
+        Parameters
+        ----------
+        transfer_prob : float
+            Transfer probability (0-1).
+        service_time : float
+            Mean service time.
+        arrival_rate : float
+            Mean arrival rate.
+        """
         self.transfer_prob = transfer_prob
         self.service_time = service_time
         self.arrival_rate = arrival_rate
@@ -288,7 +290,7 @@ params.transfer_prob = 0.4
 
 # Attempts to add new attributes raise an error
 try:
-    params.transfer_probs = 0.7  # typo!
+    params.transfer_probs = 0.7  # Typo!
 except AttributeError as e:
     print(f"Error: {e}")
 ```

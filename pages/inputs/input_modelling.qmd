@@ -32,7 +32,7 @@ from scipy import stats
 ```{python}
 #| echo: false
 # To ensure renders correctly in quarto
-import plotly.io as pio
+import plotly.io as pio  # pylint: disable=ungrouped-imports
 pio.renderers.default = "plotly_mimetype"
 ```
 
@@ -445,7 +445,8 @@ def inspect_histogram(series, x_lab, bin_width=1):
     )
 
     # Build interval labels for each bin
-    bin_labels = [f"{x_lab}: {bin_edges[i]}–{bin_edges[i+1]}" for i in range(nbins)]
+    bin_labels = [f"{x_lab}: {bin_edges[i]}–{bin_edges[i+1]}"
+                  for i in range(nbins)]
     fig.update_traces(
         hovertemplate="%{customdata}<br>Count: %{y}",
         customdata=bin_labels,
