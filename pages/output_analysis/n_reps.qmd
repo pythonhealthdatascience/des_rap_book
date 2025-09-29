@@ -32,6 +32,13 @@ import simpy
 from sim_tools.distributions import Exponential
 ```
 
+```{python}
+#| echo: false
+# To ensure renders correctly in quarto
+import plotly.io as pio  # pylint: disable=ungrouped-imports
+pio.renderers.default = "plotly_mimetype"
+```
+
 :::
 
 ::: {.r-content}
@@ -55,11 +62,19 @@ The **confidence interval method** can be used to select the number of replicati
 
 First, you select a **desired confidence interval** - for example, 95%. Then, run the model with an **increasing number of replications**, and identify the number required to achieve that precision in the estimate of a given metric - and also, to maintain that precision (as the intervals may converge or expand again later on).
 
+![](n_reps_resources/nreps_graph.png)
+
 When selecting the number of replications you should **repeat the analysis for all performance measures** and select the highest value as your number of replications.
 
 We'll show two ways of implementing this: **manually** and **automated**.
 
 The model being used is that from the [Replications](replications.qmd) page.
+
+<!--TODO: Once Tom updates sim-tools, import functions at start of script from sim-tools rather than here from local file-->
+```{python}
+#| echo: false
+{{< include n_reps_resources/output_analysis.py >}}
+```
 
 ```{python}
 #| echo: false
@@ -83,7 +98,58 @@ The model being used is that from the [Replications](replications.qmd) page.
 
 ## Manual inspection
 
-<!--TODO: Import from sim-tools...waiting for Tom's update...-->
+::: {.python-content}
+
+To begin, we run our simulation model for multiple replications using our usual workflow.
+
+```{python}
+# Run simulation for multiple replications
+runner = Runner(param=Parameters(number_of_runs=50))
+result = runner.run_reps()
+result["run"].head()
+```
+
+We then use the `confidence_interval_method` function from our [sim-tools](https://github.com/TomMonks/sim-tools) package.
+
+We select the metrics to inspect and pass their results to the function. The `desired_precision` parameter is set to 0.1, which means we are interested in identifying when the percentage deviation of the confidence interval from the mean falls below 10%.
+
+> **Note:** The 10% threshold is our default but is relatively arbitrary. The goal is just to achieve results that are "precise enough" - i.e., the average result is pretty stable with more replications.
+
+```{python}
+# Define metrics to inspect
+metrics = ["arrivals", "mean_wait_time"]
+
+# Run the confidence interval method
+confint_results = confidence_interval_method(
+    replications=result["run"][metrics],
+    desired_precision=0.1,
+    decimal_places=6
+)
+```
+
+The function returns dataframes for each metric that include cumulative calculations: the mean, cumulative mean, standard deviation, confidence interval bounds, and the percentage deviation of the confidence interval from the mean (displayed in the far-right column).
+
+```{python}
+#| results: "asis"
+for metric in metrics:
+    print(to_html_datatable(confint_results[metric][1]))
+```
+
+To visualise when precision is achieved and check for stability, we can use the `plotly_confidence_interval_method` function from `sim-tools`. For example:
+
+```{python}
+p = plotly_confidence_interval_method(
+    n_reps=confint_results["mean_wait_time"][0],
+    conf_ints=confint_results["mean_wait_time"][1],
+    metric_name=metric)
+p.update_layout(autosize=True, width=None, height=390)
+```
+
+:::
+
+::: {.r-content}
+
+:::
 
 ## Algorithm
 
