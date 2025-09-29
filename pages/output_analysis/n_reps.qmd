@@ -1,5 +1,7 @@
 ---
 title: ❌ Number of replications
+filters:
+  - line-highlight
 ---
 
 {{< include ../../scripts/_reticulate-setup.md >}}
@@ -18,7 +20,7 @@ This page continues on from: [Replications](outputs.qmd).
 
 **Required packages:**
 
-These should be available from environment setup in the "🧪 Test yourself" section of [Environments](../setup/environment.qmd). 
+These should be available from environment setup in the "Test yourself" section of [Environments](../setup/environment.qmd). 
 
 ::: {.python-content}
 
@@ -68,7 +70,11 @@ When selecting the number of replications you should **repeat the analysis for a
 
 We'll show two ways of implementing this: **manually** and **automated**.
 
+### Model code
+
 The model being used is that from the [Replications](replications.qmd) page.
+
+That example model is intentionally simple, running only for a short duration. This setup produces great variability and requires a large number of replications to achieve stable results. For demonstration purposes, we increase the run time here to make it stabler, so fewer replications are required. This adjustment helps keep the example straightforward and concise for this section.
 
 <!--TODO: Once Tom updates sim-tools, import functions at start of script from sim-tools rather than here from local file-->
 ```{python}
@@ -77,8 +83,63 @@ The model being used is that from the [Replications](replications.qmd) page.
 ```
 
 ```{python}
+class Parameters:
+    """
+    Parameter class.
+
+    Attributes
+    ----------
+    interarrival_time : float
+        Mean time between arrivals (minutes).
+    consultation_time : float
+        Mean length of doctor's consultation (minutes).
+    number_of_doctors : int
+        Number of doctors.
+    warm_up_period : int
+        Duration of the warm-up period (minutes).
+    data_collection_period : int
+        Duration of the data collection period (minutes).
+    number_of_runs : int
+        The number of runs (i.e., replications).
+    verbose : bool
+        Whether to print messages as simulation runs.
+    """
+    def __init__(
+        self, interarrival_time=5, consultation_time=10, number_of_doctors=3,
+        warm_up_period=5000, data_collection_period=20000,#<<
+        number_of_runs=5, verbose=False
+    ):
+        """
+        Initialise Parameters instance.
+
+        Parameters
+        ----------
+        interarrival_time : float
+            Time between arrivals (minutes).
+        consultation_time : float
+            Length of consultation (minutes).
+        number_of_doctors : int
+            Number of doctors.
+        warm_up_period : int
+            Duration of the warm-up period (minutes).
+        data_collection_period : int
+            Duration of the data collection period (minutes).
+        number_of_runs : int
+            The number of runs (i.e., replications).
+        verbose : bool
+            Whether to print messages as simulation runs.
+        """
+        self.interarrival_time = interarrival_time
+        self.consultation_time = consultation_time
+        self.number_of_doctors = number_of_doctors
+        self.warm_up_period = warm_up_period
+        self.data_collection_period = data_collection_period
+        self.number_of_runs = number_of_runs
+        self.verbose = verbose
+```
+
+```{python}
 #| echo: false
-{{< include replications_resources/parameters.py >}}
 {{< include replications_resources/patient.py >}}
 {{< include replications_resources/model.py >}}
 {{< include replications_resources/summary_stats.py >}}
@@ -100,20 +161,22 @@ The model being used is that from the [Replications](replications.qmd) page.
 
 ::: {.python-content}
 
-To begin, we run our simulation model for multiple replications using our usual workflow.
+To begin, we run our simulation model for multiple replications using our usual workflow. Here, we have set to run for 30 replications.
+
+For this analysis, we are interested in the mean results from each replication (`result["run"]`).
 
 ```{python}
 # Run simulation for multiple replications
-runner = Runner(param=Parameters(number_of_runs=50))
+runner = Runner(param=Parameters(number_of_runs=30))
 result = runner.run_reps()
-result["run"].head()
+HTML(to_html_datatable(result["run"]))
 ```
 
-We then use the `confidence_interval_method` function from our [sim-tools](https://github.com/TomMonks/sim-tools) package.
+<br>
 
-We select the metrics to inspect and pass their results to the function. The `desired_precision` parameter is set to 0.1, which means we are interested in identifying when the percentage deviation of the confidence interval from the mean falls below 10%.
+We pass these results to the `confidence_interval_method` function from our [sim-tools](https://github.com/TomMonks/sim-tools) package.
 
-> **Note:** The 10% threshold is our default but is relatively arbitrary. The goal is just to achieve results that are "precise enough" - i.e., the average result is pretty stable with more replications.
+The `desired_precision` parameter is set to 0.1, which means we are interested in identifying when the percentage deviation of the confidence interval from the mean falls below 10%. *Note: This threshold is our default but relatively arbitrary. We are just using it to help us identify the point where results are stable enough.*
 
 ```{python}
 # Define metrics to inspect
@@ -127,21 +190,25 @@ confint_results = confidence_interval_method(
 )
 ```
 
+<br>
+
 The function returns dataframes for each metric that include cumulative calculations: the mean, cumulative mean, standard deviation, confidence interval bounds, and the percentage deviation of the confidence interval from the mean (displayed in the far-right column).
 
+For example, looking at mean wait time...
+
 ```{python}
-#| results: "asis"
-for metric in metrics:
-    print(to_html_datatable(confint_results[metric][1]))
+HTML(to_html_datatable(confint_results["mean_wait_time"][1]))
 ```
 
-To visualise when precision is achieved and check for stability, we can use the `plotly_confidence_interval_method` function from `sim-tools`. For example:
+<br>
+
+To visualise when precision is achieved and check for stability, we can use the `plotly_confidence_interval_method` function from [sim-tools](https://github.com/TomMonks/sim-tools):
 
 ```{python}
 p = plotly_confidence_interval_method(
     n_reps=confint_results["mean_wait_time"][0],
     conf_ints=confint_results["mean_wait_time"][1],
-    metric_name=metric)
+    metric_name="Mean wait time")
 p.update_layout(autosize=True, width=None, height=390)
 ```
 
@@ -151,15 +218,139 @@ p.update_layout(autosize=True, width=None, height=390)
 
 :::
 
-## Algorithm
+## Automated
+
+Using the automated method, an algorithm will tell us the number of runs needed. We will use the `ReplicationsAlgorithm` class from [sim-tools](https://github.com/TomMonks/sim-tools).
+
+Here's how it works:
+
+* The algorithm **runs the simulation model repeatedly**, for an **increasing number** of runs.
+* After each run, it checks if the results are **stable enough**. It does this by looking at the percentage deviation of the confidence interval from the mean.
+* The algorithm also incorporates a **look-ahead period**, meaning it continues to run the simulation and check that results stay stable for the next few runs (and that this wasn't just a lucky one-off!).
+
+<br>
+
+The `ReplicationsAlgorithm` can be used on a variety of model structures - it just requires a standardised interface, as defined by the `ReplicationsAlgorithmModelAdapter` class in `sim-tools` 
+
+What this essentially tells us is that the model needs to provide a `single_run(replication_number)` method, returning results in dictionary form.
+
+```{python}
+@runtime_checkable
+class ReplicationsAlgorithmModelAdapter(Protocol):
+    """
+    Adapter pattern for the "Replications Algorithm".
+
+    All models that use ReplicationsAlgorithm must provide a
+    single_run(replication_number) interface.
+    """
+
+    def single_run(self, replication_number: int) -> dict[str, float]:
+        """
+        Run a single unique replication of the model and return results.
+
+        Parameters
+        ----------
+        replication_number : int
+            The replication sequence number.
+
+        Returns
+        -------
+        dict[str, float]
+            {'metric_name': value, ... } for all metrics being tracked.
+        """
+```
+
+<br>
+
+To achieve this, we wrap our model's own execution logic inside an adapter class. The `SimulationAdapter` encapsulates simulation parameters, a runner, and the list of metrics you want to extract. Each call to `single_run` executes one replication and returns results in the correct dictionary format. 
+
+```{python}
+class SimulationAdapter:
+    """
+    Adapter for running model replications compatible with
+    ReplicationsAlgorithm.
+
+    Attributes
+    ----------
+    param : Parameters
+        The simulation parameter object for Runner.
+    metrics : list[str]
+        The metric(s) to output from each run.
+    runner : Runner
+        An instance of runner initialised with the provided parameters.
+    """
+    def __init__(self, param, metrics):
+        """
+        Initialise adapter.
+
+        Parameters
+        ----------
+        param : Parameters
+            The simulation parameter object for Runner.
+        metrics : list[str]
+            The metric(s) to output from each run.
+        """
+        self.param = param
+        self.metrics = metrics
+        self.runner = Runner(self.param)
+
+    def single_run(self, replication_number):
+        """
+        Run a single simulation replication and return required metrics.
+        """
+        result = self.runner.run_single(run=replication_number)
+        return {metric: result["run"][metric] for metric in self.metrics}
+```
+
+<br>
+
+For example:
+
+```{python}
+adapter = SimulationAdapter(param=Parameters(), metrics=metrics)
+adapter.single_run(replication_number=0)
+```
+
+<br>
+
+We can then use this adapter to run `ReplicationsAlgorithm`.
+
+```{python}
+# Set up model with adapter
+sim_model = SimulationAdapter(param=Parameters(), metrics=metrics)
+
+# Set up and run the algorithm
+analyser = ReplicationsAlgorithm(
+    alpha=0.05,
+    half_width_precision=0.1,
+    initial_replications=3,
+    look_ahead=5,
+    replication_budget=100,
+    verbose=False
+)
+nreps, summary_frame = analyser.select(model=sim_model, metrics=metrics)
+
+# View results
+print(nreps)
+HTML(to_html_datatable(summary_frame))
+```
+
+Again, can use `plotly_confidence_interval_method` to create plots, for example:
+
+```{python}
+p = plotly_confidence_interval_method(
+    n_reps = nreps["mean_wait_time"],
+    conf_ints = summary_frame[
+        summary_frame["metric"] == "mean_wait_time"].reset_index(),
+    metric_name="Mean wait time")
+p.show()
+```
 
 ## Explore the example models
 
 <div class="h3-tight"></div>
 
 ### Nurse visit simulation
-
-<!--TODO: Mention sensitivity analysis-->
 
 :::: {.python-content}
 
@@ -168,8 +359,8 @@ p.update_layout(autosize=True, width=None, height=390)
 ::: {.blue-table}
 | | |
 | - | - |
-| **Key files** | |
-| **What to look for?** | |
+| **Key files** | `simulation/SimulationAdapter`<br>`notebooks/choosing_replications.ipynb` |
+| **What to look for?** | Runs the manual and automated methods, as on this page. Includes a sensitivity analysis which checks the stability of the suggested number of replications, achieved by adding a `seed_offset` parameter that can be used to create a new set of seeds. The variation observed in the sensitivity analysis influences the chosen number of replications, and this is worth being aware of, if you also find yourself with a simulation with a relatively low suggested number of replications. |
 : {tbl-colwidths="[20,80]"}
 :::
 
@@ -209,6 +400,10 @@ Not relevant - replicating an existing model described in a paper, so just used 
 
 ## Test yourself
 
-TODO
+Have a go for yourself!
+
+Try using the manual and/or automated method to determine the appropriate number of replications for your model.
+
+See how varying model parameters like run length influences the suggested number.
 
 <br><br>
