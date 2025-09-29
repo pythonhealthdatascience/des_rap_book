@@ -38,7 +38,7 @@ model <- function(param, run_number) {
 
   # Extract information on arrivals and resources from simmer environment
   result <- list(
-    arrivals = get_mon_arrivals(env, per_resource = TRUE, ongoing = TRUE), 
+    arrivals = get_mon_arrivals(env, per_resource = TRUE, ongoing = TRUE),
     resources = get_mon_resources(env)
   )
 
