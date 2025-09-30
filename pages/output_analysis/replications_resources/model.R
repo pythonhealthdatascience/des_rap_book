@@ -3,9 +3,15 @@
 #' @param param List. Model parameters.
 #' @param run_number Numeric. Run number for random seed generation.
 #'
-#' @importFrom dplyr mutate
-#' @importFrom simmer add_generator get_mon_arrivals get_mon_resources run
-#' @importFrom simmer set_attribute simmer timeout trajectory
+#' @importFrom dplyr left_join mutate
+#' @importFrom rlang .data
+#' @importFrom simmer add_generator add_resource get_mon_arrivals 
+#' @importFrom simmer get_mon_resources now release run seize set_attribute
+#' @importFrom simmer simmer timeout trajectory
+#' @importFrom tidyr pivot_wider
+#'
+#' @return Named list with tables `arrivals`, `resources` and `run_results`.
+#' @export
 
 model <- function(param, run_number) {
 

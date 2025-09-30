@@ -369,7 +369,10 @@ We make two main changes to the `model()` function.
 #' @param param List. Model parameters.
 #' @param run_number Numeric. Run number for random seed generation.
 #'
-#' @importFrom simmer add_generator run simmer timeout trajectory
+#' @importFrom simmer add_generator add_resource release run seize simmer #<<
+#' @importFrom simmer timeout trajectory
+#'
+#' @export
 
 model <- function(param, run_number) {
 
@@ -382,13 +385,13 @@ model <- function(param, run_number) {
   # Define the patient trajectory
   patient <- trajectory("consultation") |>
     seize("doctor", 1L) |> #<<
-    timeout(function() {#<<
-      rexp(n = 1L, rate = 1L / param[["consultation_time"]])#<<
+    timeout(function() { #<<
+      rexp(n = 1L, rate = 1L / param[["consultation_time"]]) #<<
     }) |> #<<
-    release("doctor", 1L)#<<
+    release("doctor", 1L) #<<
 
   env <- env |>
-    # Add doctor resource#<<
+    # Add doctor resource #<<
     add_resource("doctor", param[["number_of_doctors"]]) |> #<<
     # Add patient generator
     add_generator("patient", patient, function() {

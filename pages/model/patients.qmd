@@ -413,6 +413,8 @@ We'll then create a function for the model (explained line by line below).
 #' @param run_number Numeric. Run number for random seed generation.
 #'
 #' @importFrom simmer add_generator run simmer timeout trajectory
+#' 
+#' @export
 
 model <- function(param, run_number) {
 
@@ -446,6 +448,8 @@ model <- function(param, run_number) {
 #' @param run_number Numeric. Run number for random seed generation.
 #' 
 #' @importFrom simmer add_generator run simmer timeout trajectory
+#' 
+#' @export
 
 model <- function(param, run_number) {
 ```
@@ -905,6 +909,8 @@ create_params <- function(interarrival_time = 5L,
 #' @param run_number Numeric. Run number for random seed generation.
 #'
 #' @importFrom simmer add_generator run simmer timeout trajectory
+#' 
+#' @export
 
 model <- function(param, run_number) {
 
@@ -914,11 +920,11 @@ model <- function(param, run_number) {
   # Create simmer environment
   env <- simmer("simulation", verbose = param[["verbose"]])
 
-  # Set up sampling distributions#<<
-  registry <- DistributionRegistry$new()#<<
-  param[["dist"]] <- registry$create_batch(#<<
-    as.list(param[["dist_config"]])#<<
-  )#<<
+  # Set up sampling distributions #<<
+  registry <- DistributionRegistry$new() #<<
+  param[["dist"]] <- registry$create_batch( #<<
+    as.list(param[["dist_config"]]) #<<
+  ) #<<
 
   # Define the patient trajectory
   patient <- trajectory("consultation") |>
@@ -927,7 +933,7 @@ model <- function(param, run_number) {
   env <- env |>
     # Add patient generator
     add_generator("patient", patient, function() {
-      param[["dist"]][["interarrival_time"]]()#<<
+      param[["dist"]][["interarrival_time"]]() #<<
     }) |>
     # Run the simulation
     simmer::run(until = param[["run_length"]])
