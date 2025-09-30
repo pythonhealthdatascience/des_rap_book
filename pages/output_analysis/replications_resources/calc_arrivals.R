@@ -2,6 +2,9 @@
 #'
 #' @param arrivals Dataframe with times for each patient with each resource.
 #'
+#' @importFrom dplyr n_distinct summarise ungroup
+#' @importFrom rlang .data
+#'
 #' @return Tibble with column containing total number of arrivals.
 #' @export
 

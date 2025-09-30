@@ -439,7 +439,8 @@ Add `get_mon_arrivals()` and `get_mon_resources()`.
 #' @importFrom simmer add_generator add_resource get_mon_arrivals #<<
 #' @importFrom simmer get_mon_resources release run seize simmer timeout #<<
 #' @importFrom simmer trajectory
-#' 
+#'
+#' @return Named list with tables `arrivals` and `resources`. #<<
 #' @export
 
 model <- function(param, run_number) {
@@ -469,12 +470,12 @@ model <- function(param, run_number) {
     simmer::run(until = (param[["warm_up_period"]] +
                            param[["data_collection_period"]]))
 
-  # Extract information on arrivals and resources from simmer environment
-  result <- list(
+  # Extract information on arrivals and resources from simmer environment #<<
+  result <- list( #<<
     arrivals = get_mon_arrivals(env, per_resource = TRUE, ongoing = TRUE), #<<
     resources = get_mon_resources(env) #<<
-  )
-  result
+  ) #<<
+  result #<<
 }
 ```
 
@@ -501,9 +502,10 @@ To implement a warm-up period in `simmer`, we need to modify these output datafr
 #' @param result Named list with two tables: monitored arrivals & resources.
 #' @param warm_up_period Length of warm-up period.
 #'
-#' @importFrom dplyr ungroup arrange slice n filter
+#' @importFrom dplyr arrange filter group_by mutate n slice ungroup
+#' @importFrom rlang .data
 #'
-#' @return The name list `result`, but with the tables (`arrivals` and
+#' @return The named list `result`, but with the tables (`arrivals` and
 #' `resources`) filtered to remove warm-up results.
 #' @export
 
@@ -555,9 +557,10 @@ filter_warmup <- function(result, warm_up_period) {
 #' @param result Named list with two tables: monitored arrivals & resources.
 #' @param warm_up_period Length of warm-up period.
 #'
-#' @importFrom dplyr ungroup arrange slice n filter
+#' @importFrom dplyr arrange filter group_by mutate n slice ungroup
+#' @importFrom rlang .data
 #'
-#' @return The name list `result`, but with the tables (`arrivals` and
+#' @return The named list `result`, but with the tables (`arrivals` and
 #' `resources`) filtered to remove warm-up patients.
 #' @export
 

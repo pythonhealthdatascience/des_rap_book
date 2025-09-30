@@ -349,7 +349,13 @@ p.show()
 #' @param interactive Boolean. Whether to render interactive or static plot.
 #' @param save_path String. Path to save static file to (inc. name and
 #' filetype). If NULL, then will not save.
-#' 
+#'
+#' @importFrom ggplot2 aes geom_line ggplot ggsave labs theme_minimal
+#' @importFrom plotly ggplotly
+#' @importFrom rlang .data
+#'
+#' @return A ggplot object (static) or a plotly object (interactive type),
+#' depending on `interactive` parameter.
 #' @export
 
 inspect_time_series <- function(
@@ -485,6 +491,12 @@ p.show()
 #' @param save_path String. Path to save static file to (inc. name and
 #' filetype). If NULL, then will not save.
 #'
+#' @importFrom ggplot2 aes geom_histogram ggplot ggsave labs theme theme_minimal
+#' @importFrom plotly ggplotly
+#' @importFrom rlang .data
+#'
+#' @return A ggplot object (static) or a plotly object (interactive type),
+#' depending on `interactive` parameter.
 #' @export
 
 inspect_histogram <- function(
@@ -495,10 +507,16 @@ inspect_histogram <- function(
 
   # Create plot
   p <- ggplot(data, aes(x = .data[[var]])) +
-    geom_histogram(aes(text = paste0("<span style='color:white'>", x_lab, ": ",
-                                     round(after_stat(x), 2L), "<br>Count: ",  # nolint: object_usage_linter
-                                     after_stat(count), "</span>")),
-                   fill = "#727af4", bins = 30L) +
+    geom_histogram(
+      aes(
+        text = paste0(
+          "<span style='color:white'>", x_lab, ": ",
+          round(after_stat(x), 2L), "<br>Count: ", # nolint: object_usage_linter
+          after_stat(.data[["count"]]), "</span>"
+        )
+      ),
+      fill = "#727af4", bins = 30L
+    ) +
     labs(x = x_lab, y = "Count") +
     theme_minimal() +
     theme(legend.position = "none")

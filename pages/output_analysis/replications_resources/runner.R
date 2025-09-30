@@ -1,7 +1,7 @@
 #' Run simulation for multiple replications.
-#' 
+#'
 #' @param param Named list of model parameters.
-#' 
+#'
 #' @return List with three tables: arrivals, resources and run_results.
 #' @export
 
@@ -33,11 +33,9 @@ runner <- function(param) {
   )
 
   # Return a list containing the combined tables
-  return(
-    list(
-      arrivals = all_arrivals,
-      resources = all_resources,
-      run_results = all_run_results
-    )
+  list(
+    arrivals = all_arrivals,
+    resources = all_resources,
+    run_results = all_run_results
   )
 }

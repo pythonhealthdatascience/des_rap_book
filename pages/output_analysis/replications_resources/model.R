@@ -5,7 +5,7 @@
 #'
 #' @importFrom dplyr left_join mutate
 #' @importFrom rlang .data
-#' @importFrom simmer add_generator add_resource get_mon_arrivals 
+#' @importFrom simmer add_generator add_resource get_mon_arrivals
 #' @importFrom simmer get_mon_resources now release run seize set_attribute
 #' @importFrom simmer simmer timeout trajectory
 #' @importFrom tidyr pivot_wider

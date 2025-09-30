@@ -738,14 +738,14 @@ If parameters are imported from a file (e.g., using a function that saves them a
 In this example, we have a package `simulation` where the parameters are in `extdata/parameters.json`, and a function `parameters()` which returns a named list of parameters, one of which is a list itself (`dist_config`) and so is checked separately.
 
 ```{r}
-# nolint start: object_usage_linter
-
 #' Validate parameter names.
 #'
 #' Ensure that all required parameters are present,
 #' and no extra parameters are provided.
 #'
 #' @param param List containing parameters for the simulation.
+#'
+#' @importFrom rjson fromJSON
 #'
 #' @return Throws an error if there are missing or extra parameters.
 #' @export
@@ -768,14 +768,12 @@ check_param_names_json <- function(param, param_file) {
          "Extra: ", extra_names, ".", call. = FALSE)
 
   # Check the names in param
-  missing_names <- setdiff(names(parameters()), names(param))
-  extra_names <- setdiff(names(param), names(parameters()))
+  missing_names <- setdiff(names(param_function()), names(param))
+  extra_names <- setdiff(names(param), names(param_function()))
   if (length(missing_names) > 0L || length(extra_names) > 0L)
     stop("Problem in param. Missing: ", missing_names, ". ",
          "Extra: ", extra_names, ".", call. = FALSE)
 }
-
-# nolint end
 ```
 
 Then, in our **model function**, we call the relevant validation function to check all inputs before proceeding with the simulation:

@@ -225,9 +225,10 @@ No changes required.
 #' @param result Named list with two tables: monitored arrivals & resources.
 #' @param warm_up_period Length of warm-up period.
 #'
-#' @importFrom dplyr ungroup arrange slice n filter
+#' @importFrom dplyr arrange filter group_by n slice ungroup
+#' @importFrom rlang .data
 #'
-#' @return The name list `result`, but with the tables (`arrivals` and
+#' @return The named list `result`, but with the tables (`arrivals` and
 #' `resources`) filtered to remove warm-up results.
 #' @export
 
@@ -421,6 +422,8 @@ We introduce a new function `calc_arrivals()`. This determines the number of arr
 #' Calculate the number of arrivals
 #'
 #' @param arrivals Dataframe with times for each patient with each resource.
+#'
+#' @importFrom dplyr n_distinct summarise ungroup
 #'
 #' @return Tibble with column containing total number of arrivals.
 #' @export
@@ -758,7 +761,10 @@ A new `calc_mean_wait()` function removes patients still waiting (since their wa
 #'
 #' @param arrivals Dataframe with times for each patient with each resource.
 #'
-#' @importFrom tidyr drop_na
+#' @importFrom dplyr group_by summarise ungroup
+#' @importFrom rlang .data
+#' @importFrom tidyr drop_na pivot_wider
+#' @importFrom tidyselect any_of
 #'
 #' @return Tibble with columns containing result for each resource.
 #' @export
@@ -770,8 +776,8 @@ calc_mean_wait <- function(arrivals) {
 
   # Calculate mean wait time for each resource
   complete_arrivals |>
-    group_by(resource) |>
-    summarise(mean_wait_time = mean(wait_time)) |>
+    group_by(.data[["resource"]]) |>
+    summarise(mean_wait_time = mean(.data[["wait_time"]])) |>
     pivot_wider(names_from = "resource",
                 values_from = "mean_wait_time",
                 names_glue = "mean_wait_time_{resource}") |>
@@ -827,7 +833,7 @@ We can calculate the wait time for each patient by subtracting their arrival tim
 #' @importFrom simmer get_mon_resources now release run seize set_attribute #<<
 #' @importFrom simmer simmer timeout trajectory
 #' @importFrom tidyr pivot_wider #<<
-#' 
+#'
 #' @return Named list with tables `arrivals`, `resources` and `run_results`.
 #' @export
 
@@ -904,7 +910,7 @@ model <- function(param, run_number) {
 ```{r}
 param <- create_params()
 result <- model(param = param, run_number = 1L)
-kable(result[["arrivals"]] |> arrange(start_time))
+kable(arrange(result[["arrivals"]], start_time))
 kable(result[["run_results"]])
 ```
 
@@ -1023,6 +1029,11 @@ A new function `calc_mean_serve_length()` finds the mean length of time patients
 #' @param resources Dataframe with times patients use or queue for resources.
 #' @param groups Optional list of columns to group by for the calculation.
 #'
+#' @importFrom dplyr group_by summarise ungroup
+#' @importFrom rlang .data
+#' @importFrom tidyr drop_na pivot_wider
+#' @importFrom tidyselect any_of
+#'
 #' @return Tibble with columns containing result for each resource.
 #' @export
 
@@ -1033,8 +1044,8 @@ calc_mean_serve_length <- function(arrivals, resources, groups = NULL) {
 
   # Calculate mean serve time for each resource
   complete_arrivals |>
-    group_by(resource) |>
-    summarise(mean_serve_time = mean(serve_length)) |>
+    group_by(.data[["resource"]]) |>
+    summarise(mean_serve_time = mean(.data[["serve_length"]])) |>
     pivot_wider(names_from = "resource",
                 values_from = "mean_serve_time",
                 names_glue = "mean_time_with_{resource}") |>
@@ -1121,7 +1132,7 @@ model <- function(param, run_number) {
 
   # Extract information on arrivals and resources from simmer environment
   result <- list(
-    arrivals = get_mon_arrivals(env, per_resource = TRUE, ongoing = TRUE), 
+    arrivals = get_mon_arrivals(env, per_resource = TRUE, ongoing = TRUE),
     resources = get_mon_resources(env)
   )
 
@@ -1161,7 +1172,7 @@ model <- function(param, run_number) {
 ```{r}
 param <- create_params()
 result <- model(param = param, run_number = 1L)
-kable(result[["arrivals"]] |> arrange(start_time))
+kable(arrange(result[["arrivals"]], start_time))
 kable(result[["run_results"]])
 ```
 
@@ -1832,6 +1843,10 @@ The function is explained line-by-line below...
 #' the resource dataframe with the additional columns interval_duration,
 #' effective_capacity and utilisation.
 #'
+#' @importFrom dplyr group_by mutate ungroup
+#' @importFrom rlang .data
+#' @importFrom tidyr pivot_wider
+#'
 #' @return Tibble with columns containing result for each resource.
 #' @export
 
@@ -1839,7 +1854,7 @@ calc_utilisation <- function(resources, summarise = TRUE) {
 
   # Calculate utilisation
   util_df <- resources |>
-    group_by(resource) |>
+    group_by(.data[["resource"]]) |>
     mutate(
       # Time between this row and the next
       interval_duration = lead(.data[["time"]]) - .data[["time"]],
@@ -1893,6 +1908,10 @@ calc_utilisation <- function(resources, summarise = TRUE) {
 #' @param summarise If TRUE, return overall utilisation. If FALSE, just return
 #' the resource dataframe with the additional columns interval_duration,
 #' effective_capacity and utilisation.
+#'
+#' @importFrom dplyr group_by mutate ungroup
+#' @importFrom rlang .data
+#' @importFrom tidyr pivot_wider
 #'
 #' @return Tibble with columns containing result for each resource.
 #' @export
@@ -2273,12 +2292,15 @@ The sum of these products is then divided by the total observed time to find the
 #'
 #' @param arrivals Dataframe with times for each patient with each resource.
 #'
+#' @importFrom dplyr arrange group_by lead mutate summarise ungroup
+#' @importFrom tidyr pivot_wider
+#'
 #' @return Tibble with column containing mean queue length.
 #' @export
 
 calc_mean_queue_length <- function(arrivals) {
   arrivals |>
-    group_by(resource) |>
+    group_by(.data[["resource"]]) |>
     # Sort by arrival time
     arrange(.data[["start_time"]]) |>
     # Calculate time between this row and the next
@@ -2384,7 +2406,7 @@ model <- function(param, run_number) {
 
   # Extract information on arrivals and resources from simmer environment
   result <- list(
-    arrivals = get_mon_arrivals(env, per_resource = TRUE, ongoing = TRUE), 
+    arrivals = get_mon_arrivals(env, per_resource = TRUE, ongoing = TRUE),
     resources = get_mon_resources(env)
   )
 
@@ -2422,7 +2444,7 @@ model <- function(param, run_number) {
 ```{r}
 param <- create_params()
 result <- model(param = param, run_number = 1L)
-kable(result[["arrivals"]] |> arrange(start_time))
+kable(arrange(result[["arrivals"]], start_time))
 kable(result[["run_results"]])
 ```
 
@@ -2710,6 +2732,8 @@ The `calc_mean_time_in_system()` function finds the mean of a new column `time_i
 #'
 #' @param arrivals Dataframe with times for each patient with each resource.
 #'
+#' @importFrom dplyr summarise ungroup
+#'
 #' @return Tibble with column containing the mean time in the system.
 #' @export
 
@@ -2795,7 +2819,7 @@ model <- function(param, run_number) {
 
   # Extract information on arrivals and resources from simmer environment
   result <- list(
-    arrivals = get_mon_arrivals(env, per_resource = TRUE, ongoing = TRUE), 
+    arrivals = get_mon_arrivals(env, per_resource = TRUE, ongoing = TRUE),
     resources = get_mon_resources(env)
   )
 
@@ -2825,7 +2849,7 @@ model <- function(param, run_number) {
 ```{r}
 param <- create_params()
 result <- model(param = param, run_number = 1L)
-kable(result[["arrivals"]] |> arrange(start_time))
+kable(arrange(result[["arrivals"]], start_time))
 kable(result[["run_results"]])
 ```
 
@@ -3140,6 +3164,8 @@ It is a **time-weighted calculation** which multiplies the patient count in each
 #'
 #' @param patient_count Dataframe with patient counts over time.
 #'
+#' @importFrom dplyr arrange lead mutate summarise ungroup
+#'
 #' @return Tibble with column containing mean number of patients in the system.
 #' @export
 
@@ -3244,7 +3270,7 @@ model <- function(param, run_number) {
 
   # Extract information on arrivals and resources from simmer environment
   result <- list(
-    arrivals = get_mon_arrivals(env, per_resource = TRUE, ongoing = TRUE), 
+    arrivals = get_mon_arrivals(env, per_resource = TRUE, ongoing = TRUE),
     resources = get_mon_resources(env)
   )
 
@@ -3685,12 +3711,15 @@ The `calc_unseen_n` function finds the count of patients who have a result in th
 #'
 #' @param arrivals Dataframe with times for each patient with each resource.
 #'
+#' @importFrom dplyr arrange lead mutate summarise ungroup
+#' @importFrom rlang .data
+#'
 #' @return Tibble with columns containing result for each resource.
 #' @export
 
 calc_unseen_n <- function(arrivals, groups = NULL) {
   arrivals |>
-    group_by(resource) |>
+    group_by(.data[["resource"]]) |>
     summarise(value = sum(!is.na(.data[["wait_time_unseen"]]))) |>
     pivot_wider(names_from = "resource",
                 values_from = "value",
@@ -3709,12 +3738,16 @@ The `calc_unseen_mean` function finds the mean of a new column `wait_time_unseen
 #'
 #' @param arrivals Dataframe with times for each patient with each resource.
 #'
+#' @importFrom dplyr group_by summarise ungroup
+#' @importFrom rlang .data
+#' @importFrom tidyr pivot_wider
+#'
 #' @return Tibble with columns containing result for each resource.
 #' @export
 
 calc_unseen_mean <- function(arrivals) {
   arrivals |>
-    group_by(resource) |>
+    group_by(.data[["resource"]]) |>
     summarise(value = mean(.data[["wait_time_unseen"]], na.rm = TRUE)) |>
     pivot_wider(names_from = "resource",
                 values_from = "value",
@@ -3743,8 +3776,8 @@ In `get_run_results()`, the table `results[["arrivals"]]` is passed to `calc_uns
 
 get_run_results <- function(results, run_number) {
   metrics <- list(
-    calc_unseen_n(results[["arrivals"]]),#<<
-    calc_unseen_mean(results[["arrivals"]])#<<
+    calc_unseen_n(results[["arrivals"]]), #<<
+    calc_unseen_mean(results[["arrivals"]]) #<<
   )
   dplyr::bind_cols(tibble(replication = run_number), metrics)
 }
@@ -3805,7 +3838,7 @@ model <- function(param, run_number) {
 
   # Extract information on arrivals and resources from simmer environment
   result <- list(
-    arrivals = get_mon_arrivals(env, per_resource = TRUE, ongoing = TRUE), 
+    arrivals = get_mon_arrivals(env, per_resource = TRUE, ongoing = TRUE),
     resources = get_mon_resources(env)
   )
 
@@ -3913,14 +3946,14 @@ It's called "**area under the curve**" because, when you plot the measure (e.g.,
 # Create a data frame for queue size and time
 queue_df <- data.frame(
   time = c(0.0, 14.4, 15.2, 16.1, 17.0),
-  queue = c(0, 1, 2, 3, 3)
+  queue = c(0L, 1L, 2L, 3L, 3L)
 )
 
 # Use geom_step for step plot, horizontal-then-vertical (hv) style
 p <- ggplot(queue_df, aes(x = time, y = queue)) +
   geom_step(direction = "hv", color = "blue", linewidth = 1.2) +
-  scale_x_continuous(breaks = seq(0, 18, by = 2)) +
-  scale_y_continuous(breaks = seq(0, 3, by = 1)) +
+  scale_x_continuous(breaks = seq(0L, 18L, by = 2L)) +
+  scale_y_continuous(breaks = seq(0L, 3L, by = 1L)) +
   labs(x = "Time", y = "Queue size") +
   theme_minimal()
 
