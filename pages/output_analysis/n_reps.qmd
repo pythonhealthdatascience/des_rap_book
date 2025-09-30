@@ -58,13 +58,21 @@ library(tidyr)
 
 ::::
 
+<br><br>
+
+When running your simulation model, each replication will give a slightly different result because of randomness. To get a reliable estimate of any performance measure (such as average waiting time), you run the simulation multiple times and take the average across all these runs.
+
+**How many replications should you run?** If you run **too few**, your average could jump around alot with varying seeds, making your result unstable and unreliable. If you run **too many**, it will take a long time and use more computing resources than needed. To find a sensible balance, we can use the **confidence interval method**.
+
 ## Confidence interval method
 
-The **confidence interval method** can be used to select the number of replications to run. The more replications you run, the narrower your confidence interval becomes, leading to a more precise estimate of the model's mean performance.
+When finding the average result across several simulation runs, you can also calculate a **confidence interval**. This is a measure of variation which shows the range where your true average result is likely to fall. You should choose a suitable confidence level (typically 95%).
 
-First, you select a **desired confidence interval** - for example, 95%. Then, run the model with an **increasing number of replications**, and identify the number required to achieve that precision in the estimate of a given metric - and also, to maintain that precision (as the intervals may converge or expand again later on).
+Then, run your simulation for an **increasing number of replications**. At first, this confidence interval might jump around as different replication produce varying results. However, after enough runs, the interval will settle into a **stable and narrow** range. At this point, you can assume that adding more runs probably wouldn't change your answer by much. 
 
-![](n_reps_resources/nreps_graph.png)
+<br>
+
+![](n_reps_resources/nreps_graph.png){fig-align="center"}
 
 When selecting the number of replications you should **repeat the analysis for all performance measures** and select the highest value as your number of replications.
 
@@ -208,7 +216,7 @@ To visualise when precision is achieved and check for stability, we can use the 
 p = plotly_confidence_interval_method(
     n_reps=confint_results["mean_wait_time"][0],
     conf_ints=confint_results["mean_wait_time"][1],
-    metric_name="Mean wait time")
+    metric_name="Wait Time")
 p.update_layout(autosize=True, width=None, height=390)
 ```
 
@@ -343,7 +351,7 @@ p = plotly_confidence_interval_method(
     conf_ints = summary_frame[
         summary_frame["metric"] == "mean_wait_time"].reset_index(),
     metric_name="Mean wait time")
-p.show()
+p.update_layout(autosize=True, width=None, height=390)
 ```
 
 ## Explore the example models
@@ -402,8 +410,8 @@ Not relevant - replicating an existing model described in a paper, so just used 
 
 Have a go for yourself!
 
-Try using the manual and/or automated method to determine the appropriate number of replications for your model.
+Try out both the manual and automated methods described above to work out how many replications you need for your own simulation model.
 
-See how varying model parameters like run length influences the suggested number.
+See what happens if you change model parameters like run length - notice how this affects the recommended number of replications.
 
 <br><br>

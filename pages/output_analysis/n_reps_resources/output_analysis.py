@@ -642,6 +642,7 @@ def plotly_confidence_interval_method(
     fig.update_layout(
         width=figsize[0],
         height=figsize[1],
+        xaxis_title="Replications",
         yaxis_title=f"Cumulative Mean: {metric_name}",
         hovermode="x unified",
         showlegend=True,
