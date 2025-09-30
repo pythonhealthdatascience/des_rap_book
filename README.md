@@ -154,6 +154,16 @@ Note: inactive code (i.e. code that does not get run when building the book) wil
 
 <br>
 
+## Pre-commit
+
+To activate the pre-commit hook, run the following from your python environment:
+
+```{.python}
+pre-commit install
+```
+
+<br>
+
 ## Funding
 
 This project is supported by the Medical Research Council [grant number [MR/Z503915/1](https://gtr.ukri.org/projects?ref=MR%2FZ503915%2F1)].
