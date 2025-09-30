@@ -156,7 +156,15 @@ Note: inactive code (i.e. code that does not get run when building the book) wil
 
 ## Pre-commit
 
-To activate the pre-commit hook, run the following from your python environment:
+To activate the pre-commit hook...
+
+1. Make the bash script executable - from command line, run:
+
+```{.bash}
+chmod +x .pre-commit-hooks/check-no-quarto-r-include.sh
+```
+
+2. Run the following from your python environment on the command line:
 
 ```{.python}
 pre-commit install
