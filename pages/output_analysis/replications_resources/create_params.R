@@ -11,6 +11,7 @@
 #' @param verbose Boolean. Whether to print messages as simulation runs.
 #'
 #' @return A named list of parameters.
+#' @export
 
 create_params <- function(
   interarrival_time = 5L,

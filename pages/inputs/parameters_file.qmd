@@ -407,11 +407,12 @@ print_dict(param, 4)
 #'
 #' @return Named list of simulation parameters (nested).
 #' @export
+
 create_parameters <- function(json_file, number_of_runs = 10L) {
   json_content <- jsonlite::fromJSON(json_file)
   param_list <- json_content$simulation_parameters
   param_list$number_of_runs <- number_of_runs
-  return(param_list)
+  param_list
 }
 
 # Example usage:
@@ -468,12 +469,13 @@ print_dict(param, 4)
 #'
 #' @return Named list of simulation parameters (flat).
 #' @export
+
 create_parameters <- function(csv_file, number_of_runs = 10L) {
   csv_content <- read.csv(csv_file)
   lst <- as.list(csv_content$value)
   names(lst) <- paste(csv_content$patient, csv_content$metric, sep = "_")
   lst$number_of_runs <- number_of_runs
-  return(lst)
+  lst
 }
 
 # Example usage:
@@ -529,13 +531,14 @@ print_dict(param, 4)
 #'
 #' @return Named list of simulation parameters (nested).
 #' @export
+
 create_parameters <- function(csv_file, number_of_runs = 10L) {
   csv_content <- read.csv(csv_file)
   lst <- lapply(split(csv_content, csv_content$patient), function(subset) {
     setNames(as.list(subset$value), subset$metric)
   })
   lst$number_of_runs <- number_of_runs
-  return(lst)
+  lst
 }
 
 # Example usage:
@@ -854,6 +857,7 @@ Use a helper function that loads the data and matches it to the class attributes
 #'   "patient", "metric", "value".
 #'
 #' @return An instance of `Parameters` R6 class.
+#' @export
 
 setup_param_from_csv <- function(csv_path) {
 
@@ -888,6 +892,7 @@ Or, from a JSON file:
 #' @param json_path Character. Path to JSON file containing the parameters.
 #'
 #' @return A named list containing all simulation parameters.
+#' @export
 
 setup_param_from_json <- function(json_path) {
 

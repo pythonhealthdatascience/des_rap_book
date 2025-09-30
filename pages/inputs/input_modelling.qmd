@@ -340,19 +340,21 @@ p.show()
 ::: {.r-content}
 
 ```{r}
+#' Plot time-series
+#'
+#' @param time_series Dataframe with date column and numeric column to plot.
+#' @param date_col String. Name of column with dates.
+#' @param value_col String. Name of column with numeric values.
+#' @param y_lab String. Y axis label.
+#' @param interactive Boolean. Whether to render interactive or static plot.
+#' @param save_path String. Path to save static file to (inc. name and
+#' filetype). If NULL, then will not save.
+#' 
+#' @export
+
 inspect_time_series <- function(
   time_series, date_col, value_col, y_lab, interactive, save_path = NULL
 ) {
-  #' Plot time-series
-  #'
-  #' @param time_series Dataframe with date column and numeric column to plot.
-  #' @param date_col String. Name of column with dates.
-  #' @param value_col String. Name of column with numeric values.
-  #' @param y_lab String. Y axis label.
-  #' @param interactive Boolean. Whether to render interactive or static plot.
-  #' @param save_path String. Path to save static file to (inc. name and
-  #' filetype). If NULL, then will not save.
-
   # Create custom tooltip text
   time_series$tooltip_text <- paste0(
     "<span style='color:white'>",
@@ -474,18 +476,20 @@ p.show()
 :::{.r-content}
 
 ```{r}
+#' Plot histogram
+#'
+#' @param data A dataframe or tibble containing the variable to plot.
+#' @param var String. Name of the column to plot as a histogram.
+#' @param x_lab String. X axis label.
+#' @param interactive Boolean. Whether to render interactive or static plot.
+#' @param save_path String. Path to save static file to (inc. name and
+#' filetype). If NULL, then will not save.
+#'
+#' @export
+
 inspect_histogram <- function(
   data, var, x_lab, interactive, save_path = NULL
 ) {
-  #' Plot histogram
-  #'
-  #' @param data A dataframe or tibble containing the variable to plot.
-  #' @param var String. Name of the column to plot as a histogram.
-  #' @param x_lab String. X axis label.
-  #' @param interactive Boolean. Whether to render interactive or static plot.
-  #' @param save_path String. Path to save static file to (inc. name and
-  #' filetype). If NULL, then will not save.
-
   # Remove non-finite values
   data <- data[is.finite(data[[var]]), ]
 
@@ -635,15 +639,16 @@ paste0(round(sum(data_service == 0L) / length(data_service) * 100L, 2L), "%")
 ```
 
 ```{r}
-fit_distributions <- function(data, dists) {
-  #' Compute Kolmogorov-Smirnov Statistics for Fitted Distributions
-  #'
-  #' @param data Numeric vector. The data to fit distributions to.
-  #' @param dists Character vector. Names of distributions to fit.
-  #'
-  #' @return Named numeric vector of Kolmogorov-Smirnov statistics, one per
-  #' distribution.
+#' Compute Kolmogorov-Smirnov Statistics for Fitted Distributions
+#'
+#' @param data Numeric vector. The data to fit distributions to.
+#' @param dists Character vector. Names of distributions to fit.
+#'
+#' @return Named numeric vector of Kolmogorov-Smirnov statistics, one per
+#' distribution.
+#' @export
 
+fit_distributions <- function(data, dists) {
   # Define distribution requirements
   positive_only <- c("lnorm", "weibull")
   non_negative <- c("exp", "gamma")
