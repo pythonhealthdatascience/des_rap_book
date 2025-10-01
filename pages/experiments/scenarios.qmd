@@ -344,8 +344,9 @@ We can now use `run_scenarios()` to execute every possible combination of the sp
 ```{python}
 # Run scenarios
 scenario_results = run_scenarios(
-    scenarios = {"interarrival_time": [4, 5, 6],
-                 "number_of_doctors": [2, 3, 4]}
+    scenarios = {"interarrival_time": [4, 5, 6, 7, 8],
+                 "number_of_doctors": [3, 4, 5]},
+    param_factory = lambda: Parameters(number_of_runs = 100)
 )
 
 # View scenario results
@@ -372,14 +373,13 @@ def plot_scenario(results, x_var, result_var, colour_var=None, name_mappings=Non
             Dictionary mapping column names to labels. If not provided,
             function will default to variable names.
     """
-    # If x_var and colour_var are provided, combine both in a list to use
-    # as grouping variables when calculating average results
+    # Set up groupings
     if colour_var is not None:
         group_vars = [x_var, colour_var]
     else:
         group_vars = [x_var]
 
-    # Calculate average results from each scenario
+    # Calculate summary statistics for each scenario: mean, std, CI
     df = (
         results.groupby(group_vars)[result_var]
         .apply(summary_stats)
@@ -389,22 +389,53 @@ def plot_scenario(results, x_var, result_var, colour_var=None, name_mappings=Non
     df.columns = (list(df.columns[:-4]) +
                   ["mean", "std_dev", "ci_lower", "ci_upper"])
 
-    # Plot mean line
-    fig = px.line(df, x=x_var, y="mean", color=colour_var)
+    # Initialise figure
+    fig = go.Figure()
+
+    # Handling color mappings (optional)
+    if colour_var:
+        unique_groups = df[colour_var].unique()
+        colors = px.colors.qualitative.Plotly
+        color_map = {group: colors[i % len(colors)] for i, group in enumerate(unique_groups)}
+    else:
+        color_map = {None: "blue"}
+
+    # Plot each scenario line and its shaded confidence interval
+    groups = df.groupby(colour_var) if colour_var else [(None, df)]
+    for group_name, group_data in groups:
+        x = group_data[x_var].values
+        mean = group_data["mean"].values
+        ci_upper = group_data["ci_upper"].values
+        ci_lower = group_data["ci_lower"].values
+        color = color_map[group_name]
+
+        # Filled confidence interval region
+        fig.add_trace(go.Scatter(
+            x = np.concatenate([x, x[::-1]]),
+            y = np.concatenate([ci_upper, ci_lower[::-1]]),
+            fill = "toself",
+            fillcolor = "rgba(0,100,80,0.2)",
+            line = dict(color="rgba(255,255,255,0)"),
+            showlegend=False,
+            name = f"95% CI {group_name}" if group_name is not None else "95% CI"
+        ))
+
+        # Mean line
+        fig.add_trace(go.Scatter(
+            x = x,
+            y = mean,
+            mode = "lines",
+            line = dict(color = color, width=2),
+            name = str(group_name) if group_name is not None else "Mean"
+        ))
+
+    # Set labels and layout
     fig.update_layout(
-        xaxis_title=name_mappings.get(x_var, x_var),
-        yaxis_title=name_mappings.get(result_var, result_var),
-        legend_title_text=name_mappings.get(colour_var, colour_var),
+        xaxis_title=name_mappings.get(x_var, x_var) if name_mappings else x_var,
+        yaxis_title=name_mappings.get(result_var, result_var) if name_mappings else result_var,
+        legend_title_text=name_mappings.get(colour_var, colour_var) if colour_var and name_mappings else (colour_var if colour_var else None),
         template="plotly_white"
     )
-
-    # Plot confidence interval lines
-    for ci in ["ci_upper", "ci_lower"]:
-        trace = (px.line(df, x=x_var, y=ci, color=colour_var)
-                 .update_traces(opacity=0.5, showlegend=False)
-                 .select_traces())
-        # Add to figure
-        fig.add_traces(list(trace))
 
     return df, fig
 ```
