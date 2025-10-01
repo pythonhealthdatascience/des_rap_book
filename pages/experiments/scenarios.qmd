@@ -1,11 +1,455 @@
 ---
 title: ❌ Scenario analysis
+bibliography: scenarios_resources/references.bib
 ---
 
-:::{.guidelines}
+{{< include ../../scripts/_reticulate-setup.md >}}
+
+:::: {.pale-blue}
+
+**Learning objectives:**
+
+* Understand the importance of sharing your scenario code.
+* Learn how to run scenarios from a script or csv.
+
+**Relevant reproducibility guidelines:**
+
 * STARS Reproducibility Recommendations (⭐): Provide code for all scenarios and sensitivity analyses.
+
+**Pre-reading:**
+
+This page continues on from: [Replications](../output_analysis/replications.qmd).
+
+> *Entity generation → Entity processing → Initialisation bias → Performance measures → Replications → Scenario analysis*
+
+**Required packages:**
+
+These should be available from environment setup in the "Test yourself" section of [Environments](../setup/environment.qmd). 
+
+::: {.python-content}
+
+```{python}
+from IPython.display import HTML
+from itables import to_html_datatable
+import itertools
+import numpy as np
+import pandas as pd
+import plotly.express as px
+import plotly.graph_objects as go
+import scipy.stats as st
+import simpy
+from sim_tools.distributions import Exponential
+```
+
+```{python}
+#| echo: false
+# To ensure renders correctly in quarto
+import plotly.io as pio  # pylint: disable=ungrouped-imports
+pio.renderers.default = "plotly_mimetype"
+```
+
 :::
 
-<!--TODO: scenarions in script direct but also scenarios from csv-->
+::: {.r-content}
+
+```{r}
+#| output: false
+library(dplyr)
+library(kableExtra)
+library(knitr)
+library(simmer)
+library(tidyr)
+```
+
+:::
+
+::::
+
+## Running and sharing scenarios
+
+When creating a DES, you won't just run one model - you run scenarios, which are different parameter set-ups. These are used to test how outcomes change under varying conditions.
+
+When running scenarios, there are two important things to remember:
+
+::: {.cream}
+
+**1. Run scenarios programmatically.**
+
+:::
+
+Don't duplicate whole scripts just to test different set-ups. The idea is to build the model with functions and classes so you only need to change the parameters and re-run. That's why we guide you through building the model this way in this book.
+
+::: {.cream}
+
+**2. Share your scenario code.**
+
+:::
+
+You should share code and data for every scenario - not just the base case.
+
+In @Heather2025, six out of seven studies with scenarios lacked scenario code. This made it challenging and time-consuming to reproduce their results, as descriptions of the scenarios in the articles were often ambiguous and key parameters unclear or missing.
+
+<br>
+
+This page demonstrates how to run scenarios with the example model from the [Replications](../output_analysis/replications.qmd) page - both directly in code and via CSV files.
+
+```{python}
+#| echo: false
+{{< include ../output_analysis/replications_resources/parameters.py >}}
+{{< include ../output_analysis/replications_resources/patient.py >}}
+{{< include ../output_analysis/replications_resources/model.py >}}
+{{< include ../output_analysis/replications_resources/summary_stats.py >}}
+{{< include ../output_analysis/replications_resources/runner.py >}}
+```
+
+```{r}
+#| echo: false
+#| file: ../output_analysis/replications_resources/create_params.R
+```
+
+```{r}
+#| echo: false
+#| file: ../output_analysis/replications_resources/filter_warmup.R
+```
+
+```{r}
+#| echo: false
+#| file: ../output_analysis/replications_resources/calc_arrivals.R
+```
+
+```{r}
+#| echo: false
+#| file: ../output_analysis/replications_resources/calc_mean_wait.R
+```
+
+```{r}
+#| echo: false
+#| file: ../output_analysis/replications_resources/get_run_results.R
+```
+
+```{r}
+#| echo: false
+#| file: ../output_analysis/replications_resources/model.R
+```
+
+```{r}
+#| echo: false
+#| file: ../output_analysis/replications_resources/runner.R
+```
+
+## Scenarios from a script
+
+::: {.python-content}
+
+<div class="h3-tight"></div>
+
+### Scenarios function
+
+If you are running several scenarios, it can be useful to define a helper function like the one shown below. This example is adapted from:
+
+> "[HSMA - little book of DES](https://des.hsma.co.uk/)" from Sammi Rosser, Dan Chalk and Amy Heather 2025 (MIT Licence).
+
+We walk through it step-by-step below.
+
+```{python}
+def run_scenarios(scenarios, param_factory=None):
+    """
+    Execute a set of scenarios and return the results from each run.
+
+    Parameters
+    ----------
+    scenarios : dict
+        Dictionary where key is name of parameter and value is a list with
+        different values to run in scenarios.
+    param_factory : callable or None, optional
+        A callable that returns a new Parameters object for each scenario run.
+        This can be a class (e.g., `Parameters`) or a factory function/lambda
+        with preset arguments (e.g., `lambda: Parameters(number_of_runs=4)`).
+        If not provided, defaults to using `Parameters()` with no arguments.
+
+    Returns
+    -------
+    pandas.DataFrame
+        DataFrame with results from each run of each scenario.
+
+    Notes
+    -----
+    Function adapted from Rosser, Chalk and Heather 2025.
+    """
+    # If none provided, use Parameters
+    if param_factory is None:
+        param_factory = Parameters
+
+    # Find every possible permutation of the scenarios
+    all_scenarios_tuples = list(itertools.product(*scenarios.values()))
+
+    # Convert back into dictionaries
+    all_scenarios_dicts = [
+        dict(zip(scenarios.keys(), p)) for p in all_scenarios_tuples
+    ]
+
+    # Preview some of the scenarios
+    print(f"There are {len(all_scenarios_dicts)} scenarios. Running:")
+
+    # Run the scenarios...
+    results = []
+    for index, scenario_to_run in enumerate(all_scenarios_dicts):
+        print(scenario_to_run)
+
+        # Create fresh instance of parameter class for each scenario
+        param = param_factory()
+
+        # Update parameter list with the scenario parameters
+        param.scenario_name = index
+        for key in scenario_to_run:
+            setattr(param, key, scenario_to_run[key])
+
+        # Perform replications
+        scenario_exp = Runner(param)
+        scenario_res = scenario_exp.run_reps()["run"]
+
+        # Add scenario number and values to the results dataframe
+        scenario_res["scenario"] = index
+        for key in scenario_to_run:
+            scenario_res[key] = scenario_to_run[key]
+
+        # Add results from scenario to list
+        results.append(scenario_res)
+    return pd.concat(results)
+```
+
+### Explaining the `run_scenarios` function
+
+```{.python}
+def run_scenarios(scenarios, param_factory=None):
+    """
+    Execute a set of scenarios and return the results from each run.
+
+    Parameters
+    ----------
+    scenarios : dict
+        Dictionary where key is name of parameter and value is a list with
+        different values to run in scenarios.
+    param_factory : callable or None, optional
+        A callable that returns a new Parameters object for each scenario run.
+        This can be a class (e.g., `Parameters`) or a factory function/lambda
+        with preset arguments (e.g., `lambda: Parameters(number_of_runs=4)`).
+        If not provided, defaults to using `Parameters()` with no arguments.
+
+    Returns
+    -------
+    pandas.DataFrame
+        DataFrame with results from each run of each scenario.
+
+    Notes
+    -----
+    Function adapted from Rosser, Chalk and Heather 2025.
+    """
+    # If none provided, use Parameters
+    if param_factory is None:
+        param_factory = Parameters
+```
+
+The first argument, `scenarios`, is a dictionary. The keys should be parameter names, and the values should be lists of values to run. For example:
+
+```
+{"interarrival_time": [4, 5, 6],
+ "number_of_doctors": [2, 3, 4]}
+```
+
+The second argument, `param_factory`, is a callable that returns a fresh Parameters instance for each scenario run. This ensures every scenario gets an independent set of parameters and avoids carrying state from one scenario to another.
+
+* For a default base case, supply `param_factory = Parameters`.
+
+* To use a specific preset (e.g., altering the number of runs for all scenarios), supply a lambda: `param_factory = lambda: Parameters(number_of_runs=4)`
+
+<br>
+
+```{.python}
+# Find every possible permutation of the scenarios
+all_scenarios_tuples = list(itertools.product(*scenarios.values()))
+```
+
+This line generates all possible combinations of values for each parameter.
+
+<br>
+
+```{.python}
+# Convert back into dictionaries
+all_scenarios_dicts = [
+    dict(zip(scenarios.keys(), p)) for p in all_scenarios_tuples
+]
+
+# Preview some of the scenarios
+print(f"There are {len(all_scenarios_dicts)} scenarios. Running:")
+```
+
+Each scenario is converted from a tuple of values into a dictionary, making it easier to update parameters by name when running scenarios.
+
+<br>
+
+```{.python}
+# Run the scenarios...
+results = []
+for index, scenario_to_run in enumerate(all_scenarios_dicts):
+    print(scenario_to_run)
+```
+
+We loop over each scenario dictionary and run it. Printing the scenario shows which parameter values are being used for each run.
+
+<br>
+
+```{.python}
+# Create fresh instance of parameter class for each scenario
+param = param_factory()
+
+# Update parameter list with the scenario parameters
+param.scenario_name = index
+for key in scenario_to_run:
+    setattr(param, key, scenario_to_run[key])     
+```
+
+For each scenario, we create a new (independent) parameter object, then update its attributes to match the scenario values. This ensures each run starts with a fresh configuration and avoids parameter sharing between scenarios.
+
+<br>
+
+```{.python}
+# Perform replications
+scenario_exp = Runner(param)
+scenario_res = scenario_exp.run_reps()["run"]
+
+# Add scenario number and values to the results dataframe
+scenario_res["scenario"] = index
+for key in scenario_to_run:
+    scenario_res[key] = scenario_to_run[key]
+
+# Add results from scenario to list
+results.append(scenario_res)
+```
+
+Run the model for each scenario and collect results, adding the scenario numbers and settings to the output.
+
+<br>
+
+```{.python}
+return pd.concat(results)
+```
+
+Combine results from all scenarios into a single dataframe.
+
+### Run scenarios
+
+We can now use `run_scenarios()` to execute every possible combination of the specified parameters.
+
+```{python}
+# Run scenarios
+scenario_results = run_scenarios(
+    scenarios = {"interarrival_time": [4, 5, 6],
+                 "number_of_doctors": [2, 3, 4]}
+)
+
+# View scenario results
+HTML(to_html_datatable(scenario_results))
+```
+
+We can find the average results for each scenario, and plot these, like below:
+
+```{python}
+def plot_scenario(results, x_var, result_var, colour_var=None, name_mappings=None):
+    """
+    Plot results from different model scenarios.
+
+    Arguments:
+        results : pd.DataFrame
+            Contains results to plot.
+        x_var : str
+            Name of variable to plot on X axis.
+        result_var : str
+            Name of variable with results, to plot on Y axis.
+        colour_var : str, optional
+            Name of variable to colour lines with.
+        name_mappings : dict, optional
+            Dictionary mapping column names to labels. If not provided,
+            function will default to variable names.
+    """
+    # If x_var and colour_var are provided, combine both in a list to use
+    # as grouping variables when calculating average results
+    if colour_var is not None:
+        group_vars = [x_var, colour_var]
+    else:
+        group_vars = [x_var]
+
+    # Calculate average results from each scenario
+    df = (
+        results.groupby(group_vars)[result_var]
+        .apply(summary_stats)
+        .apply(pd.Series)
+        .reset_index()
+    )
+    df.columns = (list(df.columns[:-4]) +
+                  ["mean", "std_dev", "ci_lower", "ci_upper"])
+
+    # Plot mean line
+    fig = px.line(df, x=x_var, y="mean", color=colour_var)
+    fig.update_layout(
+        xaxis_title=name_mappings.get(x_var, x_var),
+        yaxis_title=name_mappings.get(result_var, result_var),
+        legend_title_text=name_mappings.get(colour_var, colour_var),
+        template="plotly_white"
+    )
+
+    # Plot confidence interval lines
+    for ci in ["ci_upper", "ci_lower"]:
+        trace = (px.line(df, x=x_var, y=ci, color=colour_var)
+                 .update_traces(opacity=0.5, showlegend=False)
+                 .select_traces())
+        # Add to figure
+        fig.add_traces(list(trace))
+
+    return df, fig
+```
+
+```{python}
+result, plot = plot_scenario(
+    results=scenario_results,
+    x_var="interarrival_time",
+    result_var="mean_wait_time",
+    colour_var="number_of_doctors",
+    name_mappings={"interarrival_time": "Patient inter-arrival time", "mean_wait_time": "Mean wait time for the doctor", "number_of_doctors": "Number of doctors"})
+HTML(to_html_datatable(result))
+plot.show()
+```
+
+:::
+
+::: {.r-content}
+
+```{r}
+```
+
+:::
+
+## Scenarios in a CSV
+
+TODO
+
+::: {.python-content}
+
+```{python}
+```
+
+:::
+
+::: {.r-content}
+
+```{r}
+```
+
+:::
+
+## References
+
+::: {#refs}
+:::
 
 <br><br>
