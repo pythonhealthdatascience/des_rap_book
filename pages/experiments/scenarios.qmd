@@ -1,5 +1,5 @@
 ---
-title: ❌ Scenario and sensitivity analysis
+title: Scenario and sensitivity analysis
 bibliography: scenarios_resources/references.bib
 ---
 
@@ -9,8 +9,9 @@ bibliography: scenarios_resources/references.bib
 
 **Learning objectives:**
 
-* Understand the importance of sharing your scenario code.
+* Recognise the importance of sharing your scenario and sensitivity analysis code.
 * Learn how to run a combination of scenarios.
+* Understand differences between scenario and sensitivity analysis.
 
 **Relevant reproducibility guidelines:**
 
@@ -153,7 +154,7 @@ for i in range(3, 7):
     result["number_of_doctors"] = i
     results.append(result)
 
-# Combine results into one DataFrame
+# Combine results into a single dataframe
 scenario_results = pd.concat(results, ignore_index = True)
 
 # Show as interactive table
@@ -165,6 +166,21 @@ HTML(to_html_datatable(scenario_results))
 ::: {.r-content}
 
 ```{r}
+results <- list()
+# Loop through doctor counts 3-6, running the simulation
+for (i in 3:6) {
+  param <- create_params(number_of_doctors = i)
+  result <- runner(param = param)[["run_results"]]
+  # Add scenario information to the results, then save to list
+  result["number_of_doctors"] = i
+  results[[length(results) + 1]] <- result
+}
+
+# Combine results into a single dataframe
+scenario_results <- do.call(rbind, results)
+
+# Show as interactive table
+kable(scenario_results) |> scroll_box(height = "400px")
 ```
 
 :::
@@ -378,7 +394,9 @@ scenario_results = run_scenarios(
 )
 
 # Save to CSV
-scenario_results.to_csv("scenarios_resources/scenario_results.csv", index=False)
+scenario_results.to_csv(
+    "scenarios_resources/python_scenario_results.csv", index=False
+)
 
 # View scenario results
 HTML(to_html_datatable(scenario_results.head(200)))
@@ -388,9 +406,107 @@ HTML(to_html_datatable(scenario_results.head(200)))
 
 ::: {.r-content}
 
+If you are running several scenarios, it can be useful to define a helper function like the one shown below.
+
+```{r}
+#' Run a set of scenarios
+#'
+#' @param scenarios List where key is name of parameter and value is a list of
+#' different values to run in scenarios
+#' @param base_list List of parameters to use as base for scenarios, which can
+#' be partial (as will input to create_params() function).
+#' @param verbose Boolean, whether to print messages about scenarios as run.
+#'
+#' @return Tibble with results from each replication for each scenario.
+#' @export
+
+run_scenarios <- function(scenarios, base_list, verbose = TRUE) {
+  # Generate all permutations of the scenarios
+  all_scenarios <- expand.grid(scenarios)
+
+  # Preview the number of scenarios
+  if (isTRUE(verbose)) {
+    message(sprintf("There are %d scenarios.", nrow(all_scenarios)))
+    message("Base parameters:")
+    print(base_list)
+  }
+
+  results <- list()
+
+  # Iterate through each scenario
+  for (index in seq_len(nrow(all_scenarios))) {
+
+    # Filter to one of the scenarios
+    scenario_to_run <- all_scenarios[index, , drop = FALSE]
+
+    # Print the scenario parameters
+    formatted_scenario <- toString(
+      paste0(names(scenario_to_run), " = ", scenario_to_run)
+    )
+
+    # Print the scenario currently running
+    if (isTRUE(verbose)) {
+      message("Scenario: ", formatted_scenario)
+    }
+
+    # Create parameter list with scenario-specific values
+    s_args <- c(scenario_to_run, list(scenario_name = index))
+
+    # Create instance of parameter class with specified base parameters
+    s_param <- do.call(create_params, base_list)
+
+    # Update parameter list with the scenario parameters
+    for (name in names(s_args)) {
+      s_param[[name]] <- s_args[[name]]
+    }
+
+    # Run replications for the current scenario and get processed results
+    scenario_result <- runner(s_param)[["run_results"]]
+
+    # Append scenario parameters to the results
+    scenario_result[["scenario"]] <- index
+    for (key in names(scenario_to_run)) {
+      scenario_result[[key]] <- scenario_to_run[[key]]
+    }
+
+    # Append to results list
+    results[[index]] <- scenario_result
+  }
+  do.call(rbind, results)
+}
+```
+
+This function generates all possible scenario combinations from the values supplied in `scenarios`.
+
+It then iterates through these, creating a fresh set of parameters for each scenario run. This ensures every scenario gets an independent set of parameters and avoids carrying state from one scenario to another.
+
+The replication results from each scenario are saved in a list and finally combined into a single table.
+
+Let's run it!
+
+```{r}
+# Run scenarios
+scenarios <- list(
+  interarrival_time = c(4L, 5L, 6L, 7L, 8L),
+  number_of_doctors = c(3L, 4L, 5L)
+)
+scenario_results <- run_scenarios(
+    scenarios = scenarios, base_list = create_params(number_of_runs = 100)
+)
+
+# Save to CSV
+write.csv(scenario_results,
+          file.path("scenarios_resources", "r_scenario_results.csv"))
+
+# View scenario results
+kable(scenario_results) |> scroll_box(height = "400px")
+```
+
 :::
 
 ## Sensitivity analysis
+
+<div class="h3-tight"></div>
 
 ### How does sensitivity analysis differ from scenario analysis?
 
@@ -404,20 +520,44 @@ Sensitivity analyses should be run programmatically, just like scenario analyses
 
 They can be run using similar code. Below is an example using the `run_scenarios` function to vary the `interarrival_time` parameter.
 
+::: {.python-content}
+
 ```{python}
-# Run scenarios
+# Run sensitivity analysis
 sensitivity_results = run_scenarios(
     scenarios = {"interarrival_time": [4, 4.5, 5, 5.5, 6, 6.5, 7]},
     param_factory = lambda: Parameters(number_of_runs = 100)
 )
 
 # Save to CSV
-sensitivity_results.to_csv("scenarios_resources/sensitivity_results.csv",
-                           index=False)
+sensitivity_results.to_csv(
+    "scenarios_resources/python_sensitivity_results.csv", index=False
+)
 
-# View scenario results
+# View sensitivity results
 HTML(to_html_datatable(sensitivity_results.head(200)))
 ```
+
+:::
+
+::: {.r-content}
+
+```{r}
+# Run sensitivity analysis
+sensitivity_results <- run_scenarios(
+    scenarios = list(interarrival_time = c(4L, 4.5, 5L, 5.5, 6L, 6.5, 7L)),
+    base_list = create_params(number_of_runs = 100)
+)
+
+# Save to CSV
+write.csv(sensitivity_results,
+          file.path("scenarios_resources", "r_sensitivity_results.csv"))
+
+# View sensitivity results
+kable(sensitivity_results) |> scroll_box(height = "400px")
+```
+
+:::
 
 ## Explore the example models
 
@@ -432,9 +572,8 @@ HTML(to_html_datatable(sensitivity_results.head(200)))
 ::: {.blue-table}
 | | |
 | - | - |
-| **Key files** | |
-| **What to look for?** | |
-| **Why it matters?** | |
+| **Key files** | `simulation/run_scenarios.py`<br>`notebooks/analysis.ipynb` |
+| **What to look for?** | Similar implementation to above. |
 : {tbl-colwidths="[20,80]"}
 :::
 
@@ -447,9 +586,8 @@ HTML(to_html_datatable(sensitivity_results.head(200)))
 ::: {.blue-table}
 | | |
 | - | - |
-| **Key files** | |
-| **What to look for?** | |
-| **Why it matters?** | |
+| **Key files** | `R/scenarios.R`<br>`rmarkdown/analysis.md` |
+| **What to look for?** | Similar implementation to above. |
 : {tbl-colwidths="[20,80]"}
 :::
 
@@ -464,9 +602,8 @@ HTML(to_html_datatable(sensitivity_results.head(200)))
 ::: {.blue-table}
 | | |
 | - | - |
-| **Key files** | |
-| **What to look for?** | |
-| **Why it matters?** | |
+| **Key files** | `notebooks/analysis.ipynb` |
+| **What to look for?** | These scenarios are run one-by-one in the Rmarkdown. They involve altering arrivals before running the simulation (5% increase in admissions), or changes in calculations (pooling beds). |
 : {tbl-colwidths="[20,80]"}
 :::
 
@@ -479,9 +616,8 @@ HTML(to_html_datatable(sensitivity_results.head(200)))
 ::: {.blue-table}
 | | |
 | - | - |
-| **Key files** | |
-| **What to look for?** | |
-| **Why it matters?** | |
+| **Key files** | `rmarkdown/analysis.md` |
+| **What to look for?** | These scenarios are run one-by-one in the Rmarkdown. They involve altering arrivals before running the simulation (5% increase in admissions), or changes in calculations (pooling beds). |
 : {tbl-colwidths="[20,80]"}
 :::
 
@@ -489,7 +625,11 @@ HTML(to_html_datatable(sensitivity_results.head(200)))
 
 ## Test yourself
 
-<!--TODO-->
+Try running your own scenario and sensitivity analyses.
+
+You could build your own simple loop to test different values - just make sure you use a fresh set of parameters for each run.
+
+Alternatively, use the `run_scenarios` function.
 
 ## References
 
