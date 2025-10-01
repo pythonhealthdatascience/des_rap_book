@@ -3,8 +3,13 @@
 #' @param param List. Model parameters.
 #' @param run_number Numeric. Run number for random seed generation.
 #'
-#' @importFrom simmer add_generator get_mon_arrivals get_mon_resources run
-#' @importFrom simmer simmer timeout trajectory
+#' @importFrom dplyr mutate #<<
+#' @importFrom simmer add_generator add_resource get_mon_arrivals
+#' @importFrom simmer get_mon_resources release run seize simmer timeout
+#' @importFrom simmer trajectory
+#'
+#' @return Named list with tables `arrivals`, `resources` and `run_results`. #<<
+#' @export
 
 model <- function(param, run_number) {
 
@@ -35,21 +40,21 @@ model <- function(param, run_number) {
 
   # Extract information on arrivals and resources from simmer environment
   result <- list(
-    arrivals = get_mon_arrivals(env, per_resource = TRUE, ongoing = TRUE), 
+    arrivals = get_mon_arrivals(env, per_resource = TRUE, ongoing = TRUE),
     resources = get_mon_resources(env)
   )
 
-  # Filter to remove results from the warm-up period#<<
-  result <- filter_warmup(result, param[["warm_up_period"]])#<<
+  # Filter to remove results from the warm-up period #<<
+  result <- filter_warmup(result, param[["warm_up_period"]]) #<<
 
   # Replace "replication" value with appropriate run number#<<
-  result[["arrivals"]] <- mutate(result[["arrivals"]],#<<
-                                 replication = run_number)#<<
-  result[["resources"]] <- mutate(result[["resources"]],#<<
-                                  replication = run_number)#<<
+  result[["arrivals"]] <- mutate(result[["arrivals"]], #<<
+                                 replication = run_number) #<<
+  result[["resources"]] <- mutate(result[["resources"]], #<<
+                                  replication = run_number) #<<
 
-  # Calculate the average results for that run#<<
-  result[["run_results"]] <- get_run_results(result, run_number)#<<
+  # Calculate the average results for that run #<<
+  result[["run_results"]] <- get_run_results(result, run_number) #<<
 
   result
 }

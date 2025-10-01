@@ -2,13 +2,6 @@
 title: Parameters from script
 ---
 
-```{python}
-#| echo: false
-# pylint: disable=function-redefined, too-many-instance-attributes
-# pylint: disable=too-many-arguments, too-many-positional-arguments
-# pylint: disable=too-few-public-methods
-```
-
 :::: {.pale-blue}
 
 **Learning objectives:**
@@ -25,7 +18,7 @@ title: Parameters from script
 
 **Required packages:**
 
-This should be available from environment setup in the "🧪 Test yourself" section of [Environments](../setup/environment.qmd). 
+This should be available from environment setup in the "Test yourself" section of [Environments](../setup/environment.qmd). 
 
 ```{r}
 library(R6)
@@ -41,7 +34,7 @@ Discrete-event simulations (DES) require many parameters - like arrival rates, r
 
 This page explains best practices for managing model parameters **directly within scripts**.
 
-## 🚫 What not to do: hardcoding parameters
+## What not to do: hardcoding parameters
 
 **Hardcoding** means writing parameter values directly into your code. For example:
 
@@ -85,7 +78,7 @@ This involves copying the entire script, changing parameters in each copy, and r
 * ❌ **Code duplication**. This means any changes - like bug fixes or improvements to the model - must be made to every copy. This is tedious and there is a risk that some copies are missed or updated incorrectly.
 * ❌ **Hard to keep track**. With multiple script copies, it can become difficult to know which scripts correspond to which scenarios, and which parameters were used (as have to delve into the model code to identify them).
 
-## 📄 A slight improvement: global parameters
+## A slight improvement: global parameters
 
 A better (but still limited) approach is to **define all parameters at the top of your script**.
 
@@ -162,7 +155,7 @@ However, there are still several disadvantages:
 * ❌ **Still inflexible**. In order to re-run the model with different scenarios, you would still need to do the approaches above - editing code directly or duplicating scripts for each scenario.
 * ❌ **Not scalable**. As the number of scenarios or parameters grows, managing all these global variables becomes messy.
 
-## ✅ Recommendation for managing parameters in DES
+## Recommendation for managing parameters in DES
 
 <div class="h3-tight"></div>
 
@@ -357,6 +350,7 @@ scenario1
 #' @param transfer_prob Numeric. Transfer probability (0-1).
 #'
 #' @return A named list of parameters.
+#' @export
 
 create_params <- function(interarrival_time = 5L,
                           consultation_time = 20L,
@@ -451,7 +445,7 @@ Your choice may be further informed by options for parameter validation, where c
 It's worth noting though that, while R does support object-oriented programming (i.e. using classes), these are less commonly used in typical R code.
 :::
 
-## 🧮 Handling a large number of parameters
+## Handling a large number of parameters
 
 You may need to manage many parameters - for example, if you have several patient types and/or units each with their own arrival times, resource times, and so on.
 
@@ -606,6 +600,7 @@ print(base_params.__dict__)
 #'
 #' @return A named list with three keys ("adult", "child", "elderly"), each
 #' containing a list of parameters.
+#' @export
 
 create_params <- function(
   adult_interarrival = 5L, adult_consultation = 20L, adult_transfer = 0.3,
@@ -976,6 +971,8 @@ print(base_params.transfers.__dict__)
 #' @param elderly Numeric. Time between elderly patient arrivals.
 #'
 #' @return A named list of inter-arrival times for each patient type.
+#' @export
+
 create_arrivals <- function(adult = 5L, child = 7L, elderly = 10L) {
   list(
     adult = adult,
@@ -991,6 +988,8 @@ create_arrivals <- function(adult = 5L, child = 7L, elderly = 10L) {
 #' @param elderly Numeric. Consultation duration for elderly people.
 #'
 #' @return A named list of consultation times for each patient type.
+#' @export
+
 create_consultations <- function(adult = 20L, child = 15L, elderly = 30L) {
   list(
     adult = adult,
@@ -1006,6 +1005,8 @@ create_consultations <- function(adult = 20L, child = 15L, elderly = 30L) {
 #' @param elderly Numeric. Transfer probability for elderly people.
 #'
 #' @return A named list of transfer probabilities for each patient type.
+#' @export
+
 create_transfers <- function(adult = 0.3, child = 0.2, elderly = 0.5) {
   list(
     adult = adult,
@@ -1025,6 +1026,8 @@ create_transfers <- function(adult = 0.3, child = 0.2, elderly = 0.5) {
 #'
 #' @return A named list with three keys ("arrivals", "consultations",
 #' "transfers"), each containing a list of parameters for each patient type.
+#' @export
+
 create_parameters <- function(
   arrivals = create_arrivals(),
   consultations = create_consultations(),
@@ -1200,11 +1203,11 @@ base_params$get_params()
 
 :::
 
-## 🔍 Explore the example models
+## Explore the example models
 
 <div class="h3-tight"></div>
 
-### 🩺 Nurse visit simulation
+### Nurse visit simulation
 
 :::: {.python-content}
 
@@ -1234,11 +1237,11 @@ base_params$get_params()
 :::
 ::::
 
-### 🧠 Stroke pathway simulation
+### Stroke pathway simulation
 
 Not applicable as the stroke example stores [parameters in a file](parameters_file.qmd).
 
-## 🧪 Test yourself
+## Test yourself
 
 ```{r}
 #| echo: false

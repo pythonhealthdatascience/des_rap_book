@@ -16,7 +16,7 @@ bibliography: input_modelling_resources/references.bib
 
 **Required packages:**
 
-This should be available from environment setup in the "🧪 Test yourself" section of [Environments](../setup/environment.qmd). 
+This should be available from environment setup in the "Test yourself" section of [Environments](../setup/environment.qmd). 
 
 ::: {.python-content}
 
@@ -32,7 +32,7 @@ from scipy import stats
 ```{python}
 #| echo: false
 # To ensure renders correctly in quarto
-import plotly.io as pio
+import plotly.io as pio  # pylint: disable=ungrouped-imports
 pio.renderers.default = "plotly_mimetype"
 ```
 
@@ -57,7 +57,7 @@ library(tidyr)
 
 ::::
 
-## 📂 Data
+## Data
 
 To build a DES model, you first need **data** that reflects the system you want to model. In healthcare, this might mean you need to access healthcare records with patient arrival, service and departure times, for example. The quality of your simulation depends directly on the quality of your data. Key considerations include:
 
@@ -66,7 +66,7 @@ To build a DES model, you first need **data** that reflects the system you want 
 * **Level of detail**. The data must be granular enough for your needs. For example, daily totals may be insufficient if you want to model hourly arrivals (although may still be possible if know distribution - [as noted below](#input-modelling-steps)).
 * **Representative**. The data should reflect the current system. For instance, data from the COVID-19 period may not represent typical operations.
 
-## ➡️ How is this data used in the model?
+## How is this data used in the model?
 
 Discrete-event simulation (DES) models are **stochastic**, which means they incorporate random variation, to reflect the inherent variability of real-world systems.
 
@@ -74,7 +74,7 @@ Instead of using fixed times for events (like having a patient arrive exactly ev
 
 ![](input_data_resources/samples.png)
 
-## 📈 Input modelling
+## Input modelling
 
 The process of selecting the most appropriate statistical distributions to use in your model is called **input modelling**.
 
@@ -100,7 +100,7 @@ Though the comprehensive approach tests lots of different distributions, it's st
 
 We'll demonstrate steps for input modelling below using the **synthetic arrival data** from the [nurse visit simulation](../intro/examples.qmd) (not based on real-world data). In this case, we already know which distributions to use (as we sampled from them to create our synthetic data!). However, the steps still illustrate how you might select distributions in practice with real data.
 
-## 🔧 Set-up
+## Set-up
 
 Click here to download the arrival data. You can save it into a folder (e.g. `data/`).
 
@@ -130,7 +130,7 @@ touch rmarkdown/input_modelling.Rmd
 
 :::
 
-## 🔍 Step 1. Identify possible distributions
+## Step 1. Identify possible distributions
 
 You first need to select which distributions to fit to your data. You should both:
 
@@ -340,19 +340,27 @@ p.show()
 ::: {.r-content}
 
 ```{r}
+#' Plot time-series
+#'
+#' @param time_series Dataframe with date column and numeric column to plot.
+#' @param date_col String. Name of column with dates.
+#' @param value_col String. Name of column with numeric values.
+#' @param y_lab String. Y axis label.
+#' @param interactive Boolean. Whether to render interactive or static plot.
+#' @param save_path String. Path to save static file to (inc. name and
+#' filetype). If NULL, then will not save.
+#'
+#' @importFrom ggplot2 aes geom_line ggplot ggsave labs theme_minimal
+#' @importFrom plotly ggplotly
+#' @importFrom rlang .data
+#'
+#' @return A ggplot object (static) or a plotly object (interactive type),
+#' depending on `interactive` parameter.
+#' @export
+
 inspect_time_series <- function(
   time_series, date_col, value_col, y_lab, interactive, save_path = NULL
 ) {
-  #' Plot time-series
-  #'
-  #' @param time_series Dataframe with date column and numeric column to plot.
-  #' @param date_col String. Name of column with dates.
-  #' @param value_col String. Name of column with numeric values.
-  #' @param y_lab String. Y axis label.
-  #' @param interactive Boolean. Whether to render interactive or static plot.
-  #' @param save_path String. Path to save static file to (inc. name and
-  #' filetype). If NULL, then will not save.
-
   # Create custom tooltip text
   time_series$tooltip_text <- paste0(
     "<span style='color:white'>",
@@ -445,7 +453,8 @@ def inspect_histogram(series, x_lab, bin_width=1):
     )
 
     # Build interval labels for each bin
-    bin_labels = [f"{x_lab}: {bin_edges[i]}–{bin_edges[i+1]}" for i in range(nbins)]
+    bin_labels = [f"{x_lab}: {bin_edges[i]}–{bin_edges[i+1]}"
+                  for i in range(nbins)]
     fig.update_traces(
         hovertemplate="%{customdata}<br>Count: %{y}",
         customdata=bin_labels,
@@ -473,27 +482,41 @@ p.show()
 :::{.r-content}
 
 ```{r}
+#' Plot histogram
+#'
+#' @param data A dataframe or tibble containing the variable to plot.
+#' @param var String. Name of the column to plot as a histogram.
+#' @param x_lab String. X axis label.
+#' @param interactive Boolean. Whether to render interactive or static plot.
+#' @param save_path String. Path to save static file to (inc. name and
+#' filetype). If NULL, then will not save.
+#'
+#' @importFrom ggplot2 aes geom_histogram ggplot ggsave labs theme theme_minimal
+#' @importFrom plotly ggplotly
+#' @importFrom rlang .data
+#'
+#' @return A ggplot object (static) or a plotly object (interactive type),
+#' depending on `interactive` parameter.
+#' @export
+
 inspect_histogram <- function(
   data, var, x_lab, interactive, save_path = NULL
 ) {
-  #' Plot histogram
-  #'
-  #' @param data A dataframe or tibble containing the variable to plot.
-  #' @param var String. Name of the column to plot as a histogram.
-  #' @param x_lab String. X axis label.
-  #' @param interactive Boolean. Whether to render interactive or static plot.
-  #' @param save_path String. Path to save static file to (inc. name and
-  #' filetype). If NULL, then will not save.
-
   # Remove non-finite values
   data <- data[is.finite(data[[var]]), ]
 
   # Create plot
   p <- ggplot(data, aes(x = .data[[var]])) +
-    geom_histogram(aes(text = paste0("<span style='color:white'>", x_lab, ": ",
-                                     round(after_stat(x), 2L), "<br>Count: ",  # nolint: object_usage_linter
-                                     after_stat(count), "</span>")),
-                   fill = "#727af4", bins = 30L) +
+    geom_histogram(
+      aes(
+        text = paste0(
+          "<span style='color:white'>", x_lab, ": ",
+          round(after_stat(x), 2L), "<br>Count: ", # nolint: object_usage_linter
+          after_stat(.data[["count"]]), "</span>"
+        )
+      ),
+      fill = "#727af4", bins = 30L
+    ) +
     labs(x = x_lab, y = "Count") +
     theme_minimal() +
     theme(legend.position = "none")
@@ -543,7 +566,7 @@ plotdist(data_service, histo = TRUE, demp = TRUE)
 
 :::
 
-## 📊 Step 2. Fit distributions and compare goodness-of fit
+## Step 2. Fit distributions and compare goodness-of fit
 
 We will fit distributions and assess goodness-of-fit using the **Kolmogorov-Smirnov (KS) Test**. This is a common test which is well-suited to continuous distributions. For categorical (or binned) data, consider using chi-squared tests.
 
@@ -634,15 +657,16 @@ paste0(round(sum(data_service == 0L) / length(data_service) * 100L, 2L), "%")
 ```
 
 ```{r}
-fit_distributions <- function(data, dists) {
-  #' Compute Kolmogorov-Smirnov Statistics for Fitted Distributions
-  #'
-  #' @param data Numeric vector. The data to fit distributions to.
-  #' @param dists Character vector. Names of distributions to fit.
-  #'
-  #' @return Named numeric vector of Kolmogorov-Smirnov statistics, one per
-  #' distribution.
+#' Compute Kolmogorov-Smirnov Statistics for Fitted Distributions
+#'
+#' @param data Numeric vector. The data to fit distributions to.
+#' @param dists Character vector. Names of distributions to fit.
+#'
+#' @return Named numeric vector of Kolmogorov-Smirnov statistics, one per
+#' distribution.
+#' @export
 
+fit_distributions <- function(data, dists) {
   # Define distribution requirements
   positive_only <- c("lnorm", "weibull")
   non_negative <- c("exp", "gamma")
@@ -928,7 +952,7 @@ plot(iat_exp)
 
 :::
 
-## ✅ Step 3. Choose distributions
+## Step 3. Choose distributions
 
 ::: {.python-content}
 
@@ -948,7 +972,7 @@ Using the targeted and comprehensive approach, we found **exponential** to be be
 
 :::
 
-## ⚙️ Parameters
+## Parameters
 
 The exponential distribution is defined by a single parameter, but this parameter can be expressed in two ways - as the:
 
@@ -989,7 +1013,7 @@ Rate:
 
 For guidance on storing and using these parameters, see the pages managing parameters [in a script](parameters_script.qmd) and [in a file](parameters_file.qmd).
 
-## 🧪 Test yourself
+## Test yourself
 
 If you haven't already followed along, **now's the time to put everything from this page into practice!**
 
@@ -1011,7 +1035,7 @@ If you haven't already followed along, **now's the time to put everything from t
 * Inspect the arrival data and fit it to probability distributions. You can use `fitdistrplus` or any of the other functions introduced above.
 :::
 
-## 📙 References
+## References
 
 ::: {#refs}
 :::

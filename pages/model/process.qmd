@@ -6,11 +6,6 @@ filters:
 
 {{< include ../../scripts/_reticulate-setup.md >}}
 
-```{python}
-#| echo: false
-# pylint: disable=redefined-outer-name,too-few-public-methods
-```
-
 :::: {.pale-blue}
 
 **Learning objectives:**
@@ -25,7 +20,7 @@ This page continues on from: [Entity generation](patients.qmd).
 
 **Required packages:**
 
-These should be available from environment setup in the "🧪 Test yourself" section of [Environments](../setup/environment.qmd). 
+These should be available from environment setup in the "Test yourself" section of [Environments](../setup/environment.qmd). 
 
 ::: {.python-content}
 
@@ -49,7 +44,7 @@ library(simmer)
 
 ::::
 
-## 🥼 Adding a consultation with a doctor to the model
+## Adding a consultation with a doctor to the model
 
 <div class="h3-tight"></div>
 
@@ -342,6 +337,7 @@ There are two new parameters: `consultation_time` and `number_of_doctors`.
 #' @param verbose Boolean. Whether to print messages as simulation runs.
 #'
 #' @return A named list of parameters.
+#' @export
 
 create_params <- function(
   interarrival_time = 5L,
@@ -374,7 +370,10 @@ We make two main changes to the `model()` function.
 #' @param param List. Model parameters.
 #' @param run_number Numeric. Run number for random seed generation.
 #'
-#' @importFrom simmer add_generator run simmer timeout trajectory
+#' @importFrom simmer add_generator add_resource release run seize simmer #<<
+#' @importFrom simmer timeout trajectory
+#'
+#' @export
 
 model <- function(param, run_number) {
 
@@ -387,13 +386,13 @@ model <- function(param, run_number) {
   # Define the patient trajectory
   patient <- trajectory("consultation") |>
     seize("doctor", 1L) |> #<<
-    timeout(function() {#<<
-      rexp(n = 1L, rate = 1L / param[["consultation_time"]])#<<
+    timeout(function() { #<<
+      rexp(n = 1L, rate = 1L / param[["consultation_time"]]) #<<
     }) |> #<<
-    release("doctor", 1L)#<<
+    release("doctor", 1L) #<<
 
   env <- env |>
-    # Add doctor resource#<<
+    # Add doctor resource #<<
     add_resource("doctor", param[["number_of_doctors"]]) |> #<<
     # Add patient generator
     add_generator("patient", patient, function() {
@@ -489,11 +488,11 @@ You can create custom logs which are easier to interpret - see the [Logging](../
 
 ::::
 
-## 🔍 Explore the example models
+## Explore the example models
 
 <div class="h3-tight"></div>
 
-### 🩺 Nurse visit simulation
+### Nurse visit simulation
 
 :::: {.python-content}
 
@@ -525,7 +524,7 @@ You can create custom logs which are easier to interpret - see the [Logging](../
 
 ::::
 
-### 🧠 Stroke pathway simulation
+### Stroke pathway simulation
 
 :::: {.python-content}
 
@@ -557,7 +556,7 @@ You can create custom logs which are easier to interpret - see the [Logging](../
 
 ::::
 
-## 🧪 Test yourself
+## Test yourself
 
 If you haven't already, try adding a resource-based process for your model.
 
@@ -567,7 +566,7 @@ If you haven't already, try adding a resource-based process for your model.
 
 * Try changing parameters like `consultation_time` or `number_of_doctors` - how do the results change?
 
-## 🔗 Further information
+## Further information
 
 ::: {.python-content}
 

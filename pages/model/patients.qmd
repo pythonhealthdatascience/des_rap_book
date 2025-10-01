@@ -8,9 +8,8 @@ filters:
 
 ```{python}
 #| echo: false
+# pylint: disable=attribute-defined-outside-init, maybe-no-member
 # pylint: disable=undefined-variable, used-before-assignment
-# pylint: disable=too-few-public-methods,maybe-no-member,function-redefined
-# pylint: disable=attribute-defined-outside-init
 ```
 
 :::: {.pale-blue}
@@ -30,7 +29,7 @@ As this builds on concepts introduced in prior pages, we suggest first reading:
 
 **Required packages:**
 
-These should be available from environment setup in the "🧪 Test yourself" section of [Environments](../setup/environment.qmd). 
+These should be available from environment setup in the "Test yourself" section of [Environments](../setup/environment.qmd). 
 
 ::: {.python-content}
 
@@ -73,7 +72,7 @@ The examples below can be run in a script, notebook, or as part of a package. Se
 
 :::
 
-## 🚶 Creating a simple simulation model with arrivals
+## Creating a simple simulation model with arrivals
 
 Before writing any code, it's important that you have defined a conceptual model of the process to guide design of your simulation, and that the necessary parameters are defined. With these essentials in place, the process of building the simulation can start.
 
@@ -391,6 +390,7 @@ First, we need an object with the simulation parameters. Here, we use a function
 #' @param verbose Boolean. Whether to print messages as simulation runs.
 #'
 #' @return A named list of parameters.
+#' @export
 
 create_params <- function(interarrival_time = 5L,
                           run_length = 50L,
@@ -414,6 +414,8 @@ We'll then create a function for the model (explained line by line below).
 #' @param run_number Numeric. Run number for random seed generation.
 #'
 #' @importFrom simmer add_generator run simmer timeout trajectory
+#'
+#' @export
 
 model <- function(param, run_number) {
 
@@ -447,6 +449,8 @@ model <- function(param, run_number) {
 #' @param run_number Numeric. Run number for random seed generation.
 #' 
 #' @importFrom simmer add_generator run simmer timeout trajectory
+#' 
+#' @export
 
 model <- function(param, run_number) {
 ```
@@ -516,7 +520,7 @@ model(param = param, run_number = 1L)
 
 :::
 
-## 📉 Distribution registry
+## Distribution registry
 
 In more advanced models, you may need multiple different random distributions (e.g., for arrivals, consultations, transfers, service times). Managing these with individual distribution objects quickly becomes tedious and can clutter your code.
 
@@ -880,6 +884,7 @@ Here, the distribution type is hard-coded whilst the mean can be changed. This i
 #' @param verbose Boolean. Whether to print messages as simulation runs.
 #'
 #' @return A named list of parameters.
+#' @export
 
 create_params <- function(interarrival_time = 5L,
                           run_length = 50L,
@@ -906,6 +911,8 @@ create_params <- function(interarrival_time = 5L,
 #' @param run_number Numeric. Run number for random seed generation.
 #'
 #' @importFrom simmer add_generator run simmer timeout trajectory
+#'
+#' @export
 
 model <- function(param, run_number) {
 
@@ -915,11 +922,11 @@ model <- function(param, run_number) {
   # Create simmer environment
   env <- simmer("simulation", verbose = param[["verbose"]])
 
-  # Set up sampling distributions#<<
-  registry <- DistributionRegistry$new()#<<
-  param[["dist"]] <- registry$create_batch(#<<
-    as.list(param[["dist_config"]])#<<
-  )#<<
+  # Set up sampling distributions #<<
+  registry <- DistributionRegistry$new() #<<
+  param[["dist"]] <- registry$create_batch( #<<
+    as.list(param[["dist_config"]]) #<<
+  ) #<<
 
   # Define the patient trajectory
   patient <- trajectory("consultation") |>
@@ -928,7 +935,7 @@ model <- function(param, run_number) {
   env <- env |>
     # Add patient generator
     add_generator("patient", patient, function() {
-      param[["dist"]][["interarrival_time"]]()#<<
+      param[["dist"]][["interarrival_time"]]() #<<
     }) |>
     # Run the simulation
     simmer::run(until = param[["run_length"]])
@@ -947,11 +954,11 @@ model(param = param, run_number = 1L)
 
 :::
 
-## 🔍 Explore the example models
+## Explore the example models
 
 <div class="h3-tight"></div>
 
-### 🩺 Nurse visit simulation
+### Nurse visit simulation
 
 :::: {.python-content}
 
@@ -981,7 +988,7 @@ model(param = param, run_number = 1L)
 :::
 ::::
 
-### 🧠 Stroke pathway simulation
+### Stroke pathway simulation
 
 :::: {.python-content}
 
@@ -1011,7 +1018,7 @@ model(param = param, run_number = 1L)
 :::
 ::::
 
-## 🧪 Test yourself
+## Test yourself
 
 Have a go at setting up a basic simulation model with entity generation, while following good package organisation.
 
@@ -1048,7 +1055,7 @@ If you are unsure how to organise these classes as a package, checkout out the [
 
 :::
 
-## 🔗 Further information
+## Further information
 
 ::: {.python-content}
 

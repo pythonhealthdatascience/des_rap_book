@@ -51,7 +51,7 @@ class Runner:
             "run": run_results
         }
 
-    def run_reps(self):#<<
+    def run_reps(self): #<<
         """#<<
         Execute a single model configuration for multiple runs.#<<
         """#<<
@@ -75,16 +75,16 @@ class Runner:
 
         # Loop through the run performance measure columns#<<
         # Calculate mean, standard deviation and 95% confidence interval#<<
-        for col in run_col[~run_col.isin(["run_number", "scenario"])]:#<<
+        for col in run_col[~run_col.isin(["run_number", "scenario"])]: #<<
             uncertainty_metrics[col] = dict(zip(#<<
-                ["mean", "std_dev", "lower_95_ci", "upper_95_ci"],#<<
+                ["mean", "std_dev", "lower_95_ci", "upper_95_ci"], #<<
                 summary_stats(run_results_df[col])#<<
             ))
         # Convert to dataframe#<<
         overall_results_df = pd.DataFrame(uncertainty_metrics)#<<
 
         return {#<<
-            "patient": patient_results_df,#<<
-            "run": run_results_df,#<<
+            "patient": patient_results_df, #<<
+            "run": run_results_df, #<<
             "overall": overall_results_df#<<
         }#<<

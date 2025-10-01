@@ -6,6 +6,11 @@ filters:
 
 {{< include ../../scripts/_reticulate-setup.md >}}
 
+```{python}
+#| echo: false
+# pylint: disable=undefined-variable, unused-import
+```
+
 :::: {.pale-blue}
 
 **Learning objectives:**
@@ -20,7 +25,7 @@ This page continues on from: [Performance measures](outputs.qmd).
 
 **Required packages:**
 
-These should be available from environment setup in the "🧪 Test yourself" section of [Environments](../setup/environment.qmd). 
+These should be available from environment setup in the "Test yourself" section of [Environments](../setup/environment.qmd). 
 
 ::: {.python-content}
 
@@ -72,18 +77,19 @@ df <- data.frame(
   Category = rep(c("Performance measure 1", "Performance measure 2"),
                  each = 7L),
   Value = runif(14L, min = 0L, max = 1L),
-  Run = rep(paste("Run", 1L:7L), 2L)
+  Run = rep(paste("Run", 1L:7L), 2L),
+  stringsAsFactors = FALSE
 )
 
 ggplot(df, aes(x = Category, y = Value)) +
   geom_point(size = 3L) +
-  geom_text(aes(label = Run), vjust = -1, size = 3L) +
+  geom_text(aes(label = Run), vjust = -1L, size = 3L) +
   labs(x = NULL, y = "Value") +
   theme_minimal() +
   theme(axis.text.x = element_text(size = 12L))
 ```
 
-## 🔁 How to run replications
+## How to run replications
 
 We will continue working with the model developed on the previous pages. To keep things simple, this version of the model does not include all the metrics described on the [Performance measures](outputs.qmd) page. Instead, it focuses on two examples: **total arrivals** and **mean wait time**.
 
@@ -226,7 +232,7 @@ HTML(to_html_datatable(result["overall"]))
 Let's add a new attribute `number_of_runs`. We've arbitrarily set this to five, but the [Number of replications](n_reps.qmd) page shows how to choose a suitable number to run.
 
 ```{r}
-{{< include replications_resources/create_params.R >}}
+#| file: replications_resources/create_params.R
 ```
 
 ### Warm-up function
@@ -236,7 +242,7 @@ No changes required.
 ::: {.callout title="▶&nbsp;&nbsp;Warm-up function" collapse="true" style="minimal"}
 
 ```{r}
-{{< include replications_resources/filter_warmup.R >}}
+#| file: replications_resources/filter_warmup.R
 ```
 
 :::
@@ -248,7 +254,7 @@ No changes required.
 ::: {.callout title="▶&nbsp;&nbsp;Arrivals function" collapse="true" style="minimal"}
 
 ```{r}
-{{< include replications_resources/calc_arrivals.R >}}
+#| file: replications_resources/calc_arrivals.R
 ```
 
 :::
@@ -260,7 +266,7 @@ No changes required.
 ::: {.callout title="▶&nbsp;&nbsp;Wait time function" collapse="true" style="minimal"}
 
 ```{r}
-{{< include replications_resources/calc_mean_wait.R >}}
+#| file: replications_resources/calc_mean_wait.R
 ```
 
 :::
@@ -272,7 +278,7 @@ No changes required.
 ::: {.callout title="▶&nbsp;&nbsp;Run results function" collapse="true" style="minimal"}
 
 ```{r}
-{{< include replications_resources/get_run_results.R >}}
+#| file: replications_resources/get_run_results.R
 ```
 
 :::
@@ -284,7 +290,7 @@ No changes required.
 ::: {.callout title="▶&nbsp;&nbsp;Model function" collapse="true" style="minimal"}
 
 ```{r}
-{{< include replications_resources/model.R >}}
+#| file: replications_resources/model.R
 ```
 
 :::
@@ -296,7 +302,7 @@ This new function `runner()` runs the simulation model multiple times based on t
 It combines the results into unified output tables for arrivals, resources and run-level results. If only one replication is requested, it simply returns that single result without combining.
 
 ```{r}
-{{< include replications_resources/runner.R >}}
+#| file: replications_resources/runner.R
 ```
 
 **Note:** If you are recording patients in service, just add:
@@ -322,11 +328,11 @@ kable(result[["run_results"]])
 
 ::::
 
-## 🔍 Explore the example models
+## Explore the example models
 
 <div class="h3-tight"></div>
 
-### 🩺 Nurse visit simulation
+### Nurse visit simulation
 
 :::: {.python-content}
 
@@ -356,7 +362,7 @@ kable(result[["run_results"]])
 
 ::::
 
-### 🧠 Stroke pathway simulation
+### Stroke pathway simulation
 
 :::: {.python-content}
 
@@ -386,7 +392,7 @@ kable(result[["run_results"]])
 
 ::::
 
-## 🧪 Test yourself
+## Test yourself
 
 Extend your model to support multiple replications, as shown above.
 

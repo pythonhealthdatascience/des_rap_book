@@ -6,11 +6,8 @@ title: Parameters from file
 
 ```{python}
 #| echo: false
-# pylint: disable=wrong-import-position,reimported,wrong-import-order
-# pylint: disable=ungrouped-imports,too-many-instance-attributes
-# pylint: disable=too-many-arguments, too-many-positional-arguments
-# pylint: disable=too-few-public-methods,redefined-outer-name
-# pylint: disable=function-redefined
+# pylint: disable=reimported, ungrouped-imports, wrong-import-order
+# pylint: disable=wrong-import-position
 ```
 
 :::: {.pale-blue}
@@ -28,7 +25,7 @@ title: Parameters from file
 
 **Required packages:**
 
-This should be available from environment setup in the "🧪 Test yourself" section of [Environments](../setup/environment.qmd). 
+This should be available from environment setup in the "Test yourself" section of [Environments](../setup/environment.qmd). 
 
 ::: {.python-content}
 
@@ -115,7 +112,7 @@ def print_dict(dictionary, max_items_per_level):
 
 ::::
 
-## ❓ Why use external parameter files?
+## Why use external parameter files?
 
 External parameter files can offer some advantages over storing parameters directly in scripts:
 
@@ -125,7 +122,7 @@ External parameter files can offer some advantages over storing parameters direc
 
 In many cases though, storing parameters within a script is commonplace - particularly for simpler models - due to its simplicity (everything in one place, fewer files).
 
-## 📝 Create parameter file
+## Create parameter file
 
 There are several file types you can use to store parameters, with **CSV** and **JSON** being two good options. Both have advantages over Excel files:
 
@@ -192,7 +189,7 @@ str(json_file)
 :::
 
 
-## 📖 Create data dictionary
+## Create data dictionary
 
 As mentioned in the [checklist for managing parameter data](input_data.qmd#checklist-managing-your-parameters) on the input data management page, you should include a **data dictionary or documentation describing each parameter**. This documentation should explain:
 
@@ -230,7 +227,7 @@ subprocess.run([
 
 <iframe src="parameters_file_resources/_json_data_dictionary.pdf" width="100%" height="500px" style="border:1px solid #dee2e6"></iframe>
 
-## 📥 Methods for importing parameters
+## Methods for importing parameters
 
 As explained in the [parameters from script](parameters_script.qmd) page, there are two key principles for managing parameters effectively in simulation models:
 
@@ -410,11 +407,12 @@ print_dict(param, 4)
 #'
 #' @return Named list of simulation parameters (nested).
 #' @export
+
 create_parameters <- function(json_file, number_of_runs = 10L) {
   json_content <- jsonlite::fromJSON(json_file)
   param_list <- json_content$simulation_parameters
   param_list$number_of_runs <- number_of_runs
-  return(param_list)
+  param_list
 }
 
 # Example usage:
@@ -471,12 +469,13 @@ print_dict(param, 4)
 #'
 #' @return Named list of simulation parameters (flat).
 #' @export
+
 create_parameters <- function(csv_file, number_of_runs = 10L) {
   csv_content <- read.csv(csv_file)
   lst <- as.list(csv_content$value)
   names(lst) <- paste(csv_content$patient, csv_content$metric, sep = "_")
   lst$number_of_runs <- number_of_runs
-  return(lst)
+  lst
 }
 
 # Example usage:
@@ -532,13 +531,14 @@ print_dict(param, 4)
 #'
 #' @return Named list of simulation parameters (nested).
 #' @export
+
 create_parameters <- function(csv_file, number_of_runs = 10L) {
   csv_content <- read.csv(csv_file)
   lst <- lapply(split(csv_content, csv_content$patient), function(subset) {
     setNames(as.list(subset$value), subset$metric)
   })
   lst$number_of_runs <- number_of_runs
-  return(lst)
+  lst
 }
 
 # Example usage:
@@ -857,6 +857,7 @@ Use a helper function that loads the data and matches it to the class attributes
 #'   "patient", "metric", "value".
 #'
 #' @return An instance of `Parameters` R6 class.
+#' @export
 
 setup_param_from_csv <- function(csv_path) {
 
@@ -891,6 +892,7 @@ Or, from a JSON file:
 #' @param json_path Character. Path to JSON file containing the parameters.
 #'
 #' @return A named list containing all simulation parameters.
+#' @export
 
 setup_param_from_json <- function(json_path) {
 
@@ -919,15 +921,15 @@ params$get_params()
 
 :::
 
-## 🔍 Explore the example models
+## Explore the example models
 
 <div class="h3-tight"></div>
 
-### 🩺 Nurse visit simulation
+### Nurse visit simulation
 
 Not applicable as the nurse visit example stores [parameters in a script](parameters_script.qmd).
 
-### 🧠 Stroke pathway simulation
+### Stroke pathway simulation
 
 :::: {.python-content}
 
@@ -957,7 +959,7 @@ Not applicable as the nurse visit example stores [parameters in a script](parame
 :::
 ::::
 
-## 🧪 Test yourself
+## Test yourself
 
 If you haven't already, now's the time to practice working with **external parameter files**.
 
