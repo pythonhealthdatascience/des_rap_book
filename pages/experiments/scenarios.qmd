@@ -5,6 +5,11 @@ bibliography: scenarios_resources/references.bib
 
 {{< include ../../scripts/_reticulate-setup.md >}}
 
+```{python}
+#| echo: false
+# pylint: disable=undefined-variable,unused-import
+```
+
 :::: {.pale-blue}
 
 **Learning objectives:**
@@ -30,14 +35,12 @@ These should be available from environment setup in the "Test yourself" section 
 ::: {.python-content}
 
 ```{python}
+import itertools
+
 from IPython.display import HTML
 from itables import to_html_datatable
-import itertools
-import matplotlib.colors as mcolors
 import numpy as np
 import pandas as pd
-import plotly.express as px
-import plotly.graph_objects as go
 import scipy.stats as st
 import simpy
 from sim_tools.distributions import Exponential
@@ -155,7 +158,7 @@ for i in range(3, 7):
     results.append(result)
 
 # Combine results into a single dataframe
-scenario_results = pd.concat(results, ignore_index = True)
+scenario_results = pd.concat(results, ignore_index=True)
 
 # Show as interactive table
 HTML(to_html_datatable(scenario_results))
@@ -168,12 +171,12 @@ HTML(to_html_datatable(scenario_results))
 ```{r}
 results <- list()
 # Loop through doctor counts 3-6, running the simulation
-for (i in 3:6) {
+for (i in 3L:6L) {
   param <- create_params(number_of_doctors = i)
   result <- runner(param = param)[["run_results"]]
   # Add scenario information to the results, then save to list
-  result["number_of_doctors"] = i
-  results[[length(results) + 1]] <- result
+  result["number_of_doctors"] <- i
+  results[[length(results) + 1L]] <- result
 }
 
 # Combine results into a single dataframe
@@ -349,9 +352,9 @@ Let's run it!
 ```{python}
 # Run scenarios
 scenario_results = run_scenarios(
-    scenarios = {"interarrival_time": [4, 5, 6, 7, 8],
-                 "number_of_doctors": [3, 4, 5]},
-    param_factory = lambda: Parameters(number_of_runs = 100)
+    scenarios={"interarrival_time": [4, 5, 6, 7, 8],
+               "number_of_doctors": [3, 4, 5]},
+    param_factory=lambda: Parameters(number_of_runs=100)
 )
 
 # Save to CSV
@@ -374,7 +377,7 @@ scenarios <- list(
   number_of_doctors = c(3L, 4L, 5L)
 )
 scenario_results <- run_scenarios(
-    scenarios = scenarios, base_list = create_params(number_of_runs = 100)
+  scenarios = scenarios, base_list = create_params(number_of_runs = 100L)
 )
 
 # Save to CSV
@@ -408,8 +411,8 @@ They can be run using similar code. Below is an example using the `run_scenarios
 ```{python}
 # Run sensitivity analysis
 sensitivity_results = run_scenarios(
-    scenarios = {"interarrival_time": [4, 4.5, 5, 5.5, 6, 6.5, 7]},
-    param_factory = lambda: Parameters(number_of_runs = 100)
+    scenarios={"interarrival_time": [4, 4.5, 5, 5.5, 6, 6.5, 7]},
+    param_factory=lambda: Parameters(number_of_runs=100)
 )
 
 # Save to CSV
@@ -428,8 +431,8 @@ HTML(to_html_datatable(sensitivity_results.head(200)))
 ```{r}
 # Run sensitivity analysis
 sensitivity_results <- run_scenarios(
-    scenarios = list(interarrival_time = c(4L, 4.5, 5L, 5.5, 6L, 6.5, 7L)),
-    base_list = create_params(number_of_runs = 100)
+  scenarios = list(interarrival_time = c(4L, 4.5, 5L, 5.5, 6L, 6.5, 7L)),
+  base_list = create_params(number_of_runs = 100L)
 )
 
 # Save to CSV
