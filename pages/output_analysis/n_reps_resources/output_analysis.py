@@ -176,7 +176,7 @@ class OnlineStatistics:
         Returns
         -------
         float
-            Sample variance, calculated as the sum of squared differences 
+            Sample variance, calculated as the sum of squared differences
             from the mean divided by (n - 1).
         """
         return self._sq / (self.n - 1)
@@ -300,7 +300,7 @@ class OnlineStatistics:
 
 class ReplicationTabulizer:
     """
-    Observer class for recording replication results from an 
+    Observer class for recording replication results from an
     `OnlineStatistics` instance during simulation runs or repeated experiments.
 
     Implements the observer pattern to collect statistics after each update
