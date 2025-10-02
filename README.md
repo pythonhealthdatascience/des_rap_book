@@ -202,10 +202,6 @@ Thank you to the following people for their contributions.
 
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
- If your name or contributions are missing from this list, or if you contributed in ways not captured by the current role emojis, please create an issue and use:
+<br>
 
- ```
- @all-contributors please add @githubuser for ...
- ```
-
- Then list appropriate contribution types and emojis from the full key at [allcontributors.org/docs/en/emoji-key](https://allcontributors.org/docs/en/emoji-key) (e.g., code, review, doc, content, bug, ideas, infra).
+*If your name or contributions are missing from this list, or if you contributed in ways not captured by the current role emojis, please create an issue and use: `@all-contributors please add @githubuser for ...` Then list appropriate contribution types from [allcontributors.org/docs/en/emoji-key](https://allcontributors.org/docs/en/emoji-key) (e.g., code, review, doc, content, bug, ideas, infra).*
