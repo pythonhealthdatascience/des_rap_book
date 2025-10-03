@@ -23,73 +23,264 @@ TODO
 
 ::::
 
-## Explore the example models
+<br>
+
+As introduced at the start of this book, a **reproducible analytical pipeline (RAP)** is a systematic approach to data analysis and modelling in which every step of the process (end-to-end) is transparent, automated, and repeatable.
+
+![](../intro/rap_resources/rap.png)
+
+A key aspect RAPs is being able to **run your entire analysis from start to finish with a single command**. For example, one command that can run a simulation model, evaluate the base case, explore scenarios, conduct sensitivity analyses, and produce all tables and figures.
+
+**Why is this important?** Running analyses bit by bit makes it easy to introduce inconsistencies. Running everything from scratch ensures that results are fully reproducible: all required code and data are included, and the workflow can be reliably repeated. This means you (or anyone else) can execute the analysis and get all the outputs.
+
+## Methods for running everything from scratch
+
+There are several ways to automate running your analysis - some common options include:
+
+::: {.python-content}
+
+* **main.py**: Use if everything is in `.py` files (i.e., no Jupyter notebooks). Write a main python function that imports all the necessary code and runs your pipeline.
+
+* **Bash scripts:** Can run a mixture of file types (e.g., `.py`, `.ipynb`, `.qmd`). You write a shell script that lists each step in your workflow, and the script will execute everything step-by-step in the order you specify.
+
+:::
+
+::: {.r-content}
+
+* **main.R**: Use if everything is in `.R` files (i.e., no Rmarkdown files). You create a main script that imports all the necessary code and runs your pipeline.
+
+* **Bash scripts:** Can run a mixture of file types (e.g., `.py`, `.Rmd`, `.qmd`). You write a shell script that lists each step in your workflow, and the script will execute everything step-by-step in the order you specify.
+
+:::
+
+* **Makefiles:** Handy for analyses with long run times. Makefiles track which outputs depend on which inputs, and only re-run steps when the inputs have changed (i.e., won't necessarily re-run everything).
+
+* **Snakemake:** Tool that builds on Makefile, supporting very complex pipelines and lots of tools and languages.
+
+In this example, we'll **focus on a bash script**, since it's often the simplest way to run an analysis from scratch and supports a variety of file types.
+
+## Bash script
 
 <div class="h3-tight"></div>
 
-### Nurse visit simulation
+### Example script
 
-:::: {.python-content}
+::: {.python-content}
+
+This example runs Jupyter notebook (`.ipynb`) files:
+
+```{.bash}
+#!/usr/bin/env bash
+
+# Get the conda environment's jupyter path
+CONDA_JUPYTER=$(dirname "$(which python)")/jupyter
+
+run_notebook() {
+    local nb="$1"
+    echo "🏃 Running notebook: $nb"
+    if "${CONDA_JUPYTER}" nbconvert --to notebook --inplace --execute \
+        --ClearMetadataPreprocessor.enabled=True \
+        --ClearMetadataPreprocessor.clear_notebook_metadata=False \
+        --ClearMetadataPreprocessor.preserve_cell_metadata_mask="kernelspec" \
+        "$nb"
+    then
+        echo "✅ Successfully processed: $nb"
+    else
+        echo "❌ Error processing: $nb"
+    fi
+    echo "-------------------------"
+}
+
+if [[ -n "$1" ]]; then
+    run_notebook "$1"
+else
+    for nb in notebooks/*.ipynb; do
+        run_notebook "$nb"
+    done
+fi
+```
+
+### Explaining the bash script line by line
+
+```{.bash}
+#!/usr/bin/env bash
+```
+
+This is called a "shebang line". It just tells the operating system which interpreter to use - in this case, making sure it uses Bash.
+
+<br>
+
+```{.bash}
+# Get the conda environment's jupyter path
+CONDA_JUPYTER=$(dirname "$(which python)")/jupyter
+```
+
+This line finds the `jupyter` executable linked to your current python environment. This ensures it uses the correct version of Jupyter (i.e., instead of trying to run a system-wide or different environment's Jupyter).
+
+<br>
+
+```{.bash}
+run_notebook() {
+```
+
+We define a bash function to run each notebook.
+
+<br>
+
+```{.bash}
+local nb="$1"
+```
+
+This assigns the notebook filename passed to the function (`$1`) to the variable `nb` within the function.
+
+<br>
+
+```{.bash}
+echo "🏃 Running notebook: $nb"
+```
+
+A message is printed to help track what's happening, as each notebook is processed.
+
+<br>
+
+```{.bash}
+    if "${CONDA_JUPYTER}" nbconvert --to notebook --inplace --execute \
+        --ClearMetadataPreprocessor.enabled=True \
+        --ClearMetadataPreprocessor.clear_notebook_metadata=False \
+        --ClearMetadataPreprocessor.preserve_cell_metadata_mask="kernelspec" \
+        "$nb"
+    then
+        echo "✅ Successfully processed: $nb"
+    else
+        echo "❌ Error processing: $nb"
+    fi
+    echo "-------------------------"
+```
+
+This block runs the notebook using Jupyter's `nbconvert` tool. It will print a success message if this works, and an error message if not.
+
+The Jupyter nbconvert command (a single command, though split across several lines):
+
+* `"${CONDA_JUPYTER}" nbconvert`: Execute nbconvert from your environment.
+* `--to notebook --inplace --execute`: Run the notebook, overwrite in place, and execute all cells from scratch.
+* `--ClearMetadataPreprocessor.enabled=True`: Clear notebook metadata.
+* `--ClearMetadataPreprocessor.clear_notebook_metadata=False`: Prevent removal of *all* notebook metadata.
+* `--ClearMetadataPreprocessor.preserve_cell_metadata_mask="kernelspec"`: Tell nbconvert to keep the kernel information.
+* `"$nb"`: Specifies the notebook file to run.
+
+<!--TODO: EXPLAIN BETTER WHY WE HAVE ALL THESE STEPS - i.e. show examples of kernel metadata, mayeb in collapsecallout, and before after these lines-->
+
+<br>
+
+```{.bash}
+if [[ -n "$1" ]]; then
+    run_notebook "$1"
+else
+    for nb in notebooks/*.ipynb; do
+        run_notebook "$nb"
+    done
+fi
+```
+
+If a notebook name is given as a command-line argument, it only runs that notebook. If not, it loops through all notebooks in the `notebooks/` directory and runs each one. This structure gives you flexibility: you can run all notebooks in bulk, or just one at a time, without changing the script.
+
+### Running the bash script
+
+Make sure you are in the same directory as the script, then run from the terminal:
+
+```{.bash}
+bash run_notebooks.sh
+```
+
+You can make it executable using `chmod +x`. You can then run it directly (without `bash` command) from anyone in the file tree, and don't need to be in the same directory.
+
+```{.bash}
+chmod +x run_notebooks.sh
+run_notebooks.sh
+```
+
+<!--TODO: SHOW EXAMPLE OUTPUT-->
+
+### Including `.py` files in the bash script
+
+<!--TODO: 
+example was just ipynb... typical place do all analysis... but can include .py in bash, mix of .py and .ipynb, etc.
+
+example running .py:
+
+```{.bash}
+```
+-->
+
+:::
+
+::: {.r-content}
+
+```{.bash}
+#!/bin/bash
+
+# Ensure the script exits on error
+set -e
+
+# Find and render all .Rmd files in the specified directory
+for file in "rmarkdown"/*.Rmd; do
+    echo "Rendering: $file"
+    Rscript -e "rmarkdown::render('$file')"
+done
+
+echo "Rendering complete!"
+```
+
+<!--TODO: explain the bash script and show output-->
+
+<!--TODO: explain how to do with .R-->
+
+:::
+
+## Literate programming
+
+<!--TODO:
+
+or "dynamic documents" or "reproducible reports"
+
+code and markdown alongside each other
+
+ipynb and rmd are typical examples
+also qmd
+
+recommend for running analysis etc.
+
+but also, can do quite formally
+
+so not just experimentation, but full report or publication
+good template - https://osf.io/preprints/osf/k8jhx_v1
+good template - https://osf.io/preprints/osf/ur4xn
+
+run from scratch v.s. pulls in local, run separate.
+
+-->
+
+## Explore the example models
+
+::: {.python-content}
 
 {{< include ../../html/pydesrapmms.html >}}
 
-::: {.blue-table}
-| | |
-| - | - |
-| **Key files** | |
-| **What to look for?** | |
-| **Why it matters?** | |
-: {tbl-colwidths="[20,80]"}
+{{< include ../../html/pydesrapstroke.html >}}
+
+Both have a file `run_notebooks.sh` (like the example above) which is used to run everything in `notebooks/` from scratch.
+
 :::
 
-::::
-
-:::: {.r-content}
+::: {.r-content}
 
 {{< include ../../html/rdesrapmms.html >}}
 
-::: {.blue-table}
-| | |
-| - | - |
-| **Key files** | |
-| **What to look for?** | |
-| **Why it matters?** | |
-: {tbl-colwidths="[20,80]"}
-:::
-
-::::
-
-### Stroke pathway simulation
-
-:::: {.python-content}
-
-{{< include ../../html/pydesrapstroke.html >}}
-
-::: {.blue-table}
-| | |
-| - | - |
-| **Key files** | |
-| **What to look for?** | |
-| **Why it matters?** | |
-: {tbl-colwidths="[20,80]"}
-:::
-
-::::
-
-:::: {.r-content}
-
 {{< include ../../html/rdesrapstroke.html >}}
 
-::: {.blue-table}
-| | |
-| - | - |
-| **Key files** | |
-| **What to look for?** | |
-| **Why it matters?** | |
-: {tbl-colwidths="[20,80]"}
-:::
+Both have a file `run_rmarkdown.sh` (like the example above) which is used to run everything in `rmarkdown/` from scratch.
 
-::::
+:::
 
 ## Test yourself
 
