@@ -259,7 +259,7 @@ To run a specific notebook:
 bash run_notebooks.sh notebooks/notebook_name.ipynb
 ```
 
-You can make it executable using `chmod +x`. You can then run it directly (without `bash` command) from anyone in the file tree, and don't need to be in the same directory.
+You can make it executable using `chmod +x`. You can then run it directly (without typing `bash` first) from anywhere in your project folder tree (i.e., don't need to be in same directly).
 
 ```{.bash}
 chmod +x run_notebooks.sh
@@ -281,7 +281,7 @@ The output will look like:
 
 Our example script just ran Jupyter notebooks, as they contained all our analysis in our example models. However, you can also perform your analysis in `.py` files, structured like:
 
-```{.bash}
+```{.python}
 from simulation import Param, Runner
 
 
@@ -321,9 +321,54 @@ done
 echo "Rendering complete!"
 ```
 
-<!--TODO: explain the bash script and show output-->
+It starts with `#!/usr/bin/env bash`. This is known as a "shebang line". It just tells the operating system which interpreter to use - in this case, making sure it uses Bash.
 
-<!--TODO: explain how to do with .R-->
+It is set to end on error running any file (`set -e`).
+
+It searches for every file ending `.Rmd` in the `rmarkdown` folder. For each file, it prints a message to say which file it is working on (`echo ...`), and then runs R code to execute the file.
+
+### Running the bash script
+
+To run the script, open a terminal and run:
+
+```{.bash}
+bash run_rmarkdown.sh
+```
+
+You can make it executable using `chmod +x`. You can then run it directly (without typing `bash` first) from anywhere in your project folder tree (i.e., don't need to be in same directly).
+
+```{.bash}
+chmod +x run_rmarkdown.sh
+run_rmarkdown.sh
+```
+
+The output of running the script will look something like this:
+
+```{.bash}
+> bash run_rmarkdown.sh
+Rendering: rmarkdown/analysis.Rmd
+
+
+processing file: analysis.Rmd
+  |....................                               |  39% [unnamed-chunk-9] 
+```
+
+### Including `.R` files in the bash script.
+
+Our example script just ran rmarkdown files, as they contained all our analysis in our example models. However, you can also perform your analysis in `.R` files, structured like:
+
+```{.r}
+devtools::load_all()
+
+run_results <- runner(param = parameters())[["run_results"]]
+# Continues with analysis and saving outputs...
+```
+
+You can run this R script from a Bash script or terminal with the following command:
+
+```{.bash}
+Rscript analysis/filename.R
+```
 
 :::
 
