@@ -200,8 +200,9 @@ class Model:
             self.patients.append(patient)
 
             # Print arrival time
-            print(f"Patient {patient.patient_id} arrives " +
-                  f"at time: {self.env.now:.3f}")
+            if self.param.verbose:
+                print(f"Patient {patient.patient_id} arrives " +
+                      f"at time: {self.env.now:.3f}")
 
             # Start process of consultation#<<
             self.env.process(self.consultation(patient))#<<
@@ -219,8 +220,9 @@ class Model:
         with self.doctor.request() as req:#<<
             yield req#<<
 
-            print(f"Patient {patient.patient_id} starts consultation " +#<<
-                  f"at: {self.env.now:.3f}")#<<
+            if self.param.verbose:#<<
+                print(f"Patient {patient.patient_id} starts consultation " +#<<
+                      f"at: {self.env.now:.3f}")#<<
 
             # Sample consultation duration and pass time spent with doctor#<<
             time_with_doctor = self.consult_dist.sample()#<<
@@ -293,14 +295,17 @@ def consultation(self, patient):
     with self.doctor.request() as req:
         yield req
 
-        print(f"Patient {patient.patient_id} starts consultation " +
-                f"at: {self.env.now:.3f}")
+        if self.param.verbose:
+            print(f"Patient {patient.patient_id} starts consultation " +
+                  f"at: {self.env.now:.3f}")
 
 ```
 
 Each patient asks for a doctor using `self.doctor.request()`. If they're all busy, the patient waits in a queue until one is free.
 
 Once a doctor is available, SimPy assigns the resource to that patient, and the consultation start time is printed.
+
+<br>
 
 ```{.python}
 # Sample consultation duration and pass time spent with doctor
