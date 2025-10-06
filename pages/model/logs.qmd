@@ -1,5 +1,5 @@
 ---
-title: ❌ Logging
+title: Logging
 filters:
   - line-highlight
 ---
@@ -58,7 +58,7 @@ In the basic model we built on the previous pages, we printed out the arrival an
 
 ::: {.r-content}
 
-In the basic simmer model we built on the previous pages, we ran the simulation with `verbose=TRUE` and looked at the logs output by simmer.
+In the basic simmer model we built on the previous pages, we ran the simulation with `verbose = TRUE` and looked at the logs output by simmer.
 
 :::
 
@@ -116,8 +116,8 @@ create_params <- function(
 ) {
   list(
     interarrival_time = interarrival_time,
-    consultation_time = consultation_time, 
-    number_of_doctors = number_of_doctors, 
+    consultation_time = consultation_time,
+    number_of_doctors = number_of_doctors,
     run_length = run_length,
     verbose = verbose
   )
@@ -145,27 +145,27 @@ model <- function(param, run_number) {
   set.seed(run_number)
 
   # Create simmer environment
-  env <- simmer("simulation", verbose = FALSE,#<<
+  env <- simmer("simulation", verbose = FALSE, #<<
                 log_level = if (param[["verbose"]]) 1L else 0L)#<<
 
   # Define the patient trajectory
   patient <- trajectory("consultation") |>
-    log_("🚶 Arrives.", level = 1L) |>#<<
+    log_("🚶 Arrives.", level = 1L) |> #<<
     seize("doctor", 1L) |>
     # Record sampled length of consultation #<<
-    set_attribute("doctor_serve_length", function() {#<<
+    set_attribute("doctor_serve_length", function() { #<<
       rexp(n = 1L, rate = 1L / param[["consultation_time"]])#<<
-    }) |>#<<
+    }) |> #<<
     log_(function() {#<<
-      paste0("🩺 Doctor consultation begins (length: ",#<<
+      paste0("🩺 Doctor consultation begins (length: ", #<<
              round(get_attribute(env, "doctor_serve_length"), 5L), ")")#<<
-    }, level = 1L) |>#<<
+    }, level = 1L) |> #<<
     timeout(function() get_attribute(env, "doctor_serve_length")) |> #<<
     release("doctor", 1L) |>
     log_("🚪 Leaves.", level = 1L)#<<
 
   env <- env |>
-    # Add doctor resource 
+    # Add doctor resource
     add_resource("doctor", param[["number_of_doctors"]]) |>
     # Add patient generator
     add_generator("patient", patient, function() {
@@ -284,14 +284,14 @@ model <- function(param, run_number) {
 
   # Add blank trajectory used to add parameters to the log#<<
   param_string <- paste(names(param), param, sep = "=", collapse = ";\n ")#<<
-  param_traj <- trajectory() |>#<<
+  param_traj <- trajectory() |> #<<
     log_(param_string, level = 1L)#<<
 
   # Define the patient trajectory
   patient <- trajectory("consultation") |>
     log_("🚶 Arrives.", level = 1L) |>
     seize("doctor", 1L) |>
-    # Record sampled length of consultation 
+    # Record sampled length of consultation
     set_attribute("doctor_serve_length", function() {
       rexp(n = 1L, rate = 1L / param[["consultation_time"]])
     }) |>
@@ -299,14 +299,14 @@ model <- function(param, run_number) {
       paste0("🩺 Doctor consultation begins (length: ",
              round(get_attribute(env, "doctor_serve_length"), 5L), ")")
     }, level = 1L) |>
-    timeout(function() get_attribute(env, "doctor_serve_length")) |> 
+    timeout(function() get_attribute(env, "doctor_serve_length")) |>
     release("doctor", 1L) |>
     log_("🚪 Leaves.", level = 1L)
 
   env <- env |>
     # Add parameter log#<<
-    add_generator("Parameters", param_traj, at(0)) |>#<<
-    # Add doctor resource 
+    add_generator("Parameters", param_traj, at(0L)) |> #<<
+    # Add doctor resource
     add_resource("doctor", param[["number_of_doctors"]]) |>
     # Add patient generator
     add_generator("patient", patient, function() {
@@ -361,17 +361,17 @@ create_params <- function(
   consultation_time = 10L,
   number_of_doctors = 3L,
   run_length = 50L,
-  log_to_console = FALSE,#<<
-  log_to_file = FALSE,#<<
+  log_to_console = FALSE, #<<
+  log_to_file = FALSE, #<<
   file_path = NULL#<<
 ) {
   list(
     interarrival_time = interarrival_time,
-    consultation_time = consultation_time, 
-    number_of_doctors = number_of_doctors, 
+    consultation_time = consultation_time,
+    number_of_doctors = number_of_doctors,
     run_length = run_length,
-    log_to_console = log_to_console,#<<
-    log_to_file = log_to_file,#<<
+    log_to_console = log_to_console, #<<
+    log_to_file = log_to_file, #<<
     file_path = file_path#<<
   )
 }
@@ -411,7 +411,7 @@ model <- function(param, run_number) {
   patient <- trajectory("consultation") |>
     log_("🚶 Arrives.", level = 1L) |>
     seize("doctor", 1L) |>
-    # Record sampled length of consultation 
+    # Record sampled length of consultation
     set_attribute("doctor_serve_length", function() {
       rexp(n = 1L, rate = 1L / param[["consultation_time"]])
     }) |>
@@ -419,22 +419,22 @@ model <- function(param, run_number) {
       paste0("🩺 Doctor consultation begins (length: ",
              round(get_attribute(env, "doctor_serve_length"), 5L), ")")
     }, level = 1L) |>
-    timeout(function() get_attribute(env, "doctor_serve_length")) |> 
+    timeout(function() get_attribute(env, "doctor_serve_length")) |>
     release("doctor", 1L) |>
     log_("🚪 Leaves.", level = 1L)
 
   sim_log <- capture.output(#<<
-    env <- env |>
-    # Add parameter log
-    add_generator("Parameters", param_traj, at(0)) |>
-    # Add doctor resource 
-    add_resource("doctor", param[["number_of_doctors"]]) |>
-    # Add patient generator
-    add_generator("patient", patient, function() {
-      rexp(n = 1L, rate = 1L / param[["interarrival_time"]])
-    }) |>
-    # Run the simulation
-    simmer::run(until = param[["run_length"]])
+    env <- env |> # nolint
+      # Add parameter log
+      add_generator("Parameters", param_traj, at(0L)) |>
+      # Add doctor resource
+      add_resource("doctor", param[["number_of_doctors"]]) |>
+      # Add patient generator
+      add_generator("patient", patient, function() {
+        rexp(n = 1L, rate = 1L / param[["interarrival_time"]])
+      }) |>
+      # Run the simulation
+      simmer::run(until = param[["run_length"]])
   )#<<
 
   # Print log to console#<<
@@ -471,7 +471,7 @@ model(param = param, run_number = 1L)
 If we set `log_to_file = TRUE` and provided a `file_path`, we create a file containing the log output.
 
 ```{r}
-log_file <- "logs_resources/log_example.log"
+log_file <- file.path("logs_resources", "log_example.log")
 param <- create_params(log_to_file = TRUE, file_path = log_file)
 model(param = param, run_number = 1L)
 ```
