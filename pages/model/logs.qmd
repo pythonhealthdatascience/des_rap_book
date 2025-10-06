@@ -1,12 +1,18 @@
 ---
 title: ❌ Logging
+filters:
+  - line-highlight
 ---
+
+{{< include ../../scripts/_reticulate-setup.md >}}
 
 :::: {.pale-blue}
 
 **Learning objectives:**
 
-* TODO
+* Learn how to set up alternative logs for your model.
+* Add parameter list to your log.
+* Understand how to save the log to a file.
 
 **Relevant reproducibility guidelines:**
 
@@ -14,29 +20,470 @@ title: ❌ Logging
 
 **Pre-reading:**
 
-TODO
+This page continues on from: [Entity processing](../model/process.qmd).
+
+> *Entity generation → Entity processing → Logging*
 
 **Required packages:**
 
-TODO
+These should be available from environment setup in the "Test yourself" section of [Environments](../setup/environment.qmd). 
+
+::: {.python-content}
+
+```{python}
+import numpy as np
+import simpy
+from sim_tools.distributions import Exponential
+```
+
+:::
+
+::: {.r-content}
+
+```{r}
+library(simmer)
+```
+
+:::
 
 ::::
 
-<!--
+<br>
 
-Mentions previously:
+::: {.python-content}
 
-- Grouping parameters in object makes it easier to print a copy of all param from scenario
+In the basic model we built on the previous pages, we printed out the arrival and consultation times as the simulation ran.
 
-- Patients: Printing the time of each arrival gives a quick and visible check that the arrival process is working as expected. For now, simple print statements are effective, but this can later be replaced by a more sophisticated logging approach
+:::
 
-- Process: R logs get explained but can make custom which are easier to interpret
+::: {.r-content}
 
--->
+In the basic simmer model we built on the previous pages, we ran the simulation with `verbose=TRUE` and looked at the logs output by simmer.
 
-<!--TODO: we have shown examples with simmer default... print... and verbose...can do more than that too... python logging class... simmer custom logging messages...-->
+:::
 
-<!--TODO: r custom log... log_()... level important... speed... e.g. rdesrap_stroke did that went from 1m16 to 0m33-->
+This allowed us to **check that the model is working as expected**. It is important to check this when **building a simulation**, so you can have confidence that events are coded correctly - e.g., that arrivals happen at the right time, that patients get seen in the right order by the right people.
+
+::: {.python-content}
+
+Instead of print statements, this page shows you how to make more detailed visual logs, with functionality including saving them to a file.
+
+:::
+
+::: {.r-content}
+
+The default simmer logs are useful but can be quite confusing to use. Instead, we can make custom logs that are easier to read and interpret.
+
+:::
+
+Logging should be **optional**. It's best to use them while developing and testing the model with short runs and no replications. They will be excessive and slow down the simulation if used for long runs or multiple replications.
+
+## Setting up alternative logs for the model
+
+<div class="h3-tight"></div>
+
+::: {.python-content}
+
+:::
+
+::: {.r-content}
+
+### Parameter function
+
+No changes required.
+
+```{r}
+#| echo: false
+
+#' Generate parameter list.
+#'
+#' @param interarrival_time Numeric. Time between arrivals (minutes).
+#' @param consultation_time Numeric. Mean length of doctor's
+#'   consultation (minutes).
+#' @param number_of_doctors Numeric. Number of doctors.
+#' @param run_length Numeric. Total duration of simulation (minutes).
+#' @param verbose Boolean. Whether to print messages as simulation runs.
+#'
+#' @return A named list of parameters.
+#' @export
+
+create_params <- function(
+  interarrival_time = 5L,
+  consultation_time = 10L,
+  number_of_doctors = 3L,
+  run_length = 50L,
+  verbose = TRUE
+) {
+  list(
+    interarrival_time = interarrival_time,
+    consultation_time = consultation_time, 
+    number_of_doctors = number_of_doctors, 
+    run_length = run_length,
+    verbose = verbose
+  )
+}
+```
+
+### Model function
+
+The required changes are explained line-by-line below:
+
+```{r}
+#' Run simulation.
+#'
+#' @param param List. Model parameters.
+#' @param run_number Numeric. Run number for random seed generation.
+#'
+#' @importFrom simmer add_generator add_resource get_attribute log_ release run
+#' @importFrom simmer seize set_attribute simmer timeout trajectory
+#'
+#' @export
+
+model <- function(param, run_number) {
+
+  # Set random seed based on run number
+  set.seed(run_number)
+
+  # Create simmer environment
+  env <- simmer("simulation", verbose = FALSE,#<<
+                log_level = if (param[["verbose"]]) 1L else 0L)#<<
+
+  # Define the patient trajectory
+  patient <- trajectory("consultation") |>
+    log_("🚶 Arrives.", level = 1L) |>#<<
+    seize("doctor", 1L) |>
+    # Record sampled length of consultation #<<
+    set_attribute("doctor_serve_length", function() {#<<
+      rexp(n = 1L, rate = 1L / param[["consultation_time"]])#<<
+    }) |>#<<
+    log_(function() {#<<
+      paste0("🩺 Doctor consultation begins (length: ",#<<
+             round(get_attribute(env, "doctor_serve_length"), 5L), ")")#<<
+    }, level = 1L) |>#<<
+    timeout(function() get_attribute(env, "doctor_serve_length")) |> #<<
+    release("doctor", 1L) |>
+    log_("🚪 Leaves.", level = 1L)#<<
+
+  env <- env |>
+    # Add doctor resource 
+    add_resource("doctor", param[["number_of_doctors"]]) |>
+    # Add patient generator
+    add_generator("patient", patient, function() {
+      rexp(n = 1L, rate = 1L / param[["interarrival_time"]])
+    }) |>
+    # Run the simulation
+    simmer::run(until = param[["run_length"]])
+
+}
+```
+
+#### Explaining changes to `model()`
+
+```{.r}
+env <- simmer("simulation", verbose = FALSE,
+              log_level = if (param[["verbose"]]) 1L else 0L)
+```
+
+Simmer's default logging is disabled by setting `verbose = FALSE` in `simmer::simmer()`.
+
+The display of our custom log messages is then managed using the `log_level` argument in `simmer::simmer()`.
+
+<br>
+
+```{.r}
+log_("🚶 Arrives.", level = 1L) |>
+```
+
+Custom log messages are created using simmer's [`log_()`](https://r-simmer.org/reference/log_) function, which allows us to insert our own messages into the simulation trajectory.
+
+Each message can be assigned a `level`. We've set `level = 1`, meaning it will only be displayed if the simulation's `log_level` is greater than or equal to 1. 
+
+<br>
+
+```{.r}
+# Record sampled length of consultation 
+set_attribute("doctor_serve_length", function() {
+  rexp(n = 1L, rate = 1L / param[["consultation_time"]])
+}) |>
+log_(function() {
+  paste0("🩺 Doctor consultation begins (length: ",
+         round(get_attribute(env, "doctor_serve_length"), 5L), ")")
+}, level = 1L) |>
+timeout(function() get_attribute(env, "doctor_serve_length")) |>
+```
+
+We need to sample the length of the consultation within the trajectory and use this value in two places: within `log_()` for reporting and in `timeout()` to control the duration.
+
+To achieve this, we use simmer's `get_attribute()` to generate and store the value as an attribute. We then access this value later using `get_attribute()`.
+
+<br>
+
+```{.r}
+log_("🚪 Leaves.", level = 1L)
+```
+
+Finally, we create a log message to record when the patient leaves.
+
+### Run the model
+
+```{r}
+param <- create_params()
+model(param = param, run_number = 1L)
+```
+
+<br>
+
+If we run the model with `verbose = FALSE` in parameters, no logs are printed:
+
+```{r}
+param <- create_params(verbose = FALSE)
+model(param = param, run_number = 1L)
+```
+
+:::
+
+## Adding parameters to the logs
+
+As mentioned on the [Parameters from script](../inputs/parameters_script.qmd) page, one of the benefits of storing parameters in a single object is that we can easily print a copy of all parameters used for a scenario by fetching the object.
+
+::: {.python-content}
+
+:::
+
+::: {.r-content}
+
+### Parameter function
+
+No changes required.
+
+### Model function
+
+The `log_()` function is designed to be used within simmer trajectories. To record the model's parameter set as part of the simmer log, we create a simple trajectory `param_traj` containing a single `log_()` action. Here, the parameters are converted into string format and logged.
+
+This is add to the simulation environment using `add_generator()` with `at(0)` ensuring that it just triggers once at the very start of the simulation.
+
+```{r}
+#' Run simulation.
+#'
+#' @param param List. Model parameters.
+#' @param run_number Numeric. Run number for random seed generation.
+#'
+#' @importFrom simmer add_generator add_resource get_attribute log_ release run
+#' @importFrom simmer seize set_attribute simmer timeout trajectory
+#'
+#' @export
+
+model <- function(param, run_number) {
+
+  # Set random seed based on run number
+  set.seed(run_number)
+
+  # Create simmer environment
+  env <- simmer("simulation", verbose = FALSE,
+                log_level = if (param[["verbose"]]) 1L else 0L)
+
+  # Add blank trajectory used to add parameters to the log#<<
+  param_string <- paste(names(param), param, sep = "=", collapse = ";\n ")#<<
+  param_traj <- trajectory() |>#<<
+    log_(param_string, level = 1L)#<<
+
+  # Define the patient trajectory
+  patient <- trajectory("consultation") |>
+    log_("🚶 Arrives.", level = 1L) |>
+    seize("doctor", 1L) |>
+    # Record sampled length of consultation 
+    set_attribute("doctor_serve_length", function() {
+      rexp(n = 1L, rate = 1L / param[["consultation_time"]])
+    }) |>
+    log_(function() {
+      paste0("🩺 Doctor consultation begins (length: ",
+             round(get_attribute(env, "doctor_serve_length"), 5L), ")")
+    }, level = 1L) |>
+    timeout(function() get_attribute(env, "doctor_serve_length")) |> 
+    release("doctor", 1L) |>
+    log_("🚪 Leaves.", level = 1L)
+
+  env <- env |>
+    # Add parameter log#<<
+    add_generator("Parameters", param_traj, at(0)) |>#<<
+    # Add doctor resource 
+    add_resource("doctor", param[["number_of_doctors"]]) |>
+    # Add patient generator
+    add_generator("patient", patient, function() {
+      rexp(n = 1L, rate = 1L / param[["interarrival_time"]])
+    }) |>
+    # Run the simulation
+    simmer::run(until = param[["run_length"]])
+
+}
+```
+
+### Run the model
+
+```{r}
+param <- create_params()
+model(param = param, run_number = 1L)
+```
+
+:::
+
+## Saving logs to a file
+
+Saving simulation logs to a file is very handy for reproducibility because it creates a permanent, detailed record of exactly what happened during the simulation run. This can be useful for debugging, peer review and similar.
+
+::: {.python-content}
+
+:::
+
+::: {.r-content}
+
+### Parameter function
+
+Our argument `verbose` has been replace by three new arguments: `log_to_console`, `log_to_file` and `file_path`...
+
+```{r}
+#' Generate parameter list.
+#'
+#' @param interarrival_time Numeric. Time between arrivals (minutes).
+#' @param consultation_time Numeric. Mean length of doctor's
+#'   consultation (minutes).
+#' @param number_of_doctors Numeric. Number of doctors.
+#' @param run_length Numeric. Total duration of simulation (minutes).
+#' @param log_to_console Whether to print activity log to console.#<<
+#' @param log_to_file Whether to save activity log to file.#<<
+#' @param file_path Path to save log to file.#<<
+#'
+#' @return A named list of parameters.
+#' @export
+
+create_params <- function(
+  interarrival_time = 5L,
+  consultation_time = 10L,
+  number_of_doctors = 3L,
+  run_length = 50L,
+  log_to_console = FALSE,#<<
+  log_to_file = FALSE,#<<
+  file_path = NULL#<<
+) {
+  list(
+    interarrival_time = interarrival_time,
+    consultation_time = consultation_time, 
+    number_of_doctors = number_of_doctors, 
+    run_length = run_length,
+    log_to_console = log_to_console,#<<
+    log_to_file = log_to_file,#<<
+    file_path = file_path#<<
+  )
+}
+```
+
+### Model function
+
+```{r}
+#' Run simulation.
+#'
+#' @param param List. Model parameters.
+#' @param run_number Numeric. Run number for random seed generation.
+#'
+#' @importFrom simmer add_generator add_resource get_attribute log_ release run
+#' @importFrom simmer seize set_attribute simmer timeout trajectory
+#'
+#' @export
+
+model <- function(param, run_number) {
+
+  # Set random seed based on run number
+  set.seed(run_number)
+
+  # Determine whether to get verbose activity logs#<<
+  verbose <- any(c(param[["log_to_console"]], param[["log_to_file"]]))#<<
+
+  # Create simmer environment
+  env <- simmer("simulation", verbose = FALSE,
+                log_level = if (verbose) 1L else 0L)#<<
+
+  # Add blank trajectory used to add parameters to the log
+  param_string <- paste(names(param), param, sep = "=", collapse = ";\n ")
+  param_traj <- trajectory() |>
+    log_(param_string, level = 1L)
+
+  # Define the patient trajectory
+  patient <- trajectory("consultation") |>
+    log_("🚶 Arrives.", level = 1L) |>
+    seize("doctor", 1L) |>
+    # Record sampled length of consultation 
+    set_attribute("doctor_serve_length", function() {
+      rexp(n = 1L, rate = 1L / param[["consultation_time"]])
+    }) |>
+    log_(function() {
+      paste0("🩺 Doctor consultation begins (length: ",
+             round(get_attribute(env, "doctor_serve_length"), 5L), ")")
+    }, level = 1L) |>
+    timeout(function() get_attribute(env, "doctor_serve_length")) |> 
+    release("doctor", 1L) |>
+    log_("🚪 Leaves.", level = 1L)
+
+  sim_log <- capture.output(#<<
+    env <- env |>
+    # Add parameter log
+    add_generator("Parameters", param_traj, at(0)) |>
+    # Add doctor resource 
+    add_resource("doctor", param[["number_of_doctors"]]) |>
+    # Add patient generator
+    add_generator("patient", patient, function() {
+      rexp(n = 1L, rate = 1L / param[["interarrival_time"]])
+    }) |>
+    # Run the simulation
+    simmer::run(until = param[["run_length"]])
+  )#<<
+
+  # Print log to console#<<
+  if (isTRUE(param[["log_to_console"]])) {#<<
+    print(sim_log)#<<
+  }#<<
+  # Save log to file#<<
+  if (isTRUE(param[["log_to_file"]])) {#<<
+    writeLines(sim_log, param[["file_path"]])#<<
+  }#<<
+}
+```
+
+### Run the model
+
+With `log_to_console` and `log_to_file` both set to FALSE, no logs are generated.
+
+```{r}
+param <- create_params()
+model(param = param, run_number = 1L)
+```
+
+<br>
+
+If we set `log_to_console = TRUE`, the log is print as before.
+
+```{r}
+param <- create_params(log_to_console = TRUE)
+model(param = param, run_number = 1L)
+```
+
+<br>
+
+If we set `log_to_file = TRUE` and provided a `file_path`, we create a file containing the log output.
+
+```{r}
+log_file <- "logs_resources/log_example.log"
+param <- create_params(log_to_file = TRUE, file_path = log_file)
+model(param = param, run_number = 1L)
+```
+
+If we import the log file, we'll see it contains the same output:
+
+```{r}
+log_contents <- readLines(log_file)
+print(log_contents, sep = "\n")
+```
+
+:::
 
 ## Explore the example models
 
@@ -66,9 +513,9 @@ Mentions previously:
 ::: {.blue-table}
 | | |
 | - | - |
-| **Key files** | |
-| **What to look for?** | |
-| **Why it matters?** | |
+| **Key files** | `rmarkdown/logs.md` |
+| **What to look for?** | Creates custom logs (not with parameters or saved to file - kept simple). |
+| **Why it matters?** | In this example, we've kept the model simpler and stuck with the default simmer log message. Instead, custom logs are demonstrated in an rmarkdown file. |
 : {tbl-colwidths="[20,80]"}
 :::
 
@@ -98,9 +545,9 @@ Mentions previously:
 ::: {.blue-table}
 | | |
 | - | - |
-| **Key files** | |
-| **What to look for?** | |
-| **Why it matters?** | |
+| **Key files** | `rmarkdown/logs.md` |
+| **What to look for?** | Custom logs are implemented like above, but with parameters appended to `sim_log` rather than being a trajectory and part of `log_()`. |
+| **Why it matters?** | Custom logs are part of the model for this example. They're set up a little differently - indeed, there are many ways you could do this! |
 : {tbl-colwidths="[20,80]"}
 :::
 
@@ -108,6 +555,8 @@ Mentions previously:
 
 ## Test yourself
 
-<!--TODO-->
+Try **adding logs to your model**. Experiment with different log messages and parameter options, then run your code and observe how the logs reflect your changes at each step.
+
+If you extend your model (for example, with different patient types, destinations, or additional resources), continue making use of logs. Logging is especially valuable during **model development** - it helps you check that each part of your logic works as intended and makes it easier to troubleshoot issues as your simulation grows in complexity.
 
 <br><br>
