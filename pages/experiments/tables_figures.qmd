@@ -1,12 +1,21 @@
 ---
-title: ❌ Tables and figures
+title:  Tables and figures
+bibliography: scenarios_resources/references.bib
 ---
+
+{{< include ../../scripts/_reticulate-setup.md >}}
+
+```{python}
+#| echo: false
+# pylint: disable=too-many-locals,undefined-variable,unused-import
+```
 
 :::: {.pale-blue}
 
 **Learning objectives:**
 
-* TODO
+* Recognise importance of sharing code for creation of tables and figures.
+* View some example tables and figures.
 
 **Relevant reproducibility guidelines:**
 
@@ -15,15 +24,247 @@ title: ❌ Tables and figures
 
 **Pre-reading:**
 
-TODO
+This page will use the results saved on the [Scenario and sensitivity analysis](scenarios.qmd) page.
 
 **Required packages:**
 
-TODO
+
+These should be available from environment setup in the "Test yourself" section of [Environments](../setup/environment.qmd). 
+
+::: {.python-content}
+
+```{python}
+import os
+
+from IPython.display import HTML
+from itables import to_html_datatable
+import matplotlib.colors as mcolors
+import numpy as np
+import pandas as pd
+import plotly.express as px
+import plotly.graph_objects as go
+import scipy.stats as st
+```
+
+```{python}
+#| echo: false
+# To ensure renders correctly in quarto
+import plotly.io as pio  # pylint: disable=ungrouped-imports
+pio.renderers.default = "plotly_mimetype"
+```
+
+:::
+
+::: {.r-content}
+
+```{r}
+#| output: false
+library(dplyr)
+library(ggplot2)
+library(kableExtra)
+library(knitr)
+```
+
+:::
 
 ::::
 
-We can find the average results for each scenario, and plot these, like below:
+<br>
+
+When reporting results from a simulation, you will usually include tables and figures. To make your work reproducible, you should:
+
+::: {.cream}
+
+**1. Make your tables and figures using code.**
+
+**2. Share that code alongside your results.**
+
+:::
+
+This is just as important as sharing model and scenario code. In @Heather2025, only one study included the code needed to generate all its reported results. Without this code for the others, recreating outputs was time-consuming and challenging. It required guesswork about which results to extract, how to clean them, and what processing steps were taken when producing the published tables and figures.
+
+This page will show some examples of creating tables and figures, but there are many different ways you could describe and visualise your simulation results. The key takeaway from the page is simple: **write code and share it!**
+
+## Simulation results
+
+This page will use the results saved on the [Scenario and sensitivity analysis](scenarios.qmd) page.
+
+::: {.python-content}
+
+### Scenario analysis
+
+{{< downloadthis scenarios_resources/python_scenario_results.csv dname="python_scenario_results" label="Download the scenario analysis results" type="primary" >}}
+
+```{python}
+scenario = pd.read_csv("scenarios_resources/python_scenario_results.csv")
+HTML(to_html_datatable(scenario.head(200)))
+```
+
+### Sensitivity analysis
+
+{{< downloadthis scenarios_resources/python_sensitivity_results.csv dname="python_sensitivity_results" label="Download the sensitivity analysis results" type="primary" >}}
+
+```{python}
+sensitivity = pd.read_csv("scenarios_resources/python_sensitivity_results.csv")
+HTML(to_html_datatable(sensitivity.head(200)))
+```
+
+:::
+
+::: {.r-content}
+
+### Scenario analysis
+
+{{< downloadthis scenarios_resources/r_scenario_results.csv dname="r_scenario_results" label="Download the scenario analysis results" type="primary" >}}
+
+```{r}
+scenario <- read.csv(file.path("scenarios_resources", "r_scenario_results.csv"))
+kable(scenario) |> scroll_box(height = "400px")
+```
+
+### Sensitivity analysis
+
+{{< downloadthis scenarios_resources/r_sensitivity_results.csv dname="r_sensitivity_results" label="Download the sensitivity analysis results" type="primary" >}}
+
+```{r}
+sensitivity <- read.csv(
+  file.path("scenarios_resources", "r_sensitivity_results.csv")
+)
+kable(sensitivity) |> scroll_box(height = "400px")
+```
+
+:::
+
+## Example tables
+
+This function finds the average results from each experiment.
+
+In these examples, we've run it on the mean wait time for the doctor.
+
+:::: {.python-content}
+
+It uses the `summary_stats()` function introduced on the [Replications](../output_analysis/replications.qmd) page.
+
+::: {.callout-note title="View `summary_stats()`" collapse="true"}
+
+```{python}
+{{< include ../output_analysis/replications_resources/summary_stats.py >}}
+```
+
+:::
+
+```{python}
+def summarise_scenarios(results, groups, result_var, path=None):
+    """
+    Find the average results from each scenario.
+
+    Parameters
+    ----------
+    results : pd.DataFrame
+        Run-level results from every scenario.
+    groups : list
+        List of columns to group by (provided as strings).
+    result_var : str
+        Performance measure to get results on.
+    path : str
+        Path to save table to.
+
+    Returns
+    -------
+    summary_table : pd.DataFrame
+        Average results from each scenario.
+    """
+    summary_table = (
+        results.groupby(groups)[result_var]
+        .apply(summary_stats)
+        .apply(pd.Series)
+        .reset_index()
+    )
+    summary_table.columns = (list(summary_table.columns[:-4]) +
+                             ["mean", "std_dev", "ci_lower", "ci_upper"])
+    if path:
+        summary_table.to_csv(path)
+    return summary_table
+```
+
+### Scenario analysis
+
+```{python}
+scenario_table = summarise_scenarios(
+    scenario, groups=["scenario", "interarrival_time", "number_of_doctors"],
+    result_var="mean_wait_time",
+    path=os.path.join("tables_figures_resources", "python_scenario_table.csv")
+)
+HTML(to_html_datatable(scenario_table))
+```
+
+### Sensitivity analysis
+
+```{python}
+sensitivity_table = summarise_scenarios(
+    sensitivity, groups=["scenario", "interarrival_time"],
+    result_var="mean_wait_time",
+    path=os.path.join("tables_figures_resources",
+                      "python_sensitivity_table.csv")
+)
+HTML(to_html_datatable(sensitivity_table))
+```
+
+::::
+
+::: {.r-content}
+
+```{r}
+#' Find the average results from each scenario
+#'
+#' @param results Dataframe with results from each replication of scenarios.
+#' @param groups List of columns to group by (provided as strings).
+#' @param result_var Name of performance measure to get results on.
+#' @param path Path to save table to.
+#'
+#' @return Dataframe with the average results from each scenario.
+
+summarise_scenario <- function(results, groups, result_var, path) {
+  summary_table <- results |>
+    group_by_at(groups) |>
+    summarise(mean = mean(.data[[result_var]]),
+              std_dev = sd(.data[[result_var]]),
+              ci_lower = t.test(.data[[result_var]])[["conf.int"]][[1L]],
+              ci_upper = t.test(.data[[result_var]])[["conf.int"]][[2L]])
+  write.csv(summary_table, path)
+  summary_table
+}
+```
+
+### Scenario analysis
+
+```{r}
+scenario_table <- summarise_scenario(
+  scenario, groups = c("scenario", "interarrival_time", "number_of_doctors"),
+  result_var = "mean_wait_time_doctor",
+  path = file.path("tables_figures_resources", "r_scenario_table.csv")
+)
+kable(scenario_table)
+```
+
+### Sensitivity analysis
+
+```{r}
+sensitivity_table <- summarise_scenario(
+  sensitivity, groups = c("scenario", "interarrival_time"),
+  result_var = "mean_wait_time_doctor",
+  path = file.path("tables_figures_resources", "r_sensitivity_table.csv")
+)
+kable(sensitivity_table)
+```
+
+:::
+
+## Example figures
+
+::: {.python-content}
+
+These functions are used to plot the results from the scenarios and sensitivity analysis.
 
 ```{python}
 def pale_colour(colour, alpha=0.2):
@@ -37,7 +278,7 @@ def pale_colour(colour, alpha=0.2):
         string (e.g., "#1f77b4"), or RGB tuple (e.g., (0.1, 0.3, 0.8)).
         Accepts any format readable by matplotlib.colors.to_rgb.
     alpha : float, optional
-        Opacity for the pale colour (default is 0.2). Should be between 0 and 1.
+        Opacity for the pale colour (default = 0.2). Should be between 0 and 1.
 
     Returns
     -------
@@ -55,50 +296,37 @@ def pale_colour(colour, alpha=0.2):
     r, g, b = [int(x * 255) for x in rgb]
     # Return as RGB tuple with added alpha parameter (which makes it paler)
     return f"rgba({r},{g},{b},{alpha})"
+```
 
-
+```{python}
 def plot_scenario(
-    results, x_var, result_var, colour_var=None, name_mappings=None
+    summary_table, x_var, y_var, colour_var=None, name_mappings=None, path=None
 ):
     """
     Plot results from different model scenarios.
 
     Parameters
     ----------
-    results : pd.DataFrame
-        Contains results to plot.
+    summary_table : pd.DataFrame
+        Average results from each scenario.
     x_var : str
         Name of variable to plot on X axis.
-    result_var : str
+    y_var : str
         Name of variable with results, to plot on Y axis.
     colour_var : str, optional
         Name of variable to colour lines with.
     name_mappings : dict, optional
         Dictionary mapping column names to labels. If not provided,
         function will default to variable names.
+    path : str
+        Path to save figure to.
     """
-    # Set up groupings
-    if colour_var is not None:
-        group_vars = [x_var, colour_var]
-    else:
-        group_vars = [x_var]
-
-    # Calculate summary statistics for each scenario: mean, std, CI
-    df = (
-        results.groupby(group_vars)[result_var]
-        .apply(summary_stats)
-        .apply(pd.Series)
-        .reset_index()
-    )
-    df.columns = (list(df.columns[:-4]) +
-                  ["mean", "std_dev", "ci_lower", "ci_upper"])
-
     # Initialise figure
     fig = go.Figure()
 
     # Handling color mappings (optional)
     if colour_var:
-        unique_groups = df[colour_var].unique()
+        unique_groups = summary_table[colour_var].unique()
         colours = px.colors.qualitative.Plotly
         colour_map = {
             group: colours[i % len(colours)]
@@ -108,7 +336,10 @@ def plot_scenario(
         colour_map = {None: "blue"}
 
     # Plot each scenario line and its shaded confidence interval
-    groups = df.groupby(colour_var) if colour_var else [(None, df)]
+    if colour_var:
+        groups = summary_table.groupby(colour_var)
+    else:
+        groups = [(None, summary_table)]
     for group_name, group_data in groups:
         x = group_data[x_var].values
         mean = group_data["mean"].values
@@ -119,14 +350,14 @@ def plot_scenario(
 
         # Filled confidence interval region
         fig.add_trace(go.Scatter(
-            x = np.concatenate([x, x[::-1]]),
-            y = np.concatenate([ci_upper, ci_lower[::-1]]),
-            fill = "toself",
-            fillcolor = shade_colour,
-            line = dict(color="rgba(255,255,255,0)"),
+            x=np.concatenate([x, x[::-1]]),
+            y=np.concatenate([ci_upper, ci_lower[::-1]]),
+            fill="toself",
+            fillcolor=shade_colour,
+            line={"color": "rgba(255,255,255,0)"},
             showlegend=False,
-            name = "95% CI",
-            hoverinfo = "name+y"
+            name="95% CI",
+            hoverinfo="name+y"
         ))
 
         # Mean line
@@ -141,36 +372,140 @@ def plot_scenario(
 
     # Set labels and layout
     fig.update_layout(
-        xaxis_title=name_mappings.get(x_var, x_var) if name_mappings else x_var,
-        yaxis_title=name_mappings.get(result_var, result_var) if name_mappings else result_var,
-        legend_title_text=name_mappings.get(colour_var, colour_var) if colour_var and name_mappings else (colour_var if colour_var else None),
+        xaxis_title=(name_mappings.get(x_var, x_var)
+                     if name_mappings else x_var),
+        yaxis_title=(name_mappings.get(y_var, y_var)
+                     if name_mappings else y_var),
+        legend_title_text=(name_mappings.get(colour_var, colour_var)
+                           if colour_var and name_mappings
+                           else (colour_var if colour_var else None)),
         template="plotly_white"
     )
 
-    return df, fig
+    if not colour_var:
+        fig.update_layout(showlegend=False)
+
+    # Save figure if path is provided
+    if path:
+        fig.write_image(path)
+
+    return fig
 ```
 
+### Scenario analysis
+
 ```{python}
-#result, plot = plot_scenario(
-#    results=scenario_results,
-#    x_var="interarrival_time",
-#    result_var="mean_wait_time",
-#    colour_var="number_of_doctors",
-#    name_mappings={
-#        "interarrival_time": "Patient inter-arrival time",
-#        "mean_wait_time": "Mean wait time for the doctor",
-#        "number_of_doctors": "Number of doctors"
-#    }
-#)
-#HTML(to_html_datatable(result))
-#plot.show()
+scenario_plot = plot_scenario(
+    summary_table=scenario_table,
+    x_var="interarrival_time",
+    y_var="mean",
+    colour_var="number_of_doctors",
+    name_mappings={
+        "interarrival_time": "Patient inter-arrival time",
+        "mean": "Mean wait time for the doctor",
+        "number_of_doctors": "Number of doctors"
+    },
+    path=os.path.join("tables_figures_resources", "python_scenario_plot.png")
+)
+scenario_plot.show()
+```
+
+### Sensitivity analysis
+
+```{python}
+sensitivity_plot = plot_scenario(
+    summary_table=sensitivity_table,
+    x_var="interarrival_time",
+    y_var="mean",
+    name_mappings={
+        "interarrival_time": "Patient inter-arrival time",
+        "mean": "Mean wait time for the doctor"
+    },
+    path=os.path.join("tables_figures_resources",
+                      "python_sensitivity_plot.png")
+)
+sensitivity_plot.show()
 ```
 
 :::
 
 ::: {.r-content}
 
+This function is used to plot the results from the scenarios and sensitivity analysis.
+
 ```{r}
+#' Plot results from different model scenarios.
+#'
+#' @param summary_table Dataframe with average results from each scenario.
+#' @param x_var Name of variable to plot on x axis.
+#' @param y_var Name of variable with results, to plot on y axis.
+#' @param colour_var Name of variable to colour lines with.
+#' @param xaxis_title Title for x axis.
+#' @param yaxis_title Title for y axis.
+#' @param legend_title Title for figure legend.
+#' @param path Path to save figure to.
+
+plot_scenario <- function(
+  summary_table, x_var, y_var, colour_var,
+  xaxis_title, yaxis_title, legend_title, path
+) {
+  if (!is.null(colour_var)) {
+    # Convert colour variable to a factor so its treated as categorical
+    summary_table[[colour_var]] <- as.factor(summary_table[[colour_var]])
+    # Plot with colour groups
+    p <- ggplot(summary_table, aes(x = .data[[x_var]], y = .data[[y_var]],
+                                   group = .data[[colour_var]])) +
+      geom_line(aes(color = .data[[colour_var]])) +
+      geom_ribbon(aes(ymin = .data[["ci_lower"]], ymax = .data[["ci_upper"]],
+                      fill = .data[[colour_var]]), alpha = 0.1)
+  } else {
+    # Plot without colour groups
+    p <- ggplot(summary_table, aes(x = .data[[x_var]], y = .data[[y_var]])) +
+      geom_line() +
+      geom_ribbon(aes(ymin = .data[["ci_lower"]], ymax = .data[["ci_upper"]],
+                      alpha = 0.1), show.legend = FALSE)
+  }
+  # Modify labels and style
+  p <- p +
+    labs(x = xaxis_title, y = yaxis_title, color = legend_title,
+         fill = legend_title) +
+    theme_minimal()
+
+  # Save plot
+  ggsave(filename = path, width = 6.5, height = 4L, bg = "white")
+
+  p
+}
+```
+
+### Scenario analysis
+
+```{r}
+plot_scenario(
+  summary_table = scenario_table,
+  x_var = "interarrival_time",
+  y_var = "mean",
+  colour_var = "number_of_doctors",
+  xaxis_title = "Patient inter-arrival time",
+  yaxis_title = "Mean wait time for the doctor",
+  legend_title = "Number of doctors",
+  path = file.path("tables_figures_resources", "r_scenario_plot.png")
+)
+```
+
+### Sensitivity analysis
+
+```{r}
+plot_scenario(
+  summary_table = sensitivity_table,
+  x_var = "interarrival_time",
+  y_var = "mean",
+  colour_var = NULL,
+  xaxis_title = "Patient inter-arrival time",
+  yaxis_title = "Mean wait time for the doctor",
+  legend_title = NULL,
+  path = file.path("tables_figures_resources", "r_sensitivity_plot.png")
+)
 ```
 
 :::
@@ -188,9 +523,7 @@ def plot_scenario(
 ::: {.blue-table}
 | | |
 | - | - |
-| **Key files** | |
-| **What to look for?** | |
-| **Why it matters?** | |
+| **Key files** | `notebooks/analysis.ipynb` |
 : {tbl-colwidths="[20,80]"}
 :::
 
@@ -203,9 +536,7 @@ def plot_scenario(
 ::: {.blue-table}
 | | |
 | - | - |
-| **Key files** | |
-| **What to look for?** | |
-| **Why it matters?** | |
+| **Key files** | `rmarkdown/analysis.md` |
 : {tbl-colwidths="[20,80]"}
 :::
 
@@ -220,9 +551,7 @@ def plot_scenario(
 ::: {.blue-table}
 | | |
 | - | - |
-| **Key files** | |
-| **What to look for?** | |
-| **Why it matters?** | |
+| **Key files** | `notebooks/analysis.ipynb` |
 : {tbl-colwidths="[20,80]"}
 :::
 
@@ -235,9 +564,7 @@ def plot_scenario(
 ::: {.blue-table}
 | | |
 | - | - |
-| **Key files** | |
-| **What to look for?** | |
-| **Why it matters?** | |
+| **Key files** | `rmarkdown/analysis.md` |
 : {tbl-colwidths="[20,80]"}
 :::
 
@@ -245,6 +572,43 @@ def plot_scenario(
 
 ## Test yourself
 
-<!--TODO-->
+Create at least one table and figure from your simulation results.
+
+If you don't have any to hand, feel free to download ours:
+
+::: {.python-content}
+
+{{< downloadthis scenarios_resources/python_scenario_results.csv dname="python_scenario_results" label="Download the scenario analysis results" type="primary" >}}
+
+{{< downloadthis scenarios_resources/python_sensitivity_results.csv dname="python_sensitivity_results" label="Download the sensitivity analysis results" type="primary" >}}
+
+:::
+
+::: {.r-content}
+
+{{< downloadthis scenarios_resources/r_scenario_results.csv dname="r_scenario_results" label="Download the scenario analysis results" type="primary" >}}
+
+{{< downloadthis scenarios_resources/r_sensitivity_results.csv dname="r_sensitivity_results" label="Download the sensitivity analysis results" type="primary" >}}
+
+:::
+
+Make sure to write and save code that generates your outputs, and that you save the outputs to files (e.g., `csv` for tables, `png` for figures).
+
+::: {.python-content}
+
+For example, create a Jupyter notebook for the analysis, and then push that to your GitHub repository.
+
+:::
+
+::: {.r-content}
+
+For example, create an Rmarkdown file for the analysis, and then push that to your GitHub repository.
+
+:::
+
+## References
+
+::: {#refs}
+:::
 
 <br><br>

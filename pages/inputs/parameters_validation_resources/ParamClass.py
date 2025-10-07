@@ -1,3 +1,4 @@
+# pylint: disable=invalid-name
 class ParamClass:
     """
     Returns transfer_prob for validation example.

@@ -237,8 +237,9 @@ class Model:
             self.patients.append(patient)
 
             # Print arrival time
-            print(f"{patient.period} Patient {patient.patient_id} " +#<<
-                  f"arrives at time: {self.env.now:.3f}")
+            if self.param.verbose:
+                print(f"{patient.period} Patient {patient.patient_id} " +#<<
+                      f"arrives at time: {self.env.now:.3f}")
 
             # Start process of consultation
             self.env.process(self.consultation(patient))
@@ -256,8 +257,9 @@ class Model:
         with self.doctor.request() as req:
             yield req
 
-            print(f"{patient.period} Patient {patient.patient_id} " +#<<
-                  f"starts consultation at: {self.env.now:.3f}")
+            if self.param.verbose:
+                print(f"{patient.period} Patient {patient.patient_id} " +#<<
+                      f"starts consultation at: {self.env.now:.3f}")
 
             # Sample consultation duration and pass time spent with doctor
             time_with_doctor = self.consult_dist.sample()
@@ -278,7 +280,8 @@ class Model:
             yield self.env.timeout(self.param.warm_up_period)#<<
             # Reset results variables#<<
             self.reset_results()#<<
-            print(f"Warm up period ended at time: {self.env.now}")#<<
+            if self.param.verbose:
+                print(f"Warm up period ended at time: {self.env.now}")#<<
 
     def run(self):
         """
@@ -308,13 +311,15 @@ patient = Patient(patient_id=len(self.patients)+1,
 self.patients.append(patient)
 
 # Print arrival time
-print(f"{patient.period} Patient {patient.patient_id} arrives " +
-        f"at time: {self.env.now:.3f}")
+if self.param.verbose:
+    print(f"{patient.period} Patient {patient.patient_id} arrives " +
+          f"at time: {self.env.now:.3f}")
 
 ...
 
-print(f"{patient.period} Patient {patient.patient_id} " +#<<
-      f"starts consultation at: {self.env.now:.3f}")
+if self.param.verbose:
+    print(f"{patient.period} Patient {patient.patient_id} " +#<<
+          f"starts consultation at: {self.env.now:.3f}")
 ```
 
 When a patient arrives, we now check whether this occurred during the warm-up period (`self.env.now < self.param.warm_up_period`). Each patient is then labelled as either warm-up (🔸 WU) or data collection (🔹 DC), stored as an attribute.
@@ -345,7 +350,8 @@ def warmup(self):
         yield self.env.timeout(self.param.warm_up_period)
         # Reset results variables
         self.reset_results()
-        print(f"Warm up period ended at time: {self.env.now}")
+        if self.param.verbose:
+            print(f"Warm up period ended at time: {self.env.now}")
 ```
 
 The `warmup()` process waits until the length of the warm-up period has elapsed, and then calls `reset_results()` to clear patient records. This ensures that data collection starts with a clean slate.
