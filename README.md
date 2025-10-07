@@ -8,6 +8,7 @@
 ![Text licence](https://img.shields.io/badge/🛡️_Text_licence-CC--BY--SA--4.0-b100cd?style=for-the-badge&labelColor=gray)
 [![ORCID](https://img.shields.io/badge/ORCID_Amy_Heather-0000--0002--6596--3479-A6CE39?style=for-the-badge&logo=orcid&logoColor=white)](https://orcid.org/0000-0002-6596-3479)
 [![All Contributors](https://img.shields.io/github/all-contributors/pythonhealthdatascience/des_rap_book?color=ee8449&style=for-the-badge)](#contributors)
+[![DOI](https://img.shields.io/badge/DOI-10.5281/zenodo.17094155-blue?style=for-the-badge&labelColor=gray)](https://doi.org/10.5281/zenodo.17094155)
 
 </div>
 
