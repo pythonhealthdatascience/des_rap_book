@@ -2,6 +2,8 @@
 title: ❌ Tests
 ---
 
+{{< include ../../scripts/_reticulate-setup.md >}}
+
 :::: {.pale-blue}
 
 **Learning objectives:**
@@ -18,7 +20,28 @@ TODO
 
 **Required packages:**
 
-TODO
+These should be available from environment setup in the "Test yourself" section of [Environments](../setup/environment.qmd). 
+
+::: {.python-content}
+
+```{python}
+import numpy as np
+import pandas as pd
+import simpy
+from sim_tools.distributions import Exponential
+import pytest
+```
+
+:::
+
+::: {.r-content}
+
+```{r}
+#| output: false
+library(simmer)
+```
+
+:::
 
 ::::
 
@@ -27,6 +50,120 @@ TODO
 2. login to codecov with github. if repo is in organisation then need to click the button to add to apps, and authorise access to organisation. in codecov, can then switch to organisation from top left
 3. github repo > settings > secrets and variables > actions > new token and copy in the info
 4. run workflow -->
+
+<br>
+
+Testing is the process of evaluating a model to ensure it works as expected, gives reliable results, and can handle different conditions. By **systematically checking for errors, inconsistencies, or unexpected behaviors**, testing helps improve the quality of a model, catch errors and prevent future issues.
+
+When you create a model, you will naturally carry out tests, with simple manual checks where you observe outputs and ensure they look right. These checks can be formalised and **automated** so that you can run them after any changes, and catch any issues that arise.
+
+## Introduction to writing and running tests
+
+<div class="h3-tight"></div>
+
+:::: {.python-content}
+
+### Writing a basic test
+
+A popular framework for testing in python is **pytest**.
+
+Each test in pytest is a function that contains an assertion statement to check a condition (e.g., `number > 0`). If the condition fails, pytest will return an error message (e.g. "The number should be positive").
+
+Test are typically stored in a folder called `tests/`, and filenames start with the prefix `test_`. This naming convention allows pytest to automatically discover and run all the tests in the folder.
+
+Here's an example of a simple test using pytest:
+
+```{python}
+def test_positive():
+    """
+    Confirm that the number is positive.
+    """
+    number = 5
+    assert number > 0, "The number should be positive"
+```
+
+### Running tests
+
+Tests are typically run from the terminal. Commands include:
+
+* `pytest` - runs all tests.
+* `pytest tests/filename.py` - runs tests from a specific file.
+
+When you run a test, you'll see an output like this in the terminal:
+
+::: {.callout-note icon=false title="Test output:"}
+
+```{python}
+#| echo: false
+pytest.main(["tests_resources/test_example_simple.py"])
+```
+
+:::
+
+### Parametrise
+
+We can execute the same test on different parameters using `pytest.mark.parametrize`.
+
+Here's an example:
+
+```{python}
+@pytest.mark.parametrize("number", [1, 2, 3, -1])
+def test_positive_param(number):
+    """
+    Confirm that the number is positive.
+
+    Arguments:
+        number (float):
+            Number to check.
+    """
+    assert number > 0, f"The number {number} is not positive."
+```
+
+In this example, we're testing the same logic with four different values: `1`, `2`, `3`, and `-1`. The last value, `-1`, will cause the test to fail. The error message includes the failed value for easy debugging.
+
+:::{.callout-note icon=false title="Test output:"}
+
+```{python}
+#| echo: false
+pytest.main(["tests_resources/test_example_param.py"])
+```
+
+:::
+
+::::
+
+::: {.r-content}
+
+:::
+
+## Testing the model
+
+There are many different ways of categorising tests. We will focus on three types:
+
+* **Functional testing**
+* **Unit testing**
+* **Back testing**
+
+### Functional tests
+
+Functional tests verify that the system or components perform their intended functionality.
+
+For example, we expect that the mean wait time for a doctor should decrease if:
+
+* The number of doctors increases.
+* The patient inter-arrival time increases (so there are fewer arrivals).
+* The length of the doctor consultation decreases.
+
+::: {.python-content}
+
+```{python}
+```
+
+:::
+
+::: {.r-content}
+
+:::
 
 ## Explore the example models
 
