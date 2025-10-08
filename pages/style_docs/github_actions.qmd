@@ -1,5 +1,5 @@
 ---
-title: ❌ GitHub actions
+title: GitHub actions
 ---
 
 :::: {.pale-blue}
@@ -63,87 +63,243 @@ There are many available CI/CD tools, but GitHub actions is a popular choice bec
 
 ## GitHub actions
 
-GitHub actions are defined in `.yaml` files stored within `.github/workflows/` in your project repository.
+GitHub actions are defined in `.yaml` files stored within `.github/workflows/` in your project repository. This is an example of a basic action structure:
 
-The basic structure of an action is as follows:
+```{.yaml}
+name: Example action # <1>
 
-```{.bash}
+on: # <2>
+  push: # <2>
+    branches: [main] # <2>
+
+jobs: # <3>
+  checkout-echo: # <3>
+    name: Checkout code and run basic echo command # <3>
+    runs-on: ubuntu-latest # <4>
+    permissions: # <5>
+      contents: read # <5>
+    steps: # <6>
+      - name: Checkout # <6>
+        uses: actions/checkout@v4 # <6>
+      - name: Run basic echo command # <6>
+        run: echo "Hello from GitHub Actions!" # <6>
 ```
+
+1. **name:** This is the name for your workflow that gets displayed in the Actions tab of your GitHub repository.
+2. **on:** This determines what triggers the workflow to run. For example, on `push` to specific branches, `pull_request`, or `workflow_dispatch` (allows you to manually trigger the action from GitHub when you want to - very useful!). You can combine multiple triggers:
+3. **jobs:** You can run one or multiple jobs within a GitHub action, and these can run sequentially or in parallel. 
+4. **runs-on:** Specifies the operating system for that job (e.g., `ubuntu-latest`, `windows-latest`, `macos-latest`). Most CI workflows use ubuntu, but running tests across can be handy for checking your code works across different operating systems.
+5. **permissions:** Sets permissions for the workflow - e.g., access to repository content or packages, or write access if it is editing or saving files.
+6. **steps:** Define the tasks within the job. They can use pre-made actions via the `uses:` keyword or custom shell commands with `run:`.
 
 ## Example: Tests
 
+::: {.python-content}
+
+This simple action will install Python 3.13 and dependencies in a `requirements.txt` file, then run `pytest()`.
+
+> **Note:** We'd recommend using `requirements.txt` for GitHub actions as it is much simpler than working with conda for these. We typically maintain an `environment.yaml` file for working with conda locally, and then an equivalent `requirements.txt` for GitHub actions.
+
+```{.yaml}
+name: tests
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install python and dependencies
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.13'
+          cache: 'pip'
+
+      - name: Install requirements
+        run: pip install -r requirements.txt
+
+      - name: Run tests
+        run: pytest
+```
+
+:::
+
+::: {.r-content}
+
+If you have [structured your research as a package](../setup/package.qmd), then the `R-CMD-check` action can be used to check your package and run your tests all in one. This workflow is adapted from <https://github.com/r-lib/actions/tree/v2/examples>.
+
+```{.yaml}
+name: R-CMD-check.yaml
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions: read-all
+
+jobs:
+  R-CMD-check:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      R_KEEP_PKG_SOURCE: yes
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: r-lib/actions/setup-pandoc@v2
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: 'release'
+          use-public-rspm: true
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: any::rcmdcheck
+          needs: check
+
+      - uses: r-lib/actions/check-r-package@v2
+```
+
+:::
+
+Check out our example models (linked below) for a more complex example of this action which:
+
+* Runs on ubuntu, windows and mac.
+
+* Allows you to choose which operating system to use when triggering with workflow dispatch.
+
+:::{.python-content}
+
+* Runs tests with coverage, generating and uploading an updated coverage badge to the repository.
+
+:::
+
+::: {.r-content}
+
+It also has a `test-coverage.yaml` action which runs tests with coverage, and updates the `codecov` coverage badge for the README.
+
+:::
+
 ## Example: Linting
+
+::: {.python-content}
+
+This action assumes you have a `lint.sh` which contains commands for linting the directory. If you don't use this though, you can run things directly (e.g. `pylint .`).
+
+```{.yaml}
+name: lint
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  lint:
+      runs-on: ubuntu-latest
+      steps:
+
+        - name: Check out repository
+          uses: actions/checkout@v4
+
+        - name: Install python and dependencies
+          uses: actions/setup-python@v4
+          with:
+            python-version: '3.13'
+            cache: 'pip'
+        - run: pip install -r requirements.txt
+
+        - name: Lint
+          run: |
+            bash lint.sh
+```
+
+:::
+
+::: {.r-content}
+
+```{.yaml}
+# Workflow adapted from https://github.com/r-lib/actions/tree/v2/examples
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+name: lint
+
+permissions: read-all
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: any::lintr, any::cyclocomp, local::.
+          needs: lint
+
+      - name: Lint package
+        run: lintr::lint_package()
+        shell: Rscript {0}
+        env:
+          LINTR_ERROR_ON_LINT: true
+
+      - name: Lint rmarkdown
+        run: lintr::lint_dir("rmarkdown")
+        shell: Rscript {0}
+        env:
+          LINTR_ERROR_ON_LINT: true
+```
+
+:::
 
 ## Explore the example models
 
-<div class="h3-tight"></div>
-
-### Nurse visit simulation
-
-:::: {.python-content}
+::: {.python-content}
 
 {{< include ../../html/pydesrapmms.html >}}
 
-::: {.blue-table}
-| | |
-| - | - |
-| **Key files** | `.github/workflows/lint.yaml`<br>`.github/workflows/tests.yaml` |
-| **What to look for?** | |
-| **Why it matters?** | |
-: {tbl-colwidths="[20,80]"}
+{{< include ../../html/pydesrapstroke.html >}}
+
+Both examples have the same workflows: `.github/workflows/lint.yaml` and `.github/workflows/tests.yaml`.
+
+As mentioned above, the testing action is more complex than the provided example on this page (runs on multiple operating systems which you can choose between, and calculates test coverage with badge).
+
 :::
 
-::::
-
-:::: {.r-content}
+::: {.r-content}
 
 {{< include ../../html/rdesrapmms.html >}}
 
-::: {.blue-table}
-| | |
-| - | - |
-| **Key files** | `.github/workflows/R-CMD-check.yaml`<br>`.github/workflows/lint.yaml`<br>`.github/workflows/test-coverage.yaml` |
-| **What to look for?** | |
-| **Why it matters?** | |
-: {tbl-colwidths="[20,80]"}
-:::
-
-::::
-
-### Stroke pathway simulation
-
-:::: {.python-content}
-
-{{< include ../../html/pydesrapstroke.html >}}
-
-::: {.blue-table}
-| | |
-| - | - |
-| **Key files** | `.github/workflows/lint.yaml`<br>`.github/workflows/tests.yaml` |
-| **What to look for?** | |
-| **Why it matters?** | |
-: {tbl-colwidths="[20,80]"}
-:::
-
-::::
-
-:::: {.r-content}
-
 {{< include ../../html/rdesrapstroke.html >}}
 
-::: {.blue-table}
-| | |
-| - | - |
-| **Key files** | `.github/workflows/R-CMD-check.yaml`<br>`.github/workflows/lint.yaml`<br>`.github/workflows/test-coverage.yaml` |
-| **What to look for?** | |
-| **Why it matters?** | |
-: {tbl-colwidths="[20,80]"}
-:::
+Both examples have the same workflows: `.github/workflows/R-CMD-check.yaml`, `.github/workflows/lint.yaml` and `.github/workflows/test-coverage.yaml`.
 
-::::
+As mentioned above, the testing action is more complex than the provided example on this page (runs on multiple operating systems which you can choose between, and calculates test coverage with badge in a separate action).
+
+:::
 
 ## Test yourself
 
-<!--TODO-->
+If you've never used GitHub actions before, have a go with our very basic "Example action" to begin with.
+
+Then, try adding a testing and/or linting action to your model repository.
 
 <br><br>
