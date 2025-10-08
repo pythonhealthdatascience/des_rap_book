@@ -19,6 +19,19 @@ RUN apt-get update && \
         build-essential \
         pandoc \
         chromium-browser \
+        # Extra browser/system dependencies for Kaleido/Chromium
+        libnss3 \
+        libatk-bridge2.0-0 \
+        libcups2 \
+        libxcomposite1 \
+        libxdamage1 \
+        libxfixes3 \
+        libxrandr2 \
+        libgbm1 \
+        libxkbcommon0 \
+        libpango-1.0-0 \
+        libcairo2 \
+        libasound2 \
         && rm -rf /var/lib/apt/lists/*
 
 # Install Quarto CLI
