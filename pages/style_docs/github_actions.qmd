@@ -6,7 +6,9 @@ title: ❌ GitHub actions
 
 **Learning objectives:**
 
-* TODO
+* Recognise the utility of CI/CD for RAP.
+* Understand the basic structure and set-up of GitHub actions.
+* Explore some example actions that could be relevant for your research.
 
 **Relevant reproducibility guidelines:**
 
@@ -14,13 +16,63 @@ title: ❌ GitHub actions
 
 **Pre-reading:**
 
-TODO
-
-**Required packages:**
-
-TODO
+This page assumes your simulation project is in a GitHub repository - set-up guidance available on the [Version control](../setup/version.qmd) page. We include some example actions which run [Tests](../verification_validation/tests.qmd) and [Linting](linting.qmd).
 
 ::::
+
+## Continuous Integration, Continuous Delivery, and Continuous Deployment (CI/CD)
+
+<div class="h3-tight"></div>
+
+### Definition
+
+CI/CD processes (Continuous Integration, Continuous Delivery, and Continuous Deployment) are a valuable tool for reproducible analytical pipelines. These processes are typically defined as follows:
+
+::: {.blue}
+
+**Continuous integration (CI):** A process where team members regularly merge their code changes into a shared branch. Each integration triggers automated tests (e.g., unit and integration tests) to ensure that new commits do not break existing functionality. By committing and testing changes frequently, teams can identify and resolve issues earlier, and avoid large merges with lots of conflicts.
+
+**Continuous delivery (CD):** Builds on CI by running more extensive automated checks (e.g., end-to-end tests) to ensure a repository is ready for deployment. Deployment can refer to updating a package, publishing a website, or release new results. This can be released when approved by a team member.
+
+**Continuous deployment (CD):** Extends CD by releasing changes automatically to production as soon as all tests pass, with no manual approval required.
+
+:::
+
+**Further information**
+
+* ["What is CI/CD"](https://www.redhat.com/en/topics/devops/what-is-ci-cd) from RedHat 2025.
+
+### Relevance for your simulation RAP
+
+CI will be **relevant for all projects**. CI automates checks on your code and outputs to ensure reliability and code quality. This can include tests, linting, formatting and other checks.
+
+CD **may not be needed for every project**, but it can be useful:
+
+* If you choose to create a **documentation website** to accompany your projcet, you can use CD to automatically rebuild and deploy it whenever changes are merged.
+
+:::{.python-content}
+* If you choose to [structuring your work as a package](../setup/package.qmd) and publish it (e.g., on PyPI), you can automate **new version releases**.
+:::
+:::{.r-content}
+* If you choose to [structuring your work as a package](../setup/package.qmd) and publish it (e.g., on RUniverse), you can automate **new version releases**.
+:::
+
+* If you choose to create an **analytical pipeline** that automates running the model and generating a report, CD can be used to trigger the generation and sharing of up-to-date results.
+
+There are many available CI/CD tools, but GitHub actions is a popular choice because it's integrated with GitHub, easy to set up, and free for public repositories.
+
+## GitHub actions
+
+GitHub actions are defined in `.yaml` files stored within `.github/workflows/` in your project repository.
+
+The basic structure of an action is as follows:
+
+```{.bash}
+```
+
+## Example: Tests
+
+## Example: Linting
 
 ## Explore the example models
 
@@ -35,7 +87,7 @@ TODO
 ::: {.blue-table}
 | | |
 | - | - |
-| **Key files** | |
+| **Key files** | `.github/workflows/lint.yaml`<br>`.github/workflows/tests.yaml` |
 | **What to look for?** | |
 | **Why it matters?** | |
 : {tbl-colwidths="[20,80]"}
@@ -50,7 +102,7 @@ TODO
 ::: {.blue-table}
 | | |
 | - | - |
-| **Key files** | |
+| **Key files** | `.github/workflows/R-CMD-check.yaml`<br>`.github/workflows/lint.yaml`<br>`.github/workflows/test-coverage.yaml` |
 | **What to look for?** | |
 | **Why it matters?** | |
 : {tbl-colwidths="[20,80]"}
@@ -67,7 +119,7 @@ TODO
 ::: {.blue-table}
 | | |
 | - | - |
-| **Key files** | |
+| **Key files** | `.github/workflows/lint.yaml`<br>`.github/workflows/tests.yaml` |
 | **What to look for?** | |
 | **Why it matters?** | |
 : {tbl-colwidths="[20,80]"}
@@ -82,7 +134,7 @@ TODO
 ::: {.blue-table}
 | | |
 | - | - |
-| **Key files** | |
+| **Key files** | `.github/workflows/R-CMD-check.yaml`<br>`.github/workflows/lint.yaml`<br>`.github/workflows/test-coverage.yaml` |
 | **What to look for?** | |
 | **Why it matters?** | |
 : {tbl-colwidths="[20,80]"}
