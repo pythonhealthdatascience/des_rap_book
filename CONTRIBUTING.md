@@ -105,3 +105,50 @@ If your name or contributions are missing from the README, or if you contributed
 ```
 
 Then list appropriate contribution types from [allcontributors.org/docs/en/emoji-key](https://allcontributors.org/docs/en/emoji-key) (e.g., code, review, doc, content, bug, ideas, infra).
+
+<br>
+
+## Docker
+
+The GitHub action to build the website uses docker, as this avoids needing to install all the required Python and R packages and system dependencies with every deployment (unless there are environment changes).
+
+If you wish to build the docker image locally to test it out, run this command from the project directory:
+
+```{.bash}
+sudo docker build -t desrapbookdocker .
+```
+
+To view your available images, run:
+
+```{.bash}
+sudo docker images
+```
+
+Open the container:
+
+```{.bash}
+sudo docker run -it desrapbookdocker /bin/bash
+```
+
+Restore R environment:
+
+```{.bash}
+Rscript -e "renv::restore()"
+```
+
+Edit the conda location in `.Renviron`:
+
+```{.bash}
+apt-get update && apt-get install nano
+nano .Renviron
+```
+
+Then change to `RETICULATE_CONDA=/opt/conda/bin/conda`.
+
+Can then create:
+
+```{.bash}
+quarto render
+```
+
+To close the container: `Ctrl+P` then `Ctrl+Q`.
