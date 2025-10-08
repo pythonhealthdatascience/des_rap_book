@@ -18,21 +18,30 @@ RUN apt-get update && \
         python3-venv \
         build-essential \
         pandoc \
-        chromium-browser \
-        # Extra browser/system dependencies for Kaleido/Chromium
-        libnss3 \
+        # Required for chrome
+        fonts-liberation \
+        libasound2 \
         libatk-bridge2.0-0 \
+        libatk1.0-0 \
+        libatspi2.0-0 \
         libcups2 \
+        libdbus-1-3 \
+        libgbm1 \
+        libgtk-3-0 \
+        libnspr4 \
+        libnss3 \
+        libvulkan1 \
         libxcomposite1 \
         libxdamage1 \
-        libxfixes3 \
-        libxrandr2 \
-        libgbm1 \
         libxkbcommon0 \
-        libpango-1.0-0 \
-        libcairo2 \
-        libasound2 \
-        && rm -rf /var/lib/apt/lists/*
+        libxrandr2 \
+        xdg-utils \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install chrome (required by kaleido, which is used for plotly write_image)
+RUN wget -O /tmp/chrome.deb https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb && \
+    apt-get install -y --no-install-recommends /tmp/chrome.deb && \
+    rm /tmp/chrome.deb
 
 # Install Quarto CLI
 RUN wget -qO- https://quarto.org/download/latest/quarto-linux-amd64.deb > /tmp/quarto.deb && \
