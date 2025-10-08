@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>❌ Full run – Reproducible Discrete-Event Simulation in Python and R</title>
+<title>Full run – Reproducible Discrete-Event Simulation in Python and R</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -20,6 +20,41 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -30,7 +65,7 @@ ul.task-list li input[type="checkbox"] {
 <script src="../../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../../">
-<link href="../../pages/verification_validation/logs.html" rel="next">
+<link href="../../pages/verification_validation/tests.html" rel="next">
 <link href="../../pages/experiments/tables_figures.html" rel="prev">
 <link href="../../images/stars_logo_blue.png" rel="icon" type="image/png">
 <script src="../../site_libs/cookie-consent/cookie-consent.js"></script>
@@ -46,6 +81,9 @@ ul.task-list li input[type="checkbox"] {
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="../../site_libs/bootstrap/bootstrap-320e1ef9edb861ce49b497581fe021d4.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="../../site_libs/quarto-contrib/glightbox/glightbox.min.js"></script>
+<link href="../../site_libs/quarto-contrib/glightbox/glightbox.min.css" rel="stylesheet">
+<link href="../../site_libs/quarto-contrib/glightbox/lightbox.css" rel="stylesheet">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -140,7 +178,7 @@ cookieconsent.run({
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../pages/experiments/scenarios.html">Experimentation</a></li><li class="breadcrumb-item"><a href="../../pages/experiments/full_run.html">❌ Full run</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../pages/experiments/scenarios.html">Experimentation</a></li><li class="breadcrumb-item"><a href="../../pages/experiments/full_run.html">Full run</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -324,6 +362,12 @@ cookieconsent.run({
  <span class="menu-text">Entity processing</span></a>
   </div>
 </li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../pages/model/logs.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Logging</span></a>
+  </div>
+</li>
       </ul>
   </li>
         <li class="sidebar-item sidebar-item-section">
@@ -385,13 +429,13 @@ cookieconsent.run({
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../../pages/experiments/tables_figures.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">❌ Tables and figures</span></a>
+ <span class="menu-text">Tables and figures</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../../pages/experiments/full_run.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text">❌ Full run</span></a>
+ <span class="menu-text">Full run</span></a>
   </div>
 </li>
       </ul>
@@ -405,12 +449,6 @@ cookieconsent.run({
           </a> 
       </div>
       <ul id="quarto-sidebar-section-8" class="collapse list-unstyled sidebar-section depth1 show">  
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../../pages/verification_validation/logs.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">❌ Logging</span></a>
-  </div>
-</li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../../pages/verification_validation/tests.html" class="sidebar-item-text sidebar-link">
@@ -448,14 +486,14 @@ cookieconsent.run({
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/style_docs/documentation.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">❌ Documentation</span></a>
+  <a href="../../pages/style_docs/github_actions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">GitHub actions</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/style_docs/github_actions.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">❌ GitHub actions</span></a>
+  <a href="../../pages/style_docs/documentation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Documentation</span></a>
   </div>
 </li>
       </ul>
@@ -501,23 +539,6 @@ cookieconsent.run({
 </li>
       </ul>
   </li>
-        <li class="sidebar-item sidebar-item-section">
-      <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-11" role="navigation" aria-expanded="true">
- <span class="menu-text">Further information</span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-11" role="navigation" aria-expanded="true" aria-label="Toggle section">
-            <i class="bi bi-chevron-right ms-2"></i>
-          </a> 
-      </div>
-      <ul id="quarto-sidebar-section-11" class="collapse list-unstyled sidebar-section depth1 show">  
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="../../pages/further_info/acknowledgements.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">❌ Acknowledgements</span></a>
-  </div>
-</li>
-      </ul>
-  </li>
     </ul>
     </div>
 </nav>
@@ -528,7 +549,11 @@ cookieconsent.run({
     <h2 id="toc-title">On this page</h2>
    
   <ul class="collapse">
-  <li><a href="#explore-the-example-models" id="toc-explore-the-example-models" class="nav-link active" data-scroll-target="#explore-the-example-models">Explore the example models</a></li>
+  <li><a href="#pipeline-running-from-start-to-end" id="toc-pipeline-running-from-start-to-end" class="nav-link active" data-scroll-target="#pipeline-running-from-start-to-end">Pipeline: running from start to end</a></li>
+  <li><a href="#methods-for-running-everything-from-scratch" id="toc-methods-for-running-everything-from-scratch" class="nav-link" data-scroll-target="#methods-for-running-everything-from-scratch">Methods for running everything from scratch</a></li>
+  <li><a href="#bash-script" id="toc-bash-script" class="nav-link" data-scroll-target="#bash-script">Bash script</a></li>
+  <li><a href="#literate-programming" id="toc-literate-programming" class="nav-link" data-scroll-target="#literate-programming">Literate programming</a></li>
+  <li><a href="#explore-the-example-models" id="toc-explore-the-example-models" class="nav-link" data-scroll-target="#explore-the-example-models">Explore the example models</a></li>
   <li><a href="#test-yourself" id="toc-test-yourself" class="nav-link" data-scroll-target="#test-yourself">Test yourself</a></li>
   </ul>
 </nav>
@@ -536,9 +561,9 @@ cookieconsent.run({
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../pages/experiments/scenarios.html">Experimentation</a></li><li class="breadcrumb-item"><a href="../../pages/experiments/full_run.html">❌ Full run</a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../pages/experiments/scenarios.html">Experimentation</a></li><li class="breadcrumb-item"><a href="../../pages/experiments/full_run.html">Full run</a></li></ol></nav>
 <div class="quarto-title">
-<h1 class="title">❌ Full run</h1>
+<h1 class="title">Full run</h1>
 </div>
 
 
@@ -558,145 +583,329 @@ cookieconsent.run({
 <div class="pale-blue">
 <p><strong>Learning objectives:</strong></p>
 <ul>
-<li>TODO</li>
+<li>Understand the importance of being able to run all your analysis from <strong>start to end</strong> with a single command.</li>
+<li>Learn about <strong>options for executing multiple scripts/files</strong> in order.</li>
+<li>Know how to write and use <strong>bash scripts</strong> for this purpose.</li>
+<li>Explore opportunities with <strong>literate programming</strong>.</li>
 </ul>
 <p><strong>Relevant reproducibility guidelines:</strong></p>
 <ul>
 <li>STARS Reproducibility Recommendations (⭐): Ensure model parameters are correct.</li>
 <li>NHS Levels of RAP (🥈): Outputs are produced by code with minimal manual intervention.</li>
 </ul>
-<p><strong>Pre-reading:</strong></p>
-<p>TODO</p>
-<p><strong>Required packages:</strong></p>
-<p>TODO</p>
 </div>
-<section id="explore-the-example-models" class="level2">
-<h2 class="anchored" data-anchor-id="explore-the-example-models">Explore the example models</h2>
+<section id="pipeline-running-from-start-to-end" class="level2">
+<h2 class="anchored" data-anchor-id="pipeline-running-from-start-to-end">Pipeline: running from start to end</h2>
+<p>As introduced at the start of this book, a <strong>reproducible analytical pipeline (RAP)</strong> is a systematic approach to data analysis and modelling in which every step of the process (end-to-end) is transparent, automated, and repeatable.</p>
+<p><a href="../intro/rap_resources/rap.png" class="lightbox" data-gallery="quarto-lightbox-gallery-1"><img src="../intro/rap_resources/rap.png" class="img-fluid"></a></p>
+<p>A key aspect RAPs is being able to <strong>run your entire analysis from start to finish with a single command</strong>. For example, one command that can run a simulation model, evaluate the base case, explore scenarios, conduct sensitivity analyses, and produce all tables and figures.</p>
+<p><strong>Why is this important?</strong> Running analyses bit by bit makes it easy to introduce inconsistencies. Running everything from scratch ensures that results are fully reproducible: all required code and data are included, and the workflow can be reliably repeated. This means you (or anyone else) can execute the analysis and get all the outputs.</p>
+</section>
+<section id="methods-for-running-everything-from-scratch" class="level2">
+<h2 class="anchored" data-anchor-id="methods-for-running-everything-from-scratch">Methods for running everything from scratch</h2>
+<p>There are several ways to automate running your analysis - some common options include:</p>
+<div class="python-content">
+<ul>
+<li><p><strong>main.py</strong>: Use if everything is in <code>.py</code> files (i.e., no Jupyter notebooks). Write a main python function that imports all the necessary code and runs your pipeline.</p></li>
+<li><p><strong>Bash scripts:</strong> Can run a mixture of file types (e.g., <code>.py</code>, <code>.ipynb</code>, <code>.qmd</code>). You write a shell script that lists each step in your workflow, and the script will execute everything step-by-step in the order you specify.</p></li>
+</ul>
+</div>
+<div class="r-content">
+<ul>
+<li><p><strong>main.R</strong>: Use if everything is in <code>.R</code> files (i.e., no Rmarkdown files). You create a main script that imports all the necessary code and runs your pipeline.</p></li>
+<li><p><strong>Bash scripts:</strong> Can run a mixture of file types (e.g., <code>.py</code>, <code>.Rmd</code>, <code>.qmd</code>). You write a shell script that lists each step in your workflow, and the script will execute everything step-by-step in the order you specify.</p></li>
+</ul>
+</div>
+<ul>
+<li><p><strong>Makefiles:</strong> Handy for analyses with long run times. Makefiles track which outputs depend on which inputs, and only re-run steps when the inputs have changed (i.e., won’t necessarily re-run everything).</p></li>
+<li><p><strong>Snakemake:</strong> Tool that builds on Makefile, supporting very complex pipelines and lots of tools and languages.</p></li>
+</ul>
+<p>In this example, we’ll <strong>focus on a bash script</strong>, since it’s often the simplest way to run an analysis from scratch and supports a variety of file types.</p>
+</section>
+<section id="bash-script" class="level2">
+<h2 class="anchored" data-anchor-id="bash-script">Bash script</h2>
 <div class="h3-tight">
 
 </div>
-<section id="nurse-visit-simulation" class="level3">
-<h3 class="anchored" data-anchor-id="nurse-visit-simulation">Nurse visit simulation</h3>
+<section id="example-script" class="level3">
+<h3 class="anchored" data-anchor-id="example-script">Example script</h3>
+<div class="python-content">
+<p>This example runs Jupyter notebook (<code>.ipynb</code>) files:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">#!/usr/bin/env bash</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Get the conda environment's jupyter path</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="va">CONDA_JUPYTER</span><span class="op">=</span><span class="va">$(</span><span class="fu">dirname</span> <span class="st">"</span><span class="va">$(</span><span class="fu">which</span> python<span class="va">)</span><span class="st">"</span><span class="va">)</span>/jupyter</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">run_notebook()</span> <span class="kw">{</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    <span class="bu">local</span> <span class="va">nb</span><span class="op">=</span><span class="st">"</span><span class="va">$1</span><span class="st">"</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    <span class="bu">echo</span> <span class="st">"🏃 Running notebook: </span><span class="va">$nb</span><span class="st">"</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="st">"</span><span class="va">${CONDA_JUPYTER}</span><span class="st">"</span> nbconvert <span class="at">--to</span> notebook <span class="at">--inplace</span> <span class="at">--execute</span> <span class="dt">\</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>        <span class="at">--ClearMetadataPreprocessor.enabled</span><span class="op">=</span>True <span class="dt">\</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>        <span class="at">--ClearMetadataPreprocessor.clear_notebook_metadata</span><span class="op">=</span>True <span class="dt">\</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>        <span class="st">"</span><span class="va">$nb</span><span class="st">"</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">then</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>        <span class="bu">echo</span> <span class="st">"✅ Successfully processed: </span><span class="va">$nb</span><span class="st">"</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>        <span class="bu">echo</span> <span class="st">"❌ Error processing: </span><span class="va">$nb</span><span class="st">"</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">fi</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    <span class="bu">echo</span> <span class="st">"-------------------------"</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="kw">}</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="kw">[[</span> <span class="ot">-n</span> <span class="st">"</span><span class="va">$1</span><span class="st">"</span> <span class="kw">]];</span> <span class="cf">then</span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    <span class="ex">run_notebook</span> <span class="st">"</span><span class="va">$1</span><span class="st">"</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="cf">else</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> nb <span class="kw">in</span> notebooks/<span class="pp">*</span>.ipynb<span class="kw">;</span> <span class="cf">do</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>        <span class="ex">run_notebook</span> <span class="st">"</span><span class="va">$nb</span><span class="st">"</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>    <span class="cf">done</span></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="cf">fi</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<section id="explaining-the-bash-script-line-by-line" class="level3">
+<h3 class="anchored" data-anchor-id="explaining-the-bash-script-line-by-line">Explaining the bash script line by line</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co">#!/usr/bin/env bash</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>This is called a “shebang line”. It just tells the operating system which interpreter to use - in this case, making sure it uses Bash.</p>
+<p><br></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Get the conda environment's jupyter path</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="va">CONDA_JUPYTER</span><span class="op">=</span><span class="va">$(</span><span class="fu">dirname</span> <span class="st">"</span><span class="va">$(</span><span class="fu">which</span> python<span class="va">)</span><span class="st">"</span><span class="va">)</span>/jupyter</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>This line finds the <code>jupyter</code> executable linked to your current python environment. This ensures it uses the correct version of Jupyter (i.e., instead of trying to run a system-wide or different environment’s Jupyter).</p>
+<p><br></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">run_notebook()</span> <span class="kw">{</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>We define a bash function to run each notebook.</p>
+<p><br></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="bu">local</span> <span class="va">nb</span><span class="op">=</span><span class="st">"</span><span class="va">$1</span><span class="st">"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>This assigns the notebook filename passed to the function (<code>$1</code>) to the variable <code>nb</code> within the function.</p>
+<p><br></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">"🏃 Running notebook: </span><span class="va">$nb</span><span class="st">"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>A message is printed to help track what’s happening, as each notebook is processed.</p>
+<p><br></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="st">"</span><span class="va">${CONDA_JUPYTER}</span><span class="st">"</span> nbconvert <span class="at">--to</span> notebook <span class="at">--inplace</span> <span class="at">--execute</span> <span class="dt">\</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>        <span class="at">--ClearMetadataPreprocessor.enabled</span><span class="op">=</span>True <span class="dt">\</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>        <span class="at">--ClearMetadataPreprocessor.clear_notebook_metadata</span><span class="op">=</span>True <span class="dt">\</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>        <span class="st">"</span><span class="va">$nb</span><span class="st">"</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">then</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>        <span class="bu">echo</span> <span class="st">"✅ Successfully processed: </span><span class="va">$nb</span><span class="st">"</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>        <span class="bu">echo</span> <span class="st">"❌ Error processing: </span><span class="va">$nb</span><span class="st">"</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">fi</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    <span class="bu">echo</span> <span class="st">"-------------------------"</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="er">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>This block runs the notebook using Jupyter’s <code>nbconvert</code> tool. It will print a success message if this works, and an error message if not.</p>
+<p>The Jupyter nbconvert command (a single command, though split across several lines):</p>
+<ul>
+<li><code>"${CONDA_JUPYTER}" nbconvert</code>: Execute nbconvert from your environment.</li>
+<li><code>--to notebook --inplace --execute</code>: Run the notebook, overwrite in place, and execute all cells from scratch.</li>
+<li><code>--ClearMetadataPreprocessor.enabled=True</code>: Enable pre-processor that can clear notebook metadata.</li>
+<li><code>--ClearMetadataPreprocessor.clear_notebook_metadata=True</code>: Remove notebook metadata.</li>
+<li><code>"$nb"</code>: Specifies the notebook file to run.</li>
+</ul>
+<div class="callout callout-style-simple callout-none no-icon callout-titled" title="Why do we have the metadata settings?">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">None</span>Why do we have the metadata settings?
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-1" class="callout-1-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>These are to <strong>avoid changes in files that have been re-run</strong>, when all the results and code are still the same, <strong>just the notebook metadata has changed</strong>.</p>
+<p>With these settings in our bash script, the output notebook metadata will be:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">{</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"metadata"</span><span class="ex">:</span> {</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>        <span class="st">"language_info"</span><span class="ex">:</span> {</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>            <span class="st">"name"</span><span class="ex">:</span> <span class="st">"python"</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>        <span class="kw">}</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    <span class="er">}</span><span class="ex">,</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">"nbformat"</span><span class="ex">:</span> 4,</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">"nbformat_minor"</span><span class="ex">:</span> 2</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="er">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Without these settings, the notebook metadata will look similar to:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">{</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"language"</span><span class="ex">:</span> <span class="st">"python"</span>,</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"execution_count"</span><span class="ex">:</span> 1,</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"metadata"</span><span class="ex">:</span> {</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>        <span class="st">"execution"</span><span class="ex">:</span> {</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>            <span class="st">"iopub.execute_input"</span><span class="ex">:</span> <span class="st">"2025-10-03T12:43:33.788230Z"</span>,</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>            <span class="st">"iopub.status.busy"</span><span class="ex">:</span> <span class="st">"2025-10-03T12:43:33.787840Z"</span>,</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>            <span class="st">"iopub.status.idle"</span><span class="ex">:</span> <span class="st">"2025-10-03T12:43:35.044924Z"</span>,</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>            <span class="st">"shell.execute_reply"</span><span class="ex">:</span> <span class="st">"2025-10-03T12:43:35.043797Z"</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>        <span class="kw">}</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>    <span class="er">}</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a><span class="er">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>We include the option to run notebooks using the bash script for the same reason. If run directly, metadata can look something like:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">{</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"metadata"</span><span class="ex">:</span> {</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>        <span class="st">"kernelspec"</span><span class="ex">:</span> {</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>            <span class="st">"display_name"</span><span class="ex">:</span> <span class="st">"pydesrapmms"</span>,</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>            <span class="st">"language"</span><span class="ex">:</span> <span class="st">"python"</span>,</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>            <span class="st">"name"</span><span class="ex">:</span> <span class="st">"python3"</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>        <span class="ex">},</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>        <span class="st">"language_info"</span><span class="ex">:</span> {</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>            <span class="st">"codemirror_mode"</span><span class="ex">:</span> {</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>                <span class="st">"name"</span><span class="ex">:</span> <span class="st">"ipython"</span>,</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>                <span class="st">"version"</span><span class="ex">:</span> 3</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>            <span class="ex">},</span></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>            <span class="st">"file_extension"</span><span class="ex">:</span> <span class="st">".py"</span>,</span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>            <span class="st">"mimetype"</span><span class="ex">:</span> <span class="st">"text/x-python"</span>,</span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>            <span class="st">"name"</span><span class="ex">:</span> <span class="st">"python"</span>,</span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>            <span class="st">"nbconvert_exporter"</span><span class="ex">:</span> <span class="st">"python"</span>,</span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>            <span class="st">"pygments_lexer"</span><span class="ex">:</span> <span class="st">"ipython3"</span>,</span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>            <span class="st">"version"</span><span class="ex">:</span> <span class="st">"3.13.1"</span></span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>        <span class="kw">}</span></span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>    <span class="er">}</span><span class="ex">,</span></span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>    <span class="st">"nbformat"</span><span class="ex">:</span> 4,</span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>    <span class="st">"nbformat_minor"</span><span class="ex">:</span> 2</span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a><span class="er">}</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</div>
+</div>
+<p><br></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="kw">[[</span> <span class="ot">-n</span> <span class="st">"</span><span class="va">$1</span><span class="st">"</span> <span class="kw">]];</span> <span class="cf">then</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>    <span class="ex">run_notebook</span> <span class="st">"</span><span class="va">$1</span><span class="st">"</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="cf">else</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> nb <span class="kw">in</span> notebooks/<span class="pp">*</span>.ipynb<span class="kw">;</span> <span class="cf">do</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>        <span class="ex">run_notebook</span> <span class="st">"</span><span class="va">$nb</span><span class="st">"</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">done</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="cf">fi</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>If a notebook name is given as a command-line argument, it only runs that notebook. If not, it loops through all notebooks in the <code>notebooks/</code> directory and runs each one. This structure gives you flexibility: you can run all notebooks in bulk, or just one at a time, without changing the script.</p>
+</section>
+<section id="running-the-bash-script" class="level3">
+<h3 class="anchored" data-anchor-id="running-the-bash-script">Running the bash script</h3>
+<p>Make sure you are in the same directory as the script, then run from the terminal:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> run_notebooks.sh</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>To run a specific notebook:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> run_notebooks.sh notebooks/notebook_name.ipynb</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>You can make it executable using <code>chmod +x</code>. You can then run it directly (without typing <code>bash</code> first) from anywhere in your project folder tree (i.e., don’t need to be in same directly).</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">chmod</span> +x run_notebooks.sh</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="ex">run_notebooks.sh</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The output will look like:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;</span> bash <span class="ex">run_notebooks.sh</span> notebooks/generate_exp_results.ipynb</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="ex">🏃</span> Running notebook: notebooks/generate_exp_results.ipynb</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="ex">[NbConvertApp]</span> Converting notebook notebooks/generate_exp_results.ipynb to notebook</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="ex">[NbConvertApp]</span> Writing 35327 bytes to notebooks/generate_exp_results.ipynb</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="ex">✅</span> Successfully processed: notebooks/generate_exp_results.ipynb</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="ex">-------------------------</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="including-.py-files-in-the-bash-script" class="level3">
+<h3 class="anchored" data-anchor-id="including-.py-files-in-the-bash-script">Including <code>.py</code> files in the bash script</h3>
+<p>Our example script just ran Jupyter notebooks, as they contained all our analysis in our example models. However, you can also perform your analysis in <code>.py</code> files, structured like:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> simulation <span class="im">import</span> Param, Runner</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> main():</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>    runner <span class="op">=</span> Runner(param <span class="op">=</span> Param())</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>    runner.run_reps()</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Continues to analysis and saves outputs...</span></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="va">__name__</span> <span class="op">==</span> <span class="st">"__main__"</span>:</span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>    main()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>These can then be easily run from bash scripts like so:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb17"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co">#!/bin/bash</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> filename.py</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+</div>
+<div class="r-content">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb18"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co">#!/bin/bash</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Ensure the script exits on error</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="bu">set</span> <span class="at">-e</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Find and render all .Rmd files in the specified directory</span></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> file <span class="kw">in</span> <span class="st">"rmarkdown"</span>/<span class="pp">*</span>.Rmd<span class="kw">;</span> <span class="cf">do</span></span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>    <span class="bu">echo</span> <span class="st">"Rendering: </span><span class="va">$file</span><span class="st">"</span></span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>    <span class="ex">Rscript</span> <span class="at">-e</span> <span class="st">"rmarkdown::render('</span><span class="va">$file</span><span class="st">')"</span></span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a><span class="cf">done</span></span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">"Rendering complete!"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>It starts with <code>#!/usr/bin/env bash</code>. This is known as a “shebang line”. It just tells the operating system which interpreter to use - in this case, making sure it uses Bash.</p>
+<p>It is set to end on error running any file (<code>set -e</code>).</p>
+<p>It searches for every file ending <code>.Rmd</code> in the <code>rmarkdown</code> folder. For each file, it prints a message to say which file it is working on (<code>echo ...</code>), and then runs R code to execute the file.</p>
+<section id="running-the-bash-script-1" class="level3">
+<h3 class="anchored" data-anchor-id="running-the-bash-script-1">Running the bash script</h3>
+<p>To run the script, open a terminal and run:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb19"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">bash</span> run_rmarkdown.sh</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>You can make it executable using <code>chmod +x</code>. You can then run it directly (without typing <code>bash</code> first) from anywhere in your project folder tree (i.e., don’t need to be in same directly).</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb20"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">chmod</span> +x run_rmarkdown.sh</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="ex">run_rmarkdown.sh</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The output of running the script will look something like this:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb21"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;</span> bash <span class="ex">run_rmarkdown.sh</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="ex">Rendering:</span> rmarkdown/analysis.Rmd</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a><span class="ex">processing</span> file: analysis.Rmd</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>  <span class="kw">|</span><span class="ex">....................</span>                               <span class="kw">|</span>  <span class="ex">39%</span> <span class="pp">[</span><span class="ss">unnamed</span><span class="pp">-</span><span class="ss">chunk</span><span class="pp">-</span><span class="ss">9</span><span class="pp">]</span> </span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="including-.r-files-in-the-bash-script." class="level3">
+<h3 class="anchored" data-anchor-id="including-.r-files-in-the-bash-script.">Including <code>.R</code> files in the bash script.</h3>
+<p>Our example script just ran rmarkdown files, as they contained all our analysis in our example models. However, you can also perform your analysis in <code>.R</code> files, structured like:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">load_all</span>()</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>run_results <span class="ot">&lt;-</span> <span class="fu">runner</span>(<span class="at">param =</span> <span class="fu">parameters</span>())[[<span class="st">"run_results"</span>]]</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Continues with analysis and saving outputs...</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>You can run this R script from a Bash script or terminal with the following command:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb23"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="ex">Rscript</span> analysis/filename.R</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+</div>
+</section>
+</section>
+<section id="literate-programming" class="level2">
+<h2 class="anchored" data-anchor-id="literate-programming">Literate programming</h2>
+<div class="python-content">
+<div class="blue">
+<p><strong>Literate programming</strong> is an approach where code and narrative text are combined in a single document. For example, using Jupyter notebooks (<code>.ipynb</code>) or Quarto files (<code>.qmd</code>).</p>
+</div>
+</div>
+<div class="r-content">
+<div class="blue">
+<p><strong>Literate programming</strong> is an approach where code and narrative text are combined in a single document. For example, using Rmarkdown files (<code>.Rmd</code>) or Quarto files (<code>.qmd</code>).</p>
+</div>
+</div>
+<p>This style of working can be really handy for <strong>reproducibility</strong>, a all the parameter choices, steps and outputs are documented alongside explanatory text.</p>
+<p>There are several common ways to use literate programming in research workflows:</p>
+<ul>
+<li><p><strong>Experimentation</strong> - treating the documents like digital lab books, they contain all the analysis and experiments, with the final write-up kept separate.</p></li>
+<li><p><strong>Write-up with dynamic outputs</strong> - pre-generated outputs (figures, tables, statistics) are dynamically embedded in the write-up document, so that results remain accurate and up-to-date. This set-up allows analysis and reporting to be updated/run consecutively or independently.</p></li>
+<li><p><strong>Code-integrated manuscripts</strong> (“reproducible manuscripts”) - the full analysis (including code to run models) lives inside the write-up. Depending on the intended audience, code chunks may be shown or hidden.</p></li>
+</ul>
+<p>Literate programming documents can be styled for journal or pre-print formats, making them suitable for publication submissions. Some handy resources (including Python and R versions, as though sometimes language-specific, both can be handy for the other):</p>
+<ul>
+<li>“<a href="https://utrechtuniversity.github.io/workshop-reproducible-manuscripts/">Writing Reproducible Manuscripts in R &amp; Python</a>” from Research Data Management Support at Utrecht University (2025).</li>
+<li>“<a href="https://poldrack.github.io/psych-open-science-guide/5_reproduciblemanuscripts.html">Reproducible Manuscripts</a>” from Stanford Psychology Guide to Doing Open Science (2020).</li>
+<li>“<a href="https://doi.org/10.31219/osf.io/ur4xn">Writing a reproducible paper with RStudio and Quarto</a>” from Bauer, P. C., and Landesvatter, C. (2023).</li>
+<li>“<a href="ttps://doi.org/10.31219/osf.io/k8jhx">Writing a reproducible paper with R Markdown and Pagedown</a>” from Bauer, P. C., and Landesvatter, C. (2021).</li>
+</ul>
+</section>
+<section id="explore-the-example-models" class="level2">
+<h2 class="anchored" data-anchor-id="explore-the-example-models">Explore the example models</h2>
 <div class="python-content">
 <p><a href="https://github.com/pythonhealthdatascience/pydesrap_mms" target="_blank" style="text-decoration: none;"> <span style="display: inline-flex; align-items: center; background: #1d7898;
   color: #fff; border-radius: 20px; padding: 0.4em 1em; font-weight: 600;
   gap: 0.5em;"> <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/github.svg" alt="GitHub" width="20" height="20" style="filter: brightness(0)
     invert(1);"> Click to visit pydesrap_mms repository </span> </a></p>
-<div class="blue-table">
-<table class="caption-top table">
-<colgroup>
-<col style="width: 20%">
-<col style="width: 80%">
-</colgroup>
-<tbody>
-<tr class="odd">
-<td><strong>Key files</strong></td>
-<td></td>
-</tr>
-<tr class="even">
-<td><strong>What to look for?</strong></td>
-<td></td>
-</tr>
-<tr class="odd">
-<td><strong>Why it matters?</strong></td>
-<td></td>
-</tr>
-</tbody>
-</table>
-</div>
+<p><a href="https://github.com/pythonhealthdatascience/pydesrap_stroke" target="_blank" style="text-decoration: none;"> <span style="display: inline-flex; align-items: center; background: #1d7898;
+  color: #fff; border-radius: 20px; padding: 0.4em 1em; font-weight: 600;
+  gap: 0.5em;"> <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/github.svg" alt="GitHub" width="20" height="20" style="filter: brightness(0)
+    invert(1);"> Click to visit pydesrap_stroke repository </span> </a></p>
+<p>Both have a file <code>run_notebooks.sh</code> (like the example above) which is used to run everything in <code>notebooks/</code> from scratch.</p>
 </div>
 <div class="r-content">
 <p><a href="https://github.com/pythonhealthdatascience/rdesrap_mms" target="_blank" style="text-decoration: none;"> <span style="display: inline-flex; align-items: center; background: #1d7898;
   color: #fff; border-radius: 20px; padding: 0.4em 1em; font-weight: 600;
   gap: 0.5em;"> <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/github.svg" alt="GitHub" width="20" height="20" style="filter: brightness(0)
     invert(1);"> Click to visit rdesrap_mms repository </span> </a></p>
-<div class="blue-table">
-<table class="caption-top table">
-<colgroup>
-<col style="width: 20%">
-<col style="width: 80%">
-</colgroup>
-<tbody>
-<tr class="odd">
-<td><strong>Key files</strong></td>
-<td></td>
-</tr>
-<tr class="even">
-<td><strong>What to look for?</strong></td>
-<td></td>
-</tr>
-<tr class="odd">
-<td><strong>Why it matters?</strong></td>
-<td></td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-</section>
-<section id="stroke-pathway-simulation" class="level3">
-<h3 class="anchored" data-anchor-id="stroke-pathway-simulation">Stroke pathway simulation</h3>
-<div class="python-content">
-<p><a href="https://github.com/pythonhealthdatascience/pydesrap_stroke" target="_blank" style="text-decoration: none;"> <span style="display: inline-flex; align-items: center; background: #1d7898;
-  color: #fff; border-radius: 20px; padding: 0.4em 1em; font-weight: 600;
-  gap: 0.5em;"> <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/github.svg" alt="GitHub" width="20" height="20" style="filter: brightness(0)
-    invert(1);"> Click to visit pydesrap_stroke repository </span> </a></p>
-<div class="blue-table">
-<table class="caption-top table">
-<colgroup>
-<col style="width: 20%">
-<col style="width: 80%">
-</colgroup>
-<tbody>
-<tr class="odd">
-<td><strong>Key files</strong></td>
-<td></td>
-</tr>
-<tr class="even">
-<td><strong>What to look for?</strong></td>
-<td></td>
-</tr>
-<tr class="odd">
-<td><strong>Why it matters?</strong></td>
-<td></td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-<div class="r-content">
 <p><a href="https://github.com/pythonhealthdatascience/rdesrap_stroke" target="_blank" style="text-decoration: none;"> <span style="display: inline-flex; align-items: center; background: #1d7898;
   color: #fff; border-radius: 20px; padding: 0.4em 1em; font-weight: 600;
   gap: 0.5em;"> <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/github.svg" alt="GitHub" width="20" height="20" style="filter: brightness(0)
     invert(1);"> Click to visit rdesrap_stroke repository </span> </a></p>
-<div class="blue-table">
-<table class="caption-top table">
-<colgroup>
-<col style="width: 20%">
-<col style="width: 80%">
-</colgroup>
-<tbody>
-<tr class="odd">
-<td><strong>Key files</strong></td>
-<td></td>
-</tr>
-<tr class="even">
-<td><strong>What to look for?</strong></td>
-<td></td>
-</tr>
-<tr class="odd">
-<td><strong>Why it matters?</strong></td>
-<td></td>
-</tr>
-</tbody>
-</table>
+<p>Both have a file <code>run_rmarkdown.sh</code> (like the example above) which is used to run everything in <code>rmarkdown/</code> from scratch.</p>
 </div>
-</div>
-</section>
 </section>
 <section id="test-yourself" class="level2">
 <h2 class="anchored" data-anchor-id="test-yourself">Test yourself</h2>
-<!--TODO-->
+<p>Try writing a bash scripts that runs some of your analysis files.</p>
+<p>You can print a message before running each one to check whether each command succeeded.</p>
+<p>Use a loop to run all the files in a given directory.</p>
 <p><br><br></p>
 
 
@@ -1259,13 +1468,13 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../../pages/experiments/tables_figures.html" class="pagination-link" aria-label="❌ Tables and figures">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">❌ Tables and figures</span>
+      <a href="../../pages/experiments/tables_figures.html" class="pagination-link" aria-label="Tables and figures">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Tables and figures</span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../../pages/verification_validation/logs.html" class="pagination-link" aria-label="❌ Logging">
-        <span class="nav-page-text">❌ Logging</span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../../pages/verification_validation/tests.html" class="pagination-link" aria-label="❌ Tests">
+        <span class="nav-page-text">❌ Tests</span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
@@ -1293,6 +1502,38 @@ Text licence: <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="
     </div>
   </div>
 </footer>
+<script>var lightboxQuarto = GLightbox({"closeEffect":"zoom","descPosition":"bottom","loop":false,"openEffect":"zoom","selector":".lightbox"});
+(function() {
+  let previousOnload = window.onload;
+  window.onload = () => {
+    if (previousOnload) {
+      previousOnload();
+    }
+    lightboxQuarto.on('slide_before_load', (data) => {
+      const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+      const href = trigger.getAttribute('href');
+      if (href !== null) {
+        const imgEl = window.document.querySelector(`a[href="${href}"] img`);
+        if (imgEl !== null) {
+          const srcAttr = imgEl.getAttribute("src");
+          if (srcAttr && srcAttr.startsWith("data:")) {
+            slideConfig.href = srcAttr;
+          }
+        }
+      } 
+    });
+  
+    lightboxQuarto.on('slide_after_load', (data) => {
+      const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(slideNode);
+      }
+    });
+  
+  };
+  
+})();
+          </script>
 
 
 
