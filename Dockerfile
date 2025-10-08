@@ -18,6 +18,7 @@ RUN apt-get update && \
         python3-venv \
         build-essential \
         pandoc \
+        chromium-browser \
         && rm -rf /var/lib/apt/lists/*
 
 # Install Quarto CLI
