@@ -124,7 +124,7 @@ To view your available images, run:
 sudo docker images
 ```
 
-Open the container:
+Open the container interactively:
 
 ```{.bash}
 sudo docker run -it desrapbookdocker /bin/bash
@@ -136,19 +136,23 @@ Restore R environment:
 Rscript -e "renv::restore()"
 ```
 
-Edit the conda location in `.Renviron`:
+Edit the conda location in `.Renviron` (if present) to `RETICULATE_CONDA=/opt/conda/bin/conda`:
 
 ```{.bash}
 apt-get update && apt-get install nano
 nano .Renviron
 ```
 
-Then change to `RETICULATE_CONDA=/opt/conda/bin/conda`.
-
-Can then create:
+Build the website:
 
 ```{.bash}
 quarto render
 ```
 
 To close the container: `Ctrl+P` then `Ctrl+Q`.
+
+To delete the image:
+
+```{.bash}
+sudo docker image rm -f desrapbookdocker
+```
