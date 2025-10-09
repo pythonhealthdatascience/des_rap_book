@@ -1,5 +1,6 @@
 ---
 title: ❌ Verification and validation
+bibliography: verification_validation_resources/references.bib
 ---
 
 :::: {.pale-blue}
@@ -15,13 +16,6 @@ TODO
 **Required packages:**
 
 TODO
-
-**Acknowledgements:**
-
-The definitions are based on those in:
-
-* ["Verification and validation of simulation models"](https://doi.org/10.1057/jos.2012.20) by Sargent 2012.
-* "Chapter 12: Verification, validation and confidence" from "Simulation: The Practice of Model Development and Use" by Robinson 2004.
 
 <!--verification method: banks simulation book goes into detail on changing param, seeing if model looks right, checking output looks reasonable under variety of inputs-->
 
@@ -56,8 +50,144 @@ It involves comparing the model's inputs, behaviour and results to the real syst
 
 <br>
 
-*Note: Verification ensures the model is built correctly, which is necessary for accuracy, so it can be seen as a subset of the broader topic of validation. In practice, these steps are sometimes discussed together under the general topic of V&V (Verification and Validation).*
+Note: Verification ensures the model is built correctly, which is necessary for accuracy, so it can be seen as a subset of the broader topic of validation. In practice, these steps are sometimes discussed together under the general topic of V&V (Verification and Validation).
 
+The above definitions are based on @Robinson2007 and @Sargent2013.
+
+The following sections outline various methods for verification and validation - but they are not comprehensive - just a selection we feel likely to be relevant and feasible for healthcare DES models. These have been identified using @Roungas2017. with definitions based on @Balci1998. For more techniques, check out these sources!
+
+## Methods for verification
+
+<div class="h3-tight"></div>
+
+### Desk checking
+
+"Desk checking" or "self-inspection" are simply the process of examining your work to see if it appears correct. Whilst you should be checking your own work, it is beneficial for another person to also look over it to spot errors you might not have noticed (@Balci1998). Some checks @Balci1998 suggest this could include are:
+
+* **Syntax checking** (e.g., formatted correctly, correct parameters passed to/returned from functions, all required libraries imported).
+* **Cross-reference checking**  (i.e., ensure documentation is complete and consistent with the code).
+* **Convention violation checking** (i.e., ensure adherence with coding standards).
+* **Detailed comparison to specification** (i.e., systematically comparing the implemented model with the original plans - so checking that the requirements, logic, parameters and outputs as planned in the conceptual model are implemented in the code).
+* **Reading the code** (i.e., looking through it line-by-line to see if it makes sense and spot any possible issues).
+
+::: {.cream}
+
+**What does this mean in practice?**
+
+✔️ Systematically check your code.
+
+✔️ Keep your documentation complete and up-to-date.
+
+✔️ Lint your code (see [linting](../style_docs/linting.qmd) page).
+
+✔️ Get code review (see [code review](../sharing/peer_review.qmd) page).
+
+:::
+
+### Debugging
+
+**Debugging** is the process of identifying and fixing bugs in your code. In @Balci1998, they describe this as an iterative process of (1) identifying bugs, (2) determining their cause, (3) identifying necessary changes, and (4) making those changes.
+
+::: {.cream}
+
+**What does this mean in practice?**
+
+You'll probably perform debugging naturally as you code the model - but it is helpful to:
+
+✔️ Write tests - they'll help you spot bugs (see [tests](tests.qmd) page).
+
+✔️ As you develop the model, monitor it using logs - this will also help you spot bugs (see [logs](../model/logs.qmd) page).
+
+✔️ Use GitHub issues to record bugs as they arise, so you don't forget about them and so you have a record for future reference (see section on GitHub issues on the [peer review](../sharing/peer_review.qmd#github-issues) page).
+
+:::
+
+### Assertion checking
+
+As defined in @Balci1998, this technique involves making **assertions** - i.e., outlining the expected behaviour of your model. You should then check to ensure these hold true. These assertions can be placed throughout your code, monitoring things like:
+
+* Patient flow logic (e.g., ensuring patients don't skip required stages).
+* Resource constraints (e.g., bed capacity never exceeds maximum).
+* Parameter validation (e.g., service times are always positive).
+* Conservation laws (e.g., total patients in system matches arrivals minus departures).
+
+::: {.cream}
+
+**What does this mean in practice?**
+
+✔️ Add checks in the model which cause errors if something doesn't look right (e.g., [Parameter validation](../inputs/parameters_validation.qmd) page).
+
+✔️ Write tests which check that assertions hold true (see [Tests](tests.qmd) page).
+
+:::
+
+### Boundary value testing
+
+Boundary value testing (BVT) is relevant for input variables with minimum and maximum limits (e.g., age restrictions, bed capacity). It involves running the model with parameters just inside, on, and just outside the minimum and maximum allowed boundaries. The rationale for this is that errors in patient routing, resource allocation, or clinical event timing most frequently occur at these boundaries, rather than well within the safe ranges (@KLE2025).
+
+For example:
+
+* For a simulation of a screening programme for ages 18 to 75, you'd check:
+    * Patients below the minimum are rejected (17).
+    * Patients at/near the thresholds are accepted (18, 19, 74, 75).
+    * Patients above the maximum are rejected (76).
+
+<br><div class="h2-tight"></div>
+
+* For a simulation of a hospital ward that can have 0 to 30 beds, you'd check:
+    * 31 patients - over capacity, no patients should be admitted.
+    * 0, 29, and 30 patients - empty ward or just at capacity, patients should be admitted.
+
+<br><div class="h2-tight"></div>
+
+* For a queue simulation where patients are able to wait 0 to 120 minutes, you'd check:
+    * Model doesn't let wait times go below zero (when patients have wait times of 0 and 1 minutes).
+    * Model triggers escalation like transferring patient or other relevant logic (when there are patients with wait times of 119, 120, and 121 minutes).
+
+<br><div class="h2-tight"></div>
+
+* For a model whether patients are triaged based on priority scores of 1 (low risk) to 5 (highest risk), you'd check:
+    * Invalid scores (0, 6) are not processed.
+    * Low risk (1) and high risk (5) patients are routed corectly.
+
+::: {.cream}
+
+**What does this mean in practice?**
+
+✔️ If you have relevant input variables, write boundary value tests (no examples of BVT, but see [test](tests.qmd) page for how to set-up a test).
+
+:::
+
+### Regression testing
+
+When you make changes to your model, you should re-run your tests to ensure those changes haven't introduced new errors. This is referred to as regression testing (@Balci1998).
+
+::: {.cream}
+
+**What does this mean in practice?**
+
+✔️ Write your tests early! Don't leave them all until the end. Having tests in place early means you can re-run them as you make changes and catch issues as you go.
+
+✔️ Run tests regularly. You can do this manually on your local machine, or automatically through CI/CD pipelines that could run tests on pull requests or merges to the main branch (see [github actions](../style_docs/github_actions.qmd) page).
+
+:::
+
+### Bottom-up testing
+
+::: {.cream}
+
+**What does this mean in practice?**
+
+✔️ Write unit tests for each component of your simulation model (see [tests](tests.qmd) page).
+
+✔️ 
+
+:::
+
+
+* bottom-up testing - @Balci1998 - Bottom-up testing is used in conjunction with bottom-up model development strategy. In bottomup development, model construction starts with the submodels at the base level (i.e., the ones that are not decomposed further) and culminates with the submodels at the highest level. As each submodel is completed, it is thoroughly tested. When submodels belonging to the same parent have been developed and tested, the submodels are integrated and integration testing is performed. This process is repeated in a bottom-up manner until the whole model has been integrated and tested. The integration of completed submodels need not wait for all “same level” submodels to be completed. Submodel integration and testing can be and often is, performed incrementally. [Sommerville 1996]
+
+<br><br><br>
 
 ## Explore the example models
 
@@ -130,5 +260,10 @@ It involves comparing the model's inputs, behaviour and results to the real syst
 ## Test yourself
 
 <!--TODO-->
+
+## References
+
+::: {#refs}
+:::
 
 <br><br>
