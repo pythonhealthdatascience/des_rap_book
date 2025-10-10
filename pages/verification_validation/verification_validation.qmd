@@ -1,5 +1,5 @@
 ---
-title: ❌ Verification and validation
+title: Verification and validation
 bibliography: verification_validation_resources/references.bib
 ---
 
@@ -8,22 +8,9 @@ bibliography: verification_validation_resources/references.bib
 **Learning objectives:**
 
 * Define verification and validation.
-
-**Pre-reading:**
-
-TODO
-
-**Required packages:**
-
-TODO
-
-<!--verification method: banks simulation book goes into detail on changing param, seeing if model looks right, checking output looks reasonable under variety of inputs-->
+* Learn about the range of methods for verification and validation.
 
 ::::
-
-<!--TODO: need to explain verification and validation... and how to do them... even if verificaton page just says, you do it via test and logs!-->
-
-<!-- Find reference to back up Tom’s claim that people rarely do any verification and validation in their simulation papers -->
 
 ## What is the difference between verification and validation?
 
@@ -43,6 +30,8 @@ It involves checking that the model's logic, structure and parameters are implem
 **Validation:** The process of checking whether the simulation model is a sufficiently accurate representation of your real system.
 
 It involves comparing the model's inputs, behaviour and results to the real system. The key question is whether any differences are small enough that the model can still reliably support the decisions or answer the questions it was designed for.
+
+<!--TODO: sargent: operational model validation = determining that the model behaves accurately based on its intended purpose. though they also have input data validation and conceptual model validation-->
 
 :::
 
@@ -64,11 +53,12 @@ The following sections outline various methods for verification and validation -
 
 "Desk checking" or "self-inspection" are simply the process of examining your work to see if it appears correct. Whilst you should be checking your own work, it is beneficial for another person to also look over it to spot errors you might not have noticed (@Balci1998). Some checks @Balci1998 suggest this could include are:
 
-* **Syntax checking** (e.g., formatted correctly, correct parameters passed to/returned from functions, all required libraries imported).
-* **Cross-reference checking**  (i.e., ensure documentation is complete and consistent with the code).
-* **Convention violation checking** (i.e., ensure adherence with coding standards).
-* **Detailed comparison to specification** (i.e., systematically comparing the implemented model with the original plans - so checking that the requirements, logic, parameters and outputs as planned in the conceptual model are implemented in the code).
-* **Reading the code** (i.e., looking through it line-by-line to see if it makes sense and spot any possible issues).
+* **Syntax checking** - e.g., formatted correctly, correct parameters passed to/returned from functions, all required libraries imported.
+* **Cross-reference checking** - check that links/references/relationships between different pieces of information are correct. For example, that can call required functions, that imports have correct file paths, and that documentation is up-to-date and consistent with the code.
+    * This overlaps with another technique for verification: **documentation checking**. That involves checking documentation is complete, correct, consistent and unambiguous.
+* **Convention violation checking** - ensure adherence with coding standards.
+* **Detailed comparison to specification** - systematically compare the implemented model with the original plans - so checking that the requirements, logic, parameters and outputs as planned in the conceptual model are implemented in the code.
+* **Reading the code** - look through the code line-by-line to see if it makes sense and spot any possible issues.
 
 ::: {.cream}
 
@@ -77,6 +67,8 @@ The following sections outline various methods for verification and validation -
 ✔️ Systematically check your code.
 
 ✔️ Keep your documentation complete and up-to-date.
+
+✔️ Maintain an environment with all required packages (see [environments](../setup/environment.qmd) page).
 
 ✔️ Lint your code (see [linting](../style_docs/linting.qmd) page).
 
@@ -136,6 +128,8 @@ We also mention overlap with:
 * **Invalid input testing** (overlaps with boundary value testing and assertion checking).
 
 Finally, we mention running an **idle system** as an "unofficial" method (i.e., not covered by major simulation references for verification and validation like @Balci1998).
+
+> **Note:** There is overlap between this and **functional testing** (sometimes called "black-box testing"), which is about assessing whether a simulation model accurately performs input-to-output transformations as specified.
 
 #### Boundary value testing
 
@@ -231,103 +225,194 @@ When you make changes to your model, you should re-run your tests to ensure thos
 
 :::
 
-## Methods for validation
+### Mathematical proof of correctness
 
-### Theoretical validation
-
-<!--the m/m/s mathematical models... comparison with known solutions theoretical analytical results-->
+Formal validation of a model using mathematical proof of correctness (@Balci1998) is typically possible only for simple models that have accepted theoretical solutions. For example, you can compare a simple M/M/s queueing model to known equations from queueing theory.
 
 ::: {.cream}
 
 **What does this mean in practice?**
 
-<!--in reality, model will be too complex... but we did it for our m/m/s examples... so you can see, it validates them, if using as starting point... and you could do, if using as starting point... but when change model structure won't hold... but at least reassurance at early stage...-->
+✔️ For parts of your model where theoretical results exist (like an M/M/s queue), compare simulation outputs with results from mathematical formulas.
+
+This is a great baseline: start with a simple model you can compare against theory. That way, you have confidence in your code as a foundation before you build in more system complexity.
 
 :::
 
-### Face validity
+<!--
+TODO: From robinson book: Black-box validation - determining that the overall model represents the real world with sufficient accuracy for the purpose at hand. The overall heaviour of the model is considered. Two approaches: (A) compare to real world, (B) compare to another model (useful when no real world) - B: compare with other, normally simpler models. One approach is to compare the simulation model against a mathematical model. It is unlikely that a mathematical model is able to predict the outcome fot ehs imulation exactly, otherwise the simulation would probably not have been built. However for the purposes of comparison a mathematical model may be able to give a crude approximation to the outputs of the real system. .. This approach is sometimes referred to as static analysis because it does not (cannot) take into account the fully dynamics of the simulation model. In order to aid comparison it is sometimes useful to simplify the simulation model to the extent that a mathematical model can predict exactly, or at least more exactly, the outcome of the model. For example, making it a deterministic model, where all random events are removed, as can then mathetmactially determine exact outcome.
+-->
 
-
-
-<br><br>
-
-## Guidelines
-
-there are guidelines...
-
-## Barriers to validation
-
-## Explore the example models
+## Methods for validation
 
 <div class="h3-tight"></div>
 
-### Nurse visit simulation
+### Face validation
 
-:::: {.python-content}
+**Face validation** is a process where the project team, potential model users, and people with relevant experience of the healthcare system review the simulation. Based on their knowledge and experiences, they compare the model's behaviour and results with what would be expected in the real system and judge whether the model appears realistic and appropriate (@Balci1998).
+
+Evaluating and reporting face validity is a requirement of the DES reporting checklist from @Zhang2025 (which is based on reports from the International Society for Pharmacoeconomics and Outcomes Research (ISPOR)-Society for Medical Decision Making (SMDM) Modeling Good Research Practices Task Force).
+
+::: {.cream}
+
+**What does this mean in practice?**
+
+✔️ Present key simulation outputs and model behaviour to people such as:
+
+* Project team members.
+* Intended users of the model (e.g., healthcare analysts, managers).
+* People familiar with the real system (e.g., clinicians, frontline staff, patient representatives).
+
+Ask for their subjective feedback on whether the model and results "look right". Discuss specific areas, such as whether performance measures (e.g., patient flow, wait times) match expectations under similar conditions.
+
+:::
+
+### Turing test
+
+**Turing test** validation is a technique where experts familiar with the healthcare system are shown real-world output data and simulation output data, without knowing which is which. This provides a "blind test": they must decide which results they think are from the actual system and which are from the model. If experts cannot reliably tell the difference, it increases confidence in the model validity (@Balci1998).
+
+This can be supplementary to face validation and other comparisons - rather than asking reviewers whether outputs seem plausible, they test whether they are indistinguishable.
+
+::: {.cream}
+
+**What does this mean in practice?**
+
+✔️ Collect matching sets of model output and real system, remove identifying labels, and present them to a panel of experts. Record whether experts can distinguish simulation outputs from real data. Use their feedback on distinguishing features to further improve the simulation.
+
+:::
+
+### Predictive validation
+
+**Predictive validation** means running the simulation model based on data from a particular time period of your system (e.g., a specific year, season or event). The model results should then be compared with the actual observed outcomes from that time period (@Balci1998).
+
+Predictive validation is a requirement in the DES reporting checklist from @Zhang2025.
+
+::: {.cream}
+
+**What does this mean in practice?**
+
+✔️ Use historical arrival data, staffing schedules, treatment times, or other inputs from a specific time period to drive your simulation. Compare the simulation's predictions for that period (e.g., waiting times, bed occupancy) against the real outcomes for the same period.
+
+✔️ Consider varying the periods you validate on—year-by-year, season-by-season, or even for particular policy changes or events—to detect strengths or weaknesses in the model across different scenarios.
+
+✔️ Use graphical comparisons (e.g., time series plots) or statistical measures (e.g., goodness-of-fit, mean errors, confidence intervals) to assess how closely the model matches reality - see below.
+
+:::
+
+### Graphical comparison
+
+**Graphical comparison** involves comparing graphs of model variables over time with graphs of real system variables. You should look for similarities in patterns, trends, periodicities (i.e., recurring events), and other characteristics (@Balci1998).
+
+::: {.cream}
+
+**What does this mean in practice?**
+
+✔️ Create time-series plots of key metrics (e.g., daily patient arrivals, resource utilisation) for both the model and system. Create distributions of waiting times, service times, and other performance measures. Compare the model and system graphs.
+
+:::
+
+### Statistical comparison
+
+Statistical comparison involves using formal **statistical techniques** to compare model outputs with real system data. @Balci1998 recommend a validation procedure using simultaneous confidence intervals. Other statistical techniques including t-tests and goodness-of-fits tests have also been proposed.
+
+This is a type of **external validation** (comparing model results to empirical data of actual event), which is a requirement in the DES reporting checklist from @Zhang2025.
+
+::: {.cream}
+
+**What does this mean in practice?**
+
+✔️ Collect real system data on key performance measures (e.g., wait times, lengths of stay, throughput) and compare with model outputs statistically using appropriate tests.
+
+:::
+
+### Animation visualisation
+
+If you build an animation that shows your simulation model as it runs, it can help you spot errors by letting you "see" what's happening (@Balci1998). You can watch patients flow, queues grow and shrink, and resources being used - and you maybe be able to spot odd behaviours.
+
+:::: {.cream}
+
+**What does this mean in practice?**
+
+Creating an animation takes time, but it has several benefits beyond just validation.
+
+* ✔️ **Validation:** It can help you spot mistakes
+* ✔️ **Communication:** It is really helpful for sharing the models with others (such as with stakeholders and decision makers).
+* ✔️ **Reuse:** It supports reuse of the model (as in the [STARS framework](../project/stars.qmd#reusable)).
+
+::: {.python-content}
+
+In Python, check out [vidigi](https://github.com/Bergam0t/vidigi/tree/main) - a package developed by Sammi Rosser to make animated visualisations for open-source simulation models (e.g., SimPy with streamlit).
+
+:::
+
+::::
+
+### Comparison testing
+
+If two or more simulation models exist for the same system (perhaps built using different methods, languages, or by different groups), **comparison testing** (or "back-to-back testing") can be used. Running both models with identical input data and configurations and comparing their outputs can reveal problems or inconsistencies in at least one model's logic, assumptions or implementation (@Balci1998).
+
+::: {.cream}
+
+**What does this mean in practice?**
+
+✔️ If you have multiple models of the same system, compare them!
+
+You probably won't have two models often, but when you do, comparing them is very useful. For example, if you create an open-source version of a commercial model or translate a model between R and Python (as in this book), comparing results can quickly uncover issues and improve quality.
+
+:::
+
+<!--
+
+### TODO: Input data validation
+
+confirming that distributions chosen are appropriate reflections of real system...
+
+from banks book: conduct simple statistical tests of input data for homogeneity, for randomness, and for goodness of fit to assumed distributional forms… then pg 354 has Goodness-of-Fit Tests section (in Input Modelling chapter)
+
+sargent: data validation - accuracy of raw data and any transformation performed on this data
+
+robinson: Data validation - whether data used at any stage are sufficiently accurate
+
+### TODO: Conceptual model validation
+
+sargent one of their four phases of v&v: conceptual model validation - whether the theories and assumptions undelying the conceptual model structure are correct, and whether the model's structure, logic, and mathematical and causal relationships are "reasonable" for the intende dpurpose of the model
+
+robinson: Conceptual model validation - whether content, assumptions and simplifications are sufficiently accurate (i.e. does model have necessary details to meet study objective)
+
+### TODO: Experimentation validation
+
+robinson: ensuring procedures allow accurate results i.e. requirements for removing initialisation bias, run length, replications, sensitivity analysis, and searching of solution space to ensure that learning is maximised and appropriate solutions identified
+
+### TODO: Cross validation
+
+@Zhang2025 - cross validation performed and reported	… comparison across similar modeling studies which deal with the same decision problem was undertaken.
+-->
+
+## Explore the example models
+
+::: {.python-content}
 
 {{< include ../../html/pydesrapmms.html >}}
 
-::: {.blue-table}
-| | |
-| - | - |
-| **Key files** | |
-| **What to look for?** | |
-| **Why it matters?** | |
-: {tbl-colwidths="[20,80]"}
+{{< include ../../html/pydesrapstroke.html >}}
+
+TODO
+
 :::
 
-::::
-
-:::: {.r-content}
+::: {.r-content}
 
 {{< include ../../html/rdesrapmms.html >}}
 
-::: {.blue-table}
-| | |
-| - | - |
-| **Key files** | |
-| **What to look for?** | |
-| **Why it matters?** | |
-: {tbl-colwidths="[20,80]"}
-:::
-
-::::
-
-### Stroke pathway simulation
-
-:::: {.python-content}
-
-{{< include ../../html/pydesrapstroke.html >}}
-
-::: {.blue-table}
-| | |
-| - | - |
-| **Key files** | |
-| **What to look for?** | |
-| **Why it matters?** | |
-: {tbl-colwidths="[20,80]"}
-:::
-
-::::
-
-:::: {.r-content}
-
 {{< include ../../html/rdesrapstroke.html >}}
 
-::: {.blue-table}
-| | |
-| - | - |
-| **Key files** | |
-| **What to look for?** | |
-| **Why it matters?** | |
-: {tbl-colwidths="[20,80]"}
-:::
+TODO
 
-::::
+:::
 
 ## Test yourself
 
-<!--TODO-->
+TODO: write... look over the types of verification and validation... what can you do? could make a checklist of things could do that would help meet...
 
 ## References
 
