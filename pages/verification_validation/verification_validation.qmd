@@ -54,7 +54,7 @@ Note: Verification ensures the model is built correctly, which is necessary for 
 
 The above definitions are based on @Robinson2007 and @Sargent2013.
 
-The following sections outline various methods for verification and validation - but they are not comprehensive - just a selection we feel likely to be relevant and feasible for healthcare DES models. These have been identified using @Roungas2017. with definitions based on @Balci1998. For more techniques, check out these sources!
+The following sections outline various methods for verification and validation - but they are not comprehensive - just a selection we feel likely to be relevant and feasible for healthcare DES models. For more techniques, check out @Balci1998.
 
 ## Methods for verification
 
@@ -111,6 +111,8 @@ As defined in @Balci1998, this technique involves making **assertions** - i.e., 
 * Parameter validation (e.g., service times are always positive).
 * Conservation laws (e.g., total patients in system matches arrivals minus departures).
 
+> **Note:** Another type of verification called "**invalid input testing**" can fall under assertion checking, when you are writing tests that check the model behaves as expected (e.g., with appropriate error messages) if invalid parameters are used (@Balci1998).
+
 ::: {.cream}
 
 **What does this mean in practice?**
@@ -121,40 +123,97 @@ As defined in @Balci1998, this technique involves making **assertions** - i.e., 
 
 :::
 
-### Boundary value testing
+### Special input testing
 
-Boundary value testing (BVT) is relevant for input variables with minimum and maximum limits (e.g., age restrictions, bed capacity). It involves running the model with parameters just inside, on, and just outside the minimum and maximum allowed boundaries. The rationale for this is that errors in patient routing, resource allocation, or clinical event timing most frequently occur at these boundaries, rather than well within the safe ranges (@KLE2025).
+There are several techniques for verification that involve varying your model inputs. Some we cover below include:
 
-For example:
+* **Boundary value testing**
+* **Stress testing**
 
-* For a simulation of a screening programme for ages 18 to 75, you'd check:
-    * Patients below the minimum are rejected (17).
-    * Patients at/near the thresholds are accepted (18, 19, 74, 75).
-    * Patients above the maximum are rejected (76).
+We also mention overlap with:
 
-<br><div class="h2-tight"></div>
+* **Extreme input testing** (covered by boundary value testing).
+* **Invalid input testing** (overlaps with boundary value testing and assertion checking).
 
-* For a simulation of a hospital ward that can have 0 to 30 beds, you'd check:
-    * 31 patients - over capacity, no patients should be admitted.
-    * 0, 29, and 30 patients - empty ward or just at capacity, patients should be admitted.
+Finally, we mention running an **idle system** as an "unofficial" method (i.e., not covered by major simulation references for verification and validation like @Balci1998).
 
-<br><div class="h2-tight"></div>
+#### Boundary value testing
 
-* For a queue simulation where patients are able to wait 0 to 120 minutes, you'd check:
-    * Model doesn't let wait times go below zero (when patients have wait times of 0 and 1 minutes).
-    * Model triggers escalation like transferring patient or other relevant logic (when there are patients with wait times of 119, 120, and 121 minutes).
+Boundary value testing (BVT) is relevant for input variables with defined minimum and maximum limits (e.g., age restrictions, bed capacity). It involves running the model with parameters just inside, exactly at, and just outside parameter boundaries. The aim is to catch errors in patient routing, resource allocation or event timing, as these can occur more frequently at boundaries than when more safe ranges (@KLE2025, @Balci1998).
 
-<br><div class="h2-tight"></div>
+> **Note:** BVT specifically focuses on every boundary, not just the minimum and maximum values. This makes it more comprehensive, encompassing another type of verification called **extreme input testing** which just involves running minimum and maximum values. It can also overlap with **invalid input testing** when checking values that fall outside the minimum and maximum (@Balci1998).
 
-* For a model whether patients are triaged based on priority scores of 1 (low risk) to 5 (highest risk), you'd check:
-    * Invalid scores (0, 6) are not processed.
-    * Low risk (1) and high risk (5) patients are routed corectly.
+**Example 1: Multiple boundaries**
+
+Suppose a simulation model routes patients based on their triage risk scores from 0 to 5. For example:
+
+* Patients with score less than 2 go to Minor Injuries.
+* Patients with score from 2 to less than 4 go to Urgent Care.
+* Patients with scores of 4 to 5 inclusive go to Resuscitation.
+
+To check your routing logic, you would run boundary value tests using values just inside, exactly at, and just outside these thresholds:
+
+* -0.1, 0, 0.1 (boundary for Minor Injuries).
+* 1.9, 2, 2.1 (boundary between Minor Injuries and Urgent Care).
+* 3.9, 4, 4.1 (boundary between Urgent Care and Resuscitation).
+* 4.9, 5, 5.1 (upper limit for Resuscitation).
+
+**Example 2: Just minimum and maximum boundaries**
+
+Suppose we simulate a screening programme where patients are only eligible if their age is betwen 18 and 75 inclusive. Boundary value tests would check:
+
+* Patients below the minimum are rejected (17).
+* Patients at/near the thresholds are accepted (18, 19, 74, 75).
+* Patients above the maximum are rejected (76).
+
 
 ::: {.cream}
 
 **What does this mean in practice?**
 
-✔️ If you have relevant input variables, write boundary value tests (no examples of BVT, but see [test](tests.qmd) page for how to set-up a test).
+✔️ If you have input variables with explicit limits, design tests to check the behaviour at, just inside, and just outside each boundary.
+
+:::
+
+#### Stress testing
+
+Stress testing involves running your model under extremely demanding conditions. For example, with very high arrivals, limited resources, and/or long service times. The goal is to check that the system handles congestion/overload appropriately (@Balci1998):
+
+* Do patients queue correctly?
+* Does it respect resource constraints?
+* Do calculated performance measures remain valid (e.g., utilisation within 0-1).
+
+::: {.cream}
+
+**What does this mean in practice?**
+
+✔️ Write tests that simulate worst-case load and ensure model is robust under heavy demand (see [tests](tests.qmd) page).
+
+:::
+
+#### Idle system
+
+Though not an "official" verification method, it can be helpful to run your model under "empty" or "idle" conditions. For example, with very few arrivals, ample resources, and/or extremely short service times. This is essentially the opposite of stress testing. The goal is still to confirm that the system behaviours sensibly in these unusual conditions (e.g., are performance measures reasonable and valid).
+
+::: {.cream}
+
+**What does this mean in practice?**
+
+✔️ Write tests with little or no activity/waits/service (see [tests](tests.qmd) page).
+
+:::
+
+### Bottom-up testing
+
+Bottom-up testing means testing the smallest parts of your simulation code first, then gradually combining and testing them together as larger sections (@Balci1998). This helps ensure each part is working as intended, making it easier to pinpoint the source of bugs.
+
+::: {.cream}
+
+**What does this mean in practice?**
+
+✔️ Write unit tests for each individual component of your simulation model (see [tests](tests.qmd) page).
+
+✔️ Once individual parts work correctly, combine them and test how they interact. This can be via integration testing or functional testing (see [tests](tests.qmd) page).
 
 :::
 
@@ -172,22 +231,31 @@ When you make changes to your model, you should re-run your tests to ensure thos
 
 :::
 
-### Bottom-up testing
+## Methods for validation
+
+### Theoretical validation
+
+<!--the m/m/s mathematical models... comparison with known solutions theoretical analytical results-->
 
 ::: {.cream}
 
 **What does this mean in practice?**
 
-✔️ Write unit tests for each component of your simulation model (see [tests](tests.qmd) page).
-
-✔️ 
+<!--in reality, model will be too complex... but we did it for our m/m/s examples... so you can see, it validates them, if using as starting point... and you could do, if using as starting point... but when change model structure won't hold... but at least reassurance at early stage...-->
 
 :::
 
+### Face validity
 
-* bottom-up testing - @Balci1998 - Bottom-up testing is used in conjunction with bottom-up model development strategy. In bottomup development, model construction starts with the submodels at the base level (i.e., the ones that are not decomposed further) and culminates with the submodels at the highest level. As each submodel is completed, it is thoroughly tested. When submodels belonging to the same parent have been developed and tested, the submodels are integrated and integration testing is performed. This process is repeated in a bottom-up manner until the whole model has been integrated and tested. The integration of completed submodels need not wait for all “same level” submodels to be completed. Submodel integration and testing can be and often is, performed incrementally. [Sommerville 1996]
 
-<br><br><br>
+
+<br><br>
+
+## Guidelines
+
+there are guidelines...
+
+## Barriers to validation
 
 ## Explore the example models
 
