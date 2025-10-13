@@ -1,5 +1,7 @@
 ---
 title: GitHub actions
+filters:
+  - line-highlight
 ---
 
 :::: {.pale-blue}
@@ -185,6 +187,75 @@ Check out our example models (linked below) for a more complex example of this a
 ::: {.r-content}
 
 It also has a `test-coverage.yaml` action which runs tests with coverage, and updates the `codecov` coverage badge for the README.
+
+:::
+
+## Example: Test coverage
+
+::: {.python-content}
+
+The test action can be expanded to include a calculation of code coverage (proportion of code executed by tests), by running pytest with the `--cov` flag. Using `genbadge`, we can also create and upload a coverage badge displayed in the README.
+
+As we save the badge, the action needs **write** permissions. When the action runs, GitHub will generate a token `GITHUB_TOKEN` that is accessed using `${{ secrets.GITHUB_TOKEN}}` and allows the Actions bot to push the updated badge to the repository with each run.
+
+```{.yaml}
+name: tests
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  permissions: #<<
+    contents: write #<<
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install python and dependencies
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.13'
+          cache: 'pip'
+
+      - name: Install requirements
+        run: pip install -r requirements.txt
+
+      - name: Run tests with coverage #<<
+        run: pytest --cov --cov-report=xml #<<
+
+      - name: Generate coverage badge #<<
+        run: genbadge coverage -i coverage.xml -o images/coverage-badge.svg #<<
+
+      - name: Upload coverage badge #<<
+        uses: actions/upload-artifact@v4 #<<
+        with: #<<
+          name: coverage-badge #<<
+          path: images/coverage-badge.svg #<<
+
+      - name: Commit coverage badge #<<
+        run: | #<<
+          git config --local user.email "github-actions[bot]@users.noreply.github.com" #<<
+          git config --local user.name "github-actions[bot]" #<<
+          git add images/coverage-badge.svg #<<
+          git commit -m "ci(tests): update coverage badge" || echo "No changes to commit" #<<
+          git push #<<
+        env: #<<
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} #<<
+```
+
+:::
+
+::: {.r-content}
+
+<!-- R testthat covr CI
+1. usethis::use_github_action("test-coverage") (adds action, and badge to README)
+2. login to codecov with github. if repo is in organisation then need to click the button to add to apps, and authorise access to organisation. in codecov, can then switch to organisation from top left
+3. github repo > settings > secrets and variables > actions > new token and copy in the info
+4. run workflow -->
 
 :::
 
