@@ -8,7 +8,8 @@ title: ❌ Tests
 
 **Learning objectives:**
 
-* TODO
+* Understand how to write and run tests.
+* Explore examples of the types of test you can run for your simulation model.
 
 **Relevant reproducibility guidelines:**
 
@@ -27,6 +28,12 @@ This page will run tests on the model from [Replications](../output_analysis/rep
 #| echo: false
 ```
 
+```{r}
+#| file: "tests_resources/simulation.R"
+#| echo: false
+#| output: false
+```
+
 <br>
 
 Testing is the process of evaluating a model to ensure it works as expected, gives reliable results, and can handle different conditions. By **systematically checking for errors, inconsistencies, or unexpected behaviors**, testing helps improve the quality of a model, catch errors and prevent future issues. They can also be used to run test cases that check your results are consistent (i.e., that it is **reproducible**).
@@ -37,9 +44,9 @@ When you create a model, you will naturally carry out tests, with simple manual 
 
 <div class="h3-tight"></div>
 
-:::: {.python-content}
-
 ### Writing a basic test
+
+::: {.python-content}
 
 A popular framework for testing in python is **pytest**.
 
@@ -61,7 +68,32 @@ def test_positive():
     assert number > 0, "The number should be positive"
 ```
 
+:::
+
+::: {.r-content}
+
+A popular framework for testing in R is **testthat**.
+
+Each test uses the `test_that()` functions and is structured around expectations that check specific conditions (e.g., `expect_true()`, `expect_false()`, `expect_equal()`, `expect_error()` - see [package index](https://testthat.r-lib.org/reference/index.html) for more).
+
+Tests are typically stored in a folder called `tests/testthat`, and filenames start with the prefix `test_`. This naming convention allows `testthat` to automatically discover and run all tests in the folder.
+
+Here's an example of a simple test using testthat:
+
+```{r}
+library(testthat)
+
+test_that("Confirm that the number is positive", {
+  number <- 5
+  expect_true(number > 0)
+})
+```
+
+:::
+
 ### Running tests
+
+:::: {.python-content}
 
 Tests are typically run from the terminal. Commands include:
 
@@ -79,23 +111,30 @@ pytest.main(["tests_resources/test_example_simple.py"])
 
 :::
 
-### Parametrise
+::::
 
-We can execute the same test on different parameters using `pytest.mark.parametrize`.
+::: {.r-content}
+
+Tests are typically run from the R console. Commands include:
+
+* `testthat::test_dir()` - runs all tests in current directory (and sub-directories).
+* `testthat::test_file("tests/testthat/test-filename.R")` - run tests from a specific file.
+* `devtools::test()` - runs all tests in a package.
+
+When you run a test, you'll see output in the console indicating whether tests passed or failed.
+
+:::
+
+### Parametrised tests
+
+:::: {.python-content}
+
+We can execute the same test with different parameters using `pytest.mark.parametrize`.
 
 Here's an example:
 
 ```{python}
-@pytest.mark.parametrize("number", [1, 2, 3, -1])
-def test_positive_param(number):
-    """
-    Confirm that the number is positive.
-
-    Arguments:
-        number (float):
-            Number to check.
-    """
-    assert number > 0, f"The number {number} is not positive."
+#| file: "tests_resources/test_example_param.py"
 ```
 
 In this example, we're testing the same logic with four different values: `1`, `2`, `3`, and `-1`. The last value, `-1`, will cause the test to fail. The error message includes the failed value for easy debugging.
@@ -111,15 +150,25 @@ pytest.main(["tests_resources/test_example_param.py"])
 
 ::::
 
-:::: {.r-content}
+::: {.r-content}
 
-### Writing a basic test
+We can execute the same test with different parameters using the [patrick](https://github.com/google/patrick) package.
 
-A popular framework for testing in R is **testthat**.
+Here's an example:
 
-Each test in testthat is a...
+```{r}
+#| file: "tests_resources/test_example_param.R"
+#| eval: false
+```
 
-::::
+In this example, we're testing the same logic with four different values: `1`, `2`, `3`, and `-1`. The last value, `-1`, will cause the test to fail.
+
+```{r}
+#| echo: false
+testthat::test_file("tests_resources/test_example_param.R")
+```
+
+:::
 
 ## Testing the model
 
@@ -157,6 +206,30 @@ pytest.main(["tests_resources/test_functional.py"])
 
 ::: {.r-content}
 
+```{r}
+library(testthat)
+library(patrick)
+
+with_parameters_test_that("Test that adjusting parameters reduces arrivals", {
+  # Run model with initial value
+  init_param <- create_params(number_of_runs=1)
+  init_param[[param_name]] <- init_value
+  init_results <- runner(init_param)[["run_results"]]
+  
+  # Run model with adjusted value  
+  adj_param <- create_params(number_of_runs=1)
+  adj_param[[param_name]] <- adj_value
+  adj_results <- runner(adj_param)[["run_results"]]
+  
+  # Check that arrivals from adjusted model are less
+  expect_lt(adj_results[["arrivals"]], init_results[["arrivals"]])
+}, 
+cases(
+  list(param_name = "interarrival_time", init_value = 2, adj_value = 15),
+  list(param_name = "data_collection_period", init_value = 2000, adj_value = 500)
+))
+```
+
 :::
 
 ### Unit tests
@@ -185,6 +258,17 @@ pytest.main(["tests_resources/test_unit.py"])
 ::: {.r-content}
 
 ```{r}
+#| file: "tests_resources/test_unit.R"
+#| eval: false
+```
+
+These tests fail as we do not have error handling for these values. In fact, with inter-arrival time set to 0, the model will run infinitely and crash your computer! Hence the use of `withTimeout` in the test.
+
+To address this, we could add error handling which raises an error for users if they try to input a value of 0 (see the [parameter validation](../inputs/parameters_validation.qmd) page).
+
+```{r}
+#| echo: false
+testthat::test_file("tests_resources/test_unit.R")
 ```
 
 :::
@@ -214,6 +298,14 @@ param = Parameters(
 ::: {.r-content}
 
 ```{r}
+param <- create_params(
+  interarrival_time = 5L,
+  consultation_time = 10L,
+  number_of_doctors = 3L,
+  warm_up_period = 30L,
+  data_collection_period = 40L,
+  number_of_runs = 5L, verbose = FALSE
+)
 ```
 
 :::
@@ -235,6 +327,16 @@ results["overall"].to_csv("tests_resources/python_overall.csv", index=False)
 ::: {.r-content}
 
 ```{r}
+results <- runner(param)
+write.csv(arrange(results[["arrivals"]], replication, start_time),
+          file.path("tests_resources", "r_arrivals.csv"),
+          row.names=FALSE)
+write.csv(results[["resources"]],
+          file.path("tests_resources", "r_resources.csv"),
+          row.names=FALSE)
+write.csv(results[["run_results"]],
+          file.path("tests_resources", "r_run_results.csv"),
+          row.names=FALSE)
 ```
 
 :::
@@ -261,6 +363,7 @@ pytest.main(["tests_resources/test_back.py"])
 ::: {.r-content}
 
 ```{r}
+testthat::test_file("tests_resources/test_back.R")
 ```
 
 :::
@@ -295,9 +398,9 @@ It is crucial to exercise caution when doing this, to avoid unintentionally over
 
 ## Test coverage
 
-::: {.python-content}
-
 **Coverage** refers to the percentage of your code that is executed when you run your tests. It can help you spot parts of your code that are not included in any tests.
+
+::: {.python-content}
 
 The [pytest-cov](https://github.com/pytest-dev/pytest-cov) package can be used to run coverage calculations alongside pytest. After installing it, simply run tests with the `--cov` flag:
 
@@ -311,80 +414,61 @@ See the [GitHub actions](../style_docs/github_actions.qmd#example-test-coverage)
 
 ::: {.r-content}
 
-TODO
+<br>
+
+If your research is [structured as a package](../setup/package.qmd), then you can use `devtools` to calculate coverage:
+
+```{.r}
+devtools::test_coverage()
+```
+
+<br>
+
+If not structured as a package, you can use [covr](https://github.com/r-lib/covr)'s `file_coverage()` function - for example:
+
+```{.r}
+file_coverage(source_files = c("param.R", "model.R"),
+              test_files = c("test-unit.R", "test-back.R"))
+```
 
 :::
 
 ## Explore the example models
 
-<div class="h3-tight"></div>
-
-### Nurse visit simulation
-
-:::: {.python-content}
+::: {.python-content}
 
 {{< include ../../html/pydesrapmms.html >}}
 
-::: {.blue-table}
-| | |
-| - | - |
-| **Key files** | |
-| **What to look for?** | |
-| **Why it matters?** | |
-: {tbl-colwidths="[20,80]"}
+{{< include ../../html/pydesrapstroke.html >}}
+
+A wide variety of tests are available in the `tests/` folder.
+
+Data for back tests are generated within `notebooks/generate_exp_results.ipynb`.
+
+Tests are run and coverage are calculated on pushes to main via GitHub actions (`.github/workflows/tests.yaml`).
+
 :::
 
-::::
-
-:::: {.r-content}
+::: {.r-content}
 
 {{< include ../../html/rdesrapmms.html >}}
 
-::: {.blue-table}
-| | |
-| - | - |
-| **Key files** | |
-| **What to look for?** | |
-| **Why it matters?** | |
-: {tbl-colwidths="[20,80]"}
-:::
-
-::::
-
-### Stroke pathway simulation
-
-:::: {.python-content}
-
-{{< include ../../html/pydesrapstroke.html >}}
-
-::: {.blue-table}
-| | |
-| - | - |
-| **Key files** | |
-| **What to look for?** | |
-| **Why it matters?** | |
-: {tbl-colwidths="[20,80]"}
-:::
-
-::::
-
-:::: {.r-content}
-
 {{< include ../../html/rdesrapstroke.html >}}
 
-::: {.blue-table}
-| | |
-| - | - |
-| **Key files** | |
-| **What to look for?** | |
-| **Why it matters?** | |
-: {tbl-colwidths="[20,80]"}
-:::
+A wide variety of tests are available in the `tests/` folder.
 
-::::
+Data for back tests are generated within `notebooks/generate_exp_results.Rmd`.
+
+Tests are run via GitHub actions (`.github/workflows/R-CMD-check.yaml`) and a coverage badge is updated (`.github/workflows/test-coverage.yaml`).
+
+:::
 
 ## Test yourself
 
-<!--TODO-->
+**Write tests**! Look at **example models** for inspiration on what and how to test.
+
+Start writing tests **early**, and run them **often** to catch issues as you develop.
+
+Use **coverage** calculates to help you spot parts of you code not run in any tests.
 
 <br><br>
