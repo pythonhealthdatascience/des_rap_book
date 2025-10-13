@@ -2,5 +2,5 @@ library(patrick)
 library(testthat)
 
 with_parameters_test_that("Confirm that the number is positive", {
-  expect_true(number > 0)  
-}, number = c(1, 2, 3, -1))
+  expect_gt(number, 0L)
+}, number = c(1L, 2L, 3L, -1L))

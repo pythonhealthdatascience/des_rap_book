@@ -4,6 +4,11 @@ title: ❌ Tests
 
 {{< include ../../scripts/_reticulate-setup.md >}}
 
+```{python}
+#| echo: false
+# pylint: disable=undefined-variable
+```
+
 ::: {.pale-blue}
 
 **Learning objectives:**
@@ -84,8 +89,8 @@ Here's an example of a simple test using testthat:
 library(testthat)
 
 test_that("Confirm that the number is positive", {
-  number <- 5
-  expect_true(number > 0)
+  number <- 5L
+  expect_gt(number, 0L)
 })
 ```
 
@@ -165,7 +170,7 @@ In this example, we're testing the same logic with four different values: `1`, `
 
 ```{r}
 #| echo: false
-testthat::test_file("tests_resources/test_example_param.R")
+testthat::test_file(file.path("tests_resources", "test_example_param.R"))
 ```
 
 :::
@@ -212,21 +217,23 @@ library(patrick)
 
 with_parameters_test_that("Test that adjusting parameters reduces arrivals", {
   # Run model with initial value
-  init_param <- create_params(number_of_runs=1)
+  init_param <- create_params(number_of_runs = 1L)
   init_param[[param_name]] <- init_value
   init_results <- runner(init_param)[["run_results"]]
-  
-  # Run model with adjusted value  
-  adj_param <- create_params(number_of_runs=1)
+
+  # Run model with adjusted value
+  adj_param <- create_params(number_of_runs = 1L)
   adj_param[[param_name]] <- adj_value
   adj_results <- runner(adj_param)[["run_results"]]
-  
+
   # Check that arrivals from adjusted model are less
   expect_lt(adj_results[["arrivals"]], init_results[["arrivals"]])
-}, 
+},
 cases(
-  list(param_name = "interarrival_time", init_value = 2, adj_value = 15),
-  list(param_name = "data_collection_period", init_value = 2000, adj_value = 500)
+  list(param_name = "interarrival_time",
+       init_value = 2L, adj_value = 15L),
+  list(param_name = "data_collection_period",
+       init_value = 2000L, adj_value = 500L)
 ))
 ```
 
@@ -268,7 +275,7 @@ To address this, we could add error handling which raises an error for users if 
 
 ```{r}
 #| echo: false
-testthat::test_file("tests_resources/test_unit.R")
+testthat::test_file(file.path("tests_resources", "test_unit.R"))
 ```
 
 :::
@@ -330,13 +337,13 @@ results["overall"].to_csv("tests_resources/python_overall.csv", index=False)
 results <- runner(param)
 write.csv(arrange(results[["arrivals"]], replication, start_time),
           file.path("tests_resources", "r_arrivals.csv"),
-          row.names=FALSE)
+          row.names = FALSE)
 write.csv(results[["resources"]],
           file.path("tests_resources", "r_resources.csv"),
-          row.names=FALSE)
+          row.names = FALSE)
 write.csv(results[["run_results"]],
           file.path("tests_resources", "r_run_results.csv"),
-          row.names=FALSE)
+          row.names = FALSE)
 ```
 
 :::
@@ -363,7 +370,7 @@ pytest.main(["tests_resources/test_back.py"])
 ::: {.r-content}
 
 ```{r}
-testthat::test_file("tests_resources/test_back.R")
+testthat::test_file(file.path("tests_resources", "test_back.R"))
 ```
 
 :::
