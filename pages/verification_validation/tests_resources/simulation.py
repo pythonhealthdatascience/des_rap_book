@@ -1,8 +1,8 @@
 import numpy as np
 import pandas as pd
+import scipy.stats as st
 import simpy
 from sim_tools.distributions import Exponential
-import pytest
 
 
 class Parameters:

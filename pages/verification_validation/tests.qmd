@@ -22,6 +22,11 @@ This page will run tests on the model from [Replications](../output_analysis/rep
 
 :::
 
+```{python}
+#| file: "tests_resources/simulation.py"
+#| echo: false
+```
+
 <br>
 
 Testing is the process of evaluating a model to ensure it works as expected, gives reliable results, and can handle different conditions. By **systematically checking for errors, inconsistencies, or unexpected behaviors**, testing helps improve the quality of a model, catch errors and prevent future issues. They can also be used to run test cases that check your results are consistent (i.e., that it is **reproducible**).
@@ -139,7 +144,7 @@ For example, we expect that the number of arrivals should decrease if:
 {{< include tests_resources/test_functional.py >}}
 ```
 
-:::{.callout-note icon=false collapse="true" title="Test output"}
+:::{.callout-note icon=false title="Test output"}
 
 ```{python}
 #| echo: false
@@ -158,54 +163,22 @@ pytest.main(["tests_resources/test_functional.py"])
 
 Unit tests are a type of functional testing that focuses on individual components (e.g. methods, classes) and tests them in isolation to ensure they work as intended.
 
-For example, the `test_negative_inputs` checks that the model fails when inappropriate inputs are used - here, when:
-
-* The patient inter-arrival time is set to 0.
-* The mean length of a doctor's consultation is set to 0.
-* The number of runs is set to 0.
-
-we expect that our model should fail if the number of doctors or the patient inter-arrival time were set to 0. This is tested using `test_zero_inputs`.
+For example, we expect that our model should fail if the number of doctors or the patient inter-arrival time were set to 0. This is tested using `test_zero_inputs`:
 
 :::: {.python-content}
 
 ```{python}
-@pytest.mark.parametrize("param_name, value, rule", [
-    ("patient_inter", 0, "positive"),
-    ("mean_n_consult_time", 0, "positive"),
-    ("number_of_runs", 0, "positive"),
-    ("audit_interval", 0, "positive"),
-    ("number_of_nurses", 0, "positive"),
-    ("warm_up_period", -1, "non_negative"),
-    ("data_collection_period", -1, "non_negative")
-])
-def test_negative_inputs(param_name, value, rule):
-    """
-    Check that the model fails when inputs that are zero or negative are used.
-
-    Parameters
-    ----------
-    param_name : str
-        Name of parameter to change in the Param() class.
-    value : float|int
-        Invalid value for parameter.
-    rule : str
-        Either "positive" (if value must be > 0) or "non-negative" (if
-        value must be >= 0).
-    """
-    # Create parameter class with an invalid value
-    param = Param(**{param_name: value})
-
-    # Construct the expected error message
-    if rule == "positive":
-        expected_message = f"Parameter '{param_name}' must be greater than 0."
-    else:
-        expected_message = (f"Parameter '{param_name}' must be greater than " +
-                            "or equal to 0.")
-
-    # Verify that initialising the model raises the correct error
-    with pytest.raises(ValueError, match=expected_message):
-        Model(param=param, run_number=0)
+#| file: "tests_resources/test_unit.py"
 ```
+
+:::{.callout-note icon=false title="Test output"}
+
+```{python}
+#| echo: false
+pytest.main(["tests_resources/test_unit.py"])
+```
+
+:::
 
 ::::
 
@@ -225,6 +198,15 @@ First, we'll generate a set of expected results, with a specific set of paramete
 ::: {.python-content}
 
 ```{python}
+param = Parameters(
+    interarrival_time=5,
+    consultation_time=10,
+    number_of_doctors=3,
+    warm_up_period=30,
+    data_collection_period=40,
+    number_of_runs=5,
+    verbose=False
+)
 ```
 
 :::
@@ -241,6 +223,11 @@ We'll then run the model and save the results to `.csv` files.
 ::: {.python-content}
 
 ```{python}
+runner = Runner(param=param)
+results = runner.run_reps()
+results["patient"].to_csv("tests_resources/python_patient.csv", index=False)
+results["run"].to_csv("tests_resources/python_run.csv", index=False)
+results["overall"].to_csv("tests_resources/python_overall.csv", index=False)
 ```
 
 :::
@@ -254,12 +241,22 @@ We'll then run the model and save the results to `.csv` files.
 
 In the test, we'll run the same model parameters, then import and compare against the saved `.csv` file to check for any differences.
 
-::: {.python-content}
+:::: {.python-content}
 
 ```{python}
+#| file: "tests_resources/test_back.py"
+```
+
+:::{.callout-note icon=false title="Test output"}
+
+```{python}
+#| echo: false
+pytest.main(["tests_resources/test_back.py"])
 ```
 
 :::
+
+::::
 
 ::: {.r-content}
 
@@ -270,27 +267,27 @@ In the test, we'll run the same model parameters, then import and compare agains
 
 ::: {.python-content}
 
-We generate the expected results for our backtest in a seperate Python file or Jupyter notebook, rather than within the test itself.
+We generate the expected results for our backtest in a **seperate Python file or Jupyter notebook**, rather than within the test itself.
 
 :::
 
 ::: {.r-content}
 
-We generate the expected results for our backtest in a seperate R file or R markdown file, rather than within the test itself.
+We generate the expected results for our backtest in a **seperate R file or R markdown file**, rather than within the test itself.
 
 :::
 
-We then would generally run tests using the same pre-generated `.csv` files, without regenerating them. However, the test will fail if the model logic is intentionally changed, leading to different results from the same parameters.
+We then would generally run tests using the same pre-generated `.csv` files, without regenerating them. However, the test will **fail if the model logic is intentionally changed**, leading to different results from the same parameters.
 
 ::: {.python-content}
 
-In that case, if we are certain that these changes are the reason for differing results, we should re-run the Python file or notebook to regenerate the `.csv`.
+In that case, if we are **certain** that these changes are the reason for differing results, we should re-run the Python file or notebook to regenerate the `.csv`.
 
 :::
 
 ::: {.r-content}
 
-In that case, if we are certain that these changes are the reason for differing results, we should re-run the R file or R markdown file to regenerate the `.csv`.
+In that case, if we are **certain** that these changes are the reason for differing results, we should re-run the R file or R markdown file to regenerate the `.csv`.
 
 :::
 
