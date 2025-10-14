@@ -7,6 +7,11 @@ bibliography: length_warmup_resources/references.bib
 
 {{< include ../../scripts/_reticulate-setup.md >}}
 
+```{python}
+#| echo: false
+# pylint: disable=undefined-variable,unused-import
+```
+
 :::: {.pale-blue}
 
 **Learning objectives:**
@@ -27,10 +32,11 @@ These should be available from environment setup in the "Test yourself" section 
 ::: {.python-content}
 
 ```{python}
+import os
+
 from IPython.display import HTML
 from itables import to_html_datatable
 import numpy as np
-import os
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
@@ -173,11 +179,13 @@ def time_series_inspection(result, file_path, warm_up=None):
         .mean()
         .reset_index(level=0, drop=True)
     )
-    
+
     # Overall cumulative mean (across all runs)
     result_overall = result.sort_values("arrival_time")
-    result_overall["overall_cumulative_mean"] = result_overall["wait_time"].expanding().mean()
-    
+    result_overall["overall_cumulative_mean"] = (
+        result_overall["wait_time"].expanding().mean()
+    )
+
     # Plot: all individual runs as light lines, overall as dark line
     fig = go.Figure()
 
@@ -186,7 +194,7 @@ def time_series_inspection(result, file_path, warm_up=None):
             x=df_run["arrival_time"],
             y=df_run["cumulative_mean"],
             mode="lines",
-            line=dict(color="lightblue", width=1),
+            line={"color": "lightblue", "width": 1},
             opacity=0.7,
             name=f"Run {run}",
             showlegend=False
@@ -196,7 +204,7 @@ def time_series_inspection(result, file_path, warm_up=None):
         x=result_overall["arrival_time"],
         y=result_overall["overall_cumulative_mean"],
         mode="lines",
-        line=dict(color="darkblue", width=3),
+        line={"color": "darkblue", "width": 3},
         name="Overall"
     ))
 
@@ -213,11 +221,7 @@ def time_series_inspection(result, file_path, warm_up=None):
             y0=ymin,
             x1=warm_up,
             y1=ymax,
-            line=dict(
-                color="red",
-                width=2,
-                dash="dash"
-            ),
+            line={"color": "red", "width": 2, "dash": "dash"},
             xref="x",
             yref="y"
         )
@@ -226,7 +230,7 @@ def time_series_inspection(result, file_path, warm_up=None):
             y=ymax,
             text="Suggested warm-up length",
             showarrow=False,
-            font=dict(color="red"),
+            font={"color": "red"},
             yanchor="top",
             xanchor="left"
         )
@@ -480,18 +484,18 @@ As mention above, we have used multiple replications (`number_of_runs = 5`) and 
 ```{python}
 # Run model with base parameters for 5 replications with no warm-up and
 # long data collection period, keeping the patient-level results
-param = Parameters(warm_up_period = 0,
-                   data_collection_period = 100000,
-                   number_of_runs = 5)
+param = Parameters(warm_up_period=0,
+                   data_collection_period=100000,
+                   number_of_runs=5)
 runner = Runner(param)
 results = runner.run_reps()["patient"]
 
 # Provide to time_series_inspection() function
 time_series_inspection(
-  result = results,
-  file_path = os.path.join("length_warmup_resources",
-                           "python_length_warmup.png"),
-  warm_up = 15000
+  result=results,
+  file_path=os.path.join("length_warmup_resources",
+                         "python_length_warmup.png"),
+  warm_up=15000
 )
 ```
 

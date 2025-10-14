@@ -372,7 +372,7 @@ class Runner:
         overall_results_df = pd.DataFrame(uncertainty_metrics)
 
         return {
-            "patient": patient_results_df, 
-            "run": run_results_df, 
+            "patient": patient_results_df,
+            "run": run_results_df,
             "overall": overall_results_df
         }
