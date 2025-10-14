@@ -163,8 +163,10 @@ class Patient:
     ----------
     patient_id : int
         Unique patient identifier.
+    arrival_time : float
+            Time patient entered the system (minutes).
     """
-    def __init__(self, patient_id):
+    def __init__(self, patient_id, arrival_time):
         """
         Initialises a new patient.
 
@@ -172,8 +174,11 @@ class Patient:
         ----------
         patient_id : int
             Unique patient identifier.
+        arrival_time : float
+            Time patient entered the system (minutes).
         """
         self.patient_id = patient_id
+        self.arrival_time = arrival_time
 ```
 
 :::
@@ -438,7 +443,8 @@ class Model:
             yield self.env.timeout(sampled_iat)
 
             # Create a new patient
-            patient = Patient(patient_id=len(self.patients)+1)
+            patient = Patient(patient_id=len(self.patients)+1,
+                              arrival_time=self.env.now)
             self.patients.append(patient)
 
             # Log arrival time#<<
@@ -861,7 +867,8 @@ class Model:
             yield self.env.timeout(sampled_iat)
 
             # Create a new patient
-            patient = Patient(patient_id=len(self.patients)+1)
+            patient = Patient(patient_id=len(self.patients)+1,
+                              arrival_time=self.env.now)
             self.patients.append(patient)
 
             # Log arrival time
@@ -1297,7 +1304,8 @@ class Model:
             yield self.env.timeout(sampled_iat)
 
             # Create a new patient
-            patient = Patient(patient_id=len(self.patients)+1)
+            patient = Patient(patient_id=len(self.patients)+1,
+                              arrival_time=self.env.now)
             self.patients.append(patient)
 
             # Log arrival time

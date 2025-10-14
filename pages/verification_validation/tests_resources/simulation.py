@@ -70,10 +70,12 @@ class Patient:
         Unique patient identifier.
     period : str
         Arrival period (warm up or data collection) with emoji.
+    arrival_time : float
+        Time patient entered the system (minutes).
     wait_time : float
         Time spent waiting for the doctor (minutes).
     """
-    def __init__(self, patient_id, period):
+    def __init__(self, patient_id, period, arrival_time):
         """
         Initialises a new patient.
 
@@ -83,9 +85,12 @@ class Patient:
             Unique patient identifier.
         period : str
             Arrival period (warm up or data collection) with emoji.
+        arrival_time : float
+            Time patient entered the system (minutes).
         """
         self.patient_id = patient_id
         self.period = period
+        self.arrival_time = arrival_time
         self.wait_time = np.nan
 
 
@@ -165,13 +170,14 @@ class Model:
 
             # Create a new patient
             patient = Patient(patient_id=len(self.patients)+1,
-                              period=period)
+                              period=period,
+                              arrival_time=self.env.now)
             self.patients.append(patient)
 
             # Print arrival time
             if self.param.verbose:
                 print(f"{patient.period} Patient {patient.patient_id} " +
-                      f"arrives at time: {self.env.now:.3f}")
+                      f"arrives at time: {patient.arrival_time:.3f}")
 
             # Start process of consultation
             self.env.process(self.consultation(patient))

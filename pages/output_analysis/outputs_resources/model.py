@@ -74,13 +74,14 @@ class Model:
 
             # Create a new patient
             patient = Patient(patient_id=len(self.patients)+1,
-                              period=period)
+                              period=period,
+                              arrival_time=self.env.now)
             self.patients.append(patient)
 
             # Print arrival time
             if self.param.verbose:
                 print(f"{patient.period} Patient {patient.patient_id} " +
-                      f"arrives at time: {self.env.now:.3f}")
+                      f"arrives at time: {patient.arrival_time:.3f}")
 
             # Start process of consultation
             self.env.process(self.consultation(patient))
