@@ -510,10 +510,12 @@ class Patient:
         Unique patient identifier.
     period : str
         Arrival period (warm up or data collection) with emoji.
+    arrival_time : float
+        Time patient entered the system (minutes).
     wait_time : float#<<
         Time spent waiting for the doctor (minutes).#<<
     """
-    def __init__(self, patient_id, period):
+    def __init__(self, patient_id, period, arrival_time):
         """
         Initialises a new patient.
 
@@ -523,9 +525,12 @@ class Patient:
             Unique patient identifier.
         period : str
             Arrival period (warm up or data collection) with emoji.
+        arrival_time : float
+            Time patient entered the system (minutes).
         """
         self.patient_id = patient_id
         self.period = period
+        self.arrival_time = arrival_time
         self.wait_time = np.nan#<<
 ```
 
@@ -610,13 +615,14 @@ class Model:
 
             # Create a new patient
             patient = Patient(patient_id=len(self.patients)+1,
-                              period=period)
+                              period=period,
+                              arrival_time=self.env.now)
             self.patients.append(patient)
 
             # Print arrival time
             if self.param.verbose:
                 print(f"{patient.period} Patient {patient.patient_id} " +
-                      f"arrives at time: {self.env.now:.3f}")
+                      f"arrives at time: {patient.arrival_time:.3f}")
 
             # Start process of consultation
             self.env.process(self.consultation(patient))
@@ -1298,13 +1304,14 @@ class Model:
 
             # Create a new patient
             patient = Patient(patient_id=len(self.patients)+1,
-                              period=period)
+                              period=period,
+                              arrival_time=self.env.now)
             self.patients.append(patient)
 
             # Print arrival time
             if self.param.verbose:
                 print(f"{patient.period} Patient {patient.patient_id} " +
-                      f"arrives at time: {self.env.now:.3f}")
+                      f"arrives at time: {patient.arrival_time:.3f}")
 
             # Start process of consultation
             self.env.process(self.consultation(patient))
@@ -1464,7 +1471,7 @@ class Runner:
 
 :::
 
-While this method introduces a **new class** and may initially seem **harder to grasp**, it has the advantage of requiring **fewer changes** to the rest of the simulation code.
+While this method introduces a **new class** and may initially seem **harder to grasp**, it has the advantage of requiring **fewer changes** to the rest of the simulation code. It is also handy for [choosing the length of the warm-up period](length_warmup.qmd), as it provides you with utilisation at each timepoint (rather than a final overall utilisation).
 
 ::: {.callout title="▶&nbsp;&nbsp;View how to record utilisation (time-weighted approach)" collapse="true"}
 
@@ -2464,7 +2471,7 @@ kable(result[["run_results"]])
 
 ### Patient class
 
-We create two new attributes for recording the `arrival_time` and `end_time` of each patient.
+We create a new attribute for recording the `end_time` of each patient.
 
 ```{python}
 class Patient:
@@ -2477,12 +2484,12 @@ class Patient:
         Unique patient identifier.
     period : str
         Arrival period (warm up or data collection) with emoji.
-    arrival_time : float#<<
-        Time that patient arrives (minutes).#<<
+    arrival_time : float
+        Time patient entered the system (minutes).
     end_time : float#<<
         Time that patient leaves (minutes), or NaN if remain in system.#<<
     """
-    def __init__(self, patient_id, period):
+    def __init__(self, patient_id, period, arrival_time):
         """
         Initialises a new patient.
 
@@ -2492,16 +2499,18 @@ class Patient:
             Unique patient identifier.
         period : str
             Arrival period (warm up or data collection) with emoji.
+        arrival_time : float
+            Time patient entered the system (minutes).
         """
         self.patient_id = patient_id
         self.period = period
-        self.arrival_time = np.nan#<<
+        self.arrival_time = arrival_time
         self.end_time = np.nan#<<
 ```
 
 ### Model class
 
-For each patient, the time when they arrive is now stored as their `arrival_time`, and the time at the end of their consultation is recorded as their `end_time`.
+For each patient, the time at the end of their consultation is recorded as their `end_time`.
 
 ```{python}
 class Model:
@@ -2580,14 +2589,14 @@ class Model:
 
             # Create a new patient
             patient = Patient(patient_id=len(self.patients)+1,
-                              period=period)
+                              period=period,
+                              arrival_time=self.env.now)
             self.patients.append(patient)
 
-            # Record and print the arrival time#<<
-            patient.arrival_time = self.env.now#<<
+            # Print the arrival time
             if self.param.verbose:
                 print(f"{patient.period} Patient {patient.patient_id} " +
-                      f"arrives at time: {patient.arrival_time:.3f}")#<<
+                      f"arrives at time: {patient.arrival_time:.3f}")
 
             # Start process of consultation
             self.env.process(self.consultation(patient))
@@ -2881,7 +2890,7 @@ No changes required.
 We introduce three new attributes:
 
 * `area_n_in_system` - a list storing the area under the curve for the number of patients in the system over time.
-* `time_last_n_in_system` - records last time the number-in-system statistic was updated
+* `time_last_n_in_system` - a list recording the last time the number-in-system statistic was updated
 * `n_in_system` - maintains current count of patients (whether waiting or being served)
 
 When a patient arrives or leaves, we call a new `update_n_in_system(inc)` method. This:
@@ -2915,8 +2924,8 @@ class Model:
     area_n_in_system : list of float#<<
         List containing incremental area contributions used for time-weighted
         statistics of the number of patients in the system.
-    time_last_n_in_system : float#<<
-        Simulation time at last update of the number-in-system statistic.#<<
+    time_last_n_in_system : list#<<
+        List containing time of last update to the number-in-system.#<<
     n_in_system: int#<<
         Current number of patients present in the system, including#<<
         waiting and being served.#<<
@@ -2955,7 +2964,7 @@ class Model:
         self.patients = []
         self.results_list = []
         self.area_n_in_system = [0]#<<
-        self.time_last_n_in_system = self.env.now#<<
+        self.time_last_n_in_system = [self.env.now]#<<
         self.n_in_system = 0#<<
 
         # Initialise distributions
@@ -2974,10 +2983,10 @@ class Model:
             Change in the number of patients (+1, 0, -1).#<<
         """#<<
         # Compute time since last event and calculate area under curve for that#<<
-        duration = self.env.now - self.time_last_n_in_system#<<
+        duration = self.env.now - self.time_last_n_in_system[-1]#<<
         self.area_n_in_system.append(self.n_in_system * duration)#<<
         # Update time and n in system#<<
-        self.time_last_n_in_system = self.env.now#<<
+        self.time_last_n_in_system.append(self.env.now)#<<
         self.n_in_system += inc#<<
 
     def generate_arrivals(self):
@@ -2997,7 +3006,8 @@ class Model:
 
             # Create a new patient
             patient = Patient(patient_id=len(self.patients)+1,
-                              period=period)
+                              period=period,
+                              arrival_time=self.env.now)
             self.patients.append(patient)
 
             # Update the number in the system#<<
@@ -3006,7 +3016,7 @@ class Model:
             # Print arrival time
             if self.param.verbose:
                 print(f"{patient.period} Patient {patient.patient_id} " +
-                      f"arrives at time: {self.env.now:.3f}")
+                      f"arrives at time: {patient.arrival_time:.3f}")
 
             # Start process of consultation
             self.env.process(self.consultation(patient))
@@ -3043,7 +3053,7 @@ class Model:
         # For number in system, we reset area and time but not the count, as#<<
         # it should include any remaining warm-up patients in the count#<<
         self.area_n_in_system = [0]#<<
-        self.time_last_n_in_system = self.env.now#<<
+        self.time_last_n_in_system = [self.env.now]#<<
 
     def warmup(self):
         """
@@ -3444,12 +3454,12 @@ class Patient:
         Unique patient identifier.
     period : str
         Arrival period (warm up or data collection) with emoji.
-    arrival_time : float#<<
-        Time that patient arrives (minutes).#<<
+    arrival_time : float
+        Time patient entered the system (minutes).
     time_with_doctor : float#<<
         Time spent in consultation with a doctor (minutes).#<<
     """
-    def __init__(self, patient_id, period):
+    def __init__(self, patient_id, period, arrival_time):
         """
         Initialises a new patient.
 
@@ -3459,10 +3469,12 @@ class Patient:
             Unique patient identifier.
         period : str
             Arrival period (warm up or data collection) with emoji.
+        arrival_time : float
+            Time patient entered the system (minutes).
         """
         self.patient_id = patient_id
         self.period = period
-        self.arrival_time = np.nan#<<
+        self.arrival_time = arrival_time
         self.time_with_doctor = np.nan#<<
 ```
 
@@ -3550,7 +3562,8 @@ class Model:
 
             # Create a new patient
             patient = Patient(patient_id=len(self.patients)+1,
-                              period=period)
+                              period=period,
+                              arrival_time=self.env.now)
             self.patients.append(patient)
 
             # Record and print the arrival time#<<

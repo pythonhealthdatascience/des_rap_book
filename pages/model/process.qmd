@@ -112,8 +112,10 @@ class Patient:
     ----------
     patient_id : int
         Unique patient identifier.
+    arrival_time : float
+        Time patient entered the system (minutes).
     """
-    def __init__(self, patient_id):
+    def __init__(self, patient_id, arrival_time):
         """
         Initialises a new patient.
 
@@ -121,8 +123,11 @@ class Patient:
         ----------
         patient_id : int
             Unique patient identifier.
+        arrival_time : float
+            Time patient entered the system (minutes).
         """
         self.patient_id = patient_id
+        self.arrival_time = arrival_time
 ```
 
 ### Model class
@@ -196,13 +201,14 @@ class Model:
             yield self.env.timeout(sampled_iat)
 
             # Create a new patient
-            patient = Patient(patient_id=len(self.patients)+1)
+            patient = Patient(patient_id=len(self.patients)+1,
+                              arrival_time=self.env.now)
             self.patients.append(patient)
 
             # Print arrival time
             if self.param.verbose:
                 print(f"Patient {patient.patient_id} arrives " +
-                      f"at time: {self.env.now:.3f}")
+                      f"at time: {patient.arrival_time:.3f}")
 
             # Start process of consultation#<<
             self.env.process(self.consultation(patient))#<<

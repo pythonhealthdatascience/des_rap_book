@@ -122,7 +122,7 @@ class Parameters:
 
 We'll create a class to represent patients. Classes are useful as they can keep track of state and group logic (see [Code organisation](../setup/code_structure.qmd) page for more).
 
-For now, this will just have one attribute: `patient_id`. However, when we start tracking [Performance measures](../output_analysis/outputs.qmd), this class will be modified to store other attributes useful for output analysis.
+For now, this will just have two attributes: `patient_id` and `arrival_time`. However, when we start tracking [Performance measures](../output_analysis/outputs.qmd), this class will be modified to store other attributes useful for output analysis.
 
 ```{python}
 class Patient:
@@ -133,8 +133,10 @@ class Patient:
     ----------
     patient_id : int
         Unique patient identifier.
+    arrival_time : float
+        Time patient entered the system (minutes).
     """
-    def __init__(self, patient_id):
+    def __init__(self, patient_id, arrival_time):
         """
         Initialises a new patient.
 
@@ -142,8 +144,11 @@ class Patient:
         ----------
         patient_id : int
             Unique patient identifier.
+        arrival_time : float
+            Time patient entered the system (minutes).
         """
         self.patient_id = patient_id
+        self.arrival_time = arrival_time
 ```
 
 ### Model class
@@ -208,13 +213,14 @@ class Model:
             yield self.env.timeout(sampled_iat)
 
             # Create a new patient
-            patient = Patient(patient_id=len(self.patients)+1)
+            patient = Patient(patient_id=len(self.patients)+1,
+                              arrival_time=self.env.now)
             self.patients.append(patient)
 
             # Print arrival time
             if self.param.verbose:
                 print(f"Patient {patient.patient_id} arrives " +
-                      f"at time: {self.env.now:.3f}")
+                      f"at time: {patient.arrival_time:.3f}")
 
     def run(self):
         """
@@ -323,11 +329,12 @@ The statement `yield self.env.timeout(sampled_iat)` is how the simulation waits 
 
 ```{.python}
 # Create a new patient
-patient = Patient(patient_id=len(self.patients)+1)
+patient = Patient(patient_id=len(self.patients)+1,
+                  arrival_time=self.env.now)
 self.patients.append(patient)
 ```
 
-Create an instance of the `Patient` class for each arrival, with a `patient_id`.
+Create an instance of the `Patient` class for each arrival, with a `patient_id` and `arrival_time`.
 
 <br>
 
@@ -335,7 +342,7 @@ Create an instance of the `Patient` class for each arrival, with a `patient_id`.
 # Print arrival time
 if self.param.verbose:
     print(f"Patient {patient.patient_id} arrives " +
-          f"at time: {self.env.now:.3f}")
+          f"at time: {patient.arrival_time:.3f}")
 ```
 
 Printing the time of each arrival gives a quick and visible check that the arrival process is working as expected. For now, simple print statements are effective, but this can later be replaced by a more sophisticated logging approach (see [Logging](logs.qmd)).
@@ -642,13 +649,14 @@ class Model:
             yield self.env.timeout(sampled_iat)
 
             # Create a new patient
-            patient = Patient(patient_id=len(self.patients)+1)
+            patient = Patient(patient_id=len(self.patients)+1,
+                              arrival_time=self.env.now)
             self.patients.append(patient)
 
             # Print arrival time
             if self.param.verbose:
                 print(f"Patient {patient.patient_id} arrives " +
-                      f"at time: {self.env.now:.3f}")
+                      f"at time: {patient.arrival_time:.3f}")
 
     def run(self):
         """

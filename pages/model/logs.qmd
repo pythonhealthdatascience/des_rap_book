@@ -6,6 +6,11 @@ filters:
 
 {{< include ../../scripts/_reticulate-setup.md >}}
 
+```{python}
+#| echo: false
+# pylint: disable=unexpected-keyword-arg,no-value-for-parameter
+```
+
 :::: {.pale-blue}
 
 **Learning objectives:**
@@ -32,9 +37,10 @@ These should be available from environment setup in the "Test yourself" section 
 
 ```{python}
 import logging
-import numpy as np
 import os
 from pprint import pformat
+
+import numpy as np
 from rich.logging import RichHandler
 from rich.console import Console
 import simpy
@@ -157,8 +163,10 @@ class Patient:
     ----------
     patient_id : int
         Unique patient identifier.
+    arrival_time : float
+            Time patient entered the system (minutes).
     """
-    def __init__(self, patient_id):
+    def __init__(self, patient_id, arrival_time):
         """
         Initialises a new patient.
 
@@ -166,8 +174,11 @@ class Patient:
         ----------
         patient_id : int
             Unique patient identifier.
+        arrival_time : float
+            Time patient entered the system (minutes).
         """
         self.patient_id = patient_id
+        self.arrival_time = arrival_time
 ```
 
 :::
@@ -432,7 +443,8 @@ class Model:
             yield self.env.timeout(sampled_iat)
 
             # Create a new patient
-            patient = Patient(patient_id=len(self.patients)+1)
+            patient = Patient(patient_id=len(self.patients)+1,
+                              arrival_time=self.env.now)
             self.patients.append(patient)
 
             # Log arrival time#<<
@@ -855,7 +867,8 @@ class Model:
             yield self.env.timeout(sampled_iat)
 
             # Create a new patient
-            patient = Patient(patient_id=len(self.patients)+1)
+            patient = Patient(patient_id=len(self.patients)+1,
+                              arrival_time=self.env.now)
             self.patients.append(patient)
 
             # Log arrival time
@@ -1291,7 +1304,8 @@ class Model:
             yield self.env.timeout(sampled_iat)
 
             # Create a new patient
-            patient = Patient(patient_id=len(self.patients)+1)
+            patient = Patient(patient_id=len(self.patients)+1,
+                              arrival_time=self.env.now)
             self.patients.append(patient)
 
             # Log arrival time
