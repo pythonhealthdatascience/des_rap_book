@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>❌ Tests – Reproducible Discrete-Event Simulation in Python and R</title>
+<title>Tests – Reproducible Discrete-Event Simulation in Python and R</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -65,8 +65,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../../">
-<link href="../../pages/verification_validation/validation.html" rel="next">
-<link href="../../pages/experiments/full_run.html" rel="prev">
+<link href="../../pages/style_docs/linting.html" rel="next">
+<link href="../../pages/verification_validation/verification_validation.html" rel="prev">
 <link href="../../images/stars_logo_blue.png" rel="icon" type="image/png">
 <script src="../../site_libs/cookie-consent/cookie-consent.js"></script>
 <link href="../../site_libs/cookie-consent/cookie-consent.css" rel="stylesheet">
@@ -175,7 +175,7 @@ cookieconsent.run({
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../pages/verification_validation/tests.html">Verification &amp; validation</a></li><li class="breadcrumb-item"><a href="../../pages/verification_validation/tests.html">❌ Tests</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../pages/verification_validation/verification_validation.html">Verification &amp; validation</a></li><li class="breadcrumb-item"><a href="../../pages/verification_validation/tests.html">Tests</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -406,6 +406,12 @@ cookieconsent.run({
  <span class="menu-text">Number of replications</span></a>
   </div>
 </li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../pages/output_analysis/length_warmup.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Length of warm-up</span></a>
+  </div>
+</li>
       </ul>
   </li>
         <li class="sidebar-item sidebar-item-section">
@@ -448,14 +454,14 @@ cookieconsent.run({
       <ul id="quarto-sidebar-section-8" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/verification_validation/tests.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text">❌ Tests</span></a>
+  <a href="../../pages/verification_validation/verification_validation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Verification and validation</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/verification_validation/validation.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">❌ Validation</span></a>
+  <a href="../../pages/verification_validation/tests.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Tests</span></a>
   </div>
 </li>
       </ul>
@@ -548,6 +554,7 @@ cookieconsent.run({
   <ul class="collapse">
   <li><a href="#introduction-to-writing-and-running-tests" id="toc-introduction-to-writing-and-running-tests" class="nav-link active" data-scroll-target="#introduction-to-writing-and-running-tests">Introduction to writing and running tests</a></li>
   <li><a href="#testing-the-model" id="toc-testing-the-model" class="nav-link" data-scroll-target="#testing-the-model">Testing the model</a></li>
+  <li><a href="#test-coverage" id="toc-test-coverage" class="nav-link" data-scroll-target="#test-coverage">Test coverage</a></li>
   <li><a href="#explore-the-example-models" id="toc-explore-the-example-models" class="nav-link" data-scroll-target="#explore-the-example-models">Explore the example models</a></li>
   <li><a href="#test-yourself" id="toc-test-yourself" class="nav-link" data-scroll-target="#test-yourself">Test yourself</a></li>
   </ul>
@@ -556,9 +563,9 @@ cookieconsent.run({
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../pages/verification_validation/tests.html">Verification &amp; validation</a></li><li class="breadcrumb-item"><a href="../../pages/verification_validation/tests.html">❌ Tests</a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../pages/verification_validation/verification_validation.html">Verification &amp; validation</a></li><li class="breadcrumb-item"><a href="../../pages/verification_validation/tests.html">Tests</a></li></ol></nav>
 <div class="quarto-title">
-<h1 class="title">❌ Tests</h1>
+<h1 class="title">Tests</h1>
 </div>
 
 
@@ -583,62 +590,80 @@ Note: When a Quarto document just contains Python code blocks (and no R code), Q
 <div class="pale-blue">
 <p><strong>Learning objectives:</strong></p>
 <ul>
-<li>TODO</li>
+<li>Understand how to write and run tests.</li>
+<li>Explore examples of the types of test you can run for your simulation model.</li>
 </ul>
 <p><strong>Relevant reproducibility guidelines:</strong></p>
 <ul>
 <li>NHS Levels of RAP (🥈): Pipeline includes a testing framework (unit tests, back tests).</li>
 </ul>
 <p><strong>Pre-reading:</strong></p>
-<p>TODO</p>
-<p><strong>Required packages:</strong></p>
-<p>These should be available from environment setup in the “Test yourself” section of <a href="../../pages/setup/environment.html">Environments</a>.</p>
-<div class="python-content">
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> simpy</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sim_tools.distributions <span class="im">import</span> Exponential</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pytest</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>This page will run tests on the model from <a href="../../pages/output_analysis/replications.html">Replications</a> (which has two performance measures: total arrivals and mean wait time).</p>
+<blockquote class="blockquote">
+<p><em>Entity generation → Entity processing → Initialisation bias → Performance measures → Replications → Tests</em></p>
+</blockquote>
 </div>
-</div>
-<div class="r-content">
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(simmer)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-</div>
-</div>
-<!-- R testthat covr CI
-1. usethis::use_github_action("test-coverage") (adds action, and badge to README)
-2. login to codecov with github. if repo is in organisation then need to click the button to add to apps, and authorise access to organisation. in codecov, can then switch to organisation from top left
-3. github repo > settings > secrets and variables > actions > new token and copy in the info
-4. run workflow -->
 <p><br></p>
-<p>Testing is the process of evaluating a model to ensure it works as expected, gives reliable results, and can handle different conditions. By <strong>systematically checking for errors, inconsistencies, or unexpected behaviors</strong>, testing helps improve the quality of a model, catch errors and prevent future issues.</p>
+<p>Testing is the process of evaluating a model to ensure it works as expected, gives reliable results, and can handle different conditions. By <strong>systematically checking for errors, inconsistencies, or unexpected behaviors</strong>, testing helps improve the quality of a model, catch errors and prevent future issues. They can also be used to run test cases that check your results are consistent (i.e., that it is <strong>reproducible</strong>).</p>
 <p>When you create a model, you will naturally carry out tests, with simple manual checks where you observe outputs and ensure they look right. These checks can be formalised and <strong>automated</strong> so that you can run them after any changes, and catch any issues that arise.</p>
 <section id="introduction-to-writing-and-running-tests" class="level2">
 <h2 class="anchored" data-anchor-id="introduction-to-writing-and-running-tests">Introduction to writing and running tests</h2>
 <div class="h3-tight">
 
 </div>
-<div class="python-content">
 <section id="writing-a-basic-test" class="level3">
 <h3 class="anchored" data-anchor-id="writing-a-basic-test">Writing a basic test</h3>
+<div class="python-content">
 <p>A popular framework for testing in python is <strong>pytest</strong>.</p>
 <p>Each test in pytest is a function that contains an assertion statement to check a condition (e.g., <code>number &gt; 0</code>). If the condition fails, pytest will return an error message (e.g.&nbsp;“The number should be positive”).</p>
 <p>Test are typically stored in a folder called <code>tests/</code>, and filenames start with the prefix <code>test_</code>. This naming convention allows pytest to automatically discover and run all the tests in the folder.</p>
 <p>Here’s an example of a simple test using pytest:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> test_positive():</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co">    Confirm that the number is positive.</span></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    number <span class="op">=</span> <span class="dv">5</span></span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> number <span class="op">&gt;</span> <span class="dv">0</span>, <span class="st">"The number should be positive"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pytest</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> test_positive():</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co">    Confirm that the number is positive.</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    number <span class="op">=</span> <span class="dv">5</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> number <span class="op">&gt;</span> <span class="dv">0</span>, <span class="st">"The number should be positive"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</div>
+<div class="r-content">
+<p>A popular framework for testing in R is <strong>testthat</strong>.</p>
+<p>Each test uses the <code>test_that()</code> functions and is structured around expectations that check specific conditions (e.g., <code>expect_true()</code>, <code>expect_false()</code>, <code>expect_equal()</code>, <code>expect_error()</code> - see <a href="https://testthat.r-lib.org/reference/index.html">package index</a> for more).</p>
+<p>Tests are typically stored in a folder called <code>tests/testthat</code>, and filenames start with the prefix <code>test_</code>. This naming convention allows <code>testthat</code> to automatically discover and run all tests in the folder.</p>
+<p>Here’s an example of a simple test using testthat:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(testthat)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'testthat'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following object is masked from 'package:tidyr':
+
+    matches</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following object is masked from 'package:dplyr':
+
+    matches</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">test_that</span>(<span class="st">"Confirm that the number is positive"</span>, {</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  number <span class="ot">&lt;-</span> <span class="dv">5</span>L</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">expect_gt</span>(number, <span class="dv">0</span>L)</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Test passed 🥇</code></pre>
+</div>
+</div>
 </div>
 </section>
 <section id="running-tests" class="level3">
 <h3 class="anchored" data-anchor-id="running-tests">Running tests</h3>
+<div class="python-content">
 <p>Tests are typically run from the terminal. Commands include:</p>
 <ul>
 <li><code>pytest</code> - runs all tests.</li>
@@ -671,22 +696,36 @@ tests_resources/test_example_simple.py .                                 [100%]
 </div>
 </div>
 </div>
+</div>
+<div class="r-content">
+<p>Tests are typically run from the R console. Commands include:</p>
+<ul>
+<li><code>testthat::test_dir()</code> - runs all tests in current directory (and sub-directories).</li>
+<li><code>testthat::test_file("tests/testthat/test-filename.R")</code> - run tests from a specific file.</li>
+<li><code>devtools::test()</code> - runs all tests in a package.</li>
+</ul>
+<p>When you run a test, you’ll see output in the console indicating whether tests passed or failed.</p>
+</div>
 </section>
-<section id="parametrise" class="level3">
-<h3 class="anchored" data-anchor-id="parametrise">Parametrise</h3>
-<p>We can execute the same test on different parameters using <code>pytest.mark.parametrize</code>.</p>
+<section id="parametrised-tests" class="level3">
+<h3 class="anchored" data-anchor-id="parametrised-tests">Parametrised tests</h3>
+<div class="python-content">
+<p>We can execute the same test with different parameters using <code>pytest.mark.parametrize</code>.</p>
 <p>Here’s an example:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="at">@pytest.mark.parametrize</span>(<span class="st">"number"</span>, [<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="op">-</span><span class="dv">1</span>])</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> test_positive_param(number):</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co">    Confirm that the number is positive.</span></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="co">    Arguments:</span></span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="co">        number (float):</span></span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="co">            Number to check.</span></span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> number <span class="op">&gt;</span> <span class="dv">0</span>, <span class="ss">f"The number </span><span class="sc">{</span>number<span class="sc">}</span><span class="ss"> is not positive."</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pytest</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="at">@pytest.mark.parametrize</span>(<span class="st">"number"</span>, [<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="op">-</span><span class="dv">1</span>])</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> test_positive_param(number):</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="co">    Confirm that the number is positive.</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="co">    Arguments:</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="co">        number (float):</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="co">            Number to check.</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> number <span class="op">&gt;</span> <span class="dv">0</span>, <span class="ss">f"The number </span><span class="sc">{</span>number<span class="sc">}</span><span class="ss"> is not positive."</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>In this example, we’re testing the same logic with four different values: <code>1</code>, <code>2</code>, <code>3</code>, and <code>-1</code>. The last value, <code>-1</code>, will cause the test to fail. The error message includes the failed value for easy debugging.</p>
 <div class="callout callout-style-default callout-note no-icon callout-titled" title="Test output:">
@@ -737,11 +776,42 @@ assert -1 &gt; 0
 </div>
 </div>
 </div>
-</section>
 </div>
 <div class="r-content">
-
+<p>We can execute the same test with different parameters using the <a href="https://github.com/google/patrick">patrick</a> package.</p>
+<p>Here’s an example:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(patrick)</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(testthat)</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="fu">with_parameters_test_that</span>(<span class="st">"Confirm that the number is positive"</span>, {</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">expect_gt</span>(number, <span class="dv">0</span>L)</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>}, <span class="at">number =</span> <span class="fu">c</span>(<span class="dv">1</span>L, <span class="dv">2</span>L, <span class="dv">3</span>L, <span class="sc">-</span><span class="dv">1</span>L))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
+<p>In this example, we’re testing the same logic with four different values: <code>1</code>, <code>2</code>, <code>3</code>, and <code>-1</code>. The last value, <code>-1</code>, will cause the test to fail.</p>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>
+══ Testing test_example_param.R ════════════════════════════════════════════════
+
+[ FAIL 0 | WARN 0 | SKIP 0 | PASS 0 ]
+[ FAIL 0 | WARN 0 | SKIP 0 | PASS 1 ]
+[ FAIL 0 | WARN 0 | SKIP 0 | PASS 2 ]
+[ FAIL 0 | WARN 0 | SKIP 0 | PASS 3 ]
+[ FAIL 1 | WARN 0 | SKIP 0 | PASS 3 ]
+
+── Failure ('test_example_param.R:5:3'): Confirm that the number is positive number=-1 ──
+`number` is not strictly more than 0L. Difference: -1
+Backtrace:
+    ▆
+ 1. ├─rlang::eval_tidy(code, args)
+ 2. └─testthat::expect_gt(number, 0L) at test_example_param.R:5:3
+
+[ FAIL 1 | WARN 0 | SKIP 0 | PASS 3 ]</code></pre>
+</div>
+</div>
+</div>
+</section>
 </section>
 <section id="testing-the-model" class="level2">
 <h2 class="anchored" data-anchor-id="testing-the-model">Testing the model</h2>
@@ -754,147 +824,439 @@ assert -1 &gt; 0
 <section id="functional-tests" class="level3">
 <h3 class="anchored" data-anchor-id="functional-tests">Functional tests</h3>
 <p>Functional tests verify that the system or components perform their intended functionality.</p>
-<p>For example, we expect that the mean wait time for a doctor should decrease if:</p>
+<p>For example, we expect that the number of arrivals should decrease if:</p>
 <ul>
-<li>The number of doctors increases.</li>
-<li>The patient inter-arrival time increases (so there are fewer arrivals).</li>
-<li>The length of the doctor consultation decreases.</li>
+<li>The patient inter-arrival time increases.</li>
+<li>The length of the data collection period decreases.</li>
 </ul>
 <div class="python-content">
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pytest</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> simulation <span class="im">import</span> Parameters, Runner</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="at">@pytest.mark.parametrize</span>(<span class="st">"param_name, initial_value, adjusted_value"</span>, [</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"interarrival_time"</span>, <span class="dv">2</span>, <span class="dv">15</span>),</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"data_collection_period"</span>, <span class="dv">2000</span>, <span class="dv">500</span>)</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>])</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> test_arrivals_decrease(param_name, initial_value, adjusted_value):</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a><span class="co">    Test that adjusting parameters reduces the number of arrivals as expected.</span></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Run model with initial value</span></span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>    param <span class="op">=</span> Parameters(<span class="op">**</span>{param_name: initial_value})</span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>    experiment <span class="op">=</span> Runner(param)</span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>    initial_arrivals <span class="op">=</span> experiment.run_single(run<span class="op">=</span><span class="dv">0</span>)[<span class="st">"run"</span>][<span class="st">"arrivals"</span>]</span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Run model with adjusted value</span></span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>    param <span class="op">=</span> Parameters(<span class="op">**</span>{param_name: adjusted_value})</span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>    experiment <span class="op">=</span> Runner(param)</span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>    adjusted_arrivals <span class="op">=</span> experiment.run_single(run<span class="op">=</span><span class="dv">0</span>)[<span class="st">"run"</span>][<span class="st">"arrivals"</span>]</span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Check that arrivals from adjusted model are less</span></span>
+<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> initial_arrivals <span class="op">&gt;</span> adjusted_arrivals, (</span>
+<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a>        <span class="ss">f'Changing "</span><span class="sc">{</span>param_name<span class="sc">}</span><span class="ss">" from </span><span class="sc">{</span>initial_value<span class="sc">}</span><span class="ss"> to </span><span class="sc">{</span>adjusted_value<span class="sc">}</span><span class="ss"> '</span> <span class="op">+</span></span>
+<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a>        <span class="st">"did not decrease the number of arrivals as expected: observed "</span> <span class="op">+</span></span>
+<span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a>        <span class="ss">f"</span><span class="sc">{</span>initial_arrivals<span class="sc">}</span><span class="ss"> and </span><span class="sc">{</span>adjusted_arrivals<span class="sc">}</span><span class="ss"> arrivals, respectively."</span></span>
+<span id="cb13-28"><a href="#cb13-28" aria-hidden="true" tabindex="-1"></a>    )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="callout callout-style-default callout-note no-icon callout-titled" title="Test output">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Test output
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>============================= test session starts ==============================
+platform linux -- Python 3.11.9, pytest-8.4.1, pluggy-1.6.0
+rootdir: /__w/des_rap_book/des_rap_book/pages/verification_validation
+plugins: anyio-4.11.0, timeout-2.4.0
+collected 2 items
 
+tests_resources/test_functional.py ..                                    [100%]
+
+============================== 2 passed in 0.02s ===============================
+&lt;ExitCode.OK: 0&gt;</code></pre>
+</div>
+</div>
+</div>
+</div>
 </div>
 <div class="r-content">
-
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(testthat)</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(patrick)</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="fu">with_parameters_test_that</span>(<span class="st">"Test that adjusting parameters reduces arrivals"</span>, {</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Run model with initial value</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>  init_param <span class="ot">&lt;-</span> <span class="fu">create_params</span>(<span class="at">number_of_runs =</span> <span class="dv">1</span>L)</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>  init_param[[param_name]] <span class="ot">&lt;-</span> init_value</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>  init_results <span class="ot">&lt;-</span> <span class="fu">runner</span>(init_param)[[<span class="st">"run_results"</span>]]</span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Run model with adjusted value</span></span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>  adj_param <span class="ot">&lt;-</span> <span class="fu">create_params</span>(<span class="at">number_of_runs =</span> <span class="dv">1</span>L)</span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>  adj_param[[param_name]] <span class="ot">&lt;-</span> adj_value</span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>  adj_results <span class="ot">&lt;-</span> <span class="fu">runner</span>(adj_param)[[<span class="st">"run_results"</span>]]</span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Check that arrivals from adjusted model are less</span></span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">expect_lt</span>(adj_results[[<span class="st">"arrivals"</span>]], init_results[[<span class="st">"arrivals"</span>]])</span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>},</span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a><span class="fu">cases</span>(</span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="at">param_name =</span> <span class="st">"interarrival_time"</span>,</span>
+<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a>       <span class="at">init_value =</span> <span class="dv">2</span>L, <span class="at">adj_value =</span> <span class="dv">15</span>L),</span>
+<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="at">param_name =</span> <span class="st">"data_collection_period"</span>,</span>
+<span id="cb15-22"><a href="#cb15-22" aria-hidden="true" tabindex="-1"></a>       <span class="at">init_value =</span> <span class="dv">2000</span>L, <span class="at">adj_value =</span> <span class="dv">500</span>L)</span>
+<span id="cb15-23"><a href="#cb15-23" aria-hidden="true" tabindex="-1"></a>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Test passed 🥇
+Test passed 🥇</code></pre>
+</div>
+</div>
 </div>
 </section>
+<section id="unit-tests" class="level3">
+<h3 class="anchored" data-anchor-id="unit-tests">Unit tests</h3>
+<p>Unit tests are a type of functional testing that focuses on individual components (e.g.&nbsp;methods, classes) and tests them in isolation to ensure they work as intended.</p>
+<p>For example, we expect that our model should fail if the number of doctors or the patient inter-arrival time were set to 0. This is tested using <code>test_zero_inputs</code>:</p>
+<div class="python-content">
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pytest</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> simulation <span class="im">import</span> Parameters, Model</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a><span class="at">@pytest.mark.parametrize</span>(<span class="st">"param_name, message"</span>, [</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"number_of_doctors"</span>, <span class="st">'"capacity" must be &gt; 0.'</span>),</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>    (<span class="st">"interarrival_time"</span>, <span class="st">"mean must be positive, got 0"</span>)</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>])</span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> test_zero_inputs(param_name, message):</span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a><span class="co">    Check that the model fails when inputs that are zero are used.</span></span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a><span class="co">    Parameters</span></span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a><span class="co">    ----------</span></span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a><span class="co">    param_name : str</span></span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a><span class="co">        Name of parameter to change in the parameter class.</span></span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a><span class="co">    message : str</span></span>
+<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a><span class="co">        Error message that expect to see.</span></span>
+<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Create parameter class with value set to zero</span></span>
+<span id="cb17-21"><a href="#cb17-21" aria-hidden="true" tabindex="-1"></a>    param <span class="op">=</span> Parameters(<span class="op">**</span>{param_name: <span class="dv">0</span>})</span>
+<span id="cb17-22"><a href="#cb17-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-23"><a href="#cb17-23" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Verify that initialising the model raises an error</span></span>
+<span id="cb17-24"><a href="#cb17-24" aria-hidden="true" tabindex="-1"></a>    <span class="cf">with</span> pytest.raises(<span class="pp">ValueError</span>, match<span class="op">=</span>message):</span>
+<span id="cb17-25"><a href="#cb17-25" aria-hidden="true" tabindex="-1"></a>        Model(param<span class="op">=</span>param, run_number<span class="op">=</span><span class="dv">0</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="callout callout-style-default callout-note no-icon callout-titled" title="Test output">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Test output
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>============================= test session starts ==============================
+platform linux -- Python 3.11.9, pytest-8.4.1, pluggy-1.6.0
+rootdir: /__w/des_rap_book/des_rap_book/pages/verification_validation
+plugins: anyio-4.11.0, timeout-2.4.0
+collected 2 items
+
+tests_resources/test_unit.py ..                                          [100%]
+
+============================== 2 passed in 0.01s ===============================
+&lt;ExitCode.OK: 0&gt;</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="r-content">
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(patrick)</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(R.utils)</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(testthat)</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a><span class="fu">with_parameters_test_that</span>(<span class="st">"Check that model fails with zero inputs"</span>, {</span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Create parameter object with value set to zero</span></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>  param <span class="ot">&lt;-</span> <span class="fu">create_params</span>()</span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>  param[[param_name]] <span class="ot">&lt;-</span> <span class="dv">0</span>L</span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Verify that initialising the model raises an error</span></span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">expect_error</span>(</span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">withTimeout</span>(</span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>      <span class="fu">model</span>(<span class="at">param =</span> param, <span class="at">run_number =</span> <span class="dv">0</span>L),</span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a>      <span class="at">timeout =</span> <span class="dv">3</span>L,</span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a>      <span class="at">onTimeout =</span> <span class="st">"error"</span></span>
+<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a>    <span class="st">"must be greater than 0"</span></span>
+<span id="cb19-18"><a href="#cb19-18" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb19-19"><a href="#cb19-19" aria-hidden="true" tabindex="-1"></a>}, <span class="at">param_name =</span> <span class="fu">c</span>(<span class="st">"number_of_doctors"</span>, <span class="st">"interarrival_time"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>These tests fail as we do not have error handling for these values. In fact, with inter-arrival time set to 0, the model will run infinitely and crash your computer! Hence the use of <code>withTimeout</code> in the test.</p>
+<p>To address this, we could add error handling which raises an error for users if they try to input a value of 0 (see the <a href="../../pages/inputs/parameters_validation.html">parameter validation</a> page).</p>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>
+══ Testing test_unit.R ═════════════════════════════════════════════════════════
+
+[ FAIL 0 | WARN 0 | SKIP 0 | PASS 0 ]
+[ FAIL 1 | WARN 0 | SKIP 0 | PASS 0 ]
+[ FAIL 2 | WARN 0 | SKIP 0 | PASS 0 ]
+
+── Failure ('test_unit.R:11:3'): Check that model fails with zero inputs param_name=number_of_doctors ──
+`withTimeout(...)` threw an error with unexpected message.
+Expected match: "must be greater than 0"
+Actual message: "ℹ In argument: `wait_time = .data[[\"serve_start\"]] -\n  .data[[\"start_time\"]]`.\nCaused by error in `.data[[\"serve_start\"]]`:\n! Column `serve_start` not found in `.data`."
+Backtrace:
+    ▆
+ 1. ├─rlang::eval_tidy(code, args)
+ 2. └─testthat::expect_error(...) at test_unit.R:11:3
+
+── Error ('test_unit.R:11:3'): Check that model fails with zero inputs param_name=interarrival_time ──
+&lt;subscriptOutOfBoundsError/error/condition&gt;
+Error in `.subset2(cnd, "rlang")`: subscript out of bounds
+Backtrace:
+     ▆
+  1. ├─rlang::eval_tidy(code, args)
+  2. ├─testthat::expect_error(...) at test_unit.R:11:3
+  3. │ └─testthat:::quasi_capture(...) at testthat/R/expect-condition.R:126:5
+  4. │   ├─testthat (local) .capture(...) at testthat/R/quasi-label.R:54:3
+  5. │   │ └─base::withCallingHandlers(...) at testthat/R/deprec-condition.R:23:5
+  6. │   └─rlang::eval_bare(quo_get_expr(.quo), quo_get_env(.quo)) at testthat/R/quasi-label.R:54:3
+  7. ├─R.utils::withTimeout(...) at rlang/R/eval.R:96:3
+  8. │ └─base::tryCatch(...) at R.utils/R/withTimeout.R:149:3
+  9. │   └─base (local) tryCatchList(expr, classes, parentenv, handlers)
+ 10. │     └─base (local) tryCatchOne(expr, names, parentenv, handlers[[1L]])
+ 11. │       └─value[[3L]](cond)
+ 12. │         ├─R.oo::throw(ex) at R.utils/R/withTimeout.R:159:9
+ 13. │         └─R.oo::throw.Exception(ex) at staging/1/R.oo:1:14
+ 14. │           └─base::signalCondition(this) at R.oo/R/Exception.R:313:3
+ 15. └─testthat (local) `&lt;fn&gt;`(`&lt;TmtExcpt&gt;`)
+ 16.   └─rlang::cnd_entrace(cnd) at testthat/R/deprec-condition.R:7:7
+ 17.     └─rlang:::cnd_some(cnd, function(x) !is_null(x[["trace"]])) at rlang/R/cnd-entrace.R:242:3
+
+[ FAIL 2 | WARN 0 | SKIP 0 | PASS 0 ]</code></pre>
+</div>
+</div>
+</div>
+</section>
+<section id="back-tests" class="level3">
+<h3 class="anchored" data-anchor-id="back-tests">Back tests</h3>
+<p>Back tests check that the model code produces results consistent with those generated historically/from prior code.</p>
+<p>First, we’ll generate a set of expected results, with a specific set of parameters. Although this may seem unnecessary in this case, as they match our default parameters, these are still specified to ensure that we are testing on the same parameters, even if defaults change.</p>
+<div class="python-content">
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>param <span class="op">=</span> Parameters(</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>    interarrival_time<span class="op">=</span><span class="dv">5</span>,</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>    consultation_time<span class="op">=</span><span class="dv">10</span>,</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>    number_of_doctors<span class="op">=</span><span class="dv">3</span>,</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>    warm_up_period<span class="op">=</span><span class="dv">30</span>,</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>    data_collection_period<span class="op">=</span><span class="dv">40</span>,</span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>    number_of_runs<span class="op">=</span><span class="dv">5</span>,</span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>    verbose<span class="op">=</span><span class="va">False</span></span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</div>
+<div class="r-content">
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>param <span class="ot">&lt;-</span> <span class="fu">create_params</span>(</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">interarrival_time =</span> <span class="dv">5</span>L,</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">consultation_time =</span> <span class="dv">10</span>L,</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">number_of_doctors =</span> <span class="dv">3</span>L,</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">warm_up_period =</span> <span class="dv">30</span>L,</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">data_collection_period =</span> <span class="dv">40</span>L,</span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">number_of_runs =</span> <span class="dv">5</span>L, <span class="at">verbose =</span> <span class="cn">FALSE</span></span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</div>
+<p>We’ll then run the model and save the results to <code>.csv</code> files.</p>
+<div class="python-content">
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>runner <span class="op">=</span> Runner(param<span class="op">=</span>param)</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>results <span class="op">=</span> runner.run_reps()</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>results[<span class="st">"patient"</span>].to_csv(<span class="st">"tests_resources/python_patient.csv"</span>, index<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>results[<span class="st">"run"</span>].to_csv(<span class="st">"tests_resources/python_run.csv"</span>, index<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>results[<span class="st">"overall"</span>].to_csv(<span class="st">"tests_resources/python_overall.csv"</span>, index<span class="op">=</span><span class="va">False</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</div>
+<div class="r-content">
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>results <span class="ot">&lt;-</span> <span class="fu">runner</span>(param)</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="fu">write.csv</span>(<span class="fu">arrange</span>(results[[<span class="st">"arrivals"</span>]], replication, start_time),</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>          <span class="fu">file.path</span>(<span class="st">"tests_resources"</span>, <span class="st">"r_arrivals.csv"</span>),</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>          <span class="at">row.names =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a><span class="fu">write.csv</span>(results[[<span class="st">"resources"</span>]],</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>          <span class="fu">file.path</span>(<span class="st">"tests_resources"</span>, <span class="st">"r_resources.csv"</span>),</span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>          <span class="at">row.names =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a><span class="fu">write.csv</span>(results[[<span class="st">"run_results"</span>]],</span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>          <span class="fu">file.path</span>(<span class="st">"tests_resources"</span>, <span class="st">"r_run_results.csv"</span>),</span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a>          <span class="at">row.names =</span> <span class="cn">FALSE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</div>
+<p>In the test, we’ll run the same model parameters, then import and compare against the saved <code>.csv</code> file to check for any differences.</p>
+<div class="python-content">
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pathlib <span class="im">import</span> Path</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> simulation <span class="im">import</span> Parameters, Runner</span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> test_reproduction():</span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a><span class="co">    Check that results from particular run of the model match those</span></span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a><span class="co">    previously generated using the code.</span></span>
+<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Define model parameters</span></span>
+<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a>    param <span class="op">=</span> Parameters(</span>
+<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a>        interarrival_time<span class="op">=</span><span class="dv">5</span>,</span>
+<span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a>        consultation_time<span class="op">=</span><span class="dv">10</span>,</span>
+<span id="cb25-16"><a href="#cb25-16" aria-hidden="true" tabindex="-1"></a>        number_of_doctors<span class="op">=</span><span class="dv">3</span>,</span>
+<span id="cb25-17"><a href="#cb25-17" aria-hidden="true" tabindex="-1"></a>        warm_up_period<span class="op">=</span><span class="dv">30</span>,</span>
+<span id="cb25-18"><a href="#cb25-18" aria-hidden="true" tabindex="-1"></a>        data_collection_period<span class="op">=</span><span class="dv">40</span>,</span>
+<span id="cb25-19"><a href="#cb25-19" aria-hidden="true" tabindex="-1"></a>        number_of_runs<span class="op">=</span><span class="dv">5</span>,</span>
+<span id="cb25-20"><a href="#cb25-20" aria-hidden="true" tabindex="-1"></a>        verbose<span class="op">=</span><span class="va">False</span></span>
+<span id="cb25-21"><a href="#cb25-21" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb25-22"><a href="#cb25-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-23"><a href="#cb25-23" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Run simulation</span></span>
+<span id="cb25-24"><a href="#cb25-24" aria-hidden="true" tabindex="-1"></a>    runner <span class="op">=</span> Runner(param<span class="op">=</span>param)</span>
+<span id="cb25-25"><a href="#cb25-25" aria-hidden="true" tabindex="-1"></a>    results <span class="op">=</span> runner.run_reps()</span>
+<span id="cb25-26"><a href="#cb25-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-27"><a href="#cb25-27" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Import expected results</span></span>
+<span id="cb25-28"><a href="#cb25-28" aria-hidden="true" tabindex="-1"></a>    exp_patient <span class="op">=</span> pd.read_csv(</span>
+<span id="cb25-29"><a href="#cb25-29" aria-hidden="true" tabindex="-1"></a>        Path(<span class="va">__file__</span>).parent.joinpath(<span class="st">"python_patient.csv"</span>)</span>
+<span id="cb25-30"><a href="#cb25-30" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb25-31"><a href="#cb25-31" aria-hidden="true" tabindex="-1"></a>    exp_run <span class="op">=</span> pd.read_csv(</span>
+<span id="cb25-32"><a href="#cb25-32" aria-hidden="true" tabindex="-1"></a>        Path(<span class="va">__file__</span>).parent.joinpath(<span class="st">"python_run.csv"</span>)</span>
+<span id="cb25-33"><a href="#cb25-33" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb25-34"><a href="#cb25-34" aria-hidden="true" tabindex="-1"></a>    exp_overall <span class="op">=</span> pd.read_csv(</span>
+<span id="cb25-35"><a href="#cb25-35" aria-hidden="true" tabindex="-1"></a>        Path(<span class="va">__file__</span>).parent.joinpath(<span class="st">"python_overall.csv"</span>)</span>
+<span id="cb25-36"><a href="#cb25-36" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb25-37"><a href="#cb25-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-38"><a href="#cb25-38" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Compare results</span></span>
+<span id="cb25-39"><a href="#cb25-39" aria-hidden="true" tabindex="-1"></a>    pd.testing.assert_frame_equal(results[<span class="st">"patient"</span>], exp_patient)</span>
+<span id="cb25-40"><a href="#cb25-40" aria-hidden="true" tabindex="-1"></a>    pd.testing.assert_frame_equal(results[<span class="st">"run"</span>], exp_run)</span>
+<span id="cb25-41"><a href="#cb25-41" aria-hidden="true" tabindex="-1"></a>    pd.testing.assert_frame_equal(</span>
+<span id="cb25-42"><a href="#cb25-42" aria-hidden="true" tabindex="-1"></a>        results[<span class="st">"overall"</span>].reset_index(drop<span class="op">=</span><span class="va">True</span>), exp_overall</span>
+<span id="cb25-43"><a href="#cb25-43" aria-hidden="true" tabindex="-1"></a>    )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="callout callout-style-default callout-note no-icon callout-titled" title="Test output">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Test output
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>============================= test session starts ==============================
+platform linux -- Python 3.11.9, pytest-8.4.1, pluggy-1.6.0
+rootdir: /__w/des_rap_book/des_rap_book/pages/verification_validation
+plugins: anyio-4.11.0, timeout-2.4.0
+collected 1 item
+
+tests_resources/test_back.py .                                           [100%]
+
+============================== 1 passed in 0.02s ===============================
+&lt;ExitCode.OK: 0&gt;</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="r-content">
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>testthat<span class="sc">::</span><span class="fu">test_file</span>(<span class="fu">file.path</span>(<span class="st">"tests_resources"</span>, <span class="st">"test_back.R"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+══ Testing test_back.R ═════════════════════════════════════════════════════════
+
+[ FAIL 0 | WARN 0 | SKIP 0 | PASS 0 ]
+[ FAIL 0 | WARN 0 | SKIP 0 | PASS 1 ]
+[ FAIL 0 | WARN 0 | SKIP 0 | PASS 2 ]
+[ FAIL 0 | WARN 0 | SKIP 0 | PASS 3 ] Done!</code></pre>
+</div>
+</div>
+</div>
+<div class="python-content">
+<p>We generate the expected results for our backtest in a <strong>seperate Python file or Jupyter notebook</strong>, rather than within the test itself.</p>
+</div>
+<div class="r-content">
+<p>We generate the expected results for our backtest in a <strong>seperate R file or R markdown file</strong>, rather than within the test itself.</p>
+</div>
+<p>We then would generally run tests using the same pre-generated <code>.csv</code> files, without regenerating them. However, the test will <strong>fail if the model logic is intentionally changed</strong>, leading to different results from the same parameters.</p>
+<div class="python-content">
+<p>In that case, if we are <strong>certain</strong> that these changes are the reason for differing results, we should re-run the Python file or notebook to regenerate the <code>.csv</code>.</p>
+</div>
+<div class="r-content">
+<p>In that case, if we are <strong>certain</strong> that these changes are the reason for differing results, we should re-run the R file or R markdown file to regenerate the <code>.csv</code>.</p>
+</div>
+<p>It is crucial to exercise caution when doing this, to avoid unintentionally overwriting correct expected results.</p>
+</section>
+</section>
+<section id="test-coverage" class="level2">
+<h2 class="anchored" data-anchor-id="test-coverage">Test coverage</h2>
+<p><strong>Coverage</strong> refers to the percentage of your code that is executed when you run your tests. It can help you spot parts of your code that are not included in any tests.</p>
+<div class="python-content">
+<p>The <a href="https://github.com/pytest-dev/pytest-cov">pytest-cov</a> package can be used to run coverage calculations alongside pytest. After installing it, simply run tests with the <code>--cov</code> flag:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb29"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pytest</span> <span class="at">--cov</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>See the <a href="../../pages/style_docs/github_actions.html#example-test-coverage">GitHub actions</a> page for guidance on generating a coverage badge for your README within CI/CD.</p>
+</div>
+<div class="r-content">
+<p><br></p>
+<p>If your research is <a href="../../pages/setup/package.html">structured as a package</a>, then you can use <code>devtools</code> to calculate coverage:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">test_coverage</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><br></p>
+<p>If not structured as a package, you can use <a href="https://github.com/r-lib/covr">covr</a>’s <code>file_coverage()</code> function - for example:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">file_coverage</span>(<span class="at">source_files =</span> <span class="fu">c</span>(<span class="st">"param.R"</span>, <span class="st">"model.R"</span>),</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>              <span class="at">test_files =</span> <span class="fu">c</span>(<span class="st">"test-unit.R"</span>, <span class="st">"test-back.R"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
 </section>
 <section id="explore-the-example-models" class="level2">
 <h2 class="anchored" data-anchor-id="explore-the-example-models">Explore the example models</h2>
-<div class="h3-tight">
-
-</div>
-<section id="nurse-visit-simulation" class="level3">
-<h3 class="anchored" data-anchor-id="nurse-visit-simulation">Nurse visit simulation</h3>
 <div class="python-content">
 <p><a href="https://github.com/pythonhealthdatascience/pydesrap_mms" target="_blank" style="text-decoration: none;"> <span style="display: inline-flex; align-items: center; background: #1d7898;
   color: #fff; border-radius: 20px; padding: 0.4em 1em; font-weight: 600;
   gap: 0.5em;"> <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/github.svg" alt="GitHub" width="20" height="20" style="filter: brightness(0)
     invert(1);"> Click to visit pydesrap_mms repository </span> </a></p>
-<div class="blue-table">
-<table class="caption-top table">
-<colgroup>
-<col style="width: 20%">
-<col style="width: 80%">
-</colgroup>
-<tbody>
-<tr class="odd">
-<td><strong>Key files</strong></td>
-<td></td>
-</tr>
-<tr class="even">
-<td><strong>What to look for?</strong></td>
-<td></td>
-</tr>
-<tr class="odd">
-<td><strong>Why it matters?</strong></td>
-<td></td>
-</tr>
-</tbody>
-</table>
-</div>
+<p><a href="https://github.com/pythonhealthdatascience/pydesrap_stroke" target="_blank" style="text-decoration: none;"> <span style="display: inline-flex; align-items: center; background: #1d7898;
+  color: #fff; border-radius: 20px; padding: 0.4em 1em; font-weight: 600;
+  gap: 0.5em;"> <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/github.svg" alt="GitHub" width="20" height="20" style="filter: brightness(0)
+    invert(1);"> Click to visit pydesrap_stroke repository </span> </a></p>
+<p>A wide variety of tests are available in the <code>tests/</code> folder.</p>
+<p>Data for back tests are generated within <code>notebooks/generate_exp_results.ipynb</code>.</p>
+<p>Tests are run and coverage are calculated on pushes to main via GitHub actions (<code>.github/workflows/tests.yaml</code>).</p>
 </div>
 <div class="r-content">
 <p><a href="https://github.com/pythonhealthdatascience/rdesrap_mms" target="_blank" style="text-decoration: none;"> <span style="display: inline-flex; align-items: center; background: #1d7898;
   color: #fff; border-radius: 20px; padding: 0.4em 1em; font-weight: 600;
   gap: 0.5em;"> <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/github.svg" alt="GitHub" width="20" height="20" style="filter: brightness(0)
     invert(1);"> Click to visit rdesrap_mms repository </span> </a></p>
-<div class="blue-table">
-<table class="caption-top table">
-<colgroup>
-<col style="width: 20%">
-<col style="width: 80%">
-</colgroup>
-<tbody>
-<tr class="odd">
-<td><strong>Key files</strong></td>
-<td></td>
-</tr>
-<tr class="even">
-<td><strong>What to look for?</strong></td>
-<td></td>
-</tr>
-<tr class="odd">
-<td><strong>Why it matters?</strong></td>
-<td></td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-</section>
-<section id="stroke-pathway-simulation" class="level3">
-<h3 class="anchored" data-anchor-id="stroke-pathway-simulation">Stroke pathway simulation</h3>
-<div class="python-content">
-<p><a href="https://github.com/pythonhealthdatascience/pydesrap_stroke" target="_blank" style="text-decoration: none;"> <span style="display: inline-flex; align-items: center; background: #1d7898;
-  color: #fff; border-radius: 20px; padding: 0.4em 1em; font-weight: 600;
-  gap: 0.5em;"> <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/github.svg" alt="GitHub" width="20" height="20" style="filter: brightness(0)
-    invert(1);"> Click to visit pydesrap_stroke repository </span> </a></p>
-<div class="blue-table">
-<table class="caption-top table">
-<colgroup>
-<col style="width: 20%">
-<col style="width: 80%">
-</colgroup>
-<tbody>
-<tr class="odd">
-<td><strong>Key files</strong></td>
-<td></td>
-</tr>
-<tr class="even">
-<td><strong>What to look for?</strong></td>
-<td></td>
-</tr>
-<tr class="odd">
-<td><strong>Why it matters?</strong></td>
-<td></td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-<div class="r-content">
 <p><a href="https://github.com/pythonhealthdatascience/rdesrap_stroke" target="_blank" style="text-decoration: none;"> <span style="display: inline-flex; align-items: center; background: #1d7898;
   color: #fff; border-radius: 20px; padding: 0.4em 1em; font-weight: 600;
   gap: 0.5em;"> <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/github.svg" alt="GitHub" width="20" height="20" style="filter: brightness(0)
     invert(1);"> Click to visit rdesrap_stroke repository </span> </a></p>
-<div class="blue-table">
-<table class="caption-top table">
-<colgroup>
-<col style="width: 20%">
-<col style="width: 80%">
-</colgroup>
-<tbody>
-<tr class="odd">
-<td><strong>Key files</strong></td>
-<td></td>
-</tr>
-<tr class="even">
-<td><strong>What to look for?</strong></td>
-<td></td>
-</tr>
-<tr class="odd">
-<td><strong>Why it matters?</strong></td>
-<td></td>
-</tr>
-</tbody>
-</table>
+<p>A wide variety of tests are available in the <code>tests/</code> folder.</p>
+<p>Data for back tests are generated within <code>notebooks/generate_exp_results.Rmd</code>.</p>
+<p>Tests are run via GitHub actions (<code>.github/workflows/R-CMD-check.yaml</code>) and a coverage badge is updated (<code>.github/workflows/test-coverage.yaml</code>).</p>
 </div>
-</div>
-</section>
 </section>
 <section id="test-yourself" class="level2">
 <h2 class="anchored" data-anchor-id="test-yourself">Test yourself</h2>
-<!--TODO-->
+<p><strong>Write tests</strong>! Look at <strong>example models</strong> for inspiration on what and how to test.</p>
+<p>Start writing tests <strong>early</strong>, and run them <strong>often</strong> to catch issues as you develop.</p>
+<p>Use <strong>coverage</strong> calculates to help you spot parts of you code not run in any tests.</p>
 <p><br><br></p>
 
 
@@ -1457,13 +1819,13 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="../../pages/experiments/full_run.html" class="pagination-link" aria-label="Full run">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Full run</span>
+      <a href="../../pages/verification_validation/verification_validation.html" class="pagination-link" aria-label="Verification and validation">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Verification and validation</span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../../pages/verification_validation/validation.html" class="pagination-link" aria-label="❌ Validation">
-        <span class="nav-page-text">❌ Validation</span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../../pages/style_docs/linting.html" class="pagination-link" aria-label="Linting">
+        <span class="nav-page-text">Linting</span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

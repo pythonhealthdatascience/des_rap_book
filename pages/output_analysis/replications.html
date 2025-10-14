@@ -412,6 +412,12 @@ cookieconsent.run({
  <span class="menu-text">Number of replications</span></a>
   </div>
 </li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../pages/output_analysis/length_warmup.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Length of warm-up</span></a>
+  </div>
+</li>
       </ul>
   </li>
         <li class="sidebar-item sidebar-item-section">
@@ -454,14 +460,14 @@ cookieconsent.run({
       <ul id="quarto-sidebar-section-8" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/verification_validation/tests.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">❌ Tests</span></a>
+  <a href="../../pages/verification_validation/verification_validation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Verification and validation</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/verification_validation/validation.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">❌ Validation</span></a>
+  <a href="../../pages/verification_validation/tests.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Tests</span></a>
   </div>
 </li>
       </ul>
@@ -719,23 +725,28 @@ Note: When a Quarto document just contains Python code blocks (and no R code), Q
 <span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="co">        Unique patient identifier.</span></span>
 <span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="co">    period : str</span></span>
 <span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="co">        Arrival period (warm up or data collection) with emoji.</span></span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="co">    wait_time : float</span></span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="co">        Time spent waiting for the doctor (minutes).</span></span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, patient_id, period):</span>
-<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""</span></span>
-<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a><span class="co">        Initialises a new patient.</span></span>
-<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a><span class="co">        Parameters</span></span>
-<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a><span class="co">        ----------</span></span>
-<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a><span class="co">        patient_id : int</span></span>
-<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a><span class="co">            Unique patient identifier.</span></span>
-<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a><span class="co">        period : str</span></span>
-<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a><span class="co">            Arrival period (warm up or data collection) with emoji.</span></span>
-<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a><span class="co">        """</span></span>
-<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.patient_id <span class="op">=</span> patient_id</span>
-<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.period <span class="op">=</span> period</span>
-<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.wait_time <span class="op">=</span> np.nan</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="co">    arrival_time : float</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="co">        Time patient entered the system (minutes).</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="co">    wait_time : float</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="co">        Time spent waiting for the doctor (minutes).</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, patient_id, period, arrival_time):</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a><span class="co">        Initialises a new patient.</span></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a><span class="co">        Parameters</span></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a><span class="co">        ----------</span></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a><span class="co">        patient_id : int</span></span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a><span class="co">            Unique patient identifier.</span></span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a><span class="co">        period : str</span></span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a><span class="co">            Arrival period (warm up or data collection) with emoji.</span></span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a><span class="co">        arrival_time : float</span></span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a><span class="co">            Time patient entered the system (minutes).</span></span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a><span class="co">        """</span></span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.patient_id <span class="op">=</span> patient_id</span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.period <span class="op">=</span> period</span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.arrival_time <span class="op">=</span> arrival_time</span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.wait_time <span class="op">=</span> np.nan</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
 </div>
@@ -833,74 +844,75 @@ Note: When a Quarto document just contains Python code blocks (and no R code), Q
 <span id="cb5-74"><a href="#cb5-74" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-75"><a href="#cb5-75" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Create a new patient</span></span>
 <span id="cb5-76"><a href="#cb5-76" aria-hidden="true" tabindex="-1"></a>            patient <span class="op">=</span> Patient(patient_id<span class="op">=</span><span class="bu">len</span>(<span class="va">self</span>.patients)<span class="op">+</span><span class="dv">1</span>,</span>
-<span id="cb5-77"><a href="#cb5-77" aria-hidden="true" tabindex="-1"></a>                              period<span class="op">=</span>period)</span>
-<span id="cb5-78"><a href="#cb5-78" aria-hidden="true" tabindex="-1"></a>            <span class="va">self</span>.patients.append(patient)</span>
-<span id="cb5-79"><a href="#cb5-79" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-80"><a href="#cb5-80" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Print arrival time</span></span>
-<span id="cb5-81"><a href="#cb5-81" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> <span class="va">self</span>.param.verbose:</span>
-<span id="cb5-82"><a href="#cb5-82" aria-hidden="true" tabindex="-1"></a>                <span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span>patient<span class="sc">.</span>period<span class="sc">}</span><span class="ss"> Patient </span><span class="sc">{</span>patient<span class="sc">.</span>patient_id<span class="sc">}</span><span class="ss"> "</span> <span class="op">+</span></span>
-<span id="cb5-83"><a href="#cb5-83" aria-hidden="true" tabindex="-1"></a>                      <span class="ss">f"arrives at time: </span><span class="sc">{</span><span class="va">self</span><span class="sc">.</span>env<span class="sc">.</span>now<span class="sc">:.3f}</span><span class="ss">"</span>)</span>
-<span id="cb5-84"><a href="#cb5-84" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-85"><a href="#cb5-85" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Start process of consultation</span></span>
-<span id="cb5-86"><a href="#cb5-86" aria-hidden="true" tabindex="-1"></a>            <span class="va">self</span>.env.process(<span class="va">self</span>.consultation(patient))</span>
-<span id="cb5-87"><a href="#cb5-87" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-88"><a href="#cb5-88" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> consultation(<span class="va">self</span>, patient):</span>
-<span id="cb5-89"><a href="#cb5-89" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""</span></span>
-<span id="cb5-90"><a href="#cb5-90" aria-hidden="true" tabindex="-1"></a><span class="co">        Process that simulates a consultation.</span></span>
-<span id="cb5-91"><a href="#cb5-91" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-92"><a href="#cb5-92" aria-hidden="true" tabindex="-1"></a><span class="co">        Parameters</span></span>
-<span id="cb5-93"><a href="#cb5-93" aria-hidden="true" tabindex="-1"></a><span class="co">        ----------</span></span>
-<span id="cb5-94"><a href="#cb5-94" aria-hidden="true" tabindex="-1"></a><span class="co">        patient :</span></span>
-<span id="cb5-95"><a href="#cb5-95" aria-hidden="true" tabindex="-1"></a><span class="co">            Instance of the Patient() class representing a single patient.</span></span>
-<span id="cb5-96"><a href="#cb5-96" aria-hidden="true" tabindex="-1"></a><span class="co">        """</span></span>
-<span id="cb5-97"><a href="#cb5-97" aria-hidden="true" tabindex="-1"></a>        start_wait <span class="op">=</span> <span class="va">self</span>.env.now</span>
-<span id="cb5-98"><a href="#cb5-98" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Patient requests access to a doctor (resource)</span></span>
-<span id="cb5-99"><a href="#cb5-99" aria-hidden="true" tabindex="-1"></a>        <span class="cf">with</span> <span class="va">self</span>.doctor.request() <span class="im">as</span> req:</span>
-<span id="cb5-100"><a href="#cb5-100" aria-hidden="true" tabindex="-1"></a>            <span class="cf">yield</span> req</span>
-<span id="cb5-101"><a href="#cb5-101" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-102"><a href="#cb5-102" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Record how long patient waited before consultation</span></span>
-<span id="cb5-103"><a href="#cb5-103" aria-hidden="true" tabindex="-1"></a>            patient.wait_time <span class="op">=</span> <span class="va">self</span>.env.now <span class="op">-</span> start_wait</span>
-<span id="cb5-104"><a href="#cb5-104" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-105"><a href="#cb5-105" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> <span class="va">self</span>.param.verbose:</span>
-<span id="cb5-106"><a href="#cb5-106" aria-hidden="true" tabindex="-1"></a>                <span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span>patient<span class="sc">.</span>period<span class="sc">}</span><span class="ss"> Patient </span><span class="sc">{</span>patient<span class="sc">.</span>patient_id<span class="sc">}</span><span class="ss"> "</span> <span class="op">+</span></span>
-<span id="cb5-107"><a href="#cb5-107" aria-hidden="true" tabindex="-1"></a>                      <span class="ss">f"starts consultation at: </span><span class="sc">{</span><span class="va">self</span><span class="sc">.</span>env<span class="sc">.</span>now<span class="sc">:.3f}</span><span class="ss">"</span>)</span>
-<span id="cb5-108"><a href="#cb5-108" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-109"><a href="#cb5-109" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Sample consultation duration and pass time spent with doctor</span></span>
-<span id="cb5-110"><a href="#cb5-110" aria-hidden="true" tabindex="-1"></a>            time_with_doctor <span class="op">=</span> <span class="va">self</span>.consult_dist.sample()</span>
-<span id="cb5-111"><a href="#cb5-111" aria-hidden="true" tabindex="-1"></a>            <span class="cf">yield</span> <span class="va">self</span>.env.timeout(time_with_doctor)</span>
-<span id="cb5-112"><a href="#cb5-112" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-113"><a href="#cb5-113" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> reset_results(<span class="va">self</span>):</span>
-<span id="cb5-114"><a href="#cb5-114" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""</span></span>
-<span id="cb5-115"><a href="#cb5-115" aria-hidden="true" tabindex="-1"></a><span class="co">        Reset results.</span></span>
-<span id="cb5-116"><a href="#cb5-116" aria-hidden="true" tabindex="-1"></a><span class="co">        """</span></span>
-<span id="cb5-117"><a href="#cb5-117" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.patients <span class="op">=</span> []</span>
-<span id="cb5-118"><a href="#cb5-118" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-119"><a href="#cb5-119" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> warmup(<span class="va">self</span>):</span>
-<span id="cb5-120"><a href="#cb5-120" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""</span></span>
-<span id="cb5-121"><a href="#cb5-121" aria-hidden="true" tabindex="-1"></a><span class="co">        Reset result collection after the warm-up period.</span></span>
-<span id="cb5-122"><a href="#cb5-122" aria-hidden="true" tabindex="-1"></a><span class="co">        """</span></span>
-<span id="cb5-123"><a href="#cb5-123" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="va">self</span>.param.warm_up_period <span class="op">&gt;</span> <span class="dv">0</span>:</span>
-<span id="cb5-124"><a href="#cb5-124" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Delay process until warm-up period has completed</span></span>
-<span id="cb5-125"><a href="#cb5-125" aria-hidden="true" tabindex="-1"></a>            <span class="cf">yield</span> <span class="va">self</span>.env.timeout(<span class="va">self</span>.param.warm_up_period)</span>
-<span id="cb5-126"><a href="#cb5-126" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Reset results variables</span></span>
-<span id="cb5-127"><a href="#cb5-127" aria-hidden="true" tabindex="-1"></a>            <span class="va">self</span>.reset_results()</span>
-<span id="cb5-128"><a href="#cb5-128" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> <span class="va">self</span>.param.verbose:</span>
-<span id="cb5-129"><a href="#cb5-129" aria-hidden="true" tabindex="-1"></a>                <span class="bu">print</span>(<span class="ss">f"Warm up period ended at time: </span><span class="sc">{</span><span class="va">self</span><span class="sc">.</span>env<span class="sc">.</span>now<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb5-130"><a href="#cb5-130" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-131"><a href="#cb5-131" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> run(<span class="va">self</span>):</span>
-<span id="cb5-132"><a href="#cb5-132" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""</span></span>
-<span id="cb5-133"><a href="#cb5-133" aria-hidden="true" tabindex="-1"></a><span class="co">        Run the simulation.</span></span>
-<span id="cb5-134"><a href="#cb5-134" aria-hidden="true" tabindex="-1"></a><span class="co">        """</span></span>
-<span id="cb5-135"><a href="#cb5-135" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Schedule arrival generator and warm-up</span></span>
-<span id="cb5-136"><a href="#cb5-136" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.env.process(<span class="va">self</span>.generate_arrivals())</span>
-<span id="cb5-137"><a href="#cb5-137" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.env.process(<span class="va">self</span>.warmup())</span>
-<span id="cb5-138"><a href="#cb5-138" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-139"><a href="#cb5-139" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Run the simulation</span></span>
-<span id="cb5-140"><a href="#cb5-140" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.env.run(until<span class="op">=</span>(<span class="va">self</span>.param.warm_up_period <span class="op">+</span></span>
-<span id="cb5-141"><a href="#cb5-141" aria-hidden="true" tabindex="-1"></a>                            <span class="va">self</span>.param.data_collection_period))</span>
-<span id="cb5-142"><a href="#cb5-142" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-143"><a href="#cb5-143" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Create list of dictionaries containing each patient's attributes</span></span>
-<span id="cb5-144"><a href="#cb5-144" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.results_list <span class="op">=</span> [x.__dict__ <span class="cf">for</span> x <span class="kw">in</span> <span class="va">self</span>.patients]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb5-77"><a href="#cb5-77" aria-hidden="true" tabindex="-1"></a>                              period<span class="op">=</span>period,</span>
+<span id="cb5-78"><a href="#cb5-78" aria-hidden="true" tabindex="-1"></a>                              arrival_time<span class="op">=</span><span class="va">self</span>.env.now)</span>
+<span id="cb5-79"><a href="#cb5-79" aria-hidden="true" tabindex="-1"></a>            <span class="va">self</span>.patients.append(patient)</span>
+<span id="cb5-80"><a href="#cb5-80" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-81"><a href="#cb5-81" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Print arrival time</span></span>
+<span id="cb5-82"><a href="#cb5-82" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> <span class="va">self</span>.param.verbose:</span>
+<span id="cb5-83"><a href="#cb5-83" aria-hidden="true" tabindex="-1"></a>                <span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span>patient<span class="sc">.</span>period<span class="sc">}</span><span class="ss"> Patient </span><span class="sc">{</span>patient<span class="sc">.</span>patient_id<span class="sc">}</span><span class="ss"> "</span> <span class="op">+</span></span>
+<span id="cb5-84"><a href="#cb5-84" aria-hidden="true" tabindex="-1"></a>                      <span class="ss">f"arrives at time: </span><span class="sc">{</span>patient<span class="sc">.</span>arrival_time<span class="sc">:.3f}</span><span class="ss">"</span>)</span>
+<span id="cb5-85"><a href="#cb5-85" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-86"><a href="#cb5-86" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Start process of consultation</span></span>
+<span id="cb5-87"><a href="#cb5-87" aria-hidden="true" tabindex="-1"></a>            <span class="va">self</span>.env.process(<span class="va">self</span>.consultation(patient))</span>
+<span id="cb5-88"><a href="#cb5-88" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-89"><a href="#cb5-89" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> consultation(<span class="va">self</span>, patient):</span>
+<span id="cb5-90"><a href="#cb5-90" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""</span></span>
+<span id="cb5-91"><a href="#cb5-91" aria-hidden="true" tabindex="-1"></a><span class="co">        Process that simulates a consultation.</span></span>
+<span id="cb5-92"><a href="#cb5-92" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-93"><a href="#cb5-93" aria-hidden="true" tabindex="-1"></a><span class="co">        Parameters</span></span>
+<span id="cb5-94"><a href="#cb5-94" aria-hidden="true" tabindex="-1"></a><span class="co">        ----------</span></span>
+<span id="cb5-95"><a href="#cb5-95" aria-hidden="true" tabindex="-1"></a><span class="co">        patient :</span></span>
+<span id="cb5-96"><a href="#cb5-96" aria-hidden="true" tabindex="-1"></a><span class="co">            Instance of the Patient() class representing a single patient.</span></span>
+<span id="cb5-97"><a href="#cb5-97" aria-hidden="true" tabindex="-1"></a><span class="co">        """</span></span>
+<span id="cb5-98"><a href="#cb5-98" aria-hidden="true" tabindex="-1"></a>        start_wait <span class="op">=</span> <span class="va">self</span>.env.now</span>
+<span id="cb5-99"><a href="#cb5-99" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Patient requests access to a doctor (resource)</span></span>
+<span id="cb5-100"><a href="#cb5-100" aria-hidden="true" tabindex="-1"></a>        <span class="cf">with</span> <span class="va">self</span>.doctor.request() <span class="im">as</span> req:</span>
+<span id="cb5-101"><a href="#cb5-101" aria-hidden="true" tabindex="-1"></a>            <span class="cf">yield</span> req</span>
+<span id="cb5-102"><a href="#cb5-102" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-103"><a href="#cb5-103" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Record how long patient waited before consultation</span></span>
+<span id="cb5-104"><a href="#cb5-104" aria-hidden="true" tabindex="-1"></a>            patient.wait_time <span class="op">=</span> <span class="va">self</span>.env.now <span class="op">-</span> start_wait</span>
+<span id="cb5-105"><a href="#cb5-105" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-106"><a href="#cb5-106" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> <span class="va">self</span>.param.verbose:</span>
+<span id="cb5-107"><a href="#cb5-107" aria-hidden="true" tabindex="-1"></a>                <span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span>patient<span class="sc">.</span>period<span class="sc">}</span><span class="ss"> Patient </span><span class="sc">{</span>patient<span class="sc">.</span>patient_id<span class="sc">}</span><span class="ss"> "</span> <span class="op">+</span></span>
+<span id="cb5-108"><a href="#cb5-108" aria-hidden="true" tabindex="-1"></a>                      <span class="ss">f"starts consultation at: </span><span class="sc">{</span><span class="va">self</span><span class="sc">.</span>env<span class="sc">.</span>now<span class="sc">:.3f}</span><span class="ss">"</span>)</span>
+<span id="cb5-109"><a href="#cb5-109" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-110"><a href="#cb5-110" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Sample consultation duration and pass time spent with doctor</span></span>
+<span id="cb5-111"><a href="#cb5-111" aria-hidden="true" tabindex="-1"></a>            time_with_doctor <span class="op">=</span> <span class="va">self</span>.consult_dist.sample()</span>
+<span id="cb5-112"><a href="#cb5-112" aria-hidden="true" tabindex="-1"></a>            <span class="cf">yield</span> <span class="va">self</span>.env.timeout(time_with_doctor)</span>
+<span id="cb5-113"><a href="#cb5-113" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-114"><a href="#cb5-114" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> reset_results(<span class="va">self</span>):</span>
+<span id="cb5-115"><a href="#cb5-115" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""</span></span>
+<span id="cb5-116"><a href="#cb5-116" aria-hidden="true" tabindex="-1"></a><span class="co">        Reset results.</span></span>
+<span id="cb5-117"><a href="#cb5-117" aria-hidden="true" tabindex="-1"></a><span class="co">        """</span></span>
+<span id="cb5-118"><a href="#cb5-118" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.patients <span class="op">=</span> []</span>
+<span id="cb5-119"><a href="#cb5-119" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-120"><a href="#cb5-120" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> warmup(<span class="va">self</span>):</span>
+<span id="cb5-121"><a href="#cb5-121" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""</span></span>
+<span id="cb5-122"><a href="#cb5-122" aria-hidden="true" tabindex="-1"></a><span class="co">        Reset result collection after the warm-up period.</span></span>
+<span id="cb5-123"><a href="#cb5-123" aria-hidden="true" tabindex="-1"></a><span class="co">        """</span></span>
+<span id="cb5-124"><a href="#cb5-124" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="va">self</span>.param.warm_up_period <span class="op">&gt;</span> <span class="dv">0</span>:</span>
+<span id="cb5-125"><a href="#cb5-125" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Delay process until warm-up period has completed</span></span>
+<span id="cb5-126"><a href="#cb5-126" aria-hidden="true" tabindex="-1"></a>            <span class="cf">yield</span> <span class="va">self</span>.env.timeout(<span class="va">self</span>.param.warm_up_period)</span>
+<span id="cb5-127"><a href="#cb5-127" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Reset results variables</span></span>
+<span id="cb5-128"><a href="#cb5-128" aria-hidden="true" tabindex="-1"></a>            <span class="va">self</span>.reset_results()</span>
+<span id="cb5-129"><a href="#cb5-129" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> <span class="va">self</span>.param.verbose:</span>
+<span id="cb5-130"><a href="#cb5-130" aria-hidden="true" tabindex="-1"></a>                <span class="bu">print</span>(<span class="ss">f"Warm up period ended at time: </span><span class="sc">{</span><span class="va">self</span><span class="sc">.</span>env<span class="sc">.</span>now<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb5-131"><a href="#cb5-131" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-132"><a href="#cb5-132" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> run(<span class="va">self</span>):</span>
+<span id="cb5-133"><a href="#cb5-133" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""</span></span>
+<span id="cb5-134"><a href="#cb5-134" aria-hidden="true" tabindex="-1"></a><span class="co">        Run the simulation.</span></span>
+<span id="cb5-135"><a href="#cb5-135" aria-hidden="true" tabindex="-1"></a><span class="co">        """</span></span>
+<span id="cb5-136"><a href="#cb5-136" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Schedule arrival generator and warm-up</span></span>
+<span id="cb5-137"><a href="#cb5-137" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.env.process(<span class="va">self</span>.generate_arrivals())</span>
+<span id="cb5-138"><a href="#cb5-138" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.env.process(<span class="va">self</span>.warmup())</span>
+<span id="cb5-139"><a href="#cb5-139" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-140"><a href="#cb5-140" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Run the simulation</span></span>
+<span id="cb5-141"><a href="#cb5-141" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.env.run(until<span class="op">=</span>(<span class="va">self</span>.param.warm_up_period <span class="op">+</span></span>
+<span id="cb5-142"><a href="#cb5-142" aria-hidden="true" tabindex="-1"></a>                            <span class="va">self</span>.param.data_collection_period))</span>
+<span id="cb5-143"><a href="#cb5-143" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-144"><a href="#cb5-144" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Create list of dictionaries containing each patient's attributes</span></span>
+<span id="cb5-145"><a href="#cb5-145" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.results_list <span class="op">=</span> [x.__dict__ <span class="cf">for</span> x <span class="kw">in</span> <span class="va">self</span>.patients]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
 </div>
@@ -1109,7 +1121,7 @@ Note: When a Quarto document just contains Python code blocks (and no R code), Q
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>HTML(to_html_datatable(result[<span class="st">"patient"</span>]))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <!--| quarto-html-table-processing: none -->
-<table id="itables_00a3b6a5_a216_4a0d_ba41_7b64c0ba4926"><tbody><tr>
+<table id="itables_4cd5663e_ad94_49a5_8c1f_854b3666f402"><tbody><tr>
     <td style="vertical-align:middle; text-align:left">
     <a href="https://mwouts.github.io/itables/"><svg class="main-svg" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink" width="64" viewbox="0 0 500 400" style="font-family: 'Droid Sans', sans-serif;">
     <g style="fill:#d9d7fc">
@@ -1175,11 +1187,11 @@ Note: When a Quarto document just contains Python code blocks (and no R code), Q
 <script type="module">
     import { ITable, jQuery as $ } from 'https://www.unpkg.com/dt_for_itables@2.4.0/dt_bundle.js';
 
-    document.querySelectorAll("#itables_00a3b6a5_a216_4a0d_ba41_7b64c0ba4926:not(.dataTable)").forEach(table => {
+    document.querySelectorAll("#itables_4cd5663e_ad94_49a5_8c1f_854b3666f402:not(.dataTable)").forEach(table => {
         if (!(table instanceof HTMLTableElement))
             return;
 
-        let dt_args = {"layout": {"topStart": "pageLength", "topEnd": "search", "bottomStart": "info", "bottomEnd": "paging"}, "order": [], "style": {"table-layout": "auto", "width": "auto", "margin": "auto", "caption-side": "bottom"}, "classes": ["display", "nowrap"], "text_in_header_can_be_selected": true, "table_html": "<table><thead>\n    <tr style=\"text-align: right;\">\n      \n      <th>patient_id</th>\n      <th>period</th>\n      <th>wait_time</th>\n      <th>run</th>\n    </tr>\n  </thead></table>", "data_json": "[[1, \"\\ud83d\\udd39 DC\", 0.0, 0], [2, \"\\ud83d\\udd39 DC\", 0.0, 0], [3, \"\\ud83d\\udd39 DC\", 4.987255, 0], [4, \"\\ud83d\\udd39 DC\", 12.574406, 0], [5, \"\\ud83d\\udd39 DC\", 1.800804, 0], [6, \"\\ud83d\\udd39 DC\", 0.0, 0], [7, \"\\ud83d\\udd39 DC\", \"___NaN___\", 0], [1, \"\\ud83d\\udd39 DC\", 0.493526, 1], [2, \"\\ud83d\\udd39 DC\", 0.0, 1], [3, \"\\ud83d\\udd39 DC\", 3.549298, 1], [4, \"\\ud83d\\udd39 DC\", 7.054906, 1], [5, \"\\ud83d\\udd39 DC\", 3.633659, 1], [6, \"\\ud83d\\udd39 DC\", 11.502842, 1], [7, \"\\ud83d\\udd39 DC\", 13.30278, 1], [8, \"\\ud83d\\udd39 DC\", 15.18675, 1], [9, \"\\ud83d\\udd39 DC\", 17.140007, 1], [10, \"\\ud83d\\udd39 DC\", 23.454287, 1], [11, \"\\ud83d\\udd39 DC\", \"___NaN___\", 1], [12, \"\\ud83d\\udd39 DC\", \"___NaN___\", 1], [13, \"\\ud83d\\udd39 DC\", \"___NaN___\", 1], [14, \"\\ud83d\\udd39 DC\", \"___NaN___\", 1], [15, \"\\ud83d\\udd39 DC\", \"___NaN___\", 1], [16, \"\\ud83d\\udd39 DC\", \"___NaN___\", 1], [1, \"\\ud83d\\udd39 DC\", 0.0, 2], [2, \"\\ud83d\\udd39 DC\", 10.552122, 2], [3, \"\\ud83d\\udd39 DC\", 5.759021, 2], [4, \"\\ud83d\\udd39 DC\", 5.597738, 2], [5, \"\\ud83d\\udd39 DC\", 0.0, 2], [1, \"\\ud83d\\udd39 DC\", 0.0, 3], [2, \"\\ud83d\\udd39 DC\", 0.0, 3], [3, \"\\ud83d\\udd39 DC\", 0.0, 3], [4, \"\\ud83d\\udd39 DC\", 0.0, 3], [5, \"\\ud83d\\udd39 DC\", 0.0, 3], [6, \"\\ud83d\\udd39 DC\", 0.0, 3], [7, \"\\ud83d\\udd39 DC\", 2.406735, 3], [8, \"\\ud83d\\udd39 DC\", \"___NaN___\", 3], [1, \"\\ud83d\\udd39 DC\", 0.0, 4], [2, \"\\ud83d\\udd39 DC\", 0.0, 4], [3, \"\\ud83d\\udd39 DC\", 3.004875, 4], [4, \"\\ud83d\\udd39 DC\", 3.028263, 4], [5, \"\\ud83d\\udd39 DC\", 0.0, 4], [6, \"\\ud83d\\udd39 DC\", 0.0, 4]]"};
+        let dt_args = {"layout": {"topStart": "pageLength", "topEnd": "search", "bottomStart": "info", "bottomEnd": "paging"}, "classes": ["display", "nowrap"], "text_in_header_can_be_selected": true, "style": {"table-layout": "auto", "width": "auto", "margin": "auto", "caption-side": "bottom"}, "order": [], "table_html": "<table><thead>\n    <tr style=\"text-align: right;\">\n      \n      <th>patient_id</th>\n      <th>period</th>\n      <th>arrival_time</th>\n      <th>wait_time</th>\n      <th>run</th>\n    </tr>\n  </thead></table>", "data_json": "[[1, \"\\ud83d\\udd39 DC\", 37.77825, 0.0, 0], [2, \"\\ud83d\\udd39 DC\", 38.108184, 0.0, 0], [3, \"\\ud83d\\udd39 DC\", 42.610666, 4.987255, 0], [4, \"\\ud83d\\udd39 DC\", 44.087985, 12.574406, 0], [5, \"\\ud83d\\udd39 DC\", 55.587763, 1.800804, 0], [6, \"\\ud83d\\udd39 DC\", 64.880007, 0.0, 0], [7, \"\\ud83d\\udd39 DC\", 64.954293, \"___NaN___\", 0], [1, \"\\ud83d\\udd39 DC\", 31.630258, 0.493526, 1], [2, \"\\ud83d\\udd39 DC\", 36.408782, 0.0, 1], [3, \"\\ud83d\\udd39 DC\", 37.174693, 3.549298, 1], [4, \"\\ud83d\\udd39 DC\", 37.756151, 7.054906, 1], [5, \"\\ud83d\\udd39 DC\", 41.314036, 3.633659, 1], [6, \"\\ud83d\\udd39 DC\", 42.089686, 11.502842, 1], [7, \"\\ud83d\\udd39 DC\", 43.398751, 13.30278, 1], [8, \"\\ud83d\\udd39 DC\", 43.620175, 15.18675, 1], [9, \"\\ud83d\\udd39 DC\", 44.772508, 17.140007, 1], [10, \"\\ud83d\\udd39 DC\", 45.892284, 23.454287, 1], [11, \"\\ud83d\\udd39 DC\", 49.606833, \"___NaN___\", 1], [12, \"\\ud83d\\udd39 DC\", 50.649656, \"___NaN___\", 1], [13, \"\\ud83d\\udd39 DC\", 55.971829, \"___NaN___\", 1], [14, \"\\ud83d\\udd39 DC\", 59.495786, \"___NaN___\", 1], [15, \"\\ud83d\\udd39 DC\", 65.469879, \"___NaN___\", 1], [16, \"\\ud83d\\udd39 DC\", 65.822711, \"___NaN___\", 1], [1, \"\\ud83d\\udd39 DC\", 37.522238, 0.0, 2], [2, \"\\ud83d\\udd39 DC\", 38.735562, 10.552122, 2], [3, \"\\ud83d\\udd39 DC\", 44.397666, 5.759021, 2], [4, \"\\ud83d\\udd39 DC\", 46.202295, 5.597738, 2], [5, \"\\ud83d\\udd39 DC\", 58.280425, 0.0, 2], [1, \"\\ud83d\\udd39 DC\", 34.411489, 0.0, 3], [2, \"\\ud83d\\udd39 DC\", 38.687761, 0.0, 3], [3, \"\\ud83d\\udd39 DC\", 47.794929, 0.0, 3], [4, \"\\ud83d\\udd39 DC\", 51.478815, 0.0, 3], [5, \"\\ud83d\\udd39 DC\", 65.917423, 0.0, 3], [6, \"\\ud83d\\udd39 DC\", 66.47293, 0.0, 3], [7, \"\\ud83d\\udd39 DC\", 67.322711, 2.406735, 3], [8, \"\\ud83d\\udd39 DC\", 68.698988, \"___NaN___\", 3], [1, \"\\ud83d\\udd39 DC\", 44.324928, 0.0, 4], [2, \"\\ud83d\\udd39 DC\", 44.851316, 0.0, 4], [3, \"\\ud83d\\udd39 DC\", 46.404347, 3.004875, 4], [4, \"\\ud83d\\udd39 DC\", 47.150296, 3.028263, 4], [5, \"\\ud83d\\udd39 DC\", 53.586216, 0.0, 4], [6, \"\\ud83d\\udd39 DC\", 54.448043, 0.0, 4]]"};
         new ITable(table, dt_args);
     });
 </script>
@@ -1187,7 +1199,7 @@ Note: When a Quarto document just contains Python code blocks (and no R code), Q
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>HTML(to_html_datatable(result[<span class="st">"run"</span>]))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <!--| quarto-html-table-processing: none -->
-<table id="itables_2295192f_a86d_4bb0_bc14_9f3275c66948"><tbody><tr>
+<table id="itables_45312a4d_aa00_4949_b68d_3940edbf9fc0"><tbody><tr>
     <td style="vertical-align:middle; text-align:left">
     <a href="https://mwouts.github.io/itables/"><svg class="main-svg" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink" width="64" viewbox="0 0 500 400" style="font-family: 'Droid Sans', sans-serif;">
     <g style="fill:#d9d7fc">
@@ -1253,11 +1265,11 @@ Note: When a Quarto document just contains Python code blocks (and no R code), Q
 <script type="module">
     import { ITable, jQuery as $ } from 'https://www.unpkg.com/dt_for_itables@2.4.0/dt_bundle.js';
 
-    document.querySelectorAll("#itables_2295192f_a86d_4bb0_bc14_9f3275c66948:not(.dataTable)").forEach(table => {
+    document.querySelectorAll("#itables_45312a4d_aa00_4949_b68d_3940edbf9fc0:not(.dataTable)").forEach(table => {
         if (!(table instanceof HTMLTableElement))
             return;
 
-        let dt_args = {"layout": {"topStart": null, "topEnd": null, "bottomStart": null, "bottomEnd": null}, "order": [], "style": {"table-layout": "auto", "width": "auto", "margin": "auto", "caption-side": "bottom"}, "classes": ["display", "nowrap"], "text_in_header_can_be_selected": true, "table_html": "<table><thead>\n    <tr style=\"text-align: right;\">\n      \n      <th>run_number</th>\n      <th>arrivals</th>\n      <th>mean_wait_time</th>\n    </tr>\n  </thead></table>", "data_json": "[[0, 7, 3.227077], [1, 16, 9.531805], [2, 5, 4.381776], [3, 8, 0.343819], [4, 6, 1.005523]]"};
+        let dt_args = {"layout": {"topStart": null, "topEnd": null, "bottomStart": null, "bottomEnd": null}, "classes": ["display", "nowrap"], "text_in_header_can_be_selected": true, "style": {"table-layout": "auto", "width": "auto", "margin": "auto", "caption-side": "bottom"}, "order": [], "table_html": "<table><thead>\n    <tr style=\"text-align: right;\">\n      \n      <th>run_number</th>\n      <th>arrivals</th>\n      <th>mean_wait_time</th>\n    </tr>\n  </thead></table>", "data_json": "[[0, 7, 3.227077], [1, 16, 9.531805], [2, 5, 4.381776], [3, 8, 0.343819], [4, 6, 1.005523]]"};
         new ITable(table, dt_args);
     });
 </script>
@@ -1265,7 +1277,7 @@ Note: When a Quarto document just contains Python code blocks (and no R code), Q
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>HTML(to_html_datatable(result[<span class="st">"overall"</span>]))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <!--| quarto-html-table-processing: none -->
-<table id="itables_017b6fc4_6d41_48db_90bf_b3e1eb0e5a5e"><tbody><tr>
+<table id="itables_2fbebcad_84e2_49e4_ab47_5764a7a3a592"><tbody><tr>
     <td style="vertical-align:middle; text-align:left">
     <a href="https://mwouts.github.io/itables/"><svg class="main-svg" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink" width="64" viewbox="0 0 500 400" style="font-family: 'Droid Sans', sans-serif;">
     <g style="fill:#d9d7fc">
@@ -1331,11 +1343,11 @@ Note: When a Quarto document just contains Python code blocks (and no R code), Q
 <script type="module">
     import { ITable, jQuery as $ } from 'https://www.unpkg.com/dt_for_itables@2.4.0/dt_bundle.js';
 
-    document.querySelectorAll("#itables_017b6fc4_6d41_48db_90bf_b3e1eb0e5a5e:not(.dataTable)").forEach(table => {
+    document.querySelectorAll("#itables_2fbebcad_84e2_49e4_ab47_5764a7a3a592:not(.dataTable)").forEach(table => {
         if (!(table instanceof HTMLTableElement))
             return;
 
-        let dt_args = {"layout": {"topStart": null, "topEnd": null, "bottomStart": null, "bottomEnd": null}, "order": [], "style": {"table-layout": "auto", "width": "auto", "margin": "auto", "caption-side": "bottom"}, "classes": ["display", "nowrap"], "text_in_header_can_be_selected": true, "table_html": "<table><thead>\n    <tr style=\"text-align: right;\">\n      <th></th>\n      <th>arrivals</th>\n      <th>mean_wait_time</th>\n    </tr>\n  </thead></table>", "data_json": "[[\"mean\", 8.4, 3.698], [\"std_dev\", 4.393177, 3.64769], [\"lower_95_ci\", 2.945151, -0.831205], [\"upper_95_ci\", 13.854849, 8.227205]]"};
+        let dt_args = {"layout": {"topStart": null, "topEnd": null, "bottomStart": null, "bottomEnd": null}, "classes": ["display", "nowrap"], "text_in_header_can_be_selected": true, "style": {"table-layout": "auto", "width": "auto", "margin": "auto", "caption-side": "bottom"}, "order": [], "table_html": "<table><thead>\n    <tr style=\"text-align: right;\">\n      <th></th>\n      <th>arrivals</th>\n      <th>mean_wait_time</th>\n    </tr>\n  </thead></table>", "data_json": "[[\"mean\", 8.4, 3.698], [\"std_dev\", 4.393177, 3.64769], [\"lower_95_ci\", 2.945151, -0.831205], [\"upper_95_ci\", 13.854849, 8.227205]]"};
         new ITable(table, dt_args);
     });
 </script>
