@@ -1,5 +1,5 @@
 ---
-title: ❌ Length of warm-up
+title: Length of warm-up
 filters:
   - line-highlight
 bibliography: length_warmup_resources/references.bib
@@ -30,7 +30,10 @@ These should be available from environment setup in the "Test yourself" section 
 from IPython.display import HTML
 from itables import to_html_datatable
 import numpy as np
+import os
 import pandas as pd
+import plotly.express as px
+import plotly.graph_objects as go
 import scipy.stats as st
 import simpy
 from sim_tools.distributions import Exponential
@@ -86,19 +89,20 @@ When determining your warm-up period, you should:
 
 ## Implementing the time series inspection approach
 
-::: {.python-content}
-
-<!-- is there any alternative to audit? or less invasive than audit? am i going to need to change the models used on later pages? -->
-
-:::
-
-:::: {.r-content}
-
 <div class="h3-tight"></div>
 
 ### Simulation code
 
 The simulation being used is that from the [Replications](replications.qmd) page.
+
+```{python}
+#| echo: false
+{{< include replications_resources/parameters.py >}}
+{{< include replications_resources/patient.py >}}
+{{< include replications_resources/model.py >}}
+{{< include replications_resources/summary_stats.py >}}
+{{< include replications_resources/runner.py >}}
+```
 
 ```{r}
 #| echo: false
@@ -137,7 +141,120 @@ The simulation being used is that from the [Replications](replications.qmd) page
 
 ### Time series inspection function
 
-We have a new `time_series_inspection` function used for this analysis, which is explained line-by-line below.
+::: {.python-content}
+
+We have a new `time_series_inspection` function for this analysis.
+
+```{python}
+def time_series_inspection(result, file_path, warm_up=None):
+    """
+    Time series inspection method for determining length of warm-up.
+
+    Find the cumulative mean results and plot over time (overall and per run).
+
+    Parameters
+    ----------
+    result : pd.DataFrame
+        Patient-level result output by Runner.run_reps().
+    file_path : str
+        Path to save figure to.
+    warm_up : int
+        Location on X axis to plot vertical red line indicating chosen warm-up
+        period. Defaults to None, which will not plot a line.
+    """
+    # Sort by run and arrival time
+    result = result.sort_values(["run", "arrival_time"])
+
+    # Cumulative mean for each run (replication)
+    result["cumulative_mean"] = (
+        result
+        .groupby("run")["wait_time"]
+        .expanding()
+        .mean()
+        .reset_index(level=0, drop=True)
+    )
+    
+    # Overall cumulative mean (across all runs)
+    result_overall = result.sort_values("arrival_time")
+    result_overall["overall_cumulative_mean"] = result_overall["wait_time"].expanding().mean()
+    
+    # Plot: all individual runs as light lines, overall as dark line
+    fig = go.Figure()
+
+    for run, df_run in result.groupby("run"):
+        fig.add_trace(go.Scatter(
+            x=df_run["arrival_time"],
+            y=df_run["cumulative_mean"],
+            mode="lines",
+            line=dict(color="lightblue", width=1),
+            opacity=0.7,
+            name=f"Run {run}",
+            showlegend=False
+        ))
+
+    fig.add_trace(go.Scatter(
+        x=result_overall["arrival_time"],
+        y=result_overall["overall_cumulative_mean"],
+        mode="lines",
+        line=dict(color="darkblue", width=3),
+        name="Overall"
+    ))
+
+    # Optional vertical line for warm-up period (manually as add_vline not
+    # showing on the plot for some reason)
+    ymin = min(result["cumulative_mean"].min(),
+               result_overall["overall_cumulative_mean"].min())
+    ymax = max(result["cumulative_mean"].max(),
+               result_overall["overall_cumulative_mean"].max())
+    if warm_up is not None:
+        fig.add_shape(
+            type="line",
+            x0=warm_up,
+            y0=ymin,
+            x1=warm_up,
+            y1=ymax,
+            line=dict(
+                color="red",
+                width=2,
+                dash="dash"
+            ),
+            xref="x",
+            yref="y"
+        )
+        fig.add_annotation(
+            x=warm_up,
+            y=ymax,
+            text="Suggested warm-up length",
+            showarrow=False,
+            font=dict(color="red"),
+            yanchor="top",
+            xanchor="left"
+        )
+
+    fig.update_layout(
+        xaxis_title="Run time (minutes)",
+        yaxis_title="Cumulative mean wait_time",
+        showlegend=False,
+        template="simple_white"
+    )
+
+    # Save as static image
+    fig.write_image(file_path)
+
+    return fig
+```
+
+This function is just plotting one metric, but you could adapt it for a model with multiple metrics.
+
+Mean wait time and time in system will both be in the patient dataframe.
+
+Time-weighted metrics (utilisation, queue length, patients in system) all record a list of timepoints and running record of metric at that time. Hence, these can be used if you just extract the lists of times and metrics from the model.
+
+:::
+
+::: {.r-content}
+
+We have a new `time_series_inspection` function for this analysis, which is explained line-by-line below.
 
 ```{r}
 #' Time series inspection method for determining length of warm-up.
@@ -350,11 +467,39 @@ This section creates the plot, which overlays the cumulative mean lines per repl
 
 The plots are then arranged vertically in a single figure using `marrangeGrob()`, saved to a file using `ggsave()`, and returned by the function.
 
+:::
+
 ### Running the approach
 
-If you've already built warm-up logic into your model (as we have done), make sure the **warm-up period is set to 0** for this assessment (`warm_up_period = 0L`).
+If you've already built warm-up logic into your model (as we have done), make sure the **warm-up period is set to 0** for this assessment (`warm_up_period = 0`).
 
-As mention above, we have used multiple replications (`number_of_runs = 5L`) and a long run length (`data_collection_period = 100000L`).
+As mention above, we have used multiple replications (`number_of_runs = 5`) and a long run length (`data_collection_period = 100000`).
+
+::: {.python-content}
+
+```{python}
+# Run model with base parameters for 5 replications with no warm-up and
+# long data collection period, keeping the patient-level results
+param = Parameters(warm_up_period = 0,
+                   data_collection_period = 100000,
+                   number_of_runs = 5)
+runner = Runner(param)
+results = runner.run_reps()["patient"]
+
+# Provide to time_series_inspection() function
+time_series_inspection(
+  result = results,
+  file_path = os.path.join("length_warmup_resources",
+                           "python_length_warmup.png"),
+  warm_up = 15000
+)
+```
+
+The selection of a warm-up period is **subjective**. In this example, we have suggested a value of 15,000, but this choice could be changed subject to discussion and evaluation of other metrics.
+
+:::
+
+::: {.r-content}
 
 ```{r}
 #| warning: false
@@ -369,14 +514,14 @@ results <- runner(param = param)
 # Provide to time_series_inspection() function
 time_series_inspection(
   result = results,
-  file_path = file.path("length_warmup_resources", "length_warmup.png"),
+  file_path = file.path("length_warmup_resources", "r_length_warmup.png"),
   warm_up = 15000L
 )
 ```
 
 The selection of a warm-up period is **subjective**. In this example, we have suggested a value of 15,000, but this choice could be changed subject to discussion and evaluation of other metrics.
 
-::::
+:::
 
 ## Explore the example models
 
@@ -391,9 +536,9 @@ The selection of a warm-up period is **subjective**. In this example, we have su
 ::: {.blue-table}
 | | |
 | - | - |
-| **Key files** | |
-| **What to look for?** | |
-| **Why it matters?** | |
+| **Key files** | `simulation/param.py`<br>`simulation/model.py`<br>`simulation/runner.py`<br>`notebooks/choosing_warmup.ipynb` |
+| **What to look for?** | This example currently determines warm-up differently. It uses an audit, so during the simulation run at specified intervals it records the metrics at that time. These are then used to determine warm-up length. |
+| **Why it matters?** | There is no one way of doing something! Depending on your set-up, one of the other may be the simplest option. We have included the method on this page and the different one in the example, to illustrate some of the options for this analysis. |
 : {tbl-colwidths="[20,80]"}
 :::
 
@@ -419,19 +564,9 @@ Not relevant - replicating an existing model described in a paper, so just used 
 
 ## Test yourself
 
-::: {.python-content}
-
-TODO
-
-:::
-
-::: {.r-content}
-
 Try using/adapting the `time_series_inspection()` for your own simulation and identify a suitable length of warm-up.
 
-If you track additional performance metrics like resource utilisation or queue length, extend the function by adding these metrics to the `metrics` list.
-
-:::
+If you track additional performance metrics like resource utilisation or queue length, extend the function to run with these metrics also.
 
 ## References
 
