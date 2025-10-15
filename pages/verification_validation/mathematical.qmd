@@ -1,0 +1,228 @@
+---
+title: ❌ Mathematical proof of correctness
+---
+
+:::: {.pale-blue}
+
+**Learning objectives:**
+
+* TODO
+
+**Pre-reading:**
+
+This page implements mathematical proof of correctness implemented on the [verification and validation page](verification_validation.qmd). It does so within a test ([tests](tests.qmd) page). The tests are run on the model from [Replications](../output_analysis/replications.qmd) (which has two performance measures: total arrivals and mean wait time).
+
+> *Entity generation → Entity processing → Initialisation bias → Performance measures → Replications → Mathematical proof of correctness*
+
+::::
+
+## What is mathematical proof of correctness?
+
+One of the suggested methods for [model verification](verification_validation.qmd) is **mathematical proof of correctness**. This involves showing that the simulation results align with those determined by a suitable **mathematical model**.
+
+A mathematical model is a set of equations or formulas that describe how systems behave. Over time, researchers have studied simple systems (like people waiting in a queue) and discovered that, when rules are straightforward, their behaviour can be described exactly using math.
+
+Real-world systems are often too complex for neat equations (e.g., variable arrivals, different service rules or other complex features). In these cases, discrete-event simulation allows us to better mimic the system. However, if your simulation is simple enough - or if you start with a basic model to verify your code (and later build in complexity) - you can use mathematical proof of correctness.
+
+The small example we've been building throughout this book is an instance of an **M/M/s queue model** (as is the nurse visit simulation example). For a reminder on what an M/M/s queue model is, see the section "*Find out more about M/M/s models*" on the [example conceptual models](../intro/examples.qmd) page. In the next section, we'll show how to verify our small example by comparing it to a mathematical model.
+
+## How to verify the model against mathematical results
+
+::: {.python-content}
+
+<div class="h3-tight"></div>
+
+### Mathematical M/M/s Queue Model
+
+```{python}
+class MMSQueue:
+    """
+    Analytical M/M/S queue formulas.
+
+    Parameters
+    ----------
+    arrival_rate : float
+        Customer arrival rate (λ).
+    service_rate : float
+        Service rate per server (μ).
+    num_servers : int
+        Number of servers (s).
+
+    Attributes
+    ----------
+    rho : float
+        Utilisation (λ / (sμ)).
+    lambda_over_mu : float
+        Arrival/service rate ratio (λ / μ).
+    metrics : dict
+        Calculated performance metrics.
+    """
+
+    def __init__(self, arrival_rate, service_rate, num_servers):
+        """
+        Initialise the M/M/S queue.
+
+        Raises
+        ------
+        ValueError
+            If parameters are invalid or system is unstable.
+        """
+        if arrival_rate <= 0:
+            raise ValueError("Arrival rate must be positive")
+        if service_rate <= 0:
+            raise ValueError("Service rate must be positive")
+        if num_servers < 1:
+            raise ValueError("Number of servers must be at least 1")
+
+        self.arrival_rate = arrival_rate
+        self.service_rate = service_rate
+        self.num_servers = num_servers
+
+        # Calculate utilisation
+        self.rho = self.get_traffic_intensity()
+
+        # Check system stability
+        if self.rho >= 1:
+            raise ValueError(
+                f"System is unstable: ρ = {self.rho:.4f} >= 1. "
+                f"Need λ < s*μ ({arrival_rate} < {num_servers * service_rate})"
+            )
+
+        # Calculate λ/μ (average customers in service if infinite servers)
+        self.lambda_over_mu = self.arrival_rate / self.service_rate
+
+        # Calculate performance metrics using Little's Law
+        self.metrics = self.calculate_metrics()
+
+    def get_traffic_intensity(self):
+        """
+        Calculate the traffic intensity (server utilisation).
+
+        Returns
+        -------
+        float
+            Traffic intensity ρ = λ/(s*μ).
+        """
+        return self.arrival_rate / (self.num_servers * self.service_rate)
+
+    def calculate_metrics(self):
+        """
+        Calculate all performance metrics for the queue.
+
+        Returns
+        -------
+        dict[str, float]
+            Dictionary containing performance metrics.
+        """
+        metrics = {}
+        metrics["rho"] = self.rho
+        metrics["L_q"] = self.get_mean_queue_length()
+        metrics["L_s"] = metrics["L_q"] + (
+            self.arrival_rate / self.service_rate
+        )
+        metrics["W_s"] = metrics["L_s"] / self.arrival_rate
+        metrics["W_q"] = metrics["W_s"] - (1 / self.service_rate)
+        return metrics
+
+    def get_mean_queue_length(self):
+        """
+        Calculate the expected number of customers waiting in queue (L_q).
+
+        Uses the formula:
+        L_q = P₀ * (λ/μ)^s * ρ / (s! * (1-ρ)²)
+
+        Returns
+        -------
+        float
+            Expected queue length.
+        """
+        p0 = self.prob_system_empty()
+
+        lq = (p0 * (self.lambda_over_mu**self.num_servers) * self.rho) / (
+            math.factorial(self.num_servers) * (1 - self.rho) ** 2
+        )
+
+        return lq
+
+    def prob_system_empty(self):
+        """
+        Calculate the probability that the system is empty (P₀).
+
+        Uses the formula:
+        P₀ = [Σ(n=0 to s-1) (λ/μ)^n/n! + (λ/μ)^s/(s!(1-ρ))]^(-1)
+
+        Returns
+        -------
+        float
+            Probability that system is empty.
+        """
+        # Sum for n = 0 to s-1
+        sum_part = sum(
+            (self.lambda_over_mu**n) / math.factorial(n)
+            for n in range(self.num_servers)
+        )
+
+        # Term for n >= s
+        server_term = (self.lambda_over_mu**self.num_servers) / (
+            math.factorial(self.num_servers) * (1 - self.rho)
+        )
+
+        return 1 / (sum_part + server_term)
+```
+
+### Wrapper to run the model
+
+```{python}
+```
+
+### Verification test
+
+```{python}
+```
+
+:::
+
+
+## Explore the example models
+
+<div class="h3-tight"></div>
+
+### Nurse visit simulation
+
+:::: {.python-content}
+
+{{< include ../../html/pydesrapmms.html >}}
+
+::: {.blue-table}
+| | |
+| - | - |
+| **Key files** | `tests/test_mms.py` |
+| **What to look for?** | |
+: {tbl-colwidths="[20,80]"}
+:::
+
+::::
+
+:::: {.r-content}
+
+{{< include ../../html/rdesrapmms.html >}}
+
+::: {.blue-table}
+| | |
+| - | - |
+| **Key files** | |
+| **What to look for?** | |
+: {tbl-colwidths="[20,80]"}
+:::
+
+::::
+
+### Stroke pathway simulation
+
+Not relevant - model too complex.
+
+## Test yourself
+
+TODO
+
+<br><br>
