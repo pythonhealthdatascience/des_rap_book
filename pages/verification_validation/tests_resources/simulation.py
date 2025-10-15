@@ -1,3 +1,4 @@
+from joblib import Parallel, delayed, cpu_count
 import numpy as np
 import pandas as pd
 import scipy.stats as st
@@ -23,13 +24,16 @@ class Parameters:
         Duration of the data collection period (minutes).
     number_of_runs : int
         The number of runs (i.e., replications).
+    cores : int
+        Number of CPU cores to use for parallel execution. For all
+        available cores, set to -1. For sequential execution, set to 1.
     verbose : bool
         Whether to print messages as simulation runs.
     """
     def __init__(
-        self, interarrival_time=5, consultation_time=10,
-        number_of_doctors=3, warm_up_period=30, data_collection_period=40,
-        number_of_runs=5, verbose=False
+        self, interarrival_time=5, consultation_time=10, number_of_doctors=3,
+        warm_up_period=15000, data_collection_period=20160,
+        number_of_runs=15, cores=1, verbose=False
     ):
         """
         Initialise Parameters instance.
@@ -48,6 +52,9 @@ class Parameters:
             Duration of the data collection period (minutes).
         number_of_runs : int
             The number of runs (i.e., replications).
+        cores : int
+            Number of CPU cores to use for parallel execution. For all
+            available cores, set to -1. For sequential execution, set to 1.
         verbose : bool
             Whether to print messages as simulation runs.
         """
@@ -57,6 +64,7 @@ class Parameters:
         self.warm_up_period = warm_up_period
         self.data_collection_period = data_collection_period
         self.number_of_runs = number_of_runs
+        self.cores = cores
         self.verbose = verbose
 
 
@@ -74,6 +82,10 @@ class Patient:
         Time patient entered the system (minutes).
     wait_time : float
         Time spent waiting for the doctor (minutes).
+    time_with_doctor : float
+        Time spent in consultation with a doctor (minutes).
+    end_time : float
+        Time that patient leaves (minutes), or NaN if remain in system.
     """
     def __init__(self, patient_id, period, arrival_time):
         """
@@ -92,6 +104,119 @@ class Patient:
         self.period = period
         self.arrival_time = arrival_time
         self.wait_time = np.nan
+        self.time_with_doctor = np.nan
+        self.end_time = np.nan
+
+
+class MonitoredResource(simpy.Resource):
+    """
+    SimPy Resource subclass that tracks utilisation, queue length and mean
+    number of patients in the system.
+
+    Attributes
+    ----------
+    time_last_event : list
+        Time of the most recent resource request or release event.
+    area_resource_busy : list
+        Cumulative time resources were busy, for computing utilisation.
+    area_n_in_queue : list
+        Cumulative time patients spent queueing for a resource, for
+        computing average queue length.
+
+    Notes
+    -----
+    Class adapted from Monks, Harper and Heather 2025.
+    """
+
+    def __init__(self, *args, **kwargs):
+        """
+        Initialise the MonitoredResource, resetting monitoring statistics.
+
+        Parameters
+        ----------
+        *args :
+            Positional arguments to be passed to the parent class.
+        **kwargs :
+            Keyword arguments to be passed to the parent class.
+        """
+        # Initialise a SimPy Resource
+        super().__init__(*args, **kwargs)
+        # Run the init_results() method
+        self.init_results()
+
+    def init_results(self):
+        """
+        Reset monitoring attributes.
+        """
+        self.time_last_event = [self._env.now]
+        self.area_resource_busy = [0.0]
+        self.area_n_in_queue = [0.0]
+
+    def request(self, *args, **kwargs):
+        """
+        Update time-weighted statistics before requesting a resource.
+
+        Parameters
+        ----------
+        *args :
+            Positional arguments to be passed to the parent class.
+        **kwargs :
+            Keyword arguments to be passed to the parent class.
+
+        Returns
+        -------
+        simpy.events.Event
+            Event for the resource request.
+        """
+        # Update time-weighted statistics
+        self.update_time_weighted_stats()
+        # Request a resource
+        return super().request(*args, **kwargs)
+
+    def release(self, *args, **kwargs):
+        """
+        Update time-weighted statistics before releasing a resource.
+
+        Parameters
+        ----------
+        *args :
+            Positional arguments to be passed to the parent class.
+        **kwargs :
+            Keyword arguments to be passed to the parent class.
+
+        Returns
+        -------
+        simpy.events.Event
+            Event for the resource release.
+        """
+        # Update time-weighted statistics
+        self.update_time_weighted_stats()
+        # Release a resource
+        return super().release(*args, **kwargs)
+
+    def update_time_weighted_stats(self):
+        """
+        Update the time-weighted statistics for resource usage.
+
+        Notes
+        -----
+        - These sums can be referred to as "the area under the curve".
+        - They are called "time-weighted" statistics as they account for how
+          long certain events or states persist over time.
+        """
+        # Calculate time since last event
+        time_since_last_event = self._env.now - self.time_last_event[-1]
+
+        # Add record of current time
+        self.time_last_event.append(self._env.now)
+
+        # Add "area under curve" of resources in use
+        # self.count is the number of resources in use
+        self.area_resource_busy.append(self.count * time_since_last_event)
+
+        # Add "area under curve" of people in queue
+        # len(self.queue) is the number of requests queued
+        self.area_n_in_queue.append(len(self.queue) * time_since_last_event)
 
 
 class Model:
@@ -112,6 +237,14 @@ class Model:
         List of Patient objects.
     results_list : list
         List of dictionaries with the attributes of each patient.
+    area_n_in_system : list of float
+        List containing incremental area contributions used for
+        time-weighted statistics of the number of patients in the system.
+    time_last_n_in_system : list
+        List containing time of last update to the number-in-system.
+    n_in_system: int
+        Current number of patients present in the system, including
+        waiting and being served.
     arrival_dist : Exponential
         Distribution used to generate random patient inter-arrival times.
     consult_dist : Exponential
@@ -135,7 +268,7 @@ class Model:
         self.env = simpy.Environment()
 
         # Create resource
-        self.doctor = simpy.Resource(
+        self.doctor = MonitoredResource(
             self.env, capacity=self.param.number_of_doctors
         )
 
@@ -146,12 +279,31 @@ class Model:
         # Set up attributes to store results
         self.patients = []
         self.results_list = []
+        self.area_n_in_system = [0]
+        self.time_last_n_in_system = [self.env.now]
+        self.n_in_system = 0
 
         # Initialise distributions
         self.arrival_dist = Exponential(mean=self.param.interarrival_time,
                                         random_seed=seeds[0])
         self.consult_dist = Exponential(mean=self.param.consultation_time,
                                         random_seed=seeds[1])
+
+    def update_n_in_system(self, inc):
+        """
+        Update the time-weighted statistics for number of patients in system.
+
+        Parameters
+        ----------
+        inc : int
+            Change in the number of patients (+1, 0, -1).
+        """
+        # Compute time since last event and calculate area under curve for that
+        duration = self.env.now - self.time_last_n_in_system[-1]
+        self.area_n_in_system.append(self.n_in_system * duration)
+        # Update time and n in system
+        self.time_last_n_in_system.append(self.env.now)
+        self.n_in_system += inc
 
     def generate_arrivals(self):
         """
@@ -173,6 +325,9 @@ class Model:
                               period=period,
                               arrival_time=self.env.now)
             self.patients.append(patient)
+
+            # Update the number in the system
+            self.update_n_in_system(inc=1)
 
             # Print arrival time
             if self.param.verbose:
@@ -204,14 +359,25 @@ class Model:
                       f"starts consultation at: {self.env.now:.3f}")
 
             # Sample consultation duration and pass time spent with doctor
-            time_with_doctor = self.consult_dist.sample()
-            yield self.env.timeout(time_with_doctor)
+            patient.time_with_doctor = self.consult_dist.sample()
+            yield self.env.timeout(patient.time_with_doctor)
+
+            # Update number in system
+            self.update_n_in_system(inc=-1)
+
+            # Record end time
+            patient.end_time = self.env.now
 
     def reset_results(self):
         """
         Reset results.
         """
         self.patients = []
+        self.doctor.init_results()
+        # For number in system, we reset area and time but not the count, as
+        # it should include any remaining warm-up patients in the count
+        self.area_n_in_system = [0]
+        self.time_last_n_in_system = [self.env.now]
 
     def warmup(self):
         """
@@ -236,6 +402,13 @@ class Model:
         # Run the simulation
         self.env.run(until=(self.param.warm_up_period +
                             self.param.data_collection_period))
+
+        # At simulation end, update time-weighted statistics by accounting
+        # for the time from the last event up to the simulation finish.
+        self.doctor.update_time_weighted_stats()
+
+        # Run final calculation of number in system
+        self.update_n_in_system(inc=0)
 
         # Create list of dictionaries containing each patient's attributes
         self.results_list = [x.__dict__ for x in self.patients]
@@ -326,12 +499,41 @@ class Runner:
         # Patient results
         patient_results = pd.DataFrame(model.results_list)
         patient_results["run"] = run
+        patient_results["time_in_system"] = (
+            patient_results["end_time"] - patient_results["arrival_time"]
+        )
+        # For each patient, if they haven't seen a doctor yet, calculate
+        # their wait as current time minus arrival, else set as missing
+        patient_results["unseen_wait_time"] = np.where(
+            patient_results["time_with_doctor"].isna(),
+            model.env.now - patient_results["arrival_time"], np.nan
+        )
 
         # Run results
         run_results = {
             "run_number": run,
             "arrivals": len(patient_results),
-            "mean_wait_time": patient_results["wait_time"].mean()
+            "mean_wait_time": patient_results["wait_time"].mean(),
+            "mean_time_with_doctor": (
+                patient_results["time_with_doctor"].mean()
+            ),
+            "mean_utilisation_tw": (
+                sum(model.doctor.area_resource_busy) / (
+                    self.param.number_of_doctors *
+                    self.param.data_collection_period
+                )
+            ),
+            "mean_queue_length": (
+                sum(model.doctor.area_n_in_queue) /
+                self.param.data_collection_period
+            ),
+            "mean_time_in_system": patient_results["time_in_system"].mean(),
+            "mean_patients_in_system": (
+                sum(model.area_n_in_system) /
+                self.param.data_collection_period
+            ),
+            "unseen_count": patient_results["time_with_doctor"].isna().sum(),
+            "unseen_wait_time": patient_results["unseen_wait_time"].mean()
         }
 
         return {
@@ -343,9 +545,24 @@ class Runner:
         """
         Execute a single model configuration for multiple runs.
         """
-        # Run replications
-        all_results = [self.run_single(run)
-                       for run in range(self.param.number_of_runs)]
+        # Sequential execution
+        if self.param.cores == 1:
+            all_results = [self.run_single(run)
+                           for run in range(self.param.number_of_runs)]
+        # Parallel execution
+        else:
+            # Check number of cores is valid
+            valid_cores = [-1] + list(range(1, cpu_count()))
+            if self.param.cores not in valid_cores:
+                raise ValueError(
+                    f"Invalid cores: {self.param.cores}. Must be one of: " +
+                    f"{valid_cores}."
+                )
+            # Execute replications
+            all_results = Parallel(n_jobs=self.param.cores)(
+                delayed(self.run_single)(run)
+                for run in range(self.param.number_of_runs)
+            )
 
         # Separate results from each run into appropriate lists
         patient_results_list = [result["patient"] for result in all_results]

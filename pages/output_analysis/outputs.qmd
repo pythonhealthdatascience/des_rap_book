@@ -2922,8 +2922,8 @@ class Model:
     results_list : list
         List of dictionaries with the attributes of each patient.
     area_n_in_system : list of float#<<
-        List containing incremental area contributions used for time-weighted
-        statistics of the number of patients in the system.
+        List containing incremental area contributions used for#<<
+        time-weighted statistics of the number of patients in the system.#<<
     time_last_n_in_system : list#<<
         List containing time of last update to the number-in-system.#<<
     n_in_system: int#<<
@@ -3438,10 +3438,7 @@ In `result["patient"]` we can see one person had NaN for `time_with_doctor`. Cor
 
 #### Patient class
 
-Here, we add new attributes just as we have done for other measures:
-
-* `arrival_time` (like for mean time in system).
-* `time_with_doctor` (like for mean time in consultation and unseen patient count).
+As done in mean time in consultation and unseen patient count, we add a new attribute `time_with_doctor`.
 
 ```{python}
 class Patient:
@@ -3480,10 +3477,7 @@ class Patient:
 
 #### Model class
 
-We also repeat previous changes to `Model`:
-
-* Storing the arrival time in `Model.generate_arrivals()` as `patient.arrival_time` (like for mean time in system).
-* Storing the sampled consultation length in `Model.consultation()` as `patient.time_with_doctor` (like for mean time in consultation and unseen patient count).
+We also repeat the change to `Model` - recording the sampled time with doctor as `patient.time_with_doctor` during `Model.consultation()`.
 
 ```{python}
 class Model:
@@ -3566,11 +3560,11 @@ class Model:
                               arrival_time=self.env.now)
             self.patients.append(patient)
 
-            # Record and print the arrival time#<<
-            patient.arrival_time = self.env.now#<<
+            # Record and print the arrival time
+            patient.arrival_time = self.env.now
             if self.param.verbose:
                 print(f"{patient.period} Patient {patient.patient_id} " +
-                      f"arrives at time: {patient.arrival_time:.3f}")#<<
+                      f"arrives at time: {patient.arrival_time:.3f}")
 
             # Start process of consultation
             self.env.process(self.consultation(patient))

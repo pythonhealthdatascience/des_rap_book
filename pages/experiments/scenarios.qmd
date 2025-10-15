@@ -24,9 +24,9 @@ bibliography: scenarios_resources/references.bib
 
 **Pre-reading:**
 
-This page continues on from: [Replications](../output_analysis/replications.qmd).
+This page continues on from: [Parallel processing](../output_analysis/parallel.qmd).
 
-> *Entity generation → Entity processing → Initialisation bias → Performance measures → Replications → Scenario analysis*
+> *Entity generation → Entity processing → Initialisation bias → Performance measures → Replications → Length of warm-up → Number of replications → Parallel processing → Scenario and sensitivity analysis*
 
 **Required packages:**
 
@@ -96,11 +96,12 @@ In @Heather2025, six out of seven studies with scenarios lacked scenario code. T
 
 ```{python}
 #| echo: false
-{{< include ../output_analysis/replications_resources/parameters.py >}}
+{{< include ../output_analysis/parallel_resources/parameters.py >}}
 {{< include ../output_analysis/replications_resources/patient.py >}}
+{{< include ../output_analysis/replications_resources/monitored_resource.py >}}
 {{< include ../output_analysis/replications_resources/model.py >}}
 {{< include ../output_analysis/replications_resources/summary_stats.py >}}
-{{< include ../output_analysis/replications_resources/runner.py >}}
+{{< include ../output_analysis/parallel_resources/runner.py >}}
 ```
 
 ```{r}
@@ -354,7 +355,7 @@ Let's run it!
 scenario_results = run_scenarios(
     scenarios={"interarrival_time": [4, 5, 6, 7, 8],
                "number_of_doctors": [3, 4, 5]},
-    param_factory=lambda: Parameters(number_of_runs=100)
+    param_factory=Parameters
 )
 
 # Save to CSV
@@ -412,7 +413,7 @@ They can be run using similar code. Below is an example using the `run_scenarios
 # Run sensitivity analysis
 sensitivity_results = run_scenarios(
     scenarios={"interarrival_time": [4, 4.5, 5, 5.5, 6, 6.5, 7]},
-    param_factory=lambda: Parameters(number_of_runs=100)
+    param_factory=Parameters
 )
 
 # Save to CSV
