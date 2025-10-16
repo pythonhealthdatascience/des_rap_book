@@ -359,16 +359,23 @@ class Runner:
         Returns#<<
         -------#<<
         pd.DataFrame#<<
-            Dataframe with two columns: time and metric.#<<
+            Dataframe with three columns: time, area (as recorded during#<<
+            run) and cumulative time-weighted mean.#<<
         """#<<
         # Convert lists into a dataframe, and define name for result column#<<
         df = pd.DataFrame({"time": time_list, "area": area_list})#<<
         colname = f"cumulative_mean_{metric}"#<<
 
         # Find cumulative mean (divide cumulative area by time elapsed)#<<
-        df[colname] = df["area"].cumsum() / df["time"]#<<
+        # For utilisation, need to normalise by number of doctors#<<
+        if metric == "utilisation":#<<
+            df[colname] = df["area"].cumsum() / (#<<
+                df["time"] * self.param.number_of_doctors#<<
+            )#<<
+        else:#<<
+            df[colname] = df["area"].cumsum() / df["time"]#<<
 
-        return df[["time", colname]]#<<
+        return df#<<
 
     def run_reps(self):
         """
@@ -428,15 +435,15 @@ class Runner:
         return results#<<
 ```
 
-### Running the approach
+### Running the model
 
 If you've already built warm-up logic into your model (as we have done), make sure the **warm-up period is set to 0** for this assessment (`warm_up_period = 0`).
 
 As mentioned above, we have used multiple replications (`number_of_runs = 5`) and a long run length (`data_collection_period = 100000`). This run length is based on the assumption that our desired simulation run length is 2 weeks (20,160 minutes).
 
-> So far, the model we have been constructing in this book has intentionally had a short duration. This is handy when developing - for example, for looking over the log messages. However, this is unrealistic of an actual simulation of a healthcare system, and will produce great variability (requiring very long warm-up / large number of replications for stable results). From this point onwards, we increase the run time as mentioned.
+*However, these plots have been cropped to just 20,000, as it stabilised pretty quickly here.*
 
-<!--TODO: python on 20,000 at the moment...-->
+> So far, the model we have been constructing in this book has intentionally had a short duration. This is handy when developing - for example, for looking over the log messages. However, this is unrealistic of an actual simulation of a healthcare system, and will produce great variability (requiring very long warm-up / large number of replications for stable results). From this point onwards, we increase the run time as mentioned.
 
 ```{python}
 # Run model with base parameters for 5 replications with no warm-up and
@@ -448,7 +455,15 @@ runner = Runner(param, collect_during_run=True)
 results = runner.run_reps()["during_run"]
 ```
 
-#### Metrics from `patient` (not time-weighted): mean wait time and mean time in system
+### Plotting the time series
+
+We can now create plots of the cumulative mean metrics over time. We plot the results from each run (light blue), then an overall cumulative mean (dark blue). Rather than attempting to properly combine time-weighted statistics across runs with different event timepoints, we:
+
+1. Pool all timepoint observations from all runs
+2. Sort them chronologically
+3. Compute a running average of the cumulative mean values
+
+Whilst this is just an approximation of the cumulative mean for time-weighted values, it is perfectly fine for the purposes of this exercise, which is just so see roughly when metrics stabilise.
 
 ```{python}
 def plot_cumulative_mean(results, metric, warmup_time=None):
@@ -511,102 +526,29 @@ def plot_cumulative_mean(results, metric, warmup_time=None):
 ```
 
 ```{python}
-fig = plot_cumulative_mean(results, "wait_time", 1500)
+fig = plot_cumulative_mean(results, "wait_time", 3000)
 fig.show()
 ```
 
 ```{python}
-fig = plot_cumulative_mean(results, "time_in_system", 1500)
+fig = plot_cumulative_mean(results, "time_in_system", 3000)
 fig.show()
 ```
 
 ```{python}
-# Calculate overall cumulative mean
-result_overall = results["wait_time"].sort_values("time")
-result_overall["overall_cumulative_mean"] = (
-    result_overall["cumulative_mean_wait_time"].expanding().mean()
-)
-
-# Plot cumulative mean from each run
-fig1 = px.line(data_frame=results["wait_time"],
-               x="time",
-               y="cumulative_mean_wait_time",
-               line_group="run")
-fig1.update_traces(line_color="lightblue")
-
-# Add overall cumulative mean to plot
-fig2 = px.line(data_frame=result_overall, x="time", y="overall_cumulative_mean")
-fig1.add_traces(list(fig2.select_traces()))
-
-# Add vertical line for warm-up period
-fig1.add_vline(x=1500, line_color="red", line_dash="dash",
-               annotation_text="Suggested warm-up",
-               annotation_font_color="red",
-               annotation_position="top right")
-
-# Amend axis labels and plot appearance
-fig1.update_layout(
-    xaxis_title="Run time (minutes)",
-    yaxis_title="Cumulative mean wait time",
-    template="plotly_white"
-)
-fig1.show()
+fig = plot_cumulative_mean(results, "utilisation", 3000)
+fig.show()
 ```
-
-#### Mean time in system
 
 ```{python}
-# Calculate overall cumulative mean
-result_overall = results["time_in_system"].sort_values("time")
-result_overall["overall_cumulative_mean"] = (
-    result_overall["cumulative_mean_time_in_system"].expanding().mean()
-)
-
-# Plot cumulative mean from each run
-fig1 = px.line(data_frame=results["time_in_system"],
-               x="time",
-               y="cumulative_mean_time_in_system",
-               line_group="run")
-fig1.update_traces(line_color="lightblue")
-
-# Add overall cumulative mean to plot
-fig2 = px.line(data_frame=result_overall, x="time", y="overall_cumulative_mean")
-fig1.add_traces(list(fig2.select_traces()))
-
-# Add vertical line for warm-up period
-fig1.add_vline(x=1500, line_color="red", line_dash="dash",
-               annotation_text="Suggested warm-up",
-               annotation_font_color="red",
-               annotation_position="top right")
-
-# Amend axis labels and plot appearance
-fig1.update_layout(
-    xaxis_title="Run time (minutes)",
-    yaxis_title="Cumulative mean time in system",
-    template="plotly_white"
-)
-fig1.show()
+fig = plot_cumulative_mean(results, "queue_length", 3000)
+fig.show()
 ```
-
-#### Mean doctor utilisation
 
 ```{python}
-#TODO
+fig = plot_cumulative_mean(results, "patients_in_system", 3000)
+fig.show()
 ```
-
-#### Mean queue length
-
-```{python}
-#TODO
-```
-
-#### Mean patients in system
-
-```{python}
-#TODO
-```
-
-<!--TODO: explain chosen value-->
 
 :::
 
