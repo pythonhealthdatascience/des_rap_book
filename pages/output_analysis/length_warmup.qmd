@@ -95,25 +95,81 @@ When determining your warm-up period, you should:
 
 ## Implementing the time series inspection approach
 
-<div class="h3-tight"></div>
+It's important to include all relevant metrics when implementing this approach. For our model, that means:
+
+* Mean wait time
+* Mean doctor utilisation
+* Mean queue length
+* Mean time in system
+* Mean number of patients in system
+
+> **Why not other metrics?**
+>
+> * Total arrivals: Not impacted by initialisation bias
+> * Mean time in consultation: Not impacted by initialisation bias
+> * Unseen (backlogged) patients: In the current model set-up, number of unseen patients is very low or zero, so this is not that useful in our consideration of initialisation bias. However, if your model configuration leads to significant backlogs, this metric could become relevant for warm-up analysis.
+
+::: {.python-content}
+
+This approach requires us to have collected live data on each of our performance measures as the simulation runs.
+
+We could use an "audit" approach, where we have a method that runs at regular intervals to find the value of each metric at that point (as implemented in the nurse visit simulation example, mentioned at the end of this page).
+
+However, as we have set up our model to record list of times and performance measures, we can actually make use of these directly instead.
+
+### Parameter class
+
+No changes required.
+
+```{python}
+#| echo: false
+#| file: replications_resources/parameters.py
+```
+
+### Patient class
+
+No changes required.
+
+```{python}
+#| echo: false
+#| file: replications_resources/patient.py
+```
+
+### Monitored resource class
+
+No changes required.
+
+```{python}
+#| echo: false
+#| file: replications_resources/monitored_resource.py
+```
+
+### Model class
+
+```{python}
+```
+
+### Summary statistics function
+
+No changes required.
+
+```{python}
+#| echo: false
+#| file: replications_resources/summary_stats.py
+```
+
+### Runner class
+
+```{python}
+```
+
+:::
+
+::: {.r-content}
 
 ### Simulation code
 
 The simulation being used is that from the [Replications](replications.qmd) page.
-
-So far, it has intentionally just had a very short duration. However, this is unrealistic of an actual simulation of a healthcare system, and will produce great variability (requiring very long warm-up / large number of replications for stable results).
-
-On this page, we assume that the desired simulation run length is 2 weeks (20,160 minutes) - and so run our time inspection approach for 100,000 minutes.
-
-```{python}
-#| echo: false
-{{< include replications_resources/parameters.py >}}
-{{< include replications_resources/patient.py >}}
-{{< include replications_resources/monitored_resource.py >}}
-{{< include replications_resources/model.py >}}
-{{< include replications_resources/summary_stats.py >}}
-{{< include replications_resources/runner.py >}}
-```
 
 ```{r}
 #| echo: false
@@ -150,6 +206,8 @@ On this page, we assume that the desired simulation run length is 2 weeks (20,16
 #| file: replications_resources/runner.R
 ```
 
+:::
+
 ### Time series inspection function
 
 ::: {.python-content}
@@ -157,100 +215,7 @@ On this page, we assume that the desired simulation run length is 2 weeks (20,16
 We have a new `time_series_inspection` function for this analysis.
 
 ```{python}
-def time_series_inspection(result, file_path, warm_up=None):
-    """
-    Time series inspection method for determining length of warm-up.
-
-    Find the cumulative mean results and plot over time (overall and per run).
-
-    Parameters
-    ----------
-    result : pd.DataFrame
-        Patient-level result output by Runner.run_reps().
-    file_path : str
-        Path to save figure to.
-    warm_up : int
-        Location on X axis to plot vertical red line indicating chosen warm-up
-        period. Defaults to None, which will not plot a line.
-    """
-    # Sort by run and arrival time
-    result = result.sort_values(["run", "arrival_time"])
-
-    # Cumulative mean for each run (replication)
-    result["cumulative_mean"] = (
-        result
-        .groupby("run")["wait_time"]
-        .expanding()
-        .mean()
-        .reset_index(level=0, drop=True)
-    )
-
-    # Overall cumulative mean (across all runs)
-    result_overall = result.sort_values("arrival_time")
-    result_overall["overall_cumulative_mean"] = (
-        result_overall["wait_time"].expanding().mean()
-    )
-
-    # Plot: all individual runs as light lines, overall as dark line
-    fig = go.Figure()
-
-    for run, df_run in result.groupby("run"):
-        fig.add_trace(go.Scatter(
-            x=df_run["arrival_time"],
-            y=df_run["cumulative_mean"],
-            mode="lines",
-            line={"color": "lightblue", "width": 1},
-            opacity=0.7,
-            name=f"Run {run}",
-            showlegend=False
-        ))
-
-    fig.add_trace(go.Scatter(
-        x=result_overall["arrival_time"],
-        y=result_overall["overall_cumulative_mean"],
-        mode="lines",
-        line={"color": "darkblue", "width": 3},
-        name="Overall"
-    ))
-
-    # Optional vertical line for warm-up period (manually as add_vline not
-    # showing on the plot for some reason)
-    ymin = min(result["cumulative_mean"].min(),
-               result_overall["overall_cumulative_mean"].min())
-    ymax = max(result["cumulative_mean"].max(),
-               result_overall["overall_cumulative_mean"].max())
-    if warm_up is not None:
-        fig.add_shape(
-            type="line",
-            x0=warm_up,
-            y0=ymin,
-            x1=warm_up,
-            y1=ymax,
-            line={"color": "red", "width": 2, "dash": "dash"},
-            xref="x",
-            yref="y"
-        )
-        fig.add_annotation(
-            x=warm_up,
-            y=ymax,
-            text="Suggested warm-up length",
-            showarrow=False,
-            font={"color": "red"},
-            yanchor="top",
-            xanchor="left"
-        )
-
-    fig.update_layout(
-        xaxis_title="Run time (minutes)",
-        yaxis_title="Cumulative mean wait_time",
-        showlegend=False,
-        template="simple_white"
-    )
-
-    # Save as static image
-    fig.write_image(file_path)
-
-    return fig
+# TODO
 ```
 
 This function is just plotting one metric, but you could adapt it for a model with multiple metrics.
@@ -482,26 +447,14 @@ The plots are then arranged vertically in a single figure using `marrangeGrob()`
 
 If you've already built warm-up logic into your model (as we have done), make sure the **warm-up period is set to 0** for this assessment (`warm_up_period = 0`).
 
-As mention above, we have used multiple replications (`number_of_runs = 5`) and a long run length (`data_collection_period = 100000`).
+As mentioned above, we have used multiple replications (`number_of_runs = 5`) and a long run length (`data_collection_period = 100000`). This run length is based on the assumption that our desired simulation run length is 2 weeks (20,160 minutes).
+
+> So far, the model we have been constructing in this book has intentionally had a short duration. This is handy when developing - for example, for looking over the log messages. However, this is unrealistic of an actual simulation of a healthcare system, and will produce great variability (requiring very long warm-up / large number of replications for stable results). From this point onwards, we increase the run time as mentioned.
 
 ::: {.python-content}
 
 ```{python}
-# Run model with base parameters for 5 replications with no warm-up and
-# long data collection period, keeping the patient-level results
-param = Parameters(warm_up_period=0,
-                   data_collection_period=100000,
-                   number_of_runs=5)
-runner = Runner(param)
-results = runner.run_reps()["patient"]
-
-# Provide to time_series_inspection() function
-time_series_inspection(
-  result=results,
-  file_path=os.path.join("length_warmup_resources",
-                         "python_length_warmup.png"),
-  warm_up=15000
-)
+# TODO
 ```
 
 The selection of a warm-up period is **subjective**. In this example, we have suggested a value of 15,000, but this choice could be changed subject to discussion and evaluation of other metrics.
