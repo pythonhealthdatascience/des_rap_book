@@ -69,6 +69,12 @@ library(tidyr)
 
 :::
 
+::: {.python-content}
+
+**Acknowledgements:** Code for choice of warm-up period was adapted from Tom Monks (2024) [HPDM097 - Making a difference with health data](https://github.com/health-data-science-OR/stochastic_systems) (MIT Licence).
+
+:::
+
 ::::
 
 ## Determining a suitable length of warm-up
@@ -89,356 +95,25 @@ When determining your warm-up period, you should:
 
 ## Implementing the time series inspection approach
 
-It's important to include all relevant metrics when implementing this approach. For our model, that means:
-
-* Mean wait time
-* Mean doctor utilisation
-* Mean queue length
-* Mean time in system
-* Mean number of patients in system
-
-> **Why not other metrics?**
->
-> * Total arrivals: Not impacted by initialisation bias
-> * Mean time in consultation: Not impacted by initialisation bias
-> * Unseen (backlogged) patients: In the current model set-up, number of unseen patients is very low or zero, so this is not that useful in our consideration of initialisation bias. However, if your model configuration leads to significant backlogs, this metric could become relevant for warm-up analysis.
-
-::: {.python-content}
-
-This approach requires us to have collected live data on each of our performance measures as the simulation runs. To achieve this in our Python simulation, we have two options:
-
-**Option 1. Adding live trackers for each metric**.
-
-* Each metric changes at different times, so you need to record updates wherever those changes occur.
-* The patient dataframe already captures arrival time and mean wait time for each patient. However, "time in system" here refers to the total time each patient spends, not the live number of patients currently in the system at any given moment.
-* For the time-weighted measures, we need to keep a record of all timestamps (not just the latest). We also need to add new attributes which record the metrics at each timepoint (as lists like `area_resource_busy` do not provide the actual metric value at each time point).
-* Overall, this method is quite **complex** and requires **changes throughout the codebase**.
-
-**Option 2. Adding an auditor which records system status at regular intervals**.
-
-* Add a method that runs at regular intervals to find the value of each metric at that point.
-* We chose this approach as it **keeps all the data needed for the warm-up analysis together**, and is a **simpler proces**s (new code in one place, rather than lots of changes throughout the code!).
-
-This audit approach is adapted from Tom Monks (2024) [HPDM097 - Making a difference with health data](https://github.com/health-data-science-OR/stochastic_systems) (MIT Licence).
-
-### Parameter class
-
-We add a new parameter `audit_interval` which determines how frequently to record the current system state.
-
-```{python}
-class Parameters:
-    """
-    Parameter class.
-
-    Attributes
-    ----------
-    interarrival_time : float
-        Mean time between arrivals (minutes).
-    consultation_time : float
-        Mean length of doctor's consultation (minutes).
-    number_of_doctors : int
-        Number of doctors.
-    warm_up_period : int
-        Duration of the warm-up period (minutes).
-    data_collection_period : int
-        Duration of the data collection period (minutes).
-    number_of_runs : int
-        The number of runs (i.e., replications).
-    audit_interval : int#<<
-        How frequently to audit performance measures (minutes).#<<
-    verbose : bool
-        Whether to print messages as simulation runs.
-    """
-    def __init__(
-        self, interarrival_time=5, consultation_time=10,
-        number_of_doctors=3, warm_up_period=30, data_collection_period=40,
-        number_of_runs=5, audit_interval=50, verbose=False#<<
-    ):
-        """
-        Initialise Parameters instance.
-
-        Parameters
-        ----------
-        interarrival_time : float
-            Time between arrivals (minutes).
-        consultation_time : float
-            Length of consultation (minutes).
-        number_of_doctors : int
-            Number of doctors.
-        warm_up_period : int
-            Duration of the warm-up period (minutes).
-        data_collection_period : int
-            Duration of the data collection period (minutes).
-        number_of_runs : int
-            The number of runs (i.e., replications).
-        audit_interval : int#<<
-            How frequently to audit performance measures (minutes).#<<
-        verbose : bool
-            Whether to print messages as simulation runs.
-        """
-        self.interarrival_time = interarrival_time
-        self.consultation_time = consultation_time
-        self.number_of_doctors = number_of_doctors
-        self.warm_up_period = warm_up_period
-        self.data_collection_period = data_collection_period
-        self.number_of_runs = number_of_runs
-        self.audit_interval = audit_interval#<<
-        self.verbose = verbose
-```
-
-### Patient class
-
-No changes required.
-
-```{python}
-#| echo: false
-#| file: replications_resources/patient.py
-```
-
-### Monitored resource class
-
-No changes required.
-
-```{python}
-#| echo: false
-#| file: replications_resources/monitored_resource.py
-```
-
-### Model class
-
-```{python}
-class Model:
-    """
-    Simulation model.
-
-    Attributes
-    ----------
-    param : Parameters
-        Simulation parameters.
-    run_number : int
-        Run number for random seed generation.
-    env : simpy.Environment
-        The SimPy environment for the simulation.
-    doctor : simpy.Resource
-        SimPy resource representing doctors.
-    patients : list
-        List of Patient objects.
-    results_list : list
-        List of dictionaries with the attributes of each patient.
-    area_n_in_system : list of float
-        List containing incremental area contributions used for
-        time-weighted statistics of the number of patients in the system.
-    time_last_n_in_system : list
-        List containing time of last update to the number-in-system.
-    n_in_system: int
-        Current number of patients present in the system, including
-        waiting and being served.
-    arrival_dist : Exponential
-        Distribution used to generate random patient inter-arrival times.
-    consult_dist : Exponential
-        Distribution used to generate length of a doctor's consultation.
-    """
-    def __init__(self, param, run_number):
-        """
-        Create a new Model instance.
-
-        Parameters
-        ----------
-        param : Parameters
-            Simulation parameters.
-        run_number : int
-            Run number for random seed generation.
-        """
-        self.param = param
-        self.run_number = run_number
-
-        # Create SimPy environment
-        self.env = simpy.Environment()
-
-        # Create resource
-        self.doctor = MonitoredResource(
-            self.env, capacity=self.param.number_of_doctors
-        )
-
-        # Create a random seed sequence based on the run number
-        ss = np.random.SeedSequence(self.run_number)
-        seeds = ss.spawn(2)
-
-        # Set up attributes to store results
-        self.patients = []
-        self.results_list = []
-        self.area_n_in_system = [0]
-        self.time_last_n_in_system = [self.env.now]
-        self.n_in_system = 0
-
-        # Initialise distributions
-        self.arrival_dist = Exponential(mean=self.param.interarrival_time,
-                                        random_seed=seeds[0])
-        self.consult_dist = Exponential(mean=self.param.consultation_time,
-                                        random_seed=seeds[1])
-
-    def update_n_in_system(self, inc):
-        """
-        Update the time-weighted statistics for number of patients in system.
-
-        Parameters
-        ----------
-        inc : int
-            Change in the number of patients (+1, 0, -1).
-        """
-        # Compute time since last event and calculate area under curve for that
-        duration = self.env.now - self.time_last_n_in_system[-1]
-        self.area_n_in_system.append(self.n_in_system * duration)
-        # Update time and n in system
-        self.time_last_n_in_system.append(self.env.now)
-        self.n_in_system += inc
-
-    def generate_arrivals(self):
-        """
-        Process that generates patient arrivals.
-        """
-        while True:
-            # Sample and pass time to next arrival
-            sampled_iat = self.arrival_dist.sample()
-            yield self.env.timeout(sampled_iat)
-
-            # Check whether arrived during warm-up or data collection
-            if self.env.now < self.param.warm_up_period:
-                period = "\U0001F538 WU"
-            else:
-                period = "\U0001F539 DC"
-
-            # Create a new patient
-            patient = Patient(patient_id=len(self.patients)+1,
-                              period=period,
-                              arrival_time=self.env.now)
-            self.patients.append(patient)
-
-            # Update the number in the system
-            self.update_n_in_system(inc=1)
-
-            # Print arrival time
-            if self.param.verbose:
-                print(f"{patient.period} Patient {patient.patient_id} " +
-                      f"arrives at time: {patient.arrival_time:.3f}")
-
-            # Start process of consultation
-            self.env.process(self.consultation(patient))
-
-    def consultation(self, patient):
-        """
-        Process that simulates a consultation.
-
-        Parameters
-        ----------
-        patient :
-            Instance of the Patient() class representing a single patient.
-        """
-        start_wait = self.env.now
-        # Patient requests access to a doctor (resource)
-        with self.doctor.request() as req:
-            yield req
-
-            # Record how long patient waited before consultation
-            patient.wait_time = self.env.now - start_wait
-
-            if self.param.verbose:
-                print(f"{patient.period} Patient {patient.patient_id} " +
-                      f"starts consultation at: {self.env.now:.3f}")
-
-            # Sample consultation duration and pass time spent with doctor
-            patient.time_with_doctor = self.consult_dist.sample()
-            yield self.env.timeout(patient.time_with_doctor)
-
-            # Update number in system
-            self.update_n_in_system(inc=-1)
-
-            # Record end time
-            patient.end_time = self.env.now
-
-    def interval_audit(self):
-        """
-        Audit performance measures at regular intervals.
-
-        This is used to determine length of warm-up, and so is set to run only
-        if the warm-up is 0.
-        """
-        if self.param.warm_up_period == 0:
-            while True:
-                self.audit_list.append({
-                    "mean_wait_time":,
-                    "mean_time_with_doctor":
-                    "mean utilisation":
-                    "mean_queue_length":
-                    "mean_time_in_system":
-                    "mean_patients_in_system":
-                })
-
-    def reset_results(self):
-        """
-        Reset results.
-        """
-        self.patients = []
-        self.doctor.init_results()
-        # For number in system, we reset area and time but not the count, as
-        # it should include any remaining warm-up patients in the count
-        self.area_n_in_system = [0]
-        self.time_last_n_in_system = [self.env.now]
-
-    def warmup(self):
-        """
-        Reset result collection after the warm-up period.
-        """
-        if self.param.warm_up_period > 0:
-            # Delay process until warm-up period has completed
-            yield self.env.timeout(self.param.warm_up_period)
-            # Reset results variables
-            self.reset_results()
-            if self.param.verbose:
-                print(f"Warm up period ended at time: {self.env.now}")
-
-    def run(self):
-        """
-        Run the simulation.
-        """
-        # Schedule arrival generator and warm-up
-        self.env.process(self.generate_arrivals())
-        self.env.process(self.warmup())
-
-        # Run the simulation
-        self.env.run(until=(self.param.warm_up_period +
-                            self.param.data_collection_period))
-
-        # At simulation end, update time-weighted statistics by accounting
-        # for the time from the last event up to the simulation finish.
-        self.doctor.update_time_weighted_stats()
-
-        # Run final calculation of number in system
-        self.update_n_in_system(inc=0)
-
-        # Create list of dictionaries containing each patient's attributes
-        self.results_list = [x.__dict__ for x in self.patients]
-```
-
-### Summary statistics function
-
-```{python}
-```
-
-### Runner class
-
-```{python}
-```
-
-:::
-
-::: {.r-content}
-
-This approach requires us to have collected live data on each of our performance measures as the simulation runs. Conveniently, that is how our model results collection is set-up! The `arrivals` and `resources` dataframes contain all the information needed.
+<div class="h3-tight"></div>
 
 ### Simulation code
 
 The simulation being used is that from the [Replications](replications.qmd) page.
+
+So far, it has intentionally just had a very short duration. However, this is unrealistic of an actual simulation of a healthcare system, and will produce great variability (requiring very long warm-up / large number of replications for stable results).
+
+On this page, we assume that the desired simulation run length is 2 weeks (20,160 minutes) - and so run our time inspection approach for 100,000 minutes.
+
+```{python}
+#| echo: false
+{{< include replications_resources/parameters.py >}}
+{{< include replications_resources/patient.py >}}
+{{< include replications_resources/monitored_resource.py >}}
+{{< include replications_resources/model.py >}}
+{{< include replications_resources/summary_stats.py >}}
+{{< include replications_resources/runner.py >}}
+```
 
 ```{r}
 #| echo: false
@@ -476,6 +151,117 @@ The simulation being used is that from the [Replications](replications.qmd) page
 ```
 
 ### Time series inspection function
+
+::: {.python-content}
+
+We have a new `time_series_inspection` function for this analysis.
+
+```{python}
+def time_series_inspection(result, file_path, warm_up=None):
+    """
+    Time series inspection method for determining length of warm-up.
+
+    Find the cumulative mean results and plot over time (overall and per run).
+
+    Parameters
+    ----------
+    result : pd.DataFrame
+        Patient-level result output by Runner.run_reps().
+    file_path : str
+        Path to save figure to.
+    warm_up : int
+        Location on X axis to plot vertical red line indicating chosen warm-up
+        period. Defaults to None, which will not plot a line.
+    """
+    # Sort by run and arrival time
+    result = result.sort_values(["run", "arrival_time"])
+
+    # Cumulative mean for each run (replication)
+    result["cumulative_mean"] = (
+        result
+        .groupby("run")["wait_time"]
+        .expanding()
+        .mean()
+        .reset_index(level=0, drop=True)
+    )
+
+    # Overall cumulative mean (across all runs)
+    result_overall = result.sort_values("arrival_time")
+    result_overall["overall_cumulative_mean"] = (
+        result_overall["wait_time"].expanding().mean()
+    )
+
+    # Plot: all individual runs as light lines, overall as dark line
+    fig = go.Figure()
+
+    for run, df_run in result.groupby("run"):
+        fig.add_trace(go.Scatter(
+            x=df_run["arrival_time"],
+            y=df_run["cumulative_mean"],
+            mode="lines",
+            line={"color": "lightblue", "width": 1},
+            opacity=0.7,
+            name=f"Run {run}",
+            showlegend=False
+        ))
+
+    fig.add_trace(go.Scatter(
+        x=result_overall["arrival_time"],
+        y=result_overall["overall_cumulative_mean"],
+        mode="lines",
+        line={"color": "darkblue", "width": 3},
+        name="Overall"
+    ))
+
+    # Optional vertical line for warm-up period (manually as add_vline not
+    # showing on the plot for some reason)
+    ymin = min(result["cumulative_mean"].min(),
+               result_overall["overall_cumulative_mean"].min())
+    ymax = max(result["cumulative_mean"].max(),
+               result_overall["overall_cumulative_mean"].max())
+    if warm_up is not None:
+        fig.add_shape(
+            type="line",
+            x0=warm_up,
+            y0=ymin,
+            x1=warm_up,
+            y1=ymax,
+            line={"color": "red", "width": 2, "dash": "dash"},
+            xref="x",
+            yref="y"
+        )
+        fig.add_annotation(
+            x=warm_up,
+            y=ymax,
+            text="Suggested warm-up length",
+            showarrow=False,
+            font={"color": "red"},
+            yanchor="top",
+            xanchor="left"
+        )
+
+    fig.update_layout(
+        xaxis_title="Run time (minutes)",
+        yaxis_title="Cumulative mean wait_time",
+        showlegend=False,
+        template="simple_white"
+    )
+
+    # Save as static image
+    fig.write_image(file_path)
+
+    return fig
+```
+
+This function is just plotting one metric, but you could adapt it for a model with multiple metrics.
+
+Mean wait time and time in system will both be in the patient dataframe.
+
+Time-weighted metrics (utilisation, queue length, patients in system) all record a list of timepoints and running record of metric at that time. Hence, these can be used if you just extract the lists of times and metrics from the model.
+
+:::
+
+::: {.r-content}
 
 We have a new `time_series_inspection` function for this analysis, which is explained line-by-line below.
 
@@ -696,14 +482,26 @@ The plots are then arranged vertically in a single figure using `marrangeGrob()`
 
 If you've already built warm-up logic into your model (as we have done), make sure the **warm-up period is set to 0** for this assessment (`warm_up_period = 0`).
 
-As mention above, we have used multiple replications (`number_of_runs = 5`) and a long run length (`data_collection_period = 100000`). This run length is based on the assumption that our desired simulation run length is 2 weeks (20,160 minutes).
-
-> So far, the model we have been constructing in this book has intentionally had a short duration. This is handy when developing - for example, for looking over the log messages. However, this is unrealistic of an actual simulation of a healthcare system, and will produce great variability (requiring very long warm-up / large number of replications for stable results). From this point onwards, we increase the run time as mentioned.
+As mention above, we have used multiple replications (`number_of_runs = 5`) and a long run length (`data_collection_period = 100000`).
 
 ::: {.python-content}
 
 ```{python}
-# TODO
+# Run model with base parameters for 5 replications with no warm-up and
+# long data collection period, keeping the patient-level results
+param = Parameters(warm_up_period=0,
+                   data_collection_period=100000,
+                   number_of_runs=5)
+runner = Runner(param)
+results = runner.run_reps()["patient"]
+
+# Provide to time_series_inspection() function
+time_series_inspection(
+  result=results,
+  file_path=os.path.join("length_warmup_resources",
+                         "python_length_warmup.png"),
+  warm_up=15000
+)
 ```
 
 The selection of a warm-up period is **subjective**. In this example, we have suggested a value of 15,000, but this choice could be changed subject to discussion and evaluation of other metrics.
@@ -748,7 +546,8 @@ The selection of a warm-up period is **subjective**. In this example, we have su
 | | |
 | - | - |
 | **Key files** | `simulation/param.py`<br>`simulation/model.py`<br>`simulation/runner.py`<br>`notebooks/choosing_warmup.ipynb` |
-| **What to look for?** | TODO |
+| **What to look for?** | This example currently determines warm-up differently. It uses an audit, so during the simulation run at specified intervals it records the metrics at that time. These are then used to determine warm-up length. |
+| **Why it matters?** | There is no one way of doing something! Depending on your set-up, one of the other may be the simplest option. We have included the method on this page and the different one in the example, to illustrate some of the options for this analysis. |
 : {tbl-colwidths="[20,80]"}
 :::
 
