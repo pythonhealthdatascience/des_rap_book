@@ -123,11 +123,78 @@ In our model set-up, we have recorded the corresponding times for each metric du
 
 ### Parameter class
 
-No changes required.
+We add a new parameter `collect_during_run`, which will prompt our simulation to provide some extra results in the output, as required for determining length of warm-up.
+
+This is just designed for this purpose, so we include some validation to ensure that warm-up is set to zero when `collect_during_run=True`.
 
 ```{python}
-#| echo: false
-{{< include replications_resources/parameters.py >}}
+class Parameters:
+    """
+    Parameter class.
+
+    Attributes
+    ----------
+    interarrival_time : float
+        Mean time between arrivals (minutes).
+    consultation_time : float
+        Mean length of doctor's consultation (minutes).
+    number_of_doctors : int
+        Number of doctors.
+    warm_up_period : int
+        Duration of the warm-up period (minutes).
+    data_collection_period : int
+        Duration of the data collection period (minutes).
+    number_of_runs : int
+        The number of runs (i.e., replications).
+    verbose : bool
+        Whether to print messages as simulation runs.
+    collect_during_run : bool#<<
+        Whether to collect metrics during run (used for determining#<<
+        length of warm-up period).#<<
+    """
+    def __init__(
+        self, interarrival_time=5, consultation_time=10,
+        number_of_doctors=3, warm_up_period=30, data_collection_period=40,
+        number_of_runs=5, verbose=False, collect_during_run=False#<<
+    ):
+        """
+        Initialise Parameters instance.
+
+        Parameters
+        ----------
+        interarrival_time : float
+            Time between arrivals (minutes).
+        consultation_time : float
+            Length of consultation (minutes).
+        number_of_doctors : int
+            Number of doctors.
+        warm_up_period : int
+            Duration of the warm-up period (minutes).
+        data_collection_period : int
+            Duration of the data collection period (minutes).
+        number_of_runs : int
+            The number of runs (i.e., replications).
+        verbose : bool
+            Whether to print messages as simulation runs.
+        collect_during_run : bool#<<
+            Whether to collect metrics during run (used for determining#<<
+            length of warm-up period).#<<
+        """
+        self.interarrival_time = interarrival_time
+        self.consultation_time = consultation_time
+        self.number_of_doctors = number_of_doctors
+        self.warm_up_period = warm_up_period
+        self.data_collection_period = data_collection_period
+        self.number_of_runs = number_of_runs
+        self.verbose = verbose
+        self.collect_during_run = collect_during_run#<<
+
+        if self.collect_during_run and self.warm_up_period > 0:#<<
+            raise ValueError(#<<
+                "collect_during_run=True is intended for determining the ",#<<
+                "appropriate warm-up period, so warm-up length must be 0. ",#<<
+                f"Received warm_up_period={self.warm_up_period}."#<<
+            )#<<
 ```
 
 ### Patient class
@@ -168,8 +235,6 @@ No changes required.
 
 ### Runner class
 
-<!--TODO: move collect_during_run into parameter, and move validation there too-->
-
 <!--TODO: line-by-line explanation of changes below-->
 
 ```{python}
@@ -181,11 +246,8 @@ class Runner:
     ----------
     param : Parameters
         Simulation parameters.
-    collect_during_run : Boolean#<<
-        Whether to collect metrics during run (used for determining#<<
-        length of warm-up period).#<<
     """
-    def __init__(self, param, collect_during_run=False):#<<
+    def __init__(self, param):
         """
         Initialise a new instance of the Runner class.
 
@@ -193,18 +255,8 @@ class Runner:
         ----------
         param : Parameters
             Simulation parameters.
-        collect_during_run : Boolean#<<
-            Whether to collect metrics during run (used for determining#<<
-            length of warm-up period).#<<
         """
         self.param = param
-        self.collect_during_run = collect_during_run#<<
-        if self.collect_during_run and self.param.warm_up_period > 0:#<<
-            raise ValueError(#<<
-                "collect_during_run=True is intended for determining the ",#<<
-                "appropriate warm-up period, so warm-up length must be 0. ",#<<
-                f"Received warm_up_period={self.param.warm_up_period}."#<<
-            )#<<
 
     def run_single(self, run):
         """
@@ -268,7 +320,7 @@ class Runner:
             "patient": patient_results,#<<
             "run": run_results#<<
         }#<<
-        if self.collect_during_run:#<<
+        if self.param.collect_during_run:#<<
             results["during_run"] = (#<<
                 self._extract_metrics_during_run(patient_results, model, run)#<<
             )#<<
@@ -422,7 +474,7 @@ class Runner:
             "overall": overall_results_df#<<
         }#<<
 
-        if self.collect_during_run:#<<
+        if self.param.collect_during_run:#<<
             # Create single dataframe for each metric from across runs#<<
             during_all = [result["during_run"] for result in all_results]#<<
             during_combined = {#<<
@@ -450,8 +502,9 @@ As mentioned above, we have used multiple replications (`number_of_runs = 5`) an
 # long data collection period
 param = Parameters(warm_up_period=0,
                    data_collection_period=20000,
-                   number_of_runs=5)
-runner = Runner(param, collect_during_run=True)
+                   number_of_runs=5,
+                   collect_during_run=True)
+runner = Runner(param)
 results = runner.run_reps()["during_run"]
 ```
 
