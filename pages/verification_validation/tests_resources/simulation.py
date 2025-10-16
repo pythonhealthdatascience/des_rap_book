@@ -367,6 +367,9 @@ class Model:
 
             # Record end time
             patient.end_time = self.env.now
+            if self.param.verbose:
+                print(f"{patient.period} Patient {patient.patient_id} " +
+                      f"leaves at: {patient.end_time:.3f}")
 
     def reset_results(self):
         """

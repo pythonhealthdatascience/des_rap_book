@@ -652,6 +652,11 @@ class Model:
             time_with_doctor = self.consult_dist.sample()
             yield self.env.timeout(time_with_doctor)
 
+            # Record end time
+            if self.param.verbose:
+                print(f"{patient.period} Patient {patient.patient_id} " +
+                      f"leaves at: {self.env.now:.3f}")
+
     def reset_results(self):
         """
         Reset results.
@@ -1357,6 +1362,11 @@ class Model:
 
             # Pass time spent with the doctor
             yield self.env.timeout(time_with_doctor)
+
+            # Record end time
+            if self.param.verbose:
+                print(f"{patient.period} Patient {patient.patient_id} " +
+                      f"leaves at: {self.env.now:.3f}")
 
     def reset_results(self):
         """
@@ -2624,6 +2634,9 @@ class Model:
 
             # Record end time#<<
             patient.end_time = self.env.now#<<
+            if self.param.verbose:
+                print(f"{patient.period} Patient {patient.patient_id} " +
+                      f"leaves at: {patient.end_time:.3f}")#<<
 
     def reset_results(self):
         """
@@ -3044,6 +3057,11 @@ class Model:
 
             # Update number in system#<<
             self.update_n_in_system(inc=-1)#<<
+
+            # Record end time
+            if self.param.verbose:
+                print(f"{patient.period} Patient {patient.patient_id} " +
+                      f"leaves at: {self.env.now:.3f}")
 
     def reset_results(self):
         """
@@ -3589,6 +3607,11 @@ class Model:
             # Sample consultation duration and pass time spent with doctor
             patient.time_with_doctor = self.consult_dist.sample()#<<
             yield self.env.timeout(patient.time_with_doctor)#<<
+
+            # Record end time
+            if self.param.verbose:
+                print(f"{patient.period} Patient {patient.patient_id} " +
+                      f"leaves at: {self.env.now:.3f}")
 
     def reset_results(self):
         """

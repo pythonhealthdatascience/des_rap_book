@@ -271,6 +271,11 @@ class Model:
             time_with_doctor = self.consult_dist.sample()
             yield self.env.timeout(time_with_doctor)
 
+            # Record end time
+            if self.param.verbose:
+                print(f"{patient.period} Patient {patient.patient_id} " +#<<
+                      f"leaves at: {self.env.now:.3f}")
+
     def reset_results(self):#<<
         """#<<
         Reset results.#<<
@@ -325,8 +330,12 @@ if self.param.verbose:
 ...
 
 if self.param.verbose:
-    print(f"{patient.period} Patient {patient.patient_id} " +#<<
+    print(f"{patient.period} Patient {patient.patient_id} " +
           f"starts consultation at: {self.env.now:.3f}")
+...
+if self.param.verbose:
+    print(f"{patient.period} Patient {patient.patient_id} " +
+            f"leaves at: {self.env.now:.3f}")
 ```
 
 When a patient arrives, we now check whether this occurred during the warm-up period (`self.env.now < self.param.warm_up_period`). Each patient is then labelled as either warm-up (🔸 WU) or data collection (🔹 DC), stored as an attribute.
