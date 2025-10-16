@@ -2,6 +2,8 @@
 title: ❌ Mathematical proof of correctness
 ---
 
+{{< include ../../scripts/_reticulate-setup.md >}}
+
 :::: {.pale-blue}
 
 **Learning objectives:**
@@ -10,9 +12,58 @@ title: ❌ Mathematical proof of correctness
 
 **Pre-reading:**
 
-This page implements mathematical proof of correctness implemented on the [verification and validation page](verification_validation.qmd). It does so within a test ([tests](tests.qmd) page). The tests are run on the model from [Replications](../output_analysis/replications.qmd) (which has two performance measures: total arrivals and mean wait time).
+This page implements mathematical proof of correctness implemented on the [verification and validation page](verification_validation.qmd). It does so within a test ([tests](tests.qmd) page).
 
-> *Entity generation → Entity processing → Initialisation bias → Performance measures → Replications → Mathematical proof of correctness*
+The test is run on the model from the [parallel processing](../output_analysis/parallel.qmd) page (likewise, also used on the [scenario and sensitivity analysis](../experiments/scenarios.qmd) page and [tests](tests.qmd) pages).
+
+> *Entity generation → Entity processing → Initialisation bias → Performance measures → Replications → Length of warm-up → Number of replications → Parallel processing → Mathematical proof of correctness*
+
+**Required packages:**
+
+These should be available from environment setup in the "Test yourself" section of [Environments](../setup/environment.qmd). 
+
+::: {.python-content}
+
+```{python}
+import time
+
+from IPython.display import HTML
+from itables import to_html_datatable
+from joblib import Parallel, delayed, cpu_count
+import math
+import numpy as np
+import pandas as pd
+import plotly.express as px
+import scipy.stats as st
+import simpy
+from sim_tools.distributions import Exponential
+```
+
+```{python}
+#| echo: false
+# To ensure renders correctly in quarto
+import plotly.io as pio  # pylint: disable=ungrouped-imports
+pio.renderers.default = "plotly_mimetype"
+```
+
+:::
+
+::: {.r-content}
+
+```{r}
+#| output: false
+library(data.table)
+library(dplyr)
+library(future)
+library(future.apply)
+library(ggplot2)
+library(knitr)
+library(plotly)
+library(simmer)
+library(tidyr)
+```
+
+:::
 
 ::::
 
@@ -32,7 +83,11 @@ The small example we've been building throughout this book is an instance of an 
 
 <div class="h3-tight"></div>
 
-### Mathematical M/M/s Queue Model
+### Simulation model
+
+The model used is the same as that on the [parallel processing](../output_analysis/parallel.qmd) page - as also used on the [scenario and sensitivity analysis](../experiments/scenarios.qmd) and [tests](tests.qmd) pages.
+
+### Mathematical M/M/s queue model
 
 ```{python}
 class MMSQueue:
