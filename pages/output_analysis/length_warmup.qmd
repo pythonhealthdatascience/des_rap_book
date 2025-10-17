@@ -107,17 +107,17 @@ It's important to include **all relevant metrics** when implementing this approa
 
 <br>
 
-This approach requires us to have collected live data on each of our performance measures as the simulation runs.
+For this approach, we need to collect data on each performance measure as the simulation runs. There are two main was to do this, and both require a few code changes.
 
-We have two options - both required several changes in your code, so it is up to you which you prefer. Note: If you only use metrics that are already returned (i.e., mean wait time and mean time in system are in patient results, but lots of our extra code is to get the time-weighted measures) then option 1 will be simpler.
+If you only need metrics that are already returned at the end of a run (for example, mean wait time and mean time in system from the patient results), Option 1 is simpler. However, if you also want time‑weighted measures such as utilisation, queue length, or patients in system, you’ll need to extend the model to extract these during the run.
 
 <br>
 
-**Option 1. Use recorded data**.
+**Option 1. Use data recorded as events occurred**.
 
-In our model set-up, we have recorded the corresponding times for each metric during the simulation run. We need to extract and process these so they can be used to determine the warm-up length.
+During the simulation, many performance measures are already recorded and stored in lists, along with their corresponding event times. These provide a detailed, event‑driven history of how the system changed over time. To analyse the warm‑up period, we extract and process these lists, since not all of this detailed information is returned automatically at the end of a run.
 
-::: {.callout title="▶&nbsp;&nbsp;View option 1: use recorded data" collapse="true"}
+::: {.callout title="▶&nbsp;&nbsp;View option 1: data recorded as events occurred" collapse="true"}
 
 <div class="h3-tight"></div>
 
@@ -567,12 +567,9 @@ def plot_cumulative_mean(results, metric, warmup_time=None):
                       annotation_position="top right")
 
     # Axis labels and layout
-    y_label = "Cumulative mean " + (
-        "wait time" if metric == "wait_time" else "time in system"
-    )
     fig.update_layout(
         xaxis_title="Run time (minutes)",
-        yaxis_title=y_label,
+        yaxis_title=f"cumulative_mean_{metric}",
         template="plotly_white"
     )
     return fig
@@ -607,13 +604,285 @@ fig.show()
 
 <br>
 
-**Option 2. Audit**.
+<!--TODO: switch to just using auditor for python... but keep an explanation for future reference of WHY option 1 is a bit rubbish in comparison! If do that, remove text from n_reps about not keeping warm-up model changes... and could switch time record back to int rather than keeping all in a list... when explain why audit class, say why class not method in model-->
 
-* TODO
+**Option 2. Audit at regular intervals**.
 
-:::{.callout title="▶&nbsp;&nbsp;View option 2: audit" collapse="true"}
+Alternatively, we can monitor the model at regular, fixed time intervals (rather than each event) to see how performance measures change over time. This approach produces evenly spaced time series, making it easier to compare runs.
 
-**Acknowledgements:** This approach is inspired by Tom Monks (2024) [HPDM097 - Making a difference with health data](https://github.com/health-data-science-OR/stochastic_systems) (MIT Licence).
+We'd suggest using this approach, as you can keep all code for determining warm-up separate from the model functions and classes, so it keeps it cleaner!
+
+:::{.callout title="▶&nbsp;&nbsp;View option 2: audit at regular intervals" collapse="true"}
+
+**Acknowledgements:** This approach is adapted from Tom Monks (2024) Lab 6 Output Analysis in [HPDM097 - Making a difference with health data](https://github.com/health-data-science-OR/stochastic_systems) (MIT Licence).
+
+### Simulation code
+
+The simulation being used is that from the [Replications](replications.qmd) page.
+
+```{python}
+#| echo: false
+{{< include replications_resources/parameters.py >}}
+{{< include replications_resources/patient.py >}}
+{{< include replications_resources/monitored_resource.py >}}
+{{< include replications_resources/monitored_resource.py >}}
+{{< include replications_resources/summary_stats.py >}}
+{{< include replications_resources/runner.py >}}
+```
+
+### Auditor class
+
+```{python}
+class WarmupAuditor():
+    """
+    Warm-up auditor for the model.
+    Records cumulative mean results at regular intervals.
+
+    Attributes
+    ----------
+    model : Model
+        Instance of Model() to run the simulation.
+    interval : int
+        Audit frequency (minutes).
+    audit_results : list
+        List of dictionaries containing audit snapshots at each interval.
+    current_time : int
+        Current simulation time to perform audit.
+    """
+    def __init__(self, model, interval):
+        """
+        Initialise auditor.
+
+        Parameters
+        ----------
+        model : Model
+            Instance of Model() to run the simulation.
+        interval : int
+            Audit frequency (minutes).
+        """
+        self.model = model
+        self.interval = interval
+        self.audit_results = []
+        self.current_time = np.nan
+
+    def run(self):
+        """
+        Run auditor alongside simulation model.
+        """
+        self.model.env.process(self._audit_model())
+        self.model.run()
+
+    def _audit_model(self):
+        """
+        Audit the model at the specified intervals.
+        """
+        while True:
+            self.current_time = self.model.env.now
+            self.audit_results.append({
+                "time": self.current_time,
+                "wait_time": self._get_wait_time(),
+                "time_in_system": self._get_time_in_system(),
+                "queue_length": self._get_queue_length(),
+                "utilisation": self._get_utilisation(),
+                "patients_in_system": self._get_patients_in_system()
+            })
+            yield self.model.env.timeout(self.interval)
+
+    def _get_wait_time(self):
+        """
+        Compute mean wait time for patients seen by current time.
+
+        Returns
+        -------
+        float
+            Mean wait time across all patients who have been seen.
+        """
+        wait_times = [
+            patient.wait_time 
+            for patient in self.model.patients 
+            if not np.isnan(patient.wait_time)
+        ]
+        if wait_times:
+            return np.mean(wait_times)
+        return np.nan
+
+    def _get_time_in_system(self):
+        """
+        Compute mean time in system (for patients completed by current time).
+        
+        Returns
+        -------
+        float
+            Mean time in system for patients completed by current time.
+        """
+        time_in_system = []
+        for patient in self.model.patients:
+            if not np.isnan(patient.end_time):
+                time_in_system.append(patient.end_time - patient.arrival_time)
+        if time_in_system:
+            return np.mean(time_in_system)
+        return np.nan
+
+    def _get_queue_length(self):
+        """
+        Compute time-weighted mean queue length up to current time.
+        
+        Returns
+        -------
+        float
+            Time-weighted mean queue length from start to current time.
+        """
+        total_area = sum(self.model.doctor.area_n_in_queue)
+        if self.current_time > 0:
+            return total_area / self.current_time
+        return 0
+
+    def _get_utilisation(self):
+        """
+        Compute time-weighted mean utilisation up to current time.
+        
+        Returns
+        -------
+        float
+            Time-weighted mean utilisation from start to current time.
+        """
+        total_area = sum(self.model.doctor.area_resource_busy)
+        total_capacity = self.model.param.number_of_doctors * self.current_time
+        if self.current_time > 0:
+            return total_area / total_capacity
+        return 0
+
+    def _get_patients_in_system(self):
+        """
+        Computer time-weighted mean patients in system up to current time.
+
+        Returns
+        -------
+        float
+            Time-weighted mean patients in system from start to current time.
+        """
+        total_area = sum(self.model.area_n_in_system)
+        if self.current_time > 0:
+            return total_area / self.current_time
+        return 0
+```
+
+### Run model with auditor
+
+```{python}
+def run_warmup_analysis(audit_interval, data_collection_period, number_of_runs):
+    """
+    Runs the model without a warm-up, collecting performance measures at
+    regular intervals, used to determine appropriate length of warm-up.
+
+    Parameters
+    ----------
+    audit_interval : int
+        Audit frequency (minutes).
+    data_collection_period : int
+        Duration of the data collection period (minutes).
+    number_of_runs : int
+        The number of runs (i.e., replications).
+
+    Returns
+    -------
+    pd.DataFrame
+        Combined results from all replications.
+    """
+    # Fixed set of parameters for all runs
+    param = Parameters(
+        warm_up_period=0,
+        data_collection_period=data_collection_period
+    )
+    # Store results from each replication
+    all_dfs = []
+    # Loop through replications
+    for run in range(number_of_runs):
+        # Run model with auditor
+        model = Model(param=param, run_number=run)
+        auditor = WarmupAuditor(model=model, interval=audit_interval)
+        auditor.run()
+        # Convert the run's audit results to DataFrame
+        run_df = pd.DataFrame(auditor.audit_results)
+        run_df["run"] = run
+        all_dfs.append(run_df)
+    # Combine all runs into a single DataFrame
+    return pd.concat(all_dfs, ignore_index=True)
+```
+
+```{python}
+audit_results = run_warmup_analysis(
+    audit_interval=10,
+    data_collection_period=20000,
+    number_of_runs=5
+)
+audit_results
+```
+
+### Plot the results for time series inspection
+
+```{python}
+def plot_time_series(audit_results, metric, warmup_time=None):
+    """
+    Plot cumulative mean trajectories and compute overall cumulative mean.
+
+    Parameters
+    ----------
+    audit_results : pd.DataFrame
+        Audit results, where columns include "time", "run" and the
+        chosen metric like "wait_time" or "time_in_system".
+    metric : str
+        The performance measure to visualise.
+    warmup_time : int
+        The time point at which to display a vertical dashed line marking the
+        suggested warm-up period.
+
+    Returns
+    -------
+    plotly.graph_objects.Figure
+        A Plotly Figure object containing cumulative mean trajectories for
+        each run and the overall cumulative mean.
+    """
+    # Computer overall cumulative mean
+    df = audit_results.groupby("time")[metric].mean().reset_index()
+    df["overall_cumulative"] = df[metric].expanding().mean()
+
+    # Plot cumulative mean for each run
+    fig = px.line(
+        data_frame = audit_results,
+        x="time",
+        y=metric,
+        line_group="run"
+    )
+    fig.update_traces(line_color="lightblue")
+
+    # Overlay overall cumulative mean
+    overall_fig = px.line(df, x="time", y="overall_cumulative")
+    fig.add_traces(list(overall_fig.select_traces()))
+
+    # Add warm-up line
+    if warmup_time:
+        fig.add_vline(x=warmup_time, line_color="red", line_dash="dash",
+                      annotation_text="Suggested warm-up",
+                      annotation_font_color="red",
+                      annotation_position="top right")
+
+    # Axis labels and layout
+    fig.update_layout(
+        xaxis_title="Run time (minutes)",
+        yaxis_title=f"cumulative_mean_{metric}",
+        template="plotly_white"
+    )
+    return fig
+```
+
+```{python}
+plot_time_series(audit_results, "wait_time", 3000)
+plot_time_series(audit_results, "time_in_system", 3000)
+plot_time_series(audit_results, "utilisation", 3000)
+plot_time_series(audit_results, "queue_length", 3000)
+plot_time_series(audit_results, "patients_in_system", 3000)
+```
 
 :::
 
