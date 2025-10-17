@@ -91,14 +91,14 @@ class Runner:
             overall results.
         """
         # Sequential execution#<<
-        if self.param.cores == 1:#<<
+        if self.param.cores == 1: #<<
             all_results = [self.run_single(run)
                            for run in range(self.param.number_of_runs)]
         # Parallel execution#<<
-        else:#<<
+        else: #<<
             # Check number of cores is valid#<<
             valid_cores = [-1] + list(range(1, cpu_count()))#<<
-            if self.param.cores not in valid_cores:#<<
+            if self.param.cores not in valid_cores: #<<
                 raise ValueError(#<<
                     f"Invalid cores: {self.param.cores}. Must be one of: " +#<<
                     f"{valid_cores}."#<<

@@ -236,8 +236,8 @@ class WarmupAuditor():
             Mean wait time across all patients who have been seen.
         """
         wait_times = [
-            patient.wait_time 
-            for patient in self.model.patients 
+            patient.wait_time
+            for patient in self.model.patients
             if not np.isnan(patient.wait_time)
         ]
         if wait_times:
@@ -247,7 +247,7 @@ class WarmupAuditor():
     def _get_time_in_system(self):
         """
         Compute mean time in system (for patients completed by current time).
-        
+
         Returns
         -------
         float
@@ -264,7 +264,7 @@ class WarmupAuditor():
     def _get_queue_length(self):
         """
         Compute time-weighted mean queue length up to current time.
-        
+
         Returns
         -------
         float
@@ -278,7 +278,7 @@ class WarmupAuditor():
     def _get_utilisation(self):
         """
         Compute time-weighted mean utilisation up to current time.
-        
+
         Returns
         -------
         float
@@ -310,7 +310,9 @@ class WarmupAuditor():
 It's important to run the time series inspection on results from multiple replications. The `run_warmup_analysis()` function executes `WarmupAuditor` for the specified number of replications, and returns the results as a single dataframe.
 
 ```{python}
-def run_warmup_analysis(audit_interval, data_collection_period, number_of_runs):
+def run_warmup_analysis(
+    audit_interval, data_collection_period, number_of_runs
+):
     """
     Runs the model without a warm-up, collecting performance measures at
     regular intervals, used to determine appropriate length of warm-up.
@@ -399,7 +401,7 @@ def plot_time_series(audit_results, metric, warmup_time=None):
 
     # Plot cumulative mean for each run
     fig = px.line(
-        data_frame = audit_results,
+        data_frame=audit_results,
         x="time",
         y=metric,
         line_group="run"
