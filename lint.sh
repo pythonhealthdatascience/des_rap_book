@@ -27,7 +27,29 @@ lintquarto -l pylint flake8 -p index.qmd pages/
 
 print_section "python" "pages/ and tests/"
 
-pylint pages tests --ignore=linting_resources,outputs_resources,replications_resources
-pylint pages/output_analysis/outputs_resources pages/output_analysis/replications_resources --disable=missing-module-docstring,undefined-variable
+echo "============================================================="
+echo "Running pylint..."
+echo "============================================================="
+IGNORE_LIST=(
+  linting_resources
+  outputs_resources
+  replications_resources
+  parallel_resources
+  tests_resources
+)
 
+RESOURCE_PATHS=(
+  pages/output_analysis/outputs_resources
+  pages/output_analysis/replications_resources
+  pages/output_analysis/parallel_resources
+  pages/verification_validation/tests_resources
+)
+# Lint all, skipping ignores
+pylint pages tests --ignore=$(IFS=,; echo "${IGNORE_LIST[*]}")
+# Lint resource-specific paths with disables
+pylint "${RESOURCE_PATHS[@]}" --disable=missing-module-docstring,undefined-variable
+
+echo "============================================================="
+echo "Running flake8..."
+echo "============================================================="
 flake8 pages tests --exclude linting_resources,replications_resources

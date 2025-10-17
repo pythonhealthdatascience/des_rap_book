@@ -24,9 +24,9 @@ filters:
 
 **Pre-reading:**
 
-This page continues on from: [Replications](replications.qmd).
+This page continues on from: [Number of replications](n_reps.qmd).
 
-> *Entity generation → Entity processing → Initialisation bias → Performance measures → Replications → Parallel processing*
+> *Entity generation → Entity processing → Initialisation bias → Performance measures → Replications → Length of warm-up → Number of replications → Parallel processing*
 
 **Required packages:**
 
@@ -96,67 +96,10 @@ Normally, when you run a program, it only uses one core, so only one worker is d
 
 A new attribute `cores` is used to record the number of CPU cores to use for parallel execution. If set to `-1`, it will use all available cores. If set to `1`, it will run sequentially.
 
+We have also updated `number_of_runs` based on the [number of replications](n_reps.qmd) page.
+
 ```{python}
-class Parameters:
-    """
-    Parameter class.
-
-    Attributes
-    ----------
-    interarrival_time : float
-        Mean time between arrivals (minutes).
-    consultation_time : float
-        Mean length of doctor's consultation (minutes).
-    number_of_doctors : int
-        Number of doctors.
-    warm_up_period : int
-        Duration of the warm-up period (minutes).
-    data_collection_period : int
-        Duration of the data collection period (minutes).
-    number_of_runs : int
-        The number of runs (i.e., replications).
-    cores : int#<<
-        Number of CPU cores to use for parallel execution. For all#<<
-        available cores, set to -1. For sequential execution, set to 1.#<<
-    verbose : bool
-        Whether to print messages as simulation runs.
-    """
-    def __init__(
-        self, interarrival_time=5, consultation_time=10,
-        number_of_doctors=3, warm_up_period=30, data_collection_period=40,
-        number_of_runs=5, cores=1, verbose=False#<<
-    ):
-        """
-        Initialise Parameters instance.
-
-        Parameters
-        ----------
-        interarrival_time : float
-            Time between arrivals (minutes).
-        consultation_time : float
-            Length of consultation (minutes).
-        number_of_doctors : int
-            Number of doctors.
-        warm_up_period : int
-            Duration of the warm-up period (minutes).
-        data_collection_period : int
-            Duration of the data collection period (minutes).
-        number_of_runs : int
-            The number of runs (i.e., replications).
-        cores : int#<<
-            Number of CPU cores to use for parallel execution. For all#<<
-            available cores, set to -1. For sequential execution, set to 1.#<<
-        verbose : bool
-            Whether to print messages as simulation runs.
-        """
-        self.interarrival_time = interarrival_time
-        self.consultation_time = consultation_time
-        self.number_of_doctors = number_of_doctors
-        self.warm_up_period = warm_up_period
-        self.data_collection_period = data_collection_period
-        self.number_of_runs = number_of_runs
-        self.cores = cores#<<
-        self.verbose = verbose
+{{< include parallel_resources/parameters.py >}}
 ```
 
 ### Patient class
@@ -167,6 +110,18 @@ No changes required.
 
 ```{python}
 {{< include replications_resources/patient.py >}}
+```
+
+:::
+
+### Monitored resource class
+
+No changes required.
+
+::: {.callout title="▶&nbsp;&nbsp; Monitored resource class" collapse="true" style="minimal"}
+
+```{python}
+{{< include replications_resources/monitored_resource.py >}}
 ```
 
 :::
@@ -204,111 +159,7 @@ If `cores` is 1, simulations run sequentially.
 For parallel execution, the code first checks if the requested number of cores is valid: allowing values of -1 (use all CPUs) or any integer between 1 and the total CPU count minus one. If valid, the code uses `joblib`'s `Parallel` and `delayed` to distribute simulation runs across the specified number of cores
 
 ```{python}
-class Runner:
-    """
-    Run the simulation.
-
-    Attributes
-    ----------
-    param : Parameters
-        Simulation parameters.
-    """
-    def __init__(self, param):
-        """
-        Initialise a new instance of the Runner class.
-
-        Parameters
-        ----------
-        param : Parameters
-            Simulation parameters.
-        """
-        self.param = param
-
-    def run_single(self, run):
-        """
-        Runs the simulation once and performs results calculations.
-
-        Parameters
-        ----------
-        run : int
-            Run number for the simulation.
-
-        Returns
-        -------
-        dict
-            Contains patient-level results and results from each run.
-        """
-        model = Model(param=self.param, run_number=run)
-        model.run()
-
-        # Patient results
-        patient_results = pd.DataFrame(model.results_list)
-        patient_results["run"] = run
-
-        # Run results
-        run_results = {
-            "run_number": run,
-            "arrivals": len(patient_results),
-            "mean_wait_time": patient_results["wait_time"].mean()
-        }
-
-        return {
-            "patient": patient_results,
-            "run": run_results
-        }
-
-    def run_reps(self):
-        """
-        Execute a single model configuration for multiple runs.
-        """
-        # Sequential execution#<<
-        if self.param.cores == 1:#<<
-            all_results = [self.run_single(run)
-                           for run in range(self.param.number_of_runs)]
-        # Parallel execution#<<
-        else:#<<
-            # Check number of cores is valid#<<
-            valid_cores = [-1] + list(range(1, cpu_count()))#<<
-            if self.param.cores not in valid_cores:#<<
-                raise ValueError(#<<
-                    f"Invalid cores: {self.param.cores}. Must be one of: " +#<<
-                    f"{valid_cores}."#<<
-                )#<<
-            # Execute replications#<<
-            all_results = Parallel(n_jobs=self.param.cores)(#<<
-                delayed(self.run_single)(run)#<<
-                for run in range(self.param.number_of_runs)#<<
-            )#<<
-
-        # Separate results from each run into appropriate lists
-        patient_results_list = [result["patient"] for result in all_results]
-        run_results_list = [result["run"] for result in all_results]
-
-        # Convert lists into dataframes
-        patient_results_df = pd.concat(
-            patient_results_list, ignore_index=True
-        )
-        run_results_df = pd.DataFrame(run_results_list)
-
-        # Calculate average results and uncertainty from across all runs
-        uncertainty_metrics = {}
-        run_col = run_results_df.columns
-
-        # Loop through the run performance measure columns
-        # Calculate mean, standard deviation and 95% confidence interval
-        for col in run_col[~run_col.isin(["run_number", "scenario"])]:
-            uncertainty_metrics[col] = dict(zip(
-                ["mean", "std_dev", "lower_95_ci", "upper_95_ci"],
-                summary_stats(run_results_df[col])
-            ))
-        # Convert to dataframe
-        overall_results_df = pd.DataFrame(uncertainty_metrics)
-
-        return {
-            "patient": patient_results_df,
-            "run": run_results_df,
-            "overall": overall_results_df
-        }
+{{< include parallel_resources/runner.py >}}
 ```
 
 ::::

@@ -21,7 +21,7 @@ bibliography: length_warmup_resources/references.bib
 
 **Pre-reading:**
 
-This page continues on from: [Replications](outputs.qmd).
+This page continues on from: [Replications](replications.qmd).
 
 > *Entity generation → Entity processing → Initialisation bias → Performance measures → Replications → Length of warm-up*
 
@@ -69,12 +69,6 @@ library(tidyr)
 
 :::
 
-::: {.python-content}
-
-**Acknowledgements:** Code for choice of warm-up period was adapted from Tom Monks (2024) [HPDM097 - Making a difference with health data](https://github.com/health-data-science-OR/stochastic_systems) (MIT Licence).
-
-:::
-
 ::::
 
 ## Determining a suitable length of warm-up
@@ -85,7 +79,7 @@ Many different methods have been proposed for **determining a suitable length of
 
 We could plot mean results over time, but this would fluctuate too much. Instead, we plot the **cumulative mean** of the performance measures over time. We then look for the point where this **smoothes out and stabilises** - this indicates where your warm-up period should end (@Robinson2007).
 
-![](length_warmup_resources/warmup.png)
+![](length_warmup_resources/warmup.png){width=75% fig-align="center"}
 
 When determining your warm-up period, you should:
 
@@ -95,7 +89,64 @@ When determining your warm-up period, you should:
 
 ## Implementing the time series inspection approach
 
-<div class="h3-tight"></div>
+It's important to include **all relevant metrics** when implementing this approach. For our model, that means:
+
+* Mean wait time
+* Mean doctor utilisation
+* Mean queue length
+* Mean time in system
+* Mean number of patients in system
+
+> **Why not other metrics?**
+>
+> * Total arrivals: Not impacted by initialisation bias
+> * Mean time in consultation: Not impacted by initialisation bias
+> * Unseen (backlogged) patients: In the current model set-up, number of unseen patients is very low or zero, so this is not that useful in our consideration of initialisation bias. However, if your model configuration leads to significant backlogs, this metric could become relevant for warm-up analysis.
+
+::: {.python-content}
+
+<br>
+
+For this approach, we need to track the performance measures as the simulation runs. This allows us to identify when the system reaches steady state. There are a few ways you might consider implementing this.
+
+::: {.pale-red}
+
+**Approach 1. Extract data from existing lists**
+
+During the simulation run, many performance measures are already recorded and stored in lists, along with their corresponding event times. We could extract and process these but:
+
+* ❌ **Requires extensive changes to `Runner`** - in particular, to extract time-weighted metrics during the run. These require helper methods to compute and summarise the metrics. Other methods are needed to process and output the results.
+* ❌ `Runner` becomes quite **cluttered** - it then contains code to execute replications, aggregate final results, and now to handle time-series extraction and processing (when we only need this code for this analysis, and not anything else).
+* ❌ This would collect data from **every event** (potentially tens-of-thousands of timepoints!). For warm-up analysis, collecting data at regular intervals is sufficient.
+
+:::
+
+::: {.pale-green}
+
+**Approach 2. Separate `WarmupAuditor` class**
+
+We can create a dedicated `WarmupAuditor` class that runs in parallel with the simulation. It samples performance measures at regular intervals. Benefits of this approach are:
+
+* ✅ **No changes needed** to the original simulation code (`Model`, `Runner`, `Parameters`, etc.).
+* ✅ All warm-up analysis logic is separate and **self-contained**, making it easier to understand, maintain, reuse or remove as needed.
+* ✅ Data is collected efficiently - **only at the required intervals, not every event** - producing smaller, more manageable datasets.
+
+This is the approach we have used.
+
+**Acknowledgements:** This auditor-based strategy is adapted from Tom Monks (2024) Lab 6 Output Analysis in [HPDM097 - Making a difference with health data](https://github.com/health-data-science-OR/stochastic_systems) (MIT Licence).
+
+:::
+
+::: {.pale-red}
+
+**Approach 3. Adding audit methods to `Model`**
+
+You might be tempted to implement the warm-up auditor as a method within `Model`, but we would recommend against this.
+
+* ❌ `Model` becomes quite **cluttered** - it should represent core simulation logic (patient arrivals, resource usage, etc.) - but now also have warm-up analysis methods mixed in.
+* ❌ This analysis is **only performed during initial model development**, and not during production runs or scenario analysis, so there is no need for it to be in the main model definition.
+
+:::
 
 ### Simulation code
 
@@ -105,10 +156,293 @@ The simulation being used is that from the [Replications](replications.qmd) page
 #| echo: false
 {{< include replications_resources/parameters.py >}}
 {{< include replications_resources/patient.py >}}
+{{< include replications_resources/monitored_resource.py >}}
 {{< include replications_resources/model.py >}}
 {{< include replications_resources/summary_stats.py >}}
 {{< include replications_resources/runner.py >}}
 ```
+
+### Auditor class
+
+The `WarmupAuditor` class is created by passing a `Model` instance and an `interval` (in minutes). The `run()` method starts both the auditor process (using `self.model.env.process()`) and the simulation (`self.model.run()`).
+
+The audit process `_audit_model()` runs continuously throughout the simulation, collecting performance measures at the specified intervals. It calls dedicated methods for each metric that calculate the cumulative mean at that timepoint (e.g., `_get_wait_time()`, `_get_utilisation()`).
+
+The results are stored as a list of dictionaries in `audit_results`, with one entry per interval containing the simulation time and all five performance measures.
+
+```{python}
+class WarmupAuditor():
+    """
+    Warm-up auditor for the model.
+    Records cumulative mean results at regular intervals.
+
+    Attributes
+    ----------
+    model : Model
+        Instance of Model() to run the simulation.
+    interval : int
+        Audit frequency (minutes).
+    audit_results : list
+        List of dictionaries containing audit snapshots at each interval.
+    current_time : int
+        Current simulation time to perform audit.
+    """
+    def __init__(self, model, interval):
+        """
+        Initialise auditor.
+
+        Parameters
+        ----------
+        model : Model
+            Instance of Model() to run the simulation.
+        interval : int
+            Audit frequency (minutes).
+        """
+        self.model = model
+        self.interval = interval
+        self.audit_results = []
+        self.current_time = np.nan
+
+    def run(self):
+        """
+        Run auditor alongside simulation model.
+        """
+        self.model.env.process(self._audit_model())
+        self.model.run()
+
+    def _audit_model(self):
+        """
+        Audit the model at the specified intervals.
+        """
+        while True:
+            self.current_time = self.model.env.now
+            self.audit_results.append({
+                "time": self.current_time,
+                "wait_time": self._get_wait_time(),
+                "time_in_system": self._get_time_in_system(),
+                "queue_length": self._get_queue_length(),
+                "utilisation": self._get_utilisation(),
+                "patients_in_system": self._get_patients_in_system()
+            })
+            yield self.model.env.timeout(self.interval)
+
+    def _get_wait_time(self):
+        """
+        Compute mean wait time for patients seen by current time.
+
+        Returns
+        -------
+        float
+            Mean wait time across all patients who have been seen.
+        """
+        wait_times = [
+            patient.wait_time
+            for patient in self.model.patients
+            if not np.isnan(patient.wait_time)
+        ]
+        if wait_times:
+            return np.mean(wait_times)
+        return np.nan
+
+    def _get_time_in_system(self):
+        """
+        Compute mean time in system (for patients completed by current time).
+
+        Returns
+        -------
+        float
+            Mean time in system for patients completed by current time.
+        """
+        time_in_system = []
+        for patient in self.model.patients:
+            if not np.isnan(patient.end_time):
+                time_in_system.append(patient.end_time - patient.arrival_time)
+        if time_in_system:
+            return np.mean(time_in_system)
+        return np.nan
+
+    def _get_queue_length(self):
+        """
+        Compute time-weighted mean queue length up to current time.
+
+        Returns
+        -------
+        float
+            Time-weighted mean queue length from start to current time.
+        """
+        total_area = sum(self.model.doctor.area_n_in_queue)
+        if self.current_time > 0:
+            return total_area / self.current_time
+        return 0
+
+    def _get_utilisation(self):
+        """
+        Compute time-weighted mean utilisation up to current time.
+
+        Returns
+        -------
+        float
+            Time-weighted mean utilisation from start to current time.
+        """
+        total_area = sum(self.model.doctor.area_resource_busy)
+        total_capacity = self.model.param.number_of_doctors * self.current_time
+        if self.current_time > 0:
+            return total_area / total_capacity
+        return 0
+
+    def _get_patients_in_system(self):
+        """
+        Computer time-weighted mean patients in system up to current time.
+
+        Returns
+        -------
+        float
+            Time-weighted mean patients in system from start to current time.
+        """
+        total_area = sum(self.model.area_n_in_system)
+        if self.current_time > 0:
+            return total_area / self.current_time
+        return 0
+```
+
+### Run model with auditor
+
+It's important to run the time series inspection on results from multiple replications. The `run_warmup_analysis()` function executes `WarmupAuditor` for the specified number of replications, and returns the results as a single dataframe.
+
+```{python}
+def run_warmup_analysis(
+    audit_interval, data_collection_period, number_of_runs
+):
+    """
+    Runs the model without a warm-up, collecting performance measures at
+    regular intervals, used to determine appropriate length of warm-up.
+
+    Parameters
+    ----------
+    audit_interval : int
+        Audit frequency (minutes).
+    data_collection_period : int
+        Duration of the data collection period (minutes).
+    number_of_runs : int
+        The number of runs (i.e., replications).
+
+    Returns
+    -------
+    pd.DataFrame
+        Combined results from all replications.
+    """
+    # Fixed set of parameters for all runs
+    # Important: Sets warm-up period to zero
+    param = Parameters(
+        warm_up_period=0,
+        data_collection_period=data_collection_period
+    )
+    # Store results from each replication
+    all_dfs = []
+    # Loop through replications
+    for run in range(number_of_runs):
+        # Run model with auditor
+        model = Model(param=param, run_number=run)
+        auditor = WarmupAuditor(model=model, interval=audit_interval)
+        auditor.run()
+        # Convert the run's audit results to DataFrame
+        run_df = pd.DataFrame(auditor.audit_results)
+        run_df["run"] = run
+        all_dfs.append(run_df)
+    # Combine all runs into a single DataFrame
+    return pd.concat(all_dfs, ignore_index=True)
+```
+
+```{python}
+audit_results = run_warmup_analysis(
+    audit_interval=10,
+    data_collection_period=20000,
+    number_of_runs=5
+)
+# Preview audit results
+HTML(to_html_datatable(audit_results.head(200)))
+```
+
+### Plot the results for time series inspection
+
+We can now create plots of the cumulative mean metrics over time. We plot the results from each run (light blue), then an overall cumulative mean (dark blue). Rather than attempting to properly combine time-weighted statistics across runs with different event timepoints, we:
+
+1. Pool all timepoint observations from all runs
+2. Sort them chronologically
+3. Compute a running average of the cumulative mean values
+
+Whilst this is just an approximation of the cumulative mean for time-weighted values, it is perfectly fine for the purposes of this exercise, which is just so see roughly when metrics stabilise.
+
+```{python}
+def plot_time_series(audit_results, metric, warmup_time=None):
+    """
+    Plot cumulative mean trajectories and compute overall cumulative mean.
+
+    Parameters
+    ----------
+    audit_results : pd.DataFrame
+        Audit results, where columns include "time", "run" and the
+        chosen metric like "wait_time" or "time_in_system".
+    metric : str
+        The performance measure to visualise.
+    warmup_time : int
+        The time point at which to display a vertical dashed line marking the
+        suggested warm-up period.
+
+    Returns
+    -------
+    plotly.graph_objects.Figure
+        A Plotly Figure object containing cumulative mean trajectories for
+        each run and the overall cumulative mean.
+    """
+    # Computer overall cumulative mean
+    df = audit_results.groupby("time")[metric].mean().reset_index()
+    df["overall_cumulative"] = df[metric].expanding().mean()
+
+    # Plot cumulative mean for each run
+    fig = px.line(
+        data_frame=audit_results,
+        x="time",
+        y=metric,
+        line_group="run"
+    )
+    fig.update_traces(line_color="lightblue")
+
+    # Overlay overall cumulative mean
+    overall_fig = px.line(df, x="time", y="overall_cumulative")
+    fig.add_traces(list(overall_fig.select_traces()))
+
+    # Add warm-up line
+    if warmup_time:
+        fig.add_vline(x=warmup_time, line_color="red", line_dash="dash",
+                      annotation_text="Suggested warm-up",
+                      annotation_font_color="red",
+                      annotation_position="top right")
+
+    # Axis labels and layout
+    fig.update_layout(
+        xaxis_title="Run time (minutes)",
+        yaxis_title=f"cumulative_mean_{metric}",
+        template="plotly_white"
+    )
+    return fig
+```
+
+```{python}
+plot_time_series(audit_results, "wait_time", 3000)
+plot_time_series(audit_results, "time_in_system", 3000)
+plot_time_series(audit_results, "utilisation", 3000)
+plot_time_series(audit_results, "queue_length", 3000)
+plot_time_series(audit_results, "patients_in_system", 3000)
+```
+
+:::
+
+::: {.r-content}
+
+### Simulation code
+
+The simulation being used is that from the [Replications](replications.qmd) page.
 
 ```{r}
 #| echo: false
@@ -146,117 +480,6 @@ The simulation being used is that from the [Replications](replications.qmd) page
 ```
 
 ### Time series inspection function
-
-::: {.python-content}
-
-We have a new `time_series_inspection` function for this analysis.
-
-```{python}
-def time_series_inspection(result, file_path, warm_up=None):
-    """
-    Time series inspection method for determining length of warm-up.
-
-    Find the cumulative mean results and plot over time (overall and per run).
-
-    Parameters
-    ----------
-    result : pd.DataFrame
-        Patient-level result output by Runner.run_reps().
-    file_path : str
-        Path to save figure to.
-    warm_up : int
-        Location on X axis to plot vertical red line indicating chosen warm-up
-        period. Defaults to None, which will not plot a line.
-    """
-    # Sort by run and arrival time
-    result = result.sort_values(["run", "arrival_time"])
-
-    # Cumulative mean for each run (replication)
-    result["cumulative_mean"] = (
-        result
-        .groupby("run")["wait_time"]
-        .expanding()
-        .mean()
-        .reset_index(level=0, drop=True)
-    )
-
-    # Overall cumulative mean (across all runs)
-    result_overall = result.sort_values("arrival_time")
-    result_overall["overall_cumulative_mean"] = (
-        result_overall["wait_time"].expanding().mean()
-    )
-
-    # Plot: all individual runs as light lines, overall as dark line
-    fig = go.Figure()
-
-    for run, df_run in result.groupby("run"):
-        fig.add_trace(go.Scatter(
-            x=df_run["arrival_time"],
-            y=df_run["cumulative_mean"],
-            mode="lines",
-            line={"color": "lightblue", "width": 1},
-            opacity=0.7,
-            name=f"Run {run}",
-            showlegend=False
-        ))
-
-    fig.add_trace(go.Scatter(
-        x=result_overall["arrival_time"],
-        y=result_overall["overall_cumulative_mean"],
-        mode="lines",
-        line={"color": "darkblue", "width": 3},
-        name="Overall"
-    ))
-
-    # Optional vertical line for warm-up period (manually as add_vline not
-    # showing on the plot for some reason)
-    ymin = min(result["cumulative_mean"].min(),
-               result_overall["overall_cumulative_mean"].min())
-    ymax = max(result["cumulative_mean"].max(),
-               result_overall["overall_cumulative_mean"].max())
-    if warm_up is not None:
-        fig.add_shape(
-            type="line",
-            x0=warm_up,
-            y0=ymin,
-            x1=warm_up,
-            y1=ymax,
-            line={"color": "red", "width": 2, "dash": "dash"},
-            xref="x",
-            yref="y"
-        )
-        fig.add_annotation(
-            x=warm_up,
-            y=ymax,
-            text="Suggested warm-up length",
-            showarrow=False,
-            font={"color": "red"},
-            yanchor="top",
-            xanchor="left"
-        )
-
-    fig.update_layout(
-        xaxis_title="Run time (minutes)",
-        yaxis_title="Cumulative mean wait_time",
-        showlegend=False,
-        template="simple_white"
-    )
-
-    # Save as static image
-    fig.write_image(file_path)
-
-    return fig
-```
-
-This function is just plotting one metric, but you could adapt it for a model with multiple metrics.
-
-Mean wait time and time in system will both be in the patient dataframe.
-
-Time-weighted metrics (utilisation, queue length, patients in system) all record a list of timepoints and running record of metric at that time. Hence, these can be used if you just extract the lists of times and metrics from the model.
-
-:::
-
-::: {.r-content}
 
 We have a new `time_series_inspection` function for this analysis, which is explained line-by-line below.
 
@@ -471,39 +694,13 @@ This section creates the plot, which overlays the cumulative mean lines per repl
 
 The plots are then arranged vertically in a single figure using `marrangeGrob()`, saved to a file using `ggsave()`, and returned by the function.
 
-:::
-
 ### Running the approach
 
 If you've already built warm-up logic into your model (as we have done), make sure the **warm-up period is set to 0** for this assessment (`warm_up_period = 0`).
 
-As mention above, we have used multiple replications (`number_of_runs = 5`) and a long run length (`data_collection_period = 100000`).
+As mentioned above, we have used multiple replications (`number_of_runs = 5`) and a long run length (`data_collection_period = 100000`). This run length is based on the assumption that our desired simulation run length is 2 weeks (20,160 minutes).
 
-::: {.python-content}
-
-```{python}
-# Run model with base parameters for 5 replications with no warm-up and
-# long data collection period, keeping the patient-level results
-param = Parameters(warm_up_period=0,
-                   data_collection_period=100000,
-                   number_of_runs=5)
-runner = Runner(param)
-results = runner.run_reps()["patient"]
-
-# Provide to time_series_inspection() function
-time_series_inspection(
-  result=results,
-  file_path=os.path.join("length_warmup_resources",
-                         "python_length_warmup.png"),
-  warm_up=15000
-)
-```
-
-The selection of a warm-up period is **subjective**. In this example, we have suggested a value of 15,000, but this choice could be changed subject to discussion and evaluation of other metrics.
-
-:::
-
-::: {.r-content}
+> So far, the model we have been constructing in this book has intentionally had a short duration. This is handy when developing - for example, for looking over the log messages. However, this is unrealistic of an actual simulation of a healthcare system, and will produce great variability (requiring very long warm-up / large number of replications for stable results). From this point onwards, we increase the run time as mentioned.
 
 ```{r}
 #| warning: false
@@ -525,7 +722,7 @@ time_series_inspection(
 
 The selection of a warm-up period is **subjective**. In this example, we have suggested a value of 15,000, but this choice could be changed subject to discussion and evaluation of other metrics.
 
-:::
+::::
 
 ## Explore the example models
 
@@ -541,8 +738,7 @@ The selection of a warm-up period is **subjective**. In this example, we have su
 | | |
 | - | - |
 | **Key files** | `simulation/param.py`<br>`simulation/model.py`<br>`simulation/runner.py`<br>`notebooks/choosing_warmup.ipynb` |
-| **What to look for?** | This example currently determines warm-up differently. It uses an audit, so during the simulation run at specified intervals it records the metrics at that time. These are then used to determine warm-up length. |
-| **Why it matters?** | There is no one way of doing something! Depending on your set-up, one of the other may be the simplest option. We have included the method on this page and the different one in the example, to illustrate some of the options for this analysis. |
+| **What to look for?** | This model also uses an audit approach, but this is currently a method within Model itself, and only runs on a few performance measures (but this will be updated, as above, to use `WarmupAuditor`). |
 : {tbl-colwidths="[20,80]"}
 :::
 

@@ -16,6 +16,14 @@ class Model:
         List of Patient objects.
     results_list : list
         List of dictionaries with the attributes of each patient.
+    area_n_in_system : list of float
+        List containing incremental area contributions used for
+        time-weighted statistics of the number of patients in the system.
+    time_last_n_in_system : float
+        Simulation time at last update of the number-in-system statistic.
+    n_in_system: int
+        Current number of patients present in the system, including
+        waiting and being served.
     arrival_dist : Exponential
         Distribution used to generate random patient inter-arrival times.
     consult_dist : Exponential
@@ -39,7 +47,7 @@ class Model:
         self.env = simpy.Environment()
 
         # Create resource
-        self.doctor = simpy.Resource(
+        self.doctor = MonitoredResource(
             self.env, capacity=self.param.number_of_doctors
         )
 
@@ -50,12 +58,31 @@ class Model:
         # Set up attributes to store results
         self.patients = []
         self.results_list = []
+        self.area_n_in_system = [0]
+        self.time_last_n_in_system = self.env.now
+        self.n_in_system = 0
 
         # Initialise distributions
         self.arrival_dist = Exponential(mean=self.param.interarrival_time,
                                         random_seed=seeds[0])
         self.consult_dist = Exponential(mean=self.param.consultation_time,
                                         random_seed=seeds[1])
+
+    def update_n_in_system(self, inc):
+        """
+        Update the time-weighted statistics for number of patients in system.
+
+        Parameters
+        ----------
+        inc : int
+            Change in the number of patients (+1, 0, -1).
+        """
+        # Compute time since last event and calculate area under curve for that
+        duration = self.env.now - self.time_last_n_in_system
+        self.area_n_in_system.append(self.n_in_system * duration)
+        # Update time and n in system
+        self.time_last_n_in_system = self.env.now
+        self.n_in_system += inc
 
     def generate_arrivals(self):
         """
@@ -77,6 +104,9 @@ class Model:
                               period=period,
                               arrival_time=self.env.now)
             self.patients.append(patient)
+
+            # Update the number in the system
+            self.update_n_in_system(inc=1)
 
             # Print arrival time
             if self.param.verbose:
@@ -108,14 +138,28 @@ class Model:
                       f"starts consultation at: {self.env.now:.3f}")
 
             # Sample consultation duration and pass time spent with doctor
-            time_with_doctor = self.consult_dist.sample()
-            yield self.env.timeout(time_with_doctor)
+            patient.time_with_doctor = self.consult_dist.sample()
+            yield self.env.timeout(patient.time_with_doctor)
+
+            # Update number in system
+            self.update_n_in_system(inc=-1)
+
+            # Record end time
+            patient.end_time = self.env.now
+            if self.param.verbose:
+                print(f"{patient.period} Patient {patient.patient_id} " +
+                      f"leaves at: {patient.end_time:.3f}")
 
     def reset_results(self):
         """
         Reset results.
         """
         self.patients = []
+        self.doctor.init_results()
+        # For number in system, we reset area and time but not the count, as
+        # it should include any remaining warm-up patients in the count
+        self.area_n_in_system = [0]
+        self.time_last_n_in_system = self.env.now
 
     def warmup(self):
         """
@@ -140,6 +184,13 @@ class Model:
         # Run the simulation
         self.env.run(until=(self.param.warm_up_period +
                             self.param.data_collection_period))
+
+        # At simulation end, update time-weighted statistics by accounting
+        # for the time from the last event up to the simulation finish.
+        self.doctor.update_time_weighted_stats()
+
+        # Run final calculation of number in system
+        self.update_n_in_system(inc=0)
 
         # Create list of dictionaries containing each patient's attributes
         self.results_list = [x.__dict__ for x in self.patients]

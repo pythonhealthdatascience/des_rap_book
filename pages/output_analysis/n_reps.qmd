@@ -20,9 +20,9 @@ filters:
 
 **Pre-reading:**
 
-This page continues on from: [Replications](outputs.qmd).
+This page continues on from: [Length of warm-up](length_warmup.qmd).
 
-> *Entity generation → Entity processing → Initialisation bias → Performance measures → Replications → Number of replications*
+> *Entity generation → Entity processing → Initialisation bias → Performance measures → Replications → Length of warm-up → Number of replications*
 
 **Required packages:**
 
@@ -86,9 +86,7 @@ We'll show two ways of implementing this: **manually** and **automated**.
 
 ### Simulation code
 
-The simulation being used is that from the [Replications](replications.qmd) page.
-
-That example simulation is intentionally simple, running only for a short duration. This setup produces great variability and requires a large number of replications to achieve stable results. For demonstration purposes, we increase the run time here to make it stabler, so fewer replications are required. This adjustment helps keep the example straightforward and concise for this section.
+The simulation being used is that from the [Replications](replications.qmd) page - but the `Parameters` class has been updated based on the determined [length of warm-up](length_warmup.qmd) on the previous page, and a data collection period of 2 weeks (20,160 minutes).
 
 ::: {.python-content}
 
@@ -122,7 +120,7 @@ class Parameters:
     """
     def __init__(
         self, interarrival_time=5, consultation_time=10, number_of_doctors=3,
-        warm_up_period=5000, data_collection_period=20000,#<<
+        warm_up_period=15000, data_collection_period=20160,#<<
         number_of_runs=5, verbose=False
     ):
         """
@@ -157,6 +155,7 @@ class Parameters:
 ```{python}
 #| echo: false
 {{< include replications_resources/patient.py >}}
+{{< include replications_resources/monitored_resource.py >}}
 {{< include replications_resources/model.py >}}
 {{< include replications_resources/summary_stats.py >}}
 {{< include replications_resources/runner.py >}}

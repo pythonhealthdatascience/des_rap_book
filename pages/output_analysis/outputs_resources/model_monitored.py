@@ -107,6 +107,11 @@ class Model:
             time_with_doctor = self.consult_dist.sample()
             yield self.env.timeout(time_with_doctor)
 
+            # Record end time
+            if self.param.verbose:
+                print(f"{patient.period} Patient {patient.patient_id} " +
+                      f"leaves at: {self.env.now:.3f}")
+
     def reset_results(self):
         """
         Reset results.

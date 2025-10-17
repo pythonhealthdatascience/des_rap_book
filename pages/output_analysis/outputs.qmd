@@ -652,6 +652,11 @@ class Model:
             time_with_doctor = self.consult_dist.sample()
             yield self.env.timeout(time_with_doctor)
 
+            # Record end time
+            if self.param.verbose:
+                print(f"{patient.period} Patient {patient.patient_id} " +
+                      f"leaves at: {self.env.now:.3f}")
+
     def reset_results(self):
         """
         Reset results.
@@ -1357,6 +1362,11 @@ class Model:
 
             # Pass time spent with the doctor
             yield self.env.timeout(time_with_doctor)
+
+            # Record end time
+            if self.param.verbose:
+                print(f"{patient.period} Patient {patient.patient_id} " +
+                      f"leaves at: {self.env.now:.3f}")
 
     def reset_results(self):
         """
@@ -2624,6 +2634,9 @@ class Model:
 
             # Record end time#<<
             patient.end_time = self.env.now#<<
+            if self.param.verbose:
+                print(f"{patient.period} Patient {patient.patient_id} " +
+                      f"leaves at: {patient.end_time:.3f}")#<<
 
     def reset_results(self):
         """
@@ -2890,7 +2903,7 @@ No changes required.
 We introduce three new attributes:
 
 * `area_n_in_system` - a list storing the area under the curve for the number of patients in the system over time.
-* `time_last_n_in_system` - a list recording the last time the number-in-system statistic was updated
+* `time_last_n_in_system` - records last time the number-in-system statistic was updated.
 * `n_in_system` - maintains current count of patients (whether waiting or being served)
 
 When a patient arrives or leaves, we call a new `update_n_in_system(inc)` method. This:
@@ -2922,10 +2935,10 @@ class Model:
     results_list : list
         List of dictionaries with the attributes of each patient.
     area_n_in_system : list of float#<<
-        List containing incremental area contributions used for time-weighted
-        statistics of the number of patients in the system.
-    time_last_n_in_system : list#<<
-        List containing time of last update to the number-in-system.#<<
+        List containing incremental area contributions used for#<<
+        time-weighted statistics of the number of patients in the system.#<<
+    time_last_n_in_system : float#<<
+        Simulation time at last update of the number-in-system statistic.#<<
     n_in_system: int#<<
         Current number of patients present in the system, including#<<
         waiting and being served.#<<
@@ -2964,7 +2977,7 @@ class Model:
         self.patients = []
         self.results_list = []
         self.area_n_in_system = [0]#<<
-        self.time_last_n_in_system = [self.env.now]#<<
+        self.time_last_n_in_system = self.env.now#<<
         self.n_in_system = 0#<<
 
         # Initialise distributions
@@ -2983,10 +2996,10 @@ class Model:
             Change in the number of patients (+1, 0, -1).#<<
         """#<<
         # Compute time since last event and calculate area under curve for that#<<
-        duration = self.env.now - self.time_last_n_in_system[-1]#<<
+        duration = self.env.now - self.time_last_n_in_system#<<
         self.area_n_in_system.append(self.n_in_system * duration)#<<
         # Update time and n in system#<<
-        self.time_last_n_in_system.append(self.env.now)#<<
+        self.time_last_n_in_system = self.env.now#<<
         self.n_in_system += inc#<<
 
     def generate_arrivals(self):
@@ -3045,6 +3058,11 @@ class Model:
             # Update number in system#<<
             self.update_n_in_system(inc=-1)#<<
 
+            # Record end time
+            if self.param.verbose:
+                print(f"{patient.period} Patient {patient.patient_id} " +
+                      f"leaves at: {self.env.now:.3f}")
+
     def reset_results(self):
         """
         Reset results.
@@ -3053,7 +3071,7 @@ class Model:
         # For number in system, we reset area and time but not the count, as#<<
         # it should include any remaining warm-up patients in the count#<<
         self.area_n_in_system = [0]#<<
-        self.time_last_n_in_system = [self.env.now]#<<
+        self.time_last_n_in_system = self.env.now#<<
 
     def warmup(self):
         """
@@ -3438,10 +3456,7 @@ In `result["patient"]` we can see one person had NaN for `time_with_doctor`. Cor
 
 #### Patient class
 
-Here, we add new attributes just as we have done for other measures:
-
-* `arrival_time` (like for mean time in system).
-* `time_with_doctor` (like for mean time in consultation and unseen patient count).
+As done in mean time in consultation and unseen patient count, we add a new attribute `time_with_doctor`.
 
 ```{python}
 class Patient:
@@ -3480,10 +3495,7 @@ class Patient:
 
 #### Model class
 
-We also repeat previous changes to `Model`:
-
-* Storing the arrival time in `Model.generate_arrivals()` as `patient.arrival_time` (like for mean time in system).
-* Storing the sampled consultation length in `Model.consultation()` as `patient.time_with_doctor` (like for mean time in consultation and unseen patient count).
+We also repeat the change to `Model` - recording the sampled time with doctor as `patient.time_with_doctor` during `Model.consultation()`.
 
 ```{python}
 class Model:
@@ -3566,11 +3578,11 @@ class Model:
                               arrival_time=self.env.now)
             self.patients.append(patient)
 
-            # Record and print the arrival time#<<
-            patient.arrival_time = self.env.now#<<
+            # Record and print the arrival time
+            patient.arrival_time = self.env.now
             if self.param.verbose:
                 print(f"{patient.period} Patient {patient.patient_id} " +
-                      f"arrives at time: {patient.arrival_time:.3f}")#<<
+                      f"arrives at time: {patient.arrival_time:.3f}")
 
             # Start process of consultation
             self.env.process(self.consultation(patient))
@@ -3595,6 +3607,11 @@ class Model:
             # Sample consultation duration and pass time spent with doctor
             patient.time_with_doctor = self.consult_dist.sample()#<<
             yield self.env.timeout(patient.time_with_doctor)#<<
+
+            # Record end time
+            if self.param.verbose:
+                print(f"{patient.period} Patient {patient.patient_id} " +
+                      f"leaves at: {self.env.now:.3f}")
 
     def reset_results(self):
         """

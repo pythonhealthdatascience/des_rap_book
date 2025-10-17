@@ -234,6 +234,11 @@ class Model:
             time_with_doctor = self.consult_dist.sample()#<<
             yield self.env.timeout(time_with_doctor)#<<
 
+            # Record end time#<<
+            if self.param.verbose:#<<
+                print(f"Patient {patient.patient_id} " +#<<
+                      f"leaves at: {self.env.now:.3f}")#<<
+
     def run(self):
         """
         Run the simulation.
@@ -317,6 +322,11 @@ Once a doctor is available, SimPy assigns the resource to that patient, and the 
 # Sample consultation duration and pass time spent with doctor
 time_with_doctor = self.consult_dist.sample()
 yield self.env.timeout(time_with_doctor)
+
+# Record end time
+if self.param.verbose:
+    print(f"Patient {patient.patient_id} " +
+            f"leaves at: {self.env.now:.3f}")
 ```
 
 The duration of the consultation is then randomly sampled from the distribution set up earlier. The simulation then waits for this amount of time using `timeout()`, after which the doctor is released and free for the next patient.
