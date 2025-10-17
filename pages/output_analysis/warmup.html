@@ -400,8 +400,8 @@ cookieconsent.run({
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/output_analysis/parallel.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Parallel processing</span></a>
+  <a href="../../pages/output_analysis/length_warmup.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Length of warm-up</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -412,8 +412,8 @@ cookieconsent.run({
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/output_analysis/length_warmup.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Length of warm-up</span></a>
+  <a href="../../pages/output_analysis/parallel.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Parallel processing</span></a>
   </div>
 </li>
       </ul>
@@ -466,6 +466,12 @@ cookieconsent.run({
   <div class="sidebar-item-container"> 
   <a href="../../pages/verification_validation/tests.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Tests</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../pages/verification_validation/mathematical.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">❌ Mathematical proof of correctness</span></a>
   </div>
 </li>
       </ul>
@@ -732,7 +738,7 @@ Note: When a Quarto document just contains Python code blocks (and no R code), Q
 <h3 class="anchored" data-anchor-id="model-class">Model class</h3>
 <p>The changes to <code>Model</code> are explained below…</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5" data-source-line-numbers="nil" data-code-line-numbers="66,67,68,69,70,74,80,100,107,108,109,110,111,113,114,115,116,117,118,119,120,121,123,129,131,134,135"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Model:</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5" data-source-line-numbers="nil" data-code-line-numbers="66,67,68,69,70,74,80,100,109,112,113,114,115,116,118,119,120,121,122,123,124,125,126,128,134,136,139,140"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Model:</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co">    Simulation model.</span></span>
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
@@ -838,39 +844,44 @@ Note: When a Quarto document just contains Python code blocks (and no R code), Q
 <span id="cb5-104"><a href="#cb5-104" aria-hidden="true" tabindex="-1"></a>            time_with_doctor <span class="op">=</span> <span class="va">self</span>.consult_dist.sample()</span>
 <span id="cb5-105"><a href="#cb5-105" aria-hidden="true" tabindex="-1"></a>            <span class="cf">yield</span> <span class="va">self</span>.env.timeout(time_with_doctor)</span>
 <span id="cb5-106"><a href="#cb5-106" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-107"><a href="#cb5-107" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> reset_results(<span class="va">self</span>):</span>
-<span id="cb5-108"><a href="#cb5-108" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""</span></span>
-<span id="cb5-109"><a href="#cb5-109" aria-hidden="true" tabindex="-1"></a><span class="co">        Reset results.</span></span>
-<span id="cb5-110"><a href="#cb5-110" aria-hidden="true" tabindex="-1"></a><span class="co">        """</span></span>
-<span id="cb5-111"><a href="#cb5-111" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.patients <span class="op">=</span> []</span>
-<span id="cb5-112"><a href="#cb5-112" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-113"><a href="#cb5-113" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> warmup(<span class="va">self</span>):</span>
-<span id="cb5-114"><a href="#cb5-114" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""</span></span>
-<span id="cb5-115"><a href="#cb5-115" aria-hidden="true" tabindex="-1"></a><span class="co">        Reset result collection after the warm-up period.</span></span>
-<span id="cb5-116"><a href="#cb5-116" aria-hidden="true" tabindex="-1"></a><span class="co">        """</span></span>
-<span id="cb5-117"><a href="#cb5-117" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="va">self</span>.param.warm_up_period <span class="op">&gt;</span> <span class="dv">0</span>:</span>
-<span id="cb5-118"><a href="#cb5-118" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Delay process until warm-up period has completed</span></span>
-<span id="cb5-119"><a href="#cb5-119" aria-hidden="true" tabindex="-1"></a>            <span class="cf">yield</span> <span class="va">self</span>.env.timeout(<span class="va">self</span>.param.warm_up_period)</span>
-<span id="cb5-120"><a href="#cb5-120" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Reset results variables</span></span>
-<span id="cb5-121"><a href="#cb5-121" aria-hidden="true" tabindex="-1"></a>            <span class="va">self</span>.reset_results()</span>
-<span id="cb5-122"><a href="#cb5-122" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> <span class="va">self</span>.param.verbose:</span>
-<span id="cb5-123"><a href="#cb5-123" aria-hidden="true" tabindex="-1"></a>                <span class="bu">print</span>(<span class="ss">f"Warm up period ended at time: </span><span class="sc">{</span><span class="va">self</span><span class="sc">.</span>env<span class="sc">.</span>now<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb5-124"><a href="#cb5-124" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-125"><a href="#cb5-125" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> run(<span class="va">self</span>):</span>
-<span id="cb5-126"><a href="#cb5-126" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""</span></span>
-<span id="cb5-127"><a href="#cb5-127" aria-hidden="true" tabindex="-1"></a><span class="co">        Run the simulation.</span></span>
-<span id="cb5-128"><a href="#cb5-128" aria-hidden="true" tabindex="-1"></a><span class="co">        """</span></span>
-<span id="cb5-129"><a href="#cb5-129" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Schedule arrival generator and warm-up</span></span>
-<span id="cb5-130"><a href="#cb5-130" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.env.process(<span class="va">self</span>.generate_arrivals())</span>
-<span id="cb5-131"><a href="#cb5-131" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.env.process(<span class="va">self</span>.warmup())</span>
-<span id="cb5-132"><a href="#cb5-132" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-133"><a href="#cb5-133" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Run the simulation</span></span>
-<span id="cb5-134"><a href="#cb5-134" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.env.run(until<span class="op">=</span>(<span class="va">self</span>.param.warm_up_period <span class="op">+</span></span>
-<span id="cb5-135"><a href="#cb5-135" aria-hidden="true" tabindex="-1"></a>                            <span class="va">self</span>.param.data_collection_period))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb5-107"><a href="#cb5-107" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Record end time</span></span>
+<span id="cb5-108"><a href="#cb5-108" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> <span class="va">self</span>.param.verbose:</span>
+<span id="cb5-109"><a href="#cb5-109" aria-hidden="true" tabindex="-1"></a>                <span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span>patient<span class="sc">.</span>period<span class="sc">}</span><span class="ss"> Patient </span><span class="sc">{</span>patient<span class="sc">.</span>patient_id<span class="sc">}</span><span class="ss"> "</span> <span class="op">+</span></span>
+<span id="cb5-110"><a href="#cb5-110" aria-hidden="true" tabindex="-1"></a>                      <span class="ss">f"leaves at: </span><span class="sc">{</span><span class="va">self</span><span class="sc">.</span>env<span class="sc">.</span>now<span class="sc">:.3f}</span><span class="ss">"</span>)</span>
+<span id="cb5-111"><a href="#cb5-111" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-112"><a href="#cb5-112" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> reset_results(<span class="va">self</span>):</span>
+<span id="cb5-113"><a href="#cb5-113" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""</span></span>
+<span id="cb5-114"><a href="#cb5-114" aria-hidden="true" tabindex="-1"></a><span class="co">        Reset results.</span></span>
+<span id="cb5-115"><a href="#cb5-115" aria-hidden="true" tabindex="-1"></a><span class="co">        """</span></span>
+<span id="cb5-116"><a href="#cb5-116" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.patients <span class="op">=</span> []</span>
+<span id="cb5-117"><a href="#cb5-117" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-118"><a href="#cb5-118" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> warmup(<span class="va">self</span>):</span>
+<span id="cb5-119"><a href="#cb5-119" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""</span></span>
+<span id="cb5-120"><a href="#cb5-120" aria-hidden="true" tabindex="-1"></a><span class="co">        Reset result collection after the warm-up period.</span></span>
+<span id="cb5-121"><a href="#cb5-121" aria-hidden="true" tabindex="-1"></a><span class="co">        """</span></span>
+<span id="cb5-122"><a href="#cb5-122" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="va">self</span>.param.warm_up_period <span class="op">&gt;</span> <span class="dv">0</span>:</span>
+<span id="cb5-123"><a href="#cb5-123" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Delay process until warm-up period has completed</span></span>
+<span id="cb5-124"><a href="#cb5-124" aria-hidden="true" tabindex="-1"></a>            <span class="cf">yield</span> <span class="va">self</span>.env.timeout(<span class="va">self</span>.param.warm_up_period)</span>
+<span id="cb5-125"><a href="#cb5-125" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Reset results variables</span></span>
+<span id="cb5-126"><a href="#cb5-126" aria-hidden="true" tabindex="-1"></a>            <span class="va">self</span>.reset_results()</span>
+<span id="cb5-127"><a href="#cb5-127" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> <span class="va">self</span>.param.verbose:</span>
+<span id="cb5-128"><a href="#cb5-128" aria-hidden="true" tabindex="-1"></a>                <span class="bu">print</span>(<span class="ss">f"Warm up period ended at time: </span><span class="sc">{</span><span class="va">self</span><span class="sc">.</span>env<span class="sc">.</span>now<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb5-129"><a href="#cb5-129" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-130"><a href="#cb5-130" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> run(<span class="va">self</span>):</span>
+<span id="cb5-131"><a href="#cb5-131" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""</span></span>
+<span id="cb5-132"><a href="#cb5-132" aria-hidden="true" tabindex="-1"></a><span class="co">        Run the simulation.</span></span>
+<span id="cb5-133"><a href="#cb5-133" aria-hidden="true" tabindex="-1"></a><span class="co">        """</span></span>
+<span id="cb5-134"><a href="#cb5-134" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Schedule arrival generator and warm-up</span></span>
+<span id="cb5-135"><a href="#cb5-135" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.env.process(<span class="va">self</span>.generate_arrivals())</span>
+<span id="cb5-136"><a href="#cb5-136" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.env.process(<span class="va">self</span>.warmup())</span>
+<span id="cb5-137"><a href="#cb5-137" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-138"><a href="#cb5-138" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Run the simulation</span></span>
+<span id="cb5-139"><a href="#cb5-139" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.env.run(until<span class="op">=</span>(<span class="va">self</span>.param.warm_up_period <span class="op">+</span></span>
+<span id="cb5-140"><a href="#cb5-140" aria-hidden="true" tabindex="-1"></a>                            <span class="va">self</span>.param.data_collection_period))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <section id="explaining-changes-to-the-model-class" class="level4">
 <h4 class="anchored" data-anchor-id="explaining-changes-to-the-model-class">Explaining changes to the Model class…</h4>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6" data-code-line-numbers="21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Check whether arrived during warm-up or data collection</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6" data-code-line-numbers=""><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Check whether arrived during warm-up or data collection</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="va">self</span>.env.now <span class="op">&lt;</span> <span class="va">self</span>.param.warm_up_period:</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    period <span class="op">=</span> <span class="st">"</span><span class="ch">\U0001F538</span><span class="st"> WU"</span></span>
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="cf">else</span>:</span>
@@ -891,7 +902,11 @@ Note: When a Quarto document just contains Python code blocks (and no R code), Q
 <span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="va">self</span>.param.verbose:</span>
 <span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span>patient<span class="sc">.</span>period<span class="sc">}</span><span class="ss"> Patient </span><span class="sc">{</span>patient<span class="sc">.</span>patient_id<span class="sc">}</span><span class="ss"> "</span> <span class="op">+</span></span>
-<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>          <span class="ss">f"starts consultation at: </span><span class="sc">{</span><span class="va">self</span><span class="sc">.</span>env<span class="sc">.</span>now<span class="sc">:.3f}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>          <span class="ss">f"starts consultation at: </span><span class="sc">{</span><span class="va">self</span><span class="sc">.</span>env<span class="sc">.</span>now<span class="sc">:.3f}</span><span class="ss">"</span>)</span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>...</span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="va">self</span>.param.verbose:</span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span>patient<span class="sc">.</span>period<span class="sc">}</span><span class="ss"> Patient </span><span class="sc">{</span>patient<span class="sc">.</span>patient_id<span class="sc">}</span><span class="ss"> "</span> <span class="op">+</span></span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>            <span class="ss">f"leaves at: </span><span class="sc">{</span><span class="va">self</span><span class="sc">.</span>env<span class="sc">.</span>now<span class="sc">:.3f}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>When a patient arrives, we now check whether this occurred during the warm-up period (<code>self.env.now &lt; self.param.warm_up_period</code>). Each patient is then labelled as either warm-up (🔸 WU) or data collection (🔹 DC), stored as an attribute.</p>
 <p>The label is used when printing times, helpful for debugging and verifying event sequencing.</p>
 <p><br></p>
@@ -944,6 +959,8 @@ Note: When a Quarto document just contains Python code blocks (and no R code), Q
 🔸 WU Patient 1 starts consultation at: 16.468
 🔸 WU Patient 2 arrives at time: 20.283
 🔸 WU Patient 2 starts consultation at: 20.283
+🔸 WU Patient 2 leaves at: 24.103
+🔸 WU Patient 1 leaves at: 24.499
 🔸 WU Patient 3 arrives at time: 26.545
 🔸 WU Patient 3 starts consultation at: 26.545
 🔸 WU Patient 4 arrives at time: 27.675
@@ -951,16 +968,22 @@ Note: When a Quarto document just contains Python code blocks (and no R code), Q
 🔸 WU Patient 5 arrives at time: 28.779
 🔸 WU Patient 5 starts consultation at: 28.779
 Warm up period ended at time: 30
+🔸 WU Patient 3 leaves at: 30.187
+🔸 WU Patient 4 leaves at: 32.970
 🔹 DC Patient 1 arrives at time: 37.778
 🔹 DC Patient 1 starts consultation at: 37.778
 🔹 DC Patient 2 arrives at time: 38.108
 🔹 DC Patient 2 starts consultation at: 38.108
 🔹 DC Patient 3 arrives at time: 42.611
 🔹 DC Patient 4 arrives at time: 44.088
+🔹 DC Patient 2 leaves at: 47.598
 🔹 DC Patient 3 starts consultation at: 47.598
 🔹 DC Patient 5 arrives at time: 55.588
+🔸 WU Patient 5 leaves at: 56.662
 🔹 DC Patient 4 starts consultation at: 56.662
+🔹 DC Patient 1 leaves at: 57.389
 🔹 DC Patient 5 starts consultation at: 57.389
+🔹 DC Patient 4 leaves at: 62.537
 🔹 DC Patient 6 arrives at time: 64.880
 🔹 DC Patient 6 starts consultation at: 64.880
 🔹 DC Patient 7 arrives at time: 64.954</code></pre>

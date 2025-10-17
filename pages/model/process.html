@@ -397,8 +397,8 @@ cookieconsent.run({
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/output_analysis/parallel.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Parallel processing</span></a>
+  <a href="../../pages/output_analysis/length_warmup.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Length of warm-up</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -409,8 +409,8 @@ cookieconsent.run({
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="../../pages/output_analysis/length_warmup.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Length of warm-up</span></a>
+  <a href="../../pages/output_analysis/parallel.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Parallel processing</span></a>
   </div>
 </li>
       </ul>
@@ -463,6 +463,12 @@ cookieconsent.run({
   <div class="sidebar-item-container"> 
   <a href="../../pages/verification_validation/tests.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Tests</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../pages/verification_validation/mathematical.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">❌ Mathematical proof of correctness</span></a>
   </div>
 </li>
       </ul>
@@ -701,7 +707,7 @@ Note: When a Quarto document just contains Python code blocks (and no R code), Q
 <h3 class="anchored" data-anchor-id="model-class">Model class</h3>
 <p>These changes are explained below…</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5" data-source-line-numbers="nil" data-code-line-numbers="13,14,19,20,40,41,42,46,54,55,76,77,79,80,81,83,84,85,86,87,88,89,90,92,93,94,96,97,98"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Model:</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5" data-source-line-numbers="nil" data-code-line-numbers="13,14,19,20,40,41,42,46,54,55,76,77,79,80,81,83,84,85,86,87,88,89,90,92,93,94,96,97,98,100,101,102,103"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Model:</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co">    Simulation model.</span></span>
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
@@ -800,15 +806,20 @@ Note: When a Quarto document just contains Python code blocks (and no R code), Q
 <span id="cb5-97"><a href="#cb5-97" aria-hidden="true" tabindex="-1"></a>            time_with_doctor <span class="op">=</span> <span class="va">self</span>.consult_dist.sample()</span>
 <span id="cb5-98"><a href="#cb5-98" aria-hidden="true" tabindex="-1"></a>            <span class="cf">yield</span> <span class="va">self</span>.env.timeout(time_with_doctor)</span>
 <span id="cb5-99"><a href="#cb5-99" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-100"><a href="#cb5-100" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> run(<span class="va">self</span>):</span>
-<span id="cb5-101"><a href="#cb5-101" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""</span></span>
-<span id="cb5-102"><a href="#cb5-102" aria-hidden="true" tabindex="-1"></a><span class="co">        Run the simulation.</span></span>
-<span id="cb5-103"><a href="#cb5-103" aria-hidden="true" tabindex="-1"></a><span class="co">        """</span></span>
-<span id="cb5-104"><a href="#cb5-104" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Schedule arrival generator</span></span>
-<span id="cb5-105"><a href="#cb5-105" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.env.process(<span class="va">self</span>.generate_arrivals())</span>
-<span id="cb5-106"><a href="#cb5-106" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-107"><a href="#cb5-107" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Run the simulation</span></span>
-<span id="cb5-108"><a href="#cb5-108" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.env.run(until<span class="op">=</span><span class="va">self</span>.param.run_length)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb5-100"><a href="#cb5-100" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Record end time</span></span>
+<span id="cb5-101"><a href="#cb5-101" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> <span class="va">self</span>.param.verbose:</span>
+<span id="cb5-102"><a href="#cb5-102" aria-hidden="true" tabindex="-1"></a>                <span class="bu">print</span>(<span class="ss">f"Patient </span><span class="sc">{</span>patient<span class="sc">.</span>patient_id<span class="sc">}</span><span class="ss"> "</span> <span class="op">+</span></span>
+<span id="cb5-103"><a href="#cb5-103" aria-hidden="true" tabindex="-1"></a>                      <span class="ss">f"leaves at: </span><span class="sc">{</span><span class="va">self</span><span class="sc">.</span>env<span class="sc">.</span>now<span class="sc">:.3f}</span><span class="ss">"</span>)</span>
+<span id="cb5-104"><a href="#cb5-104" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-105"><a href="#cb5-105" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> run(<span class="va">self</span>):</span>
+<span id="cb5-106"><a href="#cb5-106" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""</span></span>
+<span id="cb5-107"><a href="#cb5-107" aria-hidden="true" tabindex="-1"></a><span class="co">        Run the simulation.</span></span>
+<span id="cb5-108"><a href="#cb5-108" aria-hidden="true" tabindex="-1"></a><span class="co">        """</span></span>
+<span id="cb5-109"><a href="#cb5-109" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Schedule arrival generator</span></span>
+<span id="cb5-110"><a href="#cb5-110" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.env.process(<span class="va">self</span>.generate_arrivals())</span>
+<span id="cb5-111"><a href="#cb5-111" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-112"><a href="#cb5-112" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Run the simulation</span></span>
+<span id="cb5-113"><a href="#cb5-113" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.env.run(until<span class="op">=</span><span class="va">self</span>.param.run_length)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p><br></p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6" data-code-line-numbers=""><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create resource</span></span>
@@ -850,7 +861,12 @@ Note: When a Quarto document just contains Python code blocks (and no R code), Q
 <p><br></p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11" data-code-line-numbers=""><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Sample consultation duration and pass time spent with doctor</span></span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>time_with_doctor <span class="op">=</span> <span class="va">self</span>.consult_dist.sample()</span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="cf">yield</span> <span class="va">self</span>.env.timeout(time_with_doctor)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="cf">yield</span> <span class="va">self</span>.env.timeout(time_with_doctor)</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Record end time</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="va">self</span>.param.verbose:</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"Patient </span><span class="sc">{</span>patient<span class="sc">.</span>patient_id<span class="sc">}</span><span class="ss"> "</span> <span class="op">+</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>            <span class="ss">f"leaves at: </span><span class="sc">{</span><span class="va">self</span><span class="sc">.</span>env<span class="sc">.</span>now<span class="sc">:.3f}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>The duration of the consultation is then randomly sampled from the distribution set up earlier. The simulation then waits for this amount of time using <code>timeout()</code>, after which the doctor is released and free for the next patient.</p>
 </section>
 <section id="run-the-model" class="level3">
@@ -864,18 +880,23 @@ Note: When a Quarto document just contains Python code blocks (and no R code), Q
 Patient 1 starts consultation at: 16.468
 Patient 2 arrives at time: 20.283
 Patient 2 starts consultation at: 20.283
+Patient 2 leaves at: 24.103
+Patient 1 leaves at: 24.499
 Patient 3 arrives at time: 26.545
 Patient 3 starts consultation at: 26.545
 Patient 4 arrives at time: 27.675
 Patient 4 starts consultation at: 27.675
 Patient 5 arrives at time: 28.779
 Patient 5 starts consultation at: 28.779
+Patient 3 leaves at: 30.187
+Patient 4 leaves at: 32.970
 Patient 6 arrives at time: 37.778
 Patient 6 starts consultation at: 37.778
 Patient 7 arrives at time: 38.108
 Patient 7 starts consultation at: 38.108
 Patient 8 arrives at time: 42.611
 Patient 9 arrives at time: 44.088
+Patient 7 leaves at: 47.598
 Patient 8 starts consultation at: 47.598</code></pre>
 </div>
 </div>
