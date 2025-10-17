@@ -83,6 +83,12 @@ class Runner:
     def run_reps(self): #<<
         """#<<
         Execute a single model configuration for multiple runs.#<<
+
+        Returns#<<
+        -------#<<
+        dict#<<
+            Contains patient-level results, results from each run and#<<
+            overall results.#<<
         """#<<
         # Run replications#<<
         all_results = [self.run_single(run)#<<
