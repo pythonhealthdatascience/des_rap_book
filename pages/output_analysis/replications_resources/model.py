@@ -19,8 +19,8 @@ class Model:
     area_n_in_system : list of float
         List containing incremental area contributions used for
         time-weighted statistics of the number of patients in the system.
-    time_last_n_in_system : list
-        List containing time of last update to the number-in-system.
+    time_last_n_in_system : float
+        Simulation time at last update of the number-in-system statistic.
     n_in_system: int
         Current number of patients present in the system, including
         waiting and being served.
@@ -59,7 +59,7 @@ class Model:
         self.patients = []
         self.results_list = []
         self.area_n_in_system = [0]
-        self.time_last_n_in_system = [self.env.now]
+        self.time_last_n_in_system = self.env.now
         self.n_in_system = 0
 
         # Initialise distributions
@@ -78,10 +78,10 @@ class Model:
             Change in the number of patients (+1, 0, -1).
         """
         # Compute time since last event and calculate area under curve for that
-        duration = self.env.now - self.time_last_n_in_system[-1]
+        duration = self.env.now - self.time_last_n_in_system
         self.area_n_in_system.append(self.n_in_system * duration)
         # Update time and n in system
-        self.time_last_n_in_system.append(self.env.now)
+        self.time_last_n_in_system = self.env.now
         self.n_in_system += inc
 
     def generate_arrivals(self):
@@ -159,7 +159,7 @@ class Model:
         # For number in system, we reset area and time but not the count, as
         # it should include any remaining warm-up patients in the count
         self.area_n_in_system = [0]
-        self.time_last_n_in_system = [self.env.now]
+        self.time_last_n_in_system = self.env.now
 
     def warmup(self):
         """
