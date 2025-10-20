@@ -86,7 +86,7 @@ We'll show two ways of implementing this: **manually** and **automated**.
 
 ## Simulation code
 
-The simulation being used is that from the [Replications](replications.qmd) page - but the `Parameters` class has been updated based on the determined [length of warm-up](length_warmup.qmd) on the previous page, and a data collection period of 2 weeks (20,160 minutes).
+The simulation being used is that from the [Replications](replications.qmd) page - but the `Parameters` class has been updated based on the determined [length of warm-up](length_warmup.qmd) on the previous page, and a data collection period of 2 weeks (20,160 minutes). <!--TODO: check length of warm-up here in python v.s. R v.s. result from warm-up page-->
 
 ::: {.python-content}
 
@@ -114,7 +114,7 @@ class Parameters:
     """
     def __init__(
         self, interarrival_time=5, consultation_time=10, number_of_doctors=3,
-        warm_up_period=15000, data_collection_period=20160,#<<
+        warm_up_period=3000, data_collection_period=20160,#<<
         number_of_runs=5, verbose=False
     ):
         """
@@ -230,7 +230,7 @@ create_params <- function(
 
 ## Manual inspection
 
-::: {.python-content}
+:::: {.python-content}
 
 To begin, we run our simulation model for multiple replications using our usual workflow. Here, we have set to run for 30 replications.
 
@@ -259,43 +259,142 @@ This page uses the (currently unreleased) `sim-tools` version 1.0.0. At present,
 
 :::
 
-The `desired_precision` parameter is set to 0.1, which means we are interested in identifying when the percentage deviation of the confidence interval from the mean falls below 10%. *Note: This threshold is our default but relatively arbitrary. We are just using it to help us identify the point where results are stable enough.*
+The `desired_precision` parameter is set to 0.1, which means we are interested in identifying when the percentage deviation of the confidence interval from the mean falls **below 10%**. *Note: This threshold is our default but relatively arbitrary. We are just using it to help us identify the point where results are stable enough.*
 
 ```{python}
 # Define metrics to inspect
-metrics = ["arrivals", "mean_wait_time"]
+metrics = ["mean_wait_time", "mean_utilisation_tw", "mean_queue_length",
+           "mean_time_in_system", "mean_patients_in_system"]
 
 # Run the confidence interval method
 confint_results = confidence_interval_method(
     replications=result["run"][metrics],
     desired_precision=0.1,
+    min_rep=5,
     decimal_places=6
 )
 ```
 
 <br>
 
-The function returns dataframes for each metric that include cumulative calculations: the mean, cumulative mean, standard deviation, confidence interval bounds, and the percentage deviation of the confidence interval from the mean (displayed in the far-right column).
+For each metric, the function returns:
 
-For example, looking at mean wait time...
+1. The number of replications required for **deviation to fall below 10%** (and must also be **higher than `min_rep`** set in `confidence_interval_method()`).
+2. A dataframe of cumulative calculations: the mean, cumulative mean, standard deviation, confidence interval bounds, and the percentage deviation of the confidence interval from the mean (displayed in the far-right column).
+
+::: {.panel-tabset}
+
+## Mean wait time
+
+```{python}
+print(confint_results["mean_wait_time"][0])
+```
 
 ```{python}
 HTML(to_html_datatable(confint_results["mean_wait_time"][1]))
 ```
 
+## Mean utilisation
+
+```{python}
+print(confint_results["mean_utilisation_tw"][0])
+```
+
+```{python}
+HTML(to_html_datatable(confint_results["mean_utilisation_tw"][1]))
+```
+
+## Mean queue length
+
+```{python}
+print(confint_results["mean_queue_length"][0])
+```
+
+```{python}
+HTML(to_html_datatable(confint_results["mean_queue_length"][1]))
+```
+
+## Mean time in system
+
+```{python}
+print(confint_results["mean_time_in_system"][0])
+```
+
+```{python}
+HTML(to_html_datatable(confint_results["mean_time_in_system"][1]))
+```
+
+## Mean patients in system
+
+```{python}
+print(confint_results["mean_patients_in_system"][0])
+```
+
+```{python}
+HTML(to_html_datatable(confint_results["mean_patients_in_system"][1]))
+```
+
+:::
+
 <br>
 
 To visualise when precision is achieved and check for stability, we can use the `plotly_confidence_interval_method` function from [sim-tools](https://github.com/TomMonks/sim-tools):
+
+::: {.panel-tabset}
+
+## Mean wait time
 
 ```{python}
 p = plotly_confidence_interval_method(
     n_reps=confint_results["mean_wait_time"][0],
     conf_ints=confint_results["mean_wait_time"][1],
-    metric_name="Wait Time")
+    metric_name="Mean Wait Time")
+p.update_layout(autosize=True, width=None, height=390)
+```
+
+## Mean utilisation
+
+```{python}
+p = plotly_confidence_interval_method(
+    n_reps=confint_results["mean_utilisation_tw"][0],
+    conf_ints=confint_results["mean_utilisation_tw"][1],
+    metric_name="Mean Utilisation")
+p.update_layout(autosize=True, width=None, height=390)
+```
+
+## Mean queue length
+
+```{python}
+p = plotly_confidence_interval_method(
+    n_reps=confint_results["mean_queue_length"][0],
+    conf_ints=confint_results["mean_queue_length"][1],
+    metric_name="Mean Queue Length")
+p.update_layout(autosize=True, width=None, height=390)
+```
+
+## Mean time in system
+
+```{python}
+p = plotly_confidence_interval_method(
+    n_reps=confint_results["mean_time_in_system"][0],
+    conf_ints=confint_results["mean_time_in_system"][1],
+    metric_name="Mean Time In System")
+p.update_layout(autosize=True, width=None, height=390)
+```
+
+## Mean patients in system
+
+```{python}
+p = plotly_confidence_interval_method(
+    n_reps=confint_results["mean_patients_in_system"][0],
+    conf_ints=confint_results["mean_patients_in_system"][1],
+    metric_name="Mean Patients In System")
 p.update_layout(autosize=True, width=None, height=390)
 ```
 
 :::
+
+::::
 
 :::: {.r-content}
 
@@ -478,6 +577,10 @@ plot_replication_ci(
 
 ::: {.python-content}
 
+<div class="h3-tight"></div>
+
+### Description of the algorithm
+
 Using the automated method, an algorithm will tell us the number of runs needed. We will use the `ReplicationsAlgorithm` class from [sim-tools](https://github.com/TomMonks/sim-tools).
 
 Here's how it works:
@@ -486,7 +589,7 @@ Here's how it works:
 * After each run, it checks if the results are **stable enough**. It does this by looking at the percentage deviation of the confidence interval from the mean.
 * The algorithm also incorporates a **look-ahead period**, meaning it continues to run the simulation and check that results stay stable for the next few runs (and that this wasn't just a lucky one-off!).
 
-<br>
+### Model adapter
 
 The `ReplicationsAlgorithm` can be used on a variety of model structures - it just requires a standardised interface, as defined by the `ReplicationsAlgorithmModelAdapter` class in `sim-tools` 
 
@@ -569,11 +672,12 @@ adapter = SimulationAdapter(param=Parameters(), metrics=metrics)
 adapter.single_run(replication_number=0)
 ```
 
-<br>
+### Run algorithm
 
 We can then use this adapter to run `ReplicationsAlgorithm`.
 
 ```{python}
+    initial_replications=3,
 # Set up model with adapter
 sim_model = SimulationAdapter(param=Parameters(), metrics=metrics)
 
@@ -581,30 +685,90 @@ sim_model = SimulationAdapter(param=Parameters(), metrics=metrics)
 analyser = ReplicationsAlgorithm(
     alpha=0.05,
     half_width_precision=0.1,
-    initial_replications=3,
     look_ahead=5,
     replication_budget=100,
     verbose=False
 )
 nreps, summary_frame = analyser.select(model=sim_model, metrics=metrics)
+```
 
+<br>
+
+The algorithm returns:
+
+1. The number of replications required for each metric (here, assigned to `nreps`).
+2. A dataframe containing the cumulative results and deviations for each metric (in a single dataframe, here assigned to `summary_frame`).
+
+```{python}
 # View results
 print(nreps)
 HTML(to_html_datatable(summary_frame))
 ```
 
-Again, can use `plotly_confidence_interval_method` to create plots, for example:
+<br>
+
+Again, we can use `plotly_confidence_interval_method` to create plots.
+
+::: {.panel-tabset}
+
+## Mean wait time
 
 ```{python}
 p = plotly_confidence_interval_method(
     n_reps=nreps["mean_wait_time"],
     conf_ints=summary_frame[
         summary_frame["metric"] == "mean_wait_time"].reset_index(),
-    metric_name="Mean wait time")
+    metric_name="Mean Wait Time")
+p.update_layout(autosize=True, width=None, height=390)
+```
+
+## Mean utilisation
+
+```{python}
+p = plotly_confidence_interval_method(
+    n_reps=nreps["mean_utilisation_tw"],
+    conf_ints=summary_frame[
+        summary_frame["metric"] == "mean_utilisation_tw"].reset_index(),
+    metric_name="Mean Utilisation")
+p.update_layout(autosize=True, width=None, height=390)
+```
+
+## Mean queue length
+
+```{python}
+p = plotly_confidence_interval_method(
+    n_reps=nreps["mean_queue_length"],
+    conf_ints=summary_frame[
+        summary_frame["metric"] == "mean_queue_length"].reset_index(),
+    metric_name="Mean Queue Length")
+p.update_layout(autosize=True, width=None, height=390)
+```
+
+## Mean time in system
+
+```{python}
+p = plotly_confidence_interval_method(
+    n_reps=nreps["mean_time_in_system"],
+    conf_ints=summary_frame[
+        summary_frame["metric"] == "mean_time_in_system"].reset_index(),
+    metric_name="Mean Time In System")
+p.update_layout(autosize=True, width=None, height=390)
+```
+
+## Mean patients in system
+
+```{python}
+p = plotly_confidence_interval_method(
+    n_reps=nreps["mean_patients_in_system"],
+    conf_ints=summary_frame[
+        summary_frame["metric"] == "mean_patients_in_system"].reset_index(),
+    metric_name="Mean Patients In System")
 p.update_layout(autosize=True, width=None, height=390)
 ```
 
 :::
+
+::::
 
 :::: {.r-content}
 
