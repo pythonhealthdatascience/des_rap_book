@@ -47,7 +47,6 @@ calc_mean_wait <- function(arrivals) {
 #'
 #' @param arrivals Dataframe with times for each patient with each resource.
 #' @param resources Dataframe with times patients use or queue for resources.
-#' @param groups Optional list of columns to group by for the calculation.
 #'
 #' @importFrom dplyr group_by summarise ungroup
 #' @importFrom rlang .data
@@ -57,7 +56,7 @@ calc_mean_wait <- function(arrivals) {
 #' @return Tibble with columns containing result for each resource.
 #' @export
 
-calc_mean_serve_length <- function(arrivals, resources, groups = NULL) {
+calc_mean_serve_length <- function(arrivals, resources) {
 
   # Create subset of data that removes patients who were still waiting
   complete_arrivals <- drop_na(arrivals, any_of("serve_length"))
@@ -85,22 +84,27 @@ calc_mean_serve_length <- function(arrivals, resources, groups = NULL) {
 #' https://github.com/r-simmer/simmer.plot.).
 #'
 #' @param resources Dataframe with times patients use or queue for resources.
-#' @param summarise If TRUE, return overall utilisation. If FALSE, just return
-#' the resource dataframe with the additional columns interval_duration,
-#' effective_capacity and utilisation.
+#' @param groups Optional list of columns to group by for the calculation.#<<
+#' @param summarise If TRUE, return overall utilisation. If FALSE, just#<<
+#' return the resource dataframe with the additional columns#<<
+#' interval_duration, effective_capacity and utilisation.#<<
 #'
-#' @importFrom dplyr group_by mutate ungroup
+#' @importFrom dplyr across group_by mutate ungroup#<<
 #' @importFrom rlang .data
 #' @importFrom tidyr pivot_wider
+#' @importFrom tidyselect all_of#<<
 #'
 #' @return Tibble with columns containing result for each resource.
 #' @export
 
-calc_utilisation <- function(resources, summarise = TRUE) {
+calc_utilisation <- function(resources, groups = NULL, summarise = TRUE) {#<<
+
+  # Create list of grouping variables (always "resource" but can add others)#<<
+  group_vars <- c("resource", groups)#<<
 
   # Calculate utilisation
   util_df <- resources |>
-    group_by(.data[["resource"]]) |>
+    group_by(across(all_of(group_vars))) |>#<<
     mutate(
       # Time between this row and the next
       interval_duration = lead(.data[["time"]]) - .data[["time"]],
@@ -114,8 +118,8 @@ calc_utilisation <- function(resources, summarise = TRUE) {
                            NA_real_)
     )
 
-  # If summarise = TRUE, find total utilisation
-  if (summarise) {
+  # If summarise = TRUE, find total utilisation#<<
+  if (summarise) {#<<
     util_df |>
       summarise(
         # Multiply each utilisation by its own unique duration. The total of
@@ -129,10 +133,10 @@ calc_utilisation <- function(resources, summarise = TRUE) {
                   values_from = "utilisation",
                   names_glue = "utilisation_{resource}") |>
       ungroup()
-  } else {
-    # If summarise = FALSE, just return the util_df with no further processing
-    ungroup(util_df)
-  }
+  } else {#<<
+    # If summarise = FALSE, just return util_df with no further processing#<<
+    ungroup(util_df)#<<
+  }#<<
 }
 
 
