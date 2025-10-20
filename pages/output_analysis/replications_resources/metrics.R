@@ -47,7 +47,6 @@ calc_mean_wait <- function(arrivals) {
 #'
 #' @param arrivals Dataframe with times for each patient with each resource.
 #' @param resources Dataframe with times patients use or queue for resources.
-#' @param groups Optional list of columns to group by for the calculation.
 #'
 #' @importFrom dplyr group_by summarise ungroup
 #' @importFrom rlang .data
@@ -57,7 +56,7 @@ calc_mean_wait <- function(arrivals) {
 #' @return Tibble with columns containing result for each resource.
 #' @export
 
-calc_mean_serve_length <- function(arrivals, resources, groups = NULL) {
+calc_mean_serve_length <- function(arrivals, resources) {
 
   # Create subset of data that removes patients who were still waiting
   complete_arrivals <- drop_na(arrivals, any_of("serve_length"))
@@ -85,9 +84,6 @@ calc_mean_serve_length <- function(arrivals, resources, groups = NULL) {
 #' https://github.com/r-simmer/simmer.plot.).
 #'
 #' @param resources Dataframe with times patients use or queue for resources.
-#' @param summarise If TRUE, return overall utilisation. If FALSE, just return
-#' the resource dataframe with the additional columns interval_duration,
-#' effective_capacity and utilisation.
 #'
 #' @importFrom dplyr group_by mutate ungroup
 #' @importFrom rlang .data
@@ -96,7 +92,7 @@ calc_mean_serve_length <- function(arrivals, resources, groups = NULL) {
 #' @return Tibble with columns containing result for each resource.
 #' @export
 
-calc_utilisation <- function(resources, summarise = TRUE) {
+calc_utilisation <- function(resources) {
 
   # Calculate utilisation
   util_df <- resources |>
@@ -114,25 +110,20 @@ calc_utilisation <- function(resources, summarise = TRUE) {
                            NA_real_)
     )
 
-  # If summarise = TRUE, find total utilisation
-  if (summarise) {
-    util_df |>
-      summarise(
-        # Multiply each utilisation by its own unique duration. The total of
-        # those is then divided by the total duration of all intervals.
-        # Hence, we are calculated a time-weighted average utilisation.
-        utilisation = (sum(.data[["utilisation"]] *
-                             .data[["interval_duration"]], na.rm = TRUE) /
-                         sum(.data[["interval_duration"]], na.rm = TRUE))
-      ) |>
-      pivot_wider(names_from = "resource",
-                  values_from = "utilisation",
-                  names_glue = "utilisation_{resource}") |>
-      ungroup()
-  } else {
-    # If summarise = FALSE, just return the util_df with no further processing
-    ungroup(util_df)
-  }
+  # Find total utilisation
+  util_df |>
+    summarise(
+      # Multiply each utilisation by its own unique duration. The total of
+      # those is then divided by the total duration of all intervals.
+      # Hence, we are calculated a time-weighted average utilisation.
+      utilisation = (sum(.data[["utilisation"]] *
+                            .data[["interval_duration"]], na.rm = TRUE) /
+                        sum(.data[["interval_duration"]], na.rm = TRUE))
+    ) |>
+    pivot_wider(names_from = "resource",
+                values_from = "utilisation",
+                names_glue = "utilisation_{resource}") |>
+    ungroup()
 }
 
 
