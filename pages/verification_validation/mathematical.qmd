@@ -23,6 +23,7 @@ This page implements mathematical proof of correctness implemented on the [verif
 The test is run on the model from the [parallel processing](../output_analysis/parallel.qmd) page (likewise, also used on the [scenario and sensitivity analysis](../experiments/scenarios.qmd) page and [tests](tests.qmd) pages).
 
 > *Entity generation → Entity processing → Initialisation bias → Performance measures → Replications → Length of warm-up → Number of replications → Parallel processing → Mathematical proof of correctness*
+
 **Required packages:**
 
 These should be available from environment setup in the "Test yourself" section of [Environments](../setup/environment.qmd). 
@@ -88,11 +89,18 @@ The small example we've been building throughout this book is an instance of an 
 
 <div class="h3-tight"></div>
 
-### Simulation model
+### Simulation code
 
 The model used is the same as that on the [parallel processing](../output_analysis/parallel.qmd) page - as also used on the [scenario and sensitivity analysis](../experiments/scenarios.qmd) and [tests](tests.qmd) pages.
 
+```{python}
+#| file: "tests_resources/simulation.py"
+#| echo: false
+```
+
 ### Mathematical M/M/s queue model
+
+The class implementing a mathematical M/M/s queue model is explained line-by-line below.
 
 ```{python}
 class MMSQueue:
@@ -230,14 +238,332 @@ class MMSQueue:
         return 1 / (sum_part + server_term)
 ```
 
-### Wrapper to run the model
+#### Explaining `MMSQueue`
+
+```{.python}
+class MMSQueue:
+    """
+    Analytical M/M/S queue formulas.
+
+    Parameters
+    ----------
+    arrival_rate : float
+        Customer arrival rate (λ).
+    service_rate : float
+        Service rate per server (μ).
+    num_servers : int
+        Number of servers (s).
+
+    Attributes
+    ----------
+    rho : float
+        Utilisation (λ / (sμ)).
+    lambda_over_mu : float
+        Arrival/service rate ratio (λ / μ).
+    metrics : dict
+        Calculated performance metrics.
+    """
+
+    def __init__(self, arrival_rate, service_rate, num_servers):
+        """
+        Initialise the M/M/S queue.
+
+        Raises
+        ------
+        ValueError
+            If parameters are invalid or system is unstable.
+        """
+        if arrival_rate <= 0:
+            raise ValueError("Arrival rate must be positive")
+        if service_rate <= 0:
+            raise ValueError("Service rate must be positive")
+        if num_servers < 1:
+            raise ValueError("Number of servers must be at least 1")
+
+        self.arrival_rate = arrival_rate
+        self.service_rate = service_rate
+        self.num_servers = num_servers
+```
+
+`MMSQueue` requires three inputs:
+
+* `arrival_rate` (λ) - average number of customers (patients) per time unit (minute).
+* `service_rate` (μ) - average number of customers (patients) a single server (doctor) can serve per time unit (minute).
+* `num_servers` (s) - number of servers (doctors) in the system.
+
+It checks the inputs are valid (no negative or zero rates, at least one server) and stores them as attributes.
+
+<br>
+
+```{.python}
+        # Calculate utilisation
+        self.rho = self.get_traffic_intensity()
+
+        # Check system stability
+        if self.rho >= 1:
+            raise ValueError(
+                f"System is unstable: ρ = {self.rho:.4f} >= 1. "
+                f"Need λ < s*μ ({arrival_rate} < {num_servers * service_rate})"
+            )
+```
+
+It then calculates **utilisation (ρ)** by calling the `get_traffic_intensity()` method. Utilisation is a measure of how busy the servers are - and if it is close to 1, it means the servers are almost always busy.
+
+If the calculation utilisation is **greater than 1**, it means that customers arrive faster than the servers can serve them. In this situation, the **queue would keep growing indefinitely**. There is no steady state, and the system is unstable. When this happens, the model stops and raises an error instead of producing meaningless results.
+
+> **Note:** This behaviour is different from a discrete-event simulation model, where utilisation is capped at 1 (since servers cannot be more than fully busy). However, you can still have a queue that grows indefinitely - you would just notice it by looking at other metrics like queue length or waiting time, and see them continuing to increase over time.
+
+<br>
+
+```{.python}
+        # Calculate λ/μ (average customers in service if infinite servers)
+        self.lambda_over_mu = self.arrival_rate / self.service_rate
+
+        # Calculate performance metrics using Little's Law
+        self.metrics = self.calculate_metrics()
+```
+
+Next, we calculate `lambda_over_mu`, which represents the average number of customers being served if there were infinite servers. It's computed here to avoid code repetition, as it is used repeatedly in later formulas.
+
+After that, the model calls `calculate_metrics()`.
+
+<br>
+
+```{.python}
+    def get_traffic_intensity(self):
+        """
+        Calculate the traffic intensity (server utilisation).
+
+        Returns
+        -------
+        float
+            Traffic intensity ρ = λ/(s*μ).
+        """
+        return self.arrival_rate / (self.num_servers * self.service_rate)
+```
+
+The method `get_traffic_intensity()` (as called in `__init__()` computes utilisation by finding the fraction of total capacity being used.
+
+<br>
+
+```{.python}
+    def calculate_metrics(self):
+        """
+        Calculate all performance metrics for the queue.
+
+        Returns
+        -------
+        dict[str, float]
+            Dictionary containing performance metrics.
+        """
+        metrics = {}
+        metrics["rho"] = self.rho
+        metrics["L_q"] = self.get_mean_queue_length()
+        metrics["L_s"] = metrics["L_q"] + (
+            self.arrival_rate / self.service_rate
+        )
+        metrics["W_s"] = metrics["L_s"] / self.arrival_rate
+        metrics["W_q"] = metrics["W_s"] - (1 / self.service_rate)
+        return metrics
+```
+
+The `calculate_metrics()` method uses several analytical formulas to compute the main queue performance measures.
+
+| Symbol | Meaning | Formula |
+| - | - | - |
+| ρ	| Utilisation | λ / (sμ) |
+| Lq | Average queue length | Computed using `get_mean_queue_length()` |
+| Ls | Average number in system | Lq + (λ/μ) |
+| Ws | Average time in system | Ls / λ |
+| Wq | Average waiting time in queue | Ws − (1/μ) |
+
+All results are returned in a dictionary.
+
+> **Fun fact:** The formula for average time in system makes use of **Little's Law**, which Ls = λ * Ws. This is rearranged to calculate time in system: Ws = Ls / λ.
+
+<br>
+
+```{.python}
+    def get_mean_queue_length(self):
+        """
+        Calculate the expected number of customers waiting in queue (L_q).
+
+        Uses the formula:
+        L_q = P₀ * (λ/μ)^s * ρ / (s! * (1-ρ)²)
+
+        Returns
+        -------
+        float
+            Expected queue length.
+        """
+        p0 = self.prob_system_empty()
+
+        lq = (p0 * (self.lambda_over_mu**self.num_servers) * self.rho) / (
+            math.factorial(self.num_servers) * (1 - self.rho) ** 2
+        )
+
+        return lq
+```
+
+As the calculation for mean queue length is a little more complicated, we have a separate method to calculate it.
+
+First, we compute P0 which is the probability that the system is completely empty (using `prob_system_empty()`). We then plug this into the formula to calculate Lq (the mean queue length).
+
+<br>
+
+```{.python}
+    def prob_system_empty(self):
+        """
+        Calculate the probability that the system is empty (P₀).
+
+        Uses the formula:
+        P₀ = [Σ(n=0 to s-1) (λ/μ)^n/n! + (λ/μ)^s/(s!(1-ρ))]^(-1)
+
+        Returns
+        -------
+        float
+            Probability that system is empty.
+        """
+        # Sum for n = 0 to s-1
+        sum_part = sum(
+            (self.lambda_over_mu**n) / math.factorial(n)
+            for n in range(self.num_servers)
+        )
+
+        # Term for n >= s
+        server_term = (self.lambda_over_mu**self.num_servers) / (
+            math.factorial(self.num_servers) * (1 - self.rho)
+        )
+
+        return 1 / (sum_part + server_term)
+```
+
+This method calculates P0, which is the probability that the system is completely empty - i.e., no customers are waiting and all servers are idle.
+
+### Function to run the model
+
+This function simply runs our simulation model and returns the relevant metrics, renamed to use queueing theory notation.
+
+We could have included this code as part of the test function below - but have just made it in a separate function to keep that test function a little simpler.
 
 ```{python}
+def run_simulation_model(
+    interarrival_time,
+    consultation_time,
+    number_of_doctors
+):
+    """
+    Run simulation and return key performance indicators using standard
+    queueing theory notation.
+
+    The warm-up period should be sufficiently long to allow the system
+    to reach steady-state before data collection begins.
+
+    Parameters
+    ----------
+    interarrival_time : float
+        Mean time between arrivals (minutes).
+    consultation_time : float
+        Mean length of doctor's consultation (minutes).
+    number_of_doctors : int
+        Number of doctors.
+    """
+    param = Parameters(
+        interarrival_time=interarrival_time,
+        consultation_time=consultation_time,
+        number_of_doctors=number_of_doctors,
+        warm_up_period=3000,
+        data_collection_period=20160,
+        number_of_runs=18,
+        cores=1,
+        verbose=False
+    )
+    runner = Runner(param)
+    results = runner.run_reps()
+
+    # Rename the columns using queuing theory notation
+    mapping = {
+        "mean_wait_time": "W_q",
+        "mean_time_in_system": "W_s",
+        "mean_utilisation_tw": "rho",
+        "mean_queue_length": "L_q",
+    }
+    df = results["overall"].rename(columns=mapping)
+
+    # Return relevant columns
+    return df[mapping.values()].T["mean"]
+```
+
+For example:
+
+```{python}
+run_simulation_model(interarrival_time=5, consultation_time=10, number_of_doctors=3)
 ```
 
 ### Verification test
 
+Our test function `test_simulation_against_theory()` uses `@pytest.mark.parametrize` to run several different test cases.
+
+For each of these, it compares the results from the simulation model (from `run_simulation_model()`) with the results from the mathematical model (`MMSQueue`) and checks they are reasonably similar.
+
+```{.python}
+@pytest.mark.parametrize(
+    "interarrival_time,consultation_time,number_of_doctors",
+    [
+        # Test case 1: Low utilisation (ρ ≈ 0.3)
+        (10, 3, 2),
+        # Test case 2: Medium utilisation (ρ ≈ 0.67)
+        (6, 4, 2),
+        # Test case 3: M/M/1 (ρ = 0.75)
+        (4, 3, 1),
+        # Test case 4: Multiple servers, high utilisation (ρ ≈ 0.91)
+        (5.5, 5, 3),
+        # Test case 5: Balanced system (ρ = 0.5)
+        (8, 4, 1),
+        # Test case 6: Many servers, low individual utilisation (ρ ≈ 0.63)
+        (4, 10, 4),
+        # Test case 7: Very low utilisation (ρ ≈ 0.167)
+        (60, 10, 15),
+    ],
+)
+def test_simulation_against_theory(
+    interarrival_time,
+    consultation_time,
+    number_of_doctors
+):
+    """Test simulation results against theoretical M/M/S queue calculations."""
+
+    # Create theoretical M/M/S queue model and get metrics
+    lam = 1 / interarrival_time
+    mu = 1 / consultation_time
+    theory = MMSQueue(lam, mu, number_of_doctors).metrics
+
+    # Run simulation
+    sim = run_simulation_model(
+        interarrival_time=interarrival_time,
+        consultation_time=consultation_time,
+        number_of_doctors=number_of_doctors
+    )
+
+    # Compare results with appropriate tolerance (round to 3dp + 15% tolerance)
+    metrics = [
+        ("rho", "Utilisation"),
+        ("L_q", "Queue length"),
+        ("W_q", "Wait time"),
+        ("W_s", "System time")
+    ]
+    for key, label in metrics:
+        sim_val = round(sim[key], 3)
+        theory_val = round(theory[key], 3)
+        assert sim_val == pytest.approx(theory_val, rel=0.15), (
+            f"{label} mismatch: sim={sim_val}, theory={theory_val}"
+        )
+```
+
 ```{python}
+#| echo: false
+import pytest
+pytest.main(["tests_resources/test_mms.py"])
 ```
 
 :::
@@ -257,7 +583,6 @@ class MMSQueue:
 | | |
 | - | - |
 | **Key files** | `tests/test_mms.py` |
-| **What to look for?** | |
 : {tbl-colwidths="[20,80]"}
 :::
 
@@ -283,6 +608,6 @@ Not relevant - model too complex.
 
 ## Test yourself
 
-TODO
+Try adding this test to the model set-up using this book.
 
 <br><br>
