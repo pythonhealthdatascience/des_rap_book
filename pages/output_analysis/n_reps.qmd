@@ -54,6 +54,7 @@ pio.renderers.default = "plotly_mimetype"
 ```{r}
 #| output: false
 library(dplyr)
+library(kableExtra)
 library(knitr)
 library(R6)
 library(simmer)
@@ -86,9 +87,9 @@ We'll show two ways of implementing this: **manually** and **automated**.
 
 ## Simulation code
 
-The simulation being used is that from the [Replications](replications.qmd) page - but the `Parameters` class has been updated based on the determined [length of warm-up](length_warmup.qmd) on the previous page, and a data collection period of 2 weeks (20,160 minutes). <!--TODO: check length of warm-up here in python v.s. R v.s. result from warm-up page-->
-
 ::: {.python-content}
+
+The simulation being used is that from the [Replications](replications.qmd) page - but the `Parameters` class has been updated based on the determined [length of warm-up](length_warmup.qmd) on the previous page, and a data collection period of 2 weeks (20,160 minutes). <!--TODO: check length of warm-up here in python v.s. R v.s. result from warm-up page-->
 
 ```{python}
 class Parameters:
@@ -159,6 +160,8 @@ class Parameters:
 
 ::: {.r-content}
 
+The simulation being used is that from the [Length of warm-up](replications.qmd) page - but the `Parameters` class has been updated based on the determined length of warm-up on the previous page, and a data collection period of 2 weeks (20,160 minutes). <!--TODO: check length of warm-up here in python v.s. R v.s. result from warm-up page-->
+
 ```{r}
 #' Generate parameter list.
 #'
@@ -179,7 +182,7 @@ create_params <- function(
   interarrival_time = 5L,
   consultation_time = 10L,
   number_of_doctors = 3L,
-  warm_up_period = 5000L, #<<
+  warm_up_period = 40000L, #<<
   data_collection_period = 20160L, #<<
   number_of_runs = 5L,
   verbose = FALSE
@@ -203,17 +206,12 @@ create_params <- function(
 
 ```{r}
 #| echo: false
-#| file: replications_resources/calc_arrivals.R
-```
-
-```{r}
-#| echo: false
-#| file: replications_resources/calc_mean_wait.R
-```
-
-```{r}
-#| echo: false
 #| file: replications_resources/get_run_results.R
+```
+
+```{r}
+#| echo: false
+#| file: length_warmup_resources/metrics.R
 ```
 
 ```{r}
@@ -553,23 +551,89 @@ plot_replication_ci <- function(
 :::
 
 ```{r}
-ci_df <- confidence_interval_method(
-  replications = 30L,
-  desired_precision = 0.1,
-  metric = "mean_wait_time_doctor"
-)
-kable(ci_df)
+metrics <- c("mean_wait_time_doctor", "utilisation_doctor",
+             "mean_queue_length_doctor", "mean_time_in_system",
+             "mean_patients_in_system")
+
+ci_df <- list()
+for (m in metrics) {
+  ci_df[[m]] <- confidence_interval_method(
+    replications = 30L,
+    desired_precision = 0.1,
+    metric = m,
+    verbose = FALSE
+  )
+}
 ```
 
-We specify `min_rep` - and though first meet desired precision at 10 replications, this is not stable - subsequently returns to above 0.1 - until 18 replications.
+::: {.panel-tabset}
+
+## Mean wait time
 
 ```{r}
+ci_df[["mean_wait_time_doctor"]] |>
+  kable() |>
+  scroll_box(height = "400px")
 plot_replication_ci(
-  conf_ints = ci_df,
-  yaxis_title = "Mean wait time for doctor",
-  min_rep = 18L
+  conf_ints = ci_df[["mean_wait_time_doctor"]],
+  yaxis_title = "Mean wait time",
+  min_rep = 5L
 )
 ```
+
+## Mean utilisation
+
+```{r}
+ci_df[["utilisation_doctor"]] |>
+  kable() |>
+  scroll_box(height = "400px")
+plot_replication_ci(
+  conf_ints = ci_df[["utilisation_doctor"]],
+  yaxis_title = "Utilisation",
+  min_rep = 5L
+)
+```
+
+## Mean queue length
+
+```{r}
+ci_df[["mean_queue_length_doctor"]] |>
+  kable() |>
+  scroll_box(height = "400px")
+plot_replication_ci(
+  conf_ints = ci_df[["mean_queue_length_doctor"]],
+  yaxis_title = "Mean queue length",
+  min_rep = 5L
+)
+```
+
+## Mean time in system
+
+```{r}
+ci_df[["mean_time_in_system"]] |>
+  kable() |>
+  scroll_box(height = "400px")
+plot_replication_ci(
+  conf_ints = ci_df[["mean_time_in_system"]],
+  yaxis_title = "Mean time in system",
+  min_rep = 5L
+)
+```
+
+## Mean patients in system
+
+```{r}
+ci_df[["mean_patients_in_system"]] |>
+  kable() |>
+  scroll_box(height = "400px")
+plot_replication_ci(
+  conf_ints = ci_df[["mean_patients_in_system"]],
+  yaxis_title = "Mean number of patients in system",
+  min_rep = 5L
+)
+```
+
+:::
 
 ::::
 
@@ -677,7 +741,6 @@ adapter.single_run(replication_number=0)
 We can then use this adapter to run `ReplicationsAlgorithm`.
 
 ```{python}
-    initial_replications=3,
 # Set up model with adapter
 sim_model = SimulationAdapter(param=Parameters(), metrics=metrics)
 
@@ -1286,7 +1349,10 @@ ReplicationsAlgorithm <- R6Class("ReplicationsAlgorithm", list( # nolint: object
 
 ```{r}
 # Set up algorithm
-alg <- ReplicationsAlgorithm$new(param = create_params())
+alg <- ReplicationsAlgorithm$new(
+  param = create_params(),
+  metrics = metrics
+)
 
 # Run algorithm
 alg$select()
@@ -1295,18 +1361,68 @@ alg$select()
 alg$nreps
 
 # View full results table
-kable(alg$summary_table)
+alg$summary_table |>
+  kable() |>
+  scroll_box(height = "400px")
 ```
 
-We can use the function `plot_replication_ci` from above again to create a plot.
+<br>
+
+We can use the function `plot_replication_ci` from above again to create the plots.
+
+::: {.panel-tabset}
+
+## Mean wait time
 
 ```{r}
 plot_replication_ci(
   conf_ints = filter(alg$summary_table, metric == "mean_wait_time_doctor"),
-  yaxis_title = "Mean wait time for the doctor",
+  yaxis_title = "Mean wait time",
   min_rep = alg$nreps[["mean_wait_time_doctor"]]
 )
 ```
+
+## Mean utilisation
+
+```{r}
+plot_replication_ci(
+  conf_ints = filter(alg$summary_table, metric == "utilisation_doctor"),
+  yaxis_title = "Mean utilisation",
+  min_rep = alg$nreps[["utilisation_doctor"]]
+)
+```
+
+## Mean queue length
+
+```{r}
+plot_replication_ci(
+  conf_ints = filter(alg$summary_table, metric == "mean_queue_length_doctor"),
+  yaxis_title = "Mean queue length",
+  min_rep = alg$nreps[["mean_queue_length_doctor"]]
+)
+```
+
+## Mean time in system
+
+```{r}
+plot_replication_ci(
+  conf_ints = filter(alg$summary_table, metric == "mean_time_in_system"),
+  yaxis_title = "Mean time in system",
+  min_rep = alg$nreps[["mean_time_in_system"]]
+)
+```
+
+## Mean patients in system
+
+```{r}
+plot_replication_ci(
+  conf_ints = filter(alg$summary_table, metric == "mean_patients_in_system"),
+  yaxis_title = "Mean patients in system",
+  min_rep = alg$nreps[["mean_patients_in_system"]]
+)
+```
+
+:::
 
 ::::
 
