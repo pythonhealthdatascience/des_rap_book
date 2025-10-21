@@ -20,9 +20,9 @@ filters:
 
 **Pre-reading:**
 
-This page continues on from: [Length of warm-up](length_warmup.qmd).
+This page continues on from: [Replications](replications.qmd).
 
-> *Entity generation → Entity processing → Initialisation bias → Performance measures → Replications → Length of warm-up → Number of replications*
+> *Entity generation → Entity processing → Initialisation bias → Performance measures → Replications → Number of replications*
 
 **Required packages:**
 
@@ -87,68 +87,21 @@ We'll show two ways of implementing this: **manually** and **automated**.
 
 ## Simulation code
 
-::: {.python-content}
+The simulation being used is that from the [Replications](replications.qmd) page.
 
-The simulation being used is that from the [Replications](replications.qmd) page - but the `Parameters` class has been updated based on the determined [length of warm-up](length_warmup.qmd) on the previous page, and a data collection period of 2 weeks (20,160 minutes). <!--TODO: check length of warm-up here in python v.s. R v.s. result from warm-up page-->
+::: {.callout-note}
 
-```{python}
-class Parameters:
-    """
-    Parameter class.
+On this page, we will use a longer warm-up and run length than the short illustrative values used earlier (i.e., 30 minute warm-up, 40 minute data collection).
 
-    Attributes
-    ----------
-    interarrival_time : float
-        Mean time between arrivals (minutes).
-    consultation_time : float
-        Mean length of doctor's consultation (minutes).
-    number_of_doctors : int
-        Number of doctors.
-    warm_up_period : int
-        Duration of the warm-up period (minutes).
-    data_collection_period : int
-        Duration of the data collection period (minutes).
-    number_of_runs : int
-        The number of runs (i.e., replications).
-    verbose : bool
-        Whether to print messages as simulation runs.
-    """
-    def __init__(
-        self, interarrival_time=5, consultation_time=10, number_of_doctors=3,
-        warm_up_period=3000, data_collection_period=20160,#<<
-        number_of_runs=5, verbose=False
-    ):
-        """
-        Initialise Parameters instance.
+We are not using the previously determined warm-up length, but have simply chosen reasonably long values for this example. Very short runs, like 30/40 minutes, will be unstable and need many replications to achieve reliable outcomes.
 
-        Parameters
-        ----------
-        interarrival_time : float
-            Time between arrivals (minutes).
-        consultation_time : float
-            Length of consultation (minutes).
-        number_of_doctors : int
-            Number of doctors.
-        warm_up_period : int
-            Duration of the warm-up period (minutes).
-        data_collection_period : int
-            Duration of the data collection period (minutes).
-        number_of_runs : int
-            The number of runs (i.e., replications).
-        verbose : bool
-            Whether to print messages as simulation runs.
-        """
-        self.interarrival_time = interarrival_time
-        self.consultation_time = consultation_time
-        self.number_of_doctors = number_of_doctors
-        self.warm_up_period = warm_up_period
-        self.data_collection_period = data_collection_period
-        self.number_of_runs = number_of_runs
-        self.verbose = verbose
-```
+As before, these assumptions are for demonstration only, and in later examples we will return to the shorter parameter settings for simplicity.
+
+:::
 
 ```{python}
 #| echo: false
+{{< include replications_resources/parameters.py >}}
 {{< include replications_resources/patient.py >}}
 {{< include replications_resources/monitored_resource.py >}}
 {{< include replications_resources/model.py >}}
@@ -156,47 +109,9 @@ class Parameters:
 {{< include replications_resources/runner.py >}}
 ```
 
-:::
-
-::: {.r-content}
-
-The simulation being used is that from the [Length of warm-up](replications.qmd) page - but the `Parameters` class has been updated based on the determined length of warm-up on the previous page, and a data collection period of 2 weeks (20,160 minutes). <!--TODO: check length of warm-up here in python v.s. R v.s. result from warm-up page-->
-
 ```{r}
-#' Generate parameter list.
-#'
-#' @param interarrival_time Numeric. Time between arrivals (minutes).
-#' @param consultation_time Numeric. Mean length of doctor's
-#'   consultation (minutes).
-#' @param number_of_doctors Numeric. Number of doctors.
-#' @param warm_up_period Numeric. Duration of the warm-up period (minutes).
-#' @param data_collection_period Numeric. Duration of the data collection
-#'   period (minutes).
-#' @param number_of_runs Numeric. The number of runs (i.e., replications).
-#' @param verbose Boolean. Whether to print messages as simulation runs.
-#'
-#' @return A named list of parameters.
-#' @export
-
-create_params <- function(
-  interarrival_time = 5L,
-  consultation_time = 10L,
-  number_of_doctors = 3L,
-  warm_up_period = 40000L, #<<
-  data_collection_period = 20160L, #<<
-  number_of_runs = 5L,
-  verbose = FALSE
-) {
-  list(
-    interarrival_time = interarrival_time,
-    consultation_time = consultation_time,
-    number_of_doctors = number_of_doctors,
-    warm_up_period = warm_up_period,
-    data_collection_period = data_collection_period,
-    number_of_runs = number_of_runs,
-    verbose = verbose
-  )
-}
+#| echo: false
+#| file: replications_resources/create_params.R
 ```
 
 ```{r}
@@ -211,7 +126,7 @@ create_params <- function(
 
 ```{r}
 #| echo: false
-#| file: length_warmup_resources/metrics.R
+#| file: replications_resources/metrics.R
 ```
 
 ```{r}
@@ -224,19 +139,20 @@ create_params <- function(
 #| file: replications_resources/runner.R
 ```
 
-:::
 
 ## Manual inspection
 
 :::: {.python-content}
 
-To begin, we run our simulation model for multiple replications using our usual workflow. Here, we have set to run for 30 replications.
+To begin, we run our simulation model for multiple replications using our usual workflow. Here, we have set to run for 50 replications.
 
 For this analysis, we are interested in the mean results from each replication (`result["run"]`).
 
 ```{python}
 # Run simulation for multiple replications
-runner = Runner(param=Parameters(number_of_runs=30))
+runner = Runner(param=Parameters(warm_up_period=10000,
+                                 data_collection_period=10000,
+                                 number_of_runs=50))
 result = runner.run_reps()
 HTML(to_html_datatable(result["run"]))
 ```
@@ -406,7 +322,7 @@ For this analysis, we have created two functions `confidence_interval_method` an
 #' This could be altered to use WelfordStats and ReplicationTabuliser if
 #' desired, but currently is independent.
 #'
-#' @param replications Number of times to run the model.
+#' @param param List of parameters for the model.
 #' @param desired_precision Desired mean deviation from confidence interval.
 #' @param metric Name of performance metric to assess.
 #' @param verbose Boolean, whether to print messages about parameters.
@@ -418,10 +334,9 @@ For this analysis, we have created two functions `confidence_interval_method` an
 #' @export
 
 confidence_interval_method <- function(
-  replications, desired_precision, metric, verbose = TRUE
+  param, desired_precision, metric, verbose = TRUE
 ) {
   # Run model for specified number of replications
-  param <- create_params(number_of_runs = replications)
   if (isTRUE(verbose)) {
     print(param)
   }
@@ -432,7 +347,7 @@ confidence_interval_method <- function(
 
   # For each row in the dataframe, filter to rows up to the i-th replication
   # then perform calculations
-  for (i in 1L:replications) {
+  for (i in 1L:param[["number_of_runs"]]) {
 
     # Filter rows up to the i-th replication
     subset_data <- results[[metric]][1L:i]
@@ -489,7 +404,7 @@ confidence_interval_method <- function(
     message("Reached desired precision (", desired_precision, ") in ",
             n_reps, " replications.")
   } else {
-    warning("Running ", replications, " replications did not reach ",
+    warning("Running ", param[["number_of_runs"]], " replications did not reach ",
             "desired precision (", desired_precision, ").", call. = FALSE)
   }
   cumulative
@@ -558,7 +473,9 @@ metrics <- c("mean_wait_time_doctor", "utilisation_doctor",
 ci_df <- list()
 for (m in metrics) {
   ci_df[[m]] <- confidence_interval_method(
-    replications = 30L,
+    param = create_params(warm_up_period = 10000L,
+                          data_collection_period = 10000L,
+                          number_of_runs = 50L),
     desired_precision = 0.1,
     metric = m,
     verbose = FALSE
@@ -742,7 +659,10 @@ We can then use this adapter to run `ReplicationsAlgorithm`.
 
 ```{python}
 # Set up model with adapter
-sim_model = SimulationAdapter(param=Parameters(), metrics=metrics)
+sim_model = SimulationAdapter(
+  param=Parameters(warm_up_period=10000,
+                   data_collection_period=10000),
+  metrics=metrics)
 
 # Set up and run the algorithm
 analyser = ReplicationsAlgorithm(
@@ -1060,7 +980,7 @@ ReplicationTabuliser <- R6Class("ReplicationTabuliser", list( # nolint: object_n
 
 ReplicationsAlgorithm <- R6Class("ReplicationsAlgorithm", list( # nolint: object_name_linter
 
-  #' @field param Model parameters (from parameters()).
+  #' @field param Model parameters.
   param = NA,
 
   #' @field metrics List of performance measure to track (should correspond to
@@ -1106,7 +1026,7 @@ ReplicationsAlgorithm <- R6Class("ReplicationsAlgorithm", list( # nolint: object
   #' @param verbose Boolean, whether to print messages about parameters.
   initialize = function(
     param,
-    metrics = c("arrivals", "mean_wait_time_doctor"),
+    metrics,
     desired_precision = 0.1,
     initial_replications = 3L,
     look_ahead = 5L,
@@ -1350,7 +1270,8 @@ ReplicationsAlgorithm <- R6Class("ReplicationsAlgorithm", list( # nolint: object
 ```{r}
 # Set up algorithm
 alg <- ReplicationsAlgorithm$new(
-  param = create_params(),
+  param = create_params(warm_up_period = 10000L,
+                        data_collection_period = 10000L),
   metrics = metrics
 )
 
