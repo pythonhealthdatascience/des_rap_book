@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>❌ Mathematical proof of correctness – Reproducible Discrete-Event Simulation in Python and R</title>
+<title>Mathematical proof of correctness – Reproducible Discrete-Event Simulation in Python and R</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -175,7 +175,7 @@ cookieconsent.run({
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../pages/verification_validation/verification_validation.html">Verification &amp; validation</a></li><li class="breadcrumb-item"><a href="../../pages/verification_validation/mathematical.html">❌ Mathematical proof of correctness</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../pages/verification_validation/verification_validation.html">Verification &amp; validation</a></li><li class="breadcrumb-item"><a href="../../pages/verification_validation/mathematical.html">Mathematical proof of correctness</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
     </div>
@@ -467,7 +467,7 @@ cookieconsent.run({
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../../pages/verification_validation/mathematical.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text">❌ Mathematical proof of correctness</span></a>
+ <span class="menu-text">Mathematical proof of correctness</span></a>
   </div>
 </li>
       </ul>
@@ -559,7 +559,10 @@ cookieconsent.run({
    
   <ul class="collapse">
   <li><a href="#what-is-mathematical-proof-of-correctness" id="toc-what-is-mathematical-proof-of-correctness" class="nav-link active" data-scroll-target="#what-is-mathematical-proof-of-correctness">What is mathematical proof of correctness?</a></li>
-  <li><a href="#how-to-verify-the-model-against-mathematical-results" id="toc-how-to-verify-the-model-against-mathematical-results" class="nav-link" data-scroll-target="#how-to-verify-the-model-against-mathematical-results">How to verify the model against mathematical results</a></li>
+  <li><a href="#simulation-code" id="toc-simulation-code" class="nav-link" data-scroll-target="#simulation-code">Simulation code</a></li>
+  <li><a href="#mathematical-mms-queue-model" id="toc-mathematical-mms-queue-model" class="nav-link" data-scroll-target="#mathematical-mms-queue-model">Mathematical M/M/s queue model</a></li>
+  <li><a href="#function-to-run-our-simulation" id="toc-function-to-run-our-simulation" class="nav-link" data-scroll-target="#function-to-run-our-simulation">Function to run our simulation</a></li>
+  <li><a href="#test-comparing-simulation-with-mathematical-model-results" id="toc-test-comparing-simulation-with-mathematical-model-results" class="nav-link" data-scroll-target="#test-comparing-simulation-with-mathematical-model-results">Test comparing simulation with mathematical model results</a></li>
   <li><a href="#explore-the-example-models" id="toc-explore-the-example-models" class="nav-link" data-scroll-target="#explore-the-example-models">Explore the example models</a></li>
   <li><a href="#test-yourself" id="toc-test-yourself" class="nav-link" data-scroll-target="#test-yourself">Test yourself</a></li>
   </ul>
@@ -568,9 +571,9 @@ cookieconsent.run({
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../pages/verification_validation/verification_validation.html">Verification &amp; validation</a></li><li class="breadcrumb-item"><a href="../../pages/verification_validation/mathematical.html">❌ Mathematical proof of correctness</a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../pages/verification_validation/verification_validation.html">Verification &amp; validation</a></li><li class="breadcrumb-item"><a href="../../pages/verification_validation/mathematical.html">Mathematical proof of correctness</a></li></ol></nav>
 <div class="quarto-title">
-<h1 class="title">❌ Mathematical proof of correctness</h1>
+<h1 class="title">Mathematical proof of correctness</h1>
 </div>
 
 
@@ -595,14 +598,15 @@ Note: When a Quarto document just contains Python code blocks (and no R code), Q
 <div class="pale-blue">
 <p><strong>Learning objectives:</strong></p>
 <ul>
-<li>TODO</li>
+<li>Understand why and how to verify a model using mathematical proof of correctness.</li>
 </ul>
 <p><strong>Pre-reading:</strong></p>
 <p>This page implements mathematical proof of correctness implemented on the <a href="../../pages/verification_validation/verification_validation.html">verification and validation page</a>. It does so within a test (<a href="../../pages/verification_validation/tests.html">tests</a> page).</p>
 <p>The test is run on the model from the <a href="../../pages/output_analysis/parallel.html">parallel processing</a> page (likewise, also used on the <a href="../../pages/experiments/scenarios.html">scenario and sensitivity analysis</a> page and <a href="../../pages/verification_validation/tests.html">tests</a> pages).</p>
 <blockquote class="blockquote">
-<p><em>Entity generation → Entity processing → Initialisation bias → Performance measures → Replications → Length of warm-up → Number of replications → Parallel processing → Mathematical proof of correctness</em> <strong>Required packages:</strong></p>
+<p><em>Entity generation → Entity processing → Initialisation bias → Performance measures → Replications → Parallel processing → Mathematical proof of correctness</em></p>
 </blockquote>
+<p><strong>Required packages:</strong></p>
 <p>These should be available from environment setup in the “Test yourself” section of <a href="../../pages/setup/environment.html">Environments</a>.</p>
 <div class="python-content">
 <div class="cell">
@@ -629,8 +633,9 @@ Note: When a Quarto document just contains Python code blocks (and no R code), Q
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
 <span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(knitr)</span>
 <span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(plotly)</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(simmer)</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyr)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(queueing)</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(simmer)</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyr)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
 </div>
@@ -639,20 +644,16 @@ Note: When a Quarto document just contains Python code blocks (and no R code), Q
 <p>One of the suggested methods for <a href="../../pages/verification_validation/verification_validation.html">model verification</a> is <strong>mathematical proof of correctness</strong>. This involves showing that the simulation results align with those determined by a suitable <strong>mathematical model</strong>.</p>
 <p>A mathematical model is a set of equations or formulas that describe how systems behave. Over time, researchers have studied simple systems (like people waiting in a queue) and discovered that, when rules are straightforward, their behaviour can be described exactly using math.</p>
 <p>Real-world systems are often too complex for neat equations (e.g., variable arrivals, different service rules or other complex features). In these cases, discrete-event simulation allows us to better mimic the system. However, if your simulation is simple enough - or if you start with a basic model to verify your code (and later build in complexity) - you can use mathematical proof of correctness.</p>
-<p>The small example we’ve been building throughout this book is an instance of an <strong>M/M/s queue model</strong> (as is the nurse visit simulation example). For a reminder on what an M/M/s queue model is, see the section “<em>Find out more about M/M/s models</em>” on the <a href="../../pages/intro/examples.html">example conceptual models</a> page. In the next section, we’ll show how to verify our small example by comparing it to a mathematical model.</p>
+<p>The small example we’ve been building throughout this book is an instance of an <strong>M/M/s queue model</strong> (as is the nurse visit simulation example). For a reminder on what an M/M/s queue model is, see the section “<em>Find out more about M/M/s models</em>” on the <a href="../../pages/intro/examples.html">example conceptual models</a> page. In the following sections, we’ll show how to verify our small example by comparing it to a mathematical model.</p>
 </section>
-<section id="how-to-verify-the-model-against-mathematical-results" class="level2">
-<h2 class="anchored" data-anchor-id="how-to-verify-the-model-against-mathematical-results">How to verify the model against mathematical results</h2>
-<div class="python-content">
-<div class="h3-tight">
-
-</div>
-<section id="simulation-model" class="level3">
-<h3 class="anchored" data-anchor-id="simulation-model">Simulation model</h3>
+<section id="simulation-code" class="level2">
+<h2 class="anchored" data-anchor-id="simulation-code">Simulation code</h2>
 <p>The model used is the same as that on the <a href="../../pages/output_analysis/parallel.html">parallel processing</a> page - as also used on the <a href="../../pages/experiments/scenarios.html">scenario and sensitivity analysis</a> and <a href="../../pages/verification_validation/tests.html">tests</a> pages.</p>
 </section>
-<section id="mathematical-mms-queue-model" class="level3">
-<h3 class="anchored" data-anchor-id="mathematical-mms-queue-model">Mathematical M/M/s queue model</h3>
+<section id="mathematical-mms-queue-model" class="level2">
+<h2 class="anchored" data-anchor-id="mathematical-mms-queue-model">Mathematical M/M/s queue model</h2>
+<div class="python-content">
+<p>The class implementing a mathematical M/M/s queue model is explained line-by-line below.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> MMSQueue:</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
@@ -788,13 +789,696 @@ Note: When a Quarto document just contains Python code blocks (and no R code), Q
 <span id="cb3-132"><a href="#cb3-132" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-133"><a href="#cb3-133" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="dv">1</span> <span class="op">/</span> (sum_part <span class="op">+</span> server_term)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
+<section id="explaining-mmsqueue" class="level3">
+<h3 class="anchored" data-anchor-id="explaining-mmsqueue">Explaining <code>MMSQueue</code></h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> MMSQueue:</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co">    Analytical M/M/S queue formulas.</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="co">    Parameters</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="co">    ----------</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="co">    arrival_rate : float</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="co">        Customer arrival rate (λ).</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="co">    service_rate : float</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="co">        Service rate per server (μ).</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="co">    num_servers : int</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="co">        Number of servers (s).</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="co">    Attributes</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a><span class="co">    ----------</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a><span class="co">    rho : float</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a><span class="co">        Utilisation (λ / (sμ)).</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a><span class="co">    lambda_over_mu : float</span></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a><span class="co">        Arrival/service rate ratio (λ / μ).</span></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a><span class="co">    metrics : dict</span></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a><span class="co">        Calculated performance metrics.</span></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, arrival_rate, service_rate, num_servers):</span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""</span></span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a><span class="co">        Initialise the M/M/S queue.</span></span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a><span class="co">        Raises</span></span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a><span class="co">        ------</span></span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a><span class="co">        ValueError</span></span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a><span class="co">            If parameters are invalid or system is unstable.</span></span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a><span class="co">        """</span></span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> arrival_rate <span class="op">&lt;=</span> <span class="dv">0</span>:</span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>            <span class="cf">raise</span> <span class="pp">ValueError</span>(<span class="st">"Arrival rate must be positive"</span>)</span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> service_rate <span class="op">&lt;=</span> <span class="dv">0</span>:</span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>            <span class="cf">raise</span> <span class="pp">ValueError</span>(<span class="st">"Service rate must be positive"</span>)</span>
+<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> num_servers <span class="op">&lt;</span> <span class="dv">1</span>:</span>
+<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>            <span class="cf">raise</span> <span class="pp">ValueError</span>(<span class="st">"Number of servers must be at least 1"</span>)</span>
+<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.arrival_rate <span class="op">=</span> arrival_rate</span>
+<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.service_rate <span class="op">=</span> service_rate</span>
+<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.num_servers <span class="op">=</span> num_servers</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><code>MMSQueue</code> requires three inputs:</p>
+<ul>
+<li><code>arrival_rate</code> (λ) - average number of customers (patients) per time unit (minute).</li>
+<li><code>service_rate</code> (μ) - average number of customers (patients) a single server (doctor) can serve per time unit (minute).</li>
+<li><code>num_servers</code> (s) - number of servers (doctors) in the system.</li>
+</ul>
+<p>It checks the inputs are valid (no negative or zero rates, at least one server) and stores them as attributes.</p>
+<p><br></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Calculate utilisation</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.rho <span class="op">=</span> <span class="va">self</span>.get_traffic_intensity()</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Check system stability</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="va">self</span>.rho <span class="op">&gt;=</span> <span class="dv">1</span>:</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>            <span class="cf">raise</span> <span class="pp">ValueError</span>(</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>                <span class="ss">f"System is unstable: ρ = </span><span class="sc">{</span><span class="va">self</span><span class="sc">.</span>rho<span class="sc">:.4f}</span><span class="ss"> &gt;= 1. "</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>                <span class="ss">f"Need λ &lt; s*μ (</span><span class="sc">{</span>arrival_rate<span class="sc">}</span><span class="ss"> &lt; </span><span class="sc">{</span>num_servers <span class="op">*</span> service_rate<span class="sc">}</span><span class="ss">)"</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>            )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>It then calculates <strong>utilisation (ρ)</strong> by calling the <code>get_traffic_intensity()</code> method. Utilisation is a measure of how busy the servers are - and if it is close to 1, it means the servers are almost always busy.</p>
+<p>If the calculation utilisation is <strong>greater than 1</strong>, it means that customers arrive faster than the servers can serve them. In this situation, the <strong>queue would keep growing indefinitely</strong>. There is no steady state, and the system is unstable. When this happens, the model stops and raises an error instead of producing meaningless results.</p>
+<blockquote class="blockquote">
+<p><strong>Note:</strong> This behaviour is different from a discrete-event simulation model, where utilisation is capped at 1 (since servers cannot be more than fully busy). However, you can still have a queue that grows indefinitely - you would just notice it by looking at other metrics like queue length or waiting time, and see them continuing to increase over time.</p>
+</blockquote>
+<p><br></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Calculate λ/μ (average customers in service if infinite servers)</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.lambda_over_mu <span class="op">=</span> <span class="va">self</span>.arrival_rate <span class="op">/</span> <span class="va">self</span>.service_rate</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Calculate performance metrics using Little's Law</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.metrics <span class="op">=</span> <span class="va">self</span>.calculate_metrics()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Next, we calculate <code>lambda_over_mu</code>, which represents the average number of customers being served if there were infinite servers. It’s computed here to avoid code repetition, as it is used repeatedly in later formulas.</p>
+<p>After that, the model calls <code>calculate_metrics()</code>.</p>
+<p><br></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> get_traffic_intensity(<span class="va">self</span>):</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="co">        Calculate the traffic intensity (server utilisation).</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="co">        Returns</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="co">        -------</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="co">        float</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="co">            Traffic intensity ρ = λ/(s*μ).</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="co">        """</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">self</span>.arrival_rate <span class="op">/</span> (<span class="va">self</span>.num_servers <span class="op">*</span> <span class="va">self</span>.service_rate)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The method <code>get_traffic_intensity()</code> (as called in <code>__init__()</code> computes utilisation by finding the fraction of total capacity being used.</p>
+<p><br></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> calculate_metrics(<span class="va">self</span>):</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="co">        Calculate all performance metrics for the queue.</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="co">        Returns</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="co">        -------</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="co">        dict[str, float]</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="co">            Dictionary containing performance metrics.</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="co">        """</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>        metrics <span class="op">=</span> {}</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>        metrics[<span class="st">"rho"</span>] <span class="op">=</span> <span class="va">self</span>.rho</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>        metrics[<span class="st">"L_q"</span>] <span class="op">=</span> <span class="va">self</span>.get_mean_queue_length()</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>        metrics[<span class="st">"L_s"</span>] <span class="op">=</span> metrics[<span class="st">"L_q"</span>] <span class="op">+</span> (</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>            <span class="va">self</span>.arrival_rate <span class="op">/</span> <span class="va">self</span>.service_rate</span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>        metrics[<span class="st">"W_s"</span>] <span class="op">=</span> metrics[<span class="st">"L_s"</span>] <span class="op">/</span> <span class="va">self</span>.arrival_rate</span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>        metrics[<span class="st">"W_q"</span>] <span class="op">=</span> metrics[<span class="st">"W_s"</span>] <span class="op">-</span> (<span class="dv">1</span> <span class="op">/</span> <span class="va">self</span>.service_rate)</span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> metrics</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The <code>calculate_metrics()</code> method uses several analytical formulas to compute the main queue performance measures.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Symbol</th>
+<th>Meaning</th>
+<th>Formula</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>ρ</td>
+<td>Utilisation</td>
+<td>λ / (sμ)</td>
+</tr>
+<tr class="even">
+<td>Lq</td>
+<td>Average queue length</td>
+<td>Computed using <code>get_mean_queue_length()</code></td>
+</tr>
+<tr class="odd">
+<td>Ls</td>
+<td>Average number in system</td>
+<td>Lq + (λ/μ)</td>
+</tr>
+<tr class="even">
+<td>Ws</td>
+<td>Average time in system</td>
+<td>Ls / λ</td>
+</tr>
+<tr class="odd">
+<td>Wq</td>
+<td>Average waiting time in queue</td>
+<td>Ws − (1/μ)</td>
+</tr>
+</tbody>
+</table>
+<p>All results are returned in a dictionary.</p>
+<blockquote class="blockquote">
+<p><strong>Fun fact:</strong> The formula for average time in system makes use of <strong>Little’s Law</strong>, which Ls = λ * Ws. This is rearranged to calculate time in system: Ws = Ls / λ.</p>
+</blockquote>
+<p><br></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> get_mean_queue_length(<span class="va">self</span>):</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="co">        Calculate the expected number of customers waiting in queue (L_q).</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="co">        Uses the formula:</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="co">        L_q = P₀ * (λ/μ)^s * ρ / (s! * (1-ρ)²)</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="co">        Returns</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="co">        -------</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="co">        float</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="co">            Expected queue length.</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a><span class="co">        """</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>        p0 <span class="op">=</span> <span class="va">self</span>.prob_system_empty()</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>        lq <span class="op">=</span> (p0 <span class="op">*</span> (<span class="va">self</span>.lambda_over_mu<span class="op">**</span><span class="va">self</span>.num_servers) <span class="op">*</span> <span class="va">self</span>.rho) <span class="op">/</span> (</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>            math.factorial(<span class="va">self</span>.num_servers) <span class="op">*</span> (<span class="dv">1</span> <span class="op">-</span> <span class="va">self</span>.rho) <span class="op">**</span> <span class="dv">2</span></span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> lq</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>As the calculation for mean queue length is a little more complicated, we have a separate method to calculate it.</p>
+<p>First, we compute P0 which is the probability that the system is completely empty (using <code>prob_system_empty()</code>). We then plug this into the formula to calculate Lq (the mean queue length).</p>
+<p><br></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> prob_system_empty(<span class="va">self</span>):</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="co">        Calculate the probability that the system is empty (P₀).</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="co">        Uses the formula:</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="co">        P₀ = [Σ(n=0 to s-1) (λ/μ)^n/n! + (λ/μ)^s/(s!(1-ρ))]^(-1)</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="co">        Returns</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a><span class="co">        -------</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="co">        float</span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a><span class="co">            Probability that system is empty.</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a><span class="co">        """</span></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Sum for n = 0 to s-1</span></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>        sum_part <span class="op">=</span> <span class="bu">sum</span>(</span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>            (<span class="va">self</span>.lambda_over_mu<span class="op">**</span>n) <span class="op">/</span> math.factorial(n)<span class="co"># Validates a discrete event simulation of a healthcare M/M/S queue by</span></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a><span class="co"># comparing simulation results to analytical queueing theory.</span></span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a><span class="co">#</span></span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Metrics (using standard queueing theory notation):</span></span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a><span class="co"># - ρ (rho): utilisation</span></span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a><span class="co"># - Lq: mean queue length</span></span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a><span class="co"># - W: mean time in system</span></span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a><span class="co"># - Wq: mean waiting</span></span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a><span class="co">#</span></span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a><span class="co"># Results must match theory with a 15% tolerance (accomodates stochasticity).</span></span>
+<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a><span class="co"># Tests are run across diverse parameter combinations and utilisation levels.</span></span>
+<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a><span class="co"># System stability requires arrival rate &lt; number_of_servers * service_rate.</span></span>
+<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a><span class="co">#' Run simulation and return key performance indicators using standard queueing</span></span>
+<span id="cb10-30"><a href="#cb10-30" aria-hidden="true" tabindex="-1"></a><span class="co">#' theory notation.</span></span>
+<span id="cb10-31"><a href="#cb10-31" aria-hidden="true" tabindex="-1"></a><span class="co">#'</span></span>
+<span id="cb10-32"><a href="#cb10-32" aria-hidden="true" tabindex="-1"></a><span class="co">#' The warm-up period should be sufficiently long to allow the system to reach</span></span>
+<span id="cb10-33"><a href="#cb10-33" aria-hidden="true" tabindex="-1"></a><span class="co">#' steady-state before data collection begins.</span></span>
+<span id="cb10-34"><a href="#cb10-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-35"><a href="#cb10-35" aria-hidden="true" tabindex="-1"></a>run_simulation_model <span class="op">&lt;-</span> function(</span>
+<span id="cb10-36"><a href="#cb10-36" aria-hidden="true" tabindex="-1"></a>  patient_inter, mean_n_consult_time, number_of_nurses</span>
+<span id="cb10-37"><a href="#cb10-37" aria-hidden="true" tabindex="-1"></a>) {</span>
+<span id="cb10-38"><a href="#cb10-38" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Run simulation</span></span>
+<span id="cb10-39"><a href="#cb10-39" aria-hidden="true" tabindex="-1"></a>  param <span class="op">&lt;-</span> parameters(</span>
+<span id="cb10-40"><a href="#cb10-40" aria-hidden="true" tabindex="-1"></a>    patient_inter <span class="op">=</span> patient_inter,</span>
+<span id="cb10-41"><a href="#cb10-41" aria-hidden="true" tabindex="-1"></a>    mean_n_consult_time <span class="op">=</span> mean_n_consult_time,</span>
+<span id="cb10-42"><a href="#cb10-42" aria-hidden="true" tabindex="-1"></a>    number_of_nurses <span class="op">=</span> number_of_nurses,</span>
+<span id="cb10-43"><a href="#cb10-43" aria-hidden="true" tabindex="-1"></a>    warm_up_period <span class="op">=</span> <span class="dv">500L</span>,</span>
+<span id="cb10-44"><a href="#cb10-44" aria-hidden="true" tabindex="-1"></a>    data_collection_period <span class="op">=</span> <span class="dv">1500L</span>,</span>
+<span id="cb10-45"><a href="#cb10-45" aria-hidden="true" tabindex="-1"></a>    number_of_runs <span class="op">=</span> <span class="dv">100L</span>,</span>
+<span id="cb10-46"><a href="#cb10-46" aria-hidden="true" tabindex="-1"></a>    scenario_name <span class="op">=</span> <span class="dv">0L</span>,</span>
+<span id="cb10-47"><a href="#cb10-47" aria-hidden="true" tabindex="-1"></a>    cores <span class="op">=</span> <span class="dv">1L</span></span>
+<span id="cb10-48"><a href="#cb10-48" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb10-49"><a href="#cb10-49" aria-hidden="true" tabindex="-1"></a>  run_results <span class="op">&lt;-</span> runner(param)[[<span class="st">"run_results"</span>]]</span>
+<span id="cb10-50"><a href="#cb10-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-51"><a href="#cb10-51" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Get overall results, using queueing theory notation in column names</span></span>
+<span id="cb10-52"><a href="#cb10-52" aria-hidden="true" tabindex="-1"></a>  results <span class="op">&lt;-</span> run_results <span class="op">|&gt;</span></span>
+<span id="cb10-53"><a href="#cb10-53" aria-hidden="true" tabindex="-1"></a>    summarise(</span>
+<span id="cb10-54"><a href="#cb10-54" aria-hidden="true" tabindex="-1"></a>      RO <span class="op">=</span> mean(.data[[<span class="st">"utilisation_nurse"</span>]]),</span>
+<span id="cb10-55"><a href="#cb10-55" aria-hidden="true" tabindex="-1"></a>      Lq <span class="op">=</span> mean(.data[[<span class="st">"mean_queue_length_nurse"</span>]]),</span>
+<span id="cb10-56"><a href="#cb10-56" aria-hidden="true" tabindex="-1"></a>      W <span class="op">=</span> mean(.data[[<span class="st">"mean_time_in_system"</span>]]),</span>
+<span id="cb10-57"><a href="#cb10-57" aria-hidden="true" tabindex="-1"></a>      Wq <span class="op">=</span> mean(.data[[<span class="st">"mean_waiting_time_nurse"</span>]])</span>
+<span id="cb10-58"><a href="#cb10-58" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb10-59"><a href="#cb10-59" aria-hidden="true" tabindex="-1"></a>  results</span>
+<span id="cb10-60"><a href="#cb10-60" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb10-61"><a href="#cb10-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-62"><a href="#cb10-62" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> n <span class="kw">in</span> <span class="bu">range</span>(<span class="va">self</span>.num_servers)</span>
+<span id="cb10-63"><a href="#cb10-63" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb10-64"><a href="#cb10-64" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-65"><a href="#cb10-65" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Term for n &gt;= s</span></span>
+<span id="cb10-66"><a href="#cb10-66" aria-hidden="true" tabindex="-1"></a>        server_term <span class="op">=</span> (<span class="va">self</span>.lambda_over_mu<span class="op">**</span><span class="va">self</span>.num_servers) <span class="op">/</span> (</span>
+<span id="cb10-67"><a href="#cb10-67" aria-hidden="true" tabindex="-1"></a>            math.factorial(<span class="va">self</span>.num_servers) <span class="op">*</span> (<span class="dv">1</span> <span class="op">-</span> <span class="va">self</span>.rho)</span>
+<span id="cb10-68"><a href="#cb10-68" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb10-69"><a href="#cb10-69" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-70"><a href="#cb10-70" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="dv">1</span> <span class="op">/</span> (sum_part <span class="op">+</span> server_term)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>This method calculates P0, which is the probability that the system is completely empty - i.e., no customers are waiting and all servers are idle.</p>
 </section>
-<section id="wrapper-to-run-the-model" class="level3">
-<h3 class="anchored" data-anchor-id="wrapper-to-run-the-model">Wrapper to run the model</h3>
+</div>
+<div class="r-content">
+<p>In R, there is a package <a href="https://cran.r-project.org/web/packages/queueing/index.html">queueing</a> which makes this task super easy!</p>
+<p>To create a theoretical M/M/s queue model, we first need to calculate lambda and mu based on our inter-arrival time and service times:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Example parameters</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>interarrival_time <span class="ot">&lt;-</span> <span class="dv">5</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>service_length <span class="ot">&lt;-</span> <span class="dv">5</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>servers <span class="ot">&lt;-</span> <span class="dv">2</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate lambda and mu</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>lambda <span class="ot">&lt;-</span> <span class="dv">1</span>L <span class="sc">/</span> interarrival_time</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>mu <span class="ot">&lt;-</span> <span class="dv">1</span>L <span class="sc">/</span> service_length</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>We can then use <code>queueing::NewInput.MMC()</code> to set-up an M/M/s (M/M/c) model. This function takes the arrival rate (<code>lambda</code>), service rate (<code>mu</code>) and the number of servers (<code>c</code>). There are two other parameters <code>n</code> and <code>method</code>, but we just specify the defaults here (0) (see <a href="https://cran.r-project.org/web/packages/queueing/queueing.pdf">documentation</a> for more details).</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>math_model <span class="ot">&lt;-</span> queueing<span class="sc">::</span><span class="fu">NewInput.MMC</span>(</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">lambda =</span> lambda, <span class="at">mu =</span> mu, <span class="at">c =</span> servers, <span class="at">n =</span> <span class="dv">0</span>L, <span class="at">method =</span> <span class="dv">0</span>L</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>math_model</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>$lambda
+[1] 0.2
+
+$mu
+[1] 0.2
+
+$c
+[1] 2
+
+$n
+[1] 0
+
+$method
+[1] 0
+
+attr(,"class")
+[1] "i_MMC"</code></pre>
+</div>
+</div>
+<p>We then provide this model to <code>queueing::QueueingModel()</code>, which builds the model and returns the relevant calculations.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>math_results <span class="ot">&lt;-</span> queueing<span class="sc">::</span><span class="fu">QueueingModel</span>(math_model)</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>math_results</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>$Inputs
+$lambda
+[1] 0.2
+
+$mu
+[1] 0.2
+
+$c
+[1] 2
+
+$n
+[1] 0
+
+$method
+[1] 0
+
+attr(,"class")
+[1] "i_MMC"
+
+$RO
+[1] 0.5
+
+$Lq
+[1] 0.3333333
+
+$VNq
+[1] 0.8888889
+
+$Wq
+[1] 1.666667
+
+$VTq
+[1] 13.88889
+
+$Throughput
+[1] 0.2
+
+$L
+[1] 1.333333
+
+$VN
+[1] 2.222222
+
+$W
+[1] 6.666667
+
+$VT
+[1] 38.88889
+
+$Wqq
+[1] 5
+
+$Lqq
+[1] 2
+
+$Pn
+[1] 0.3333333
+
+$Qn
+[1] 0.3333333
+
+$FW
+function(t)
+  {
+      
+    if (r == (x$c - 1))
+    {
+      res &lt;- 1 - ( (1 + cErlang * x$mu * t) * exp(-x$mu * t) )
+    }
+    else
+    {
+      aux1 &lt;- ( r - x$c + 1 - cErlang ) * exp(-x$mu * t)
+      aux2 &lt;- cErlang * exp( (-1) * (1 - RO) * x$c * x$mu * t )
+      aux &lt;-  (aux1 + aux2)/( x$c - 1 - r )
+      res &lt;- 1 + aux
+    }
+    res
+  }
+&lt;bytecode: 0x56413e164e68&gt;
+&lt;environment: 0x56413e14b680&gt;
+
+$FWq
+function(t)
+  {
+    1 - ( cErlang * exp( (-1) * (1 - RO) * x$c * x$mu * t ) )  
+  }
+&lt;bytecode: 0x56413e173c30&gt;
+&lt;environment: 0x56413e14b680&gt;
+
+attr(,"class")
+[1] "o_MMC"</code></pre>
+</div>
+</div>
+</div>
 </section>
-<section id="verification-test" class="level3">
-<h3 class="anchored" data-anchor-id="verification-test">Verification test</h3>
+<section id="function-to-run-our-simulation" class="level2">
+<h2 class="anchored" data-anchor-id="function-to-run-our-simulation">Function to run our simulation</h2>
+<p>This function simply runs our simulation model and returns the relevant metrics, renamed to use queueing theory notation.</p>
+<p>We could have included this code as part of the test function below - but have just made it in a separate function to keep that test function a little simpler.</p>
+<p>Our short illustrative parameters (30 minute warm-up, 40 minute data collection, 5 replications) are very unstable, so we have increased them to get more reliable results for the comparison in this test.</p>
+<div class="python-content">
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> run_simulation_model(</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>    interarrival_time,</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    consultation_time,</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>    number_of_doctors</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>):</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a><span class="co">    Run simulation and return key performance indicators using standard</span></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a><span class="co">    queueing theory notation.</span></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a><span class="co">    The warm-up period should be sufficiently long to allow the system</span></span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a><span class="co">    to reach steady-state before data collection begins.</span></span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a><span class="co">    Parameters</span></span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a><span class="co">    ----------</span></span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a><span class="co">    interarrival_time : float</span></span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a><span class="co">        Mean time between arrivals (minutes).</span></span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a><span class="co">    consultation_time : float</span></span>
+<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a><span class="co">        Mean length of doctor's consultation (minutes).</span></span>
+<span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a><span class="co">    number_of_doctors : int</span></span>
+<span id="cb16-20"><a href="#cb16-20" aria-hidden="true" tabindex="-1"></a><span class="co">        Number of doctors.</span></span>
+<span id="cb16-21"><a href="#cb16-21" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb16-22"><a href="#cb16-22" aria-hidden="true" tabindex="-1"></a>    param <span class="op">=</span> Parameters(</span>
+<span id="cb16-23"><a href="#cb16-23" aria-hidden="true" tabindex="-1"></a>        interarrival_time<span class="op">=</span>interarrival_time,</span>
+<span id="cb16-24"><a href="#cb16-24" aria-hidden="true" tabindex="-1"></a>        consultation_time<span class="op">=</span>consultation_time,</span>
+<span id="cb16-25"><a href="#cb16-25" aria-hidden="true" tabindex="-1"></a>        number_of_doctors<span class="op">=</span>number_of_doctors,</span>
+<span id="cb16-26"><a href="#cb16-26" aria-hidden="true" tabindex="-1"></a>        warm_up_period<span class="op">=</span><span class="dv">2000</span>,</span>
+<span id="cb16-27"><a href="#cb16-27" aria-hidden="true" tabindex="-1"></a>        data_collection_period<span class="op">=</span><span class="dv">4000</span>,</span>
+<span id="cb16-28"><a href="#cb16-28" aria-hidden="true" tabindex="-1"></a>        number_of_runs<span class="op">=</span><span class="dv">20</span>,</span>
+<span id="cb16-29"><a href="#cb16-29" aria-hidden="true" tabindex="-1"></a>        cores<span class="op">=</span><span class="dv">1</span>,</span>
+<span id="cb16-30"><a href="#cb16-30" aria-hidden="true" tabindex="-1"></a>        verbose<span class="op">=</span><span class="va">False</span></span>
+<span id="cb16-31"><a href="#cb16-31" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb16-32"><a href="#cb16-32" aria-hidden="true" tabindex="-1"></a>    runner <span class="op">=</span> Runner(param)</span>
+<span id="cb16-33"><a href="#cb16-33" aria-hidden="true" tabindex="-1"></a>    results <span class="op">=</span> runner.run_reps()</span>
+<span id="cb16-34"><a href="#cb16-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-35"><a href="#cb16-35" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Rename the columns using queuing theory notation</span></span>
+<span id="cb16-36"><a href="#cb16-36" aria-hidden="true" tabindex="-1"></a>    mapping <span class="op">=</span> {</span>
+<span id="cb16-37"><a href="#cb16-37" aria-hidden="true" tabindex="-1"></a>        <span class="st">"mean_wait_time"</span>: <span class="st">"W_q"</span>,</span>
+<span id="cb16-38"><a href="#cb16-38" aria-hidden="true" tabindex="-1"></a>        <span class="st">"mean_time_in_system"</span>: <span class="st">"W_s"</span>,</span>
+<span id="cb16-39"><a href="#cb16-39" aria-hidden="true" tabindex="-1"></a>        <span class="st">"mean_utilisation_tw"</span>: <span class="st">"rho"</span>,</span>
+<span id="cb16-40"><a href="#cb16-40" aria-hidden="true" tabindex="-1"></a>        <span class="st">"mean_queue_length"</span>: <span class="st">"L_q"</span>,</span>
+<span id="cb16-41"><a href="#cb16-41" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb16-42"><a href="#cb16-42" aria-hidden="true" tabindex="-1"></a>    df <span class="op">=</span> results[<span class="st">"overall"</span>].rename(columns<span class="op">=</span>mapping)</span>
+<span id="cb16-43"><a href="#cb16-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-44"><a href="#cb16-44" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Return relevant columns</span></span>
+<span id="cb16-45"><a href="#cb16-45" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> df[mapping.values()].T[<span class="st">"mean"</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>For example:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>run_simulation_model(interarrival_time<span class="op">=</span><span class="dv">5</span>,</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>                     consultation_time<span class="op">=</span><span class="dv">10</span>,</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>                     number_of_doctors<span class="op">=</span><span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>W_q     4.168970
+W_s    14.077349
+rho     0.657581
+L_q     0.835643
+Name: mean, dtype: float64</code></pre>
+</div>
+</div>
+</div>
+<div class="r-content">
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co">#' Run simulation and return key performance indicators using standard queueing</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="co">#' theory notation.</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="co">#'</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a><span class="co">#' The warm-up period should be sufficiently long to allow the system to reach</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a><span class="co">#' steady-state before data collection begins.</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a><span class="co">#' </span></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a><span class="co">#' @param interarrival_time Mean time between arrivals (minutes).</span></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a><span class="co">#' @param consultation_time Mean length of doctor's consultation (minutes).</span></span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a><span class="co">#' @param number_of_doctors Number of doctors.</span></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>run_simulation_model <span class="ot">&lt;-</span> <span class="cf">function</span>(</span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>  interarrival_time, consultation_time, number_of_doctors</span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>) {</span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Run simulation</span></span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a>  param <span class="ot">&lt;-</span> <span class="fu">create_params</span>(</span>
+<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">interarrival_time =</span> interarrival_time,</span>
+<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">consultation_time =</span> consultation_time,</span>
+<span id="cb19-18"><a href="#cb19-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">number_of_doctors =</span> number_of_doctors,</span>
+<span id="cb19-19"><a href="#cb19-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">warm_up_period =</span> <span class="dv">2000</span>L,</span>
+<span id="cb19-20"><a href="#cb19-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">data_collection_period =</span> <span class="dv">4000</span>L,</span>
+<span id="cb19-21"><a href="#cb19-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">number_of_runs =</span> <span class="dv">20</span>L,</span>
+<span id="cb19-22"><a href="#cb19-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">verbose =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb19-23"><a href="#cb19-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">cores =</span> <span class="dv">1</span>L</span>
+<span id="cb19-24"><a href="#cb19-24" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb19-25"><a href="#cb19-25" aria-hidden="true" tabindex="-1"></a>  run_results <span class="ot">&lt;-</span> <span class="fu">runner</span>(param)[[<span class="st">"run_results"</span>]]</span>
+<span id="cb19-26"><a href="#cb19-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-27"><a href="#cb19-27" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Get overall results, using queueing theory notation in column names</span></span>
+<span id="cb19-28"><a href="#cb19-28" aria-hidden="true" tabindex="-1"></a>  results <span class="ot">&lt;-</span> run_results <span class="sc">|&gt;</span></span>
+<span id="cb19-29"><a href="#cb19-29" aria-hidden="true" tabindex="-1"></a>    <span class="fu">summarise</span>(</span>
+<span id="cb19-30"><a href="#cb19-30" aria-hidden="true" tabindex="-1"></a>      <span class="at">RO =</span> <span class="fu">mean</span>(.data[[<span class="st">"utilisation_doctor"</span>]]),</span>
+<span id="cb19-31"><a href="#cb19-31" aria-hidden="true" tabindex="-1"></a>      <span class="at">Lq =</span> <span class="fu">mean</span>(.data[[<span class="st">"mean_queue_length_doctor"</span>]]),</span>
+<span id="cb19-32"><a href="#cb19-32" aria-hidden="true" tabindex="-1"></a>      <span class="at">W =</span> <span class="fu">mean</span>(.data[[<span class="st">"mean_time_in_system"</span>]]),</span>
+<span id="cb19-33"><a href="#cb19-33" aria-hidden="true" tabindex="-1"></a>      <span class="at">Wq =</span> <span class="fu">mean</span>(.data[[<span class="st">"mean_wait_time_doctor"</span>]])</span>
+<span id="cb19-34"><a href="#cb19-34" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb19-35"><a href="#cb19-35" aria-hidden="true" tabindex="-1"></a>  results</span>
+<span id="cb19-36"><a href="#cb19-36" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>For example:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">run_simulation_model</span>(<span class="at">interarrival_time =</span> <span class="dv">5</span>L,</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>                     <span class="at">consultation_time =</span> <span class="dv">10</span>L,</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>                     <span class="at">number_of_doctors =</span> <span class="dv">3</span>L)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 4
+     RO    Lq     W    Wq
+  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+1 0.671 0.866  14.3  4.31</code></pre>
+</div>
+</div>
+</div>
 </section>
+<section id="test-comparing-simulation-with-mathematical-model-results" class="level2">
+<h2 class="anchored" data-anchor-id="test-comparing-simulation-with-mathematical-model-results">Test comparing simulation with mathematical model results</h2>
+<div class="python-content">
+<p>Our test function <code>test_simulation_against_theory()</code> uses <code>@pytest.mark.parametrize</code> to run several different test cases.</p>
+<p>For each of these, it compares the results from the simulation model (from <code>run_simulation_model()</code>) with the results from the mathematical model (<code>MMSQueue</code>) and checks they are reasonably similar.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="at">@pytest.mark.parametrize</span>(</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"interarrival_time,consultation_time,number_of_doctors"</span>,</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>    [</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Test case 1: Low utilisation (ρ ≈ 0.3)</span></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>        (<span class="dv">10</span>, <span class="dv">3</span>, <span class="dv">2</span>),</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Test case 2: Medium utilisation (ρ ≈ 0.67)</span></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>        (<span class="dv">6</span>, <span class="dv">4</span>, <span class="dv">2</span>),</span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Test case 3: M/M/1 (ρ = 0.75)</span></span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>        (<span class="dv">4</span>, <span class="dv">3</span>, <span class="dv">1</span>),</span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Test case 4: Multiple servers, high utilisation (ρ ≈ 0.91)</span></span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>        (<span class="fl">5.5</span>, <span class="dv">5</span>, <span class="dv">3</span>),</span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Test case 5: Balanced system (ρ = 0.5)</span></span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a>        (<span class="dv">8</span>, <span class="dv">4</span>, <span class="dv">1</span>),</span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Test case 6: Many servers, low individual utilisation (ρ ≈ 0.63)</span></span>
+<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a>        (<span class="dv">4</span>, <span class="dv">10</span>, <span class="dv">4</span>),</span>
+<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Test case 7: Very low utilisation (ρ ≈ 0.167)</span></span>
+<span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a>        (<span class="dv">60</span>, <span class="dv">10</span>, <span class="dv">15</span>),</span>
+<span id="cb22-18"><a href="#cb22-18" aria-hidden="true" tabindex="-1"></a>    ],</span>
+<span id="cb22-19"><a href="#cb22-19" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb22-20"><a href="#cb22-20" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> test_simulation_against_theory(</span>
+<span id="cb22-21"><a href="#cb22-21" aria-hidden="true" tabindex="-1"></a>    interarrival_time,</span>
+<span id="cb22-22"><a href="#cb22-22" aria-hidden="true" tabindex="-1"></a>    consultation_time,</span>
+<span id="cb22-23"><a href="#cb22-23" aria-hidden="true" tabindex="-1"></a>    number_of_doctors</span>
+<span id="cb22-24"><a href="#cb22-24" aria-hidden="true" tabindex="-1"></a>):</span>
+<span id="cb22-25"><a href="#cb22-25" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Test simulation results against theoretical M/M/S queue calculations."""</span></span>
+<span id="cb22-26"><a href="#cb22-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-27"><a href="#cb22-27" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Create theoretical M/M/S queue model and get metrics</span></span>
+<span id="cb22-28"><a href="#cb22-28" aria-hidden="true" tabindex="-1"></a>    lam <span class="op">=</span> <span class="dv">1</span> <span class="op">/</span> interarrival_time</span>
+<span id="cb22-29"><a href="#cb22-29" aria-hidden="true" tabindex="-1"></a>    mu <span class="op">=</span> <span class="dv">1</span> <span class="op">/</span> consultation_time</span>
+<span id="cb22-30"><a href="#cb22-30" aria-hidden="true" tabindex="-1"></a>    theory <span class="op">=</span> MMSQueue(lam, mu, number_of_doctors).metrics</span>
+<span id="cb22-31"><a href="#cb22-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-32"><a href="#cb22-32" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Run simulation</span></span>
+<span id="cb22-33"><a href="#cb22-33" aria-hidden="true" tabindex="-1"></a>    sim <span class="op">=</span> run_simulation_model(</span>
+<span id="cb22-34"><a href="#cb22-34" aria-hidden="true" tabindex="-1"></a>        interarrival_time<span class="op">=</span>interarrival_time,</span>
+<span id="cb22-35"><a href="#cb22-35" aria-hidden="true" tabindex="-1"></a>        consultation_time<span class="op">=</span>consultation_time,</span>
+<span id="cb22-36"><a href="#cb22-36" aria-hidden="true" tabindex="-1"></a>        number_of_doctors<span class="op">=</span>number_of_doctors</span>
+<span id="cb22-37"><a href="#cb22-37" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb22-38"><a href="#cb22-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-39"><a href="#cb22-39" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Compare results with appropriate tolerance (round to 3dp + 15% tolerance)</span></span>
+<span id="cb22-40"><a href="#cb22-40" aria-hidden="true" tabindex="-1"></a>    metrics <span class="op">=</span> [</span>
+<span id="cb22-41"><a href="#cb22-41" aria-hidden="true" tabindex="-1"></a>        (<span class="st">"rho"</span>, <span class="st">"Utilisation"</span>),</span>
+<span id="cb22-42"><a href="#cb22-42" aria-hidden="true" tabindex="-1"></a>        (<span class="st">"L_q"</span>, <span class="st">"Queue length"</span>),</span>
+<span id="cb22-43"><a href="#cb22-43" aria-hidden="true" tabindex="-1"></a>        (<span class="st">"W_q"</span>, <span class="st">"Wait time"</span>),</span>
+<span id="cb22-44"><a href="#cb22-44" aria-hidden="true" tabindex="-1"></a>        (<span class="st">"W_s"</span>, <span class="st">"System time"</span>)</span>
+<span id="cb22-45"><a href="#cb22-45" aria-hidden="true" tabindex="-1"></a>    ]</span>
+<span id="cb22-46"><a href="#cb22-46" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> key, label <span class="kw">in</span> metrics:</span>
+<span id="cb22-47"><a href="#cb22-47" aria-hidden="true" tabindex="-1"></a>        sim_val <span class="op">=</span> <span class="bu">round</span>(sim[key], <span class="dv">3</span>)</span>
+<span id="cb22-48"><a href="#cb22-48" aria-hidden="true" tabindex="-1"></a>        theory_val <span class="op">=</span> <span class="bu">round</span>(theory[key], <span class="dv">3</span>)</span>
+<span id="cb22-49"><a href="#cb22-49" aria-hidden="true" tabindex="-1"></a>        <span class="cf">assert</span> sim_val <span class="op">==</span> pytest.approx(theory_val, rel<span class="op">=</span><span class="fl">0.15</span>), (</span>
+<span id="cb22-50"><a href="#cb22-50" aria-hidden="true" tabindex="-1"></a>            <span class="ss">f"</span><span class="sc">{</span>label<span class="sc">}</span><span class="ss"> mismatch: sim=</span><span class="sc">{</span>sim_val<span class="sc">}</span><span class="ss">, theory=</span><span class="sc">{</span>theory_val<span class="sc">}</span><span class="ss">"</span></span>
+<span id="cb22-51"><a href="#cb22-51" aria-hidden="true" tabindex="-1"></a>        )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>============================= test session starts ==============================
+platform linux -- Python 3.11.9, pytest-8.4.1, pluggy-1.6.0
+rootdir: /__w/des_rap_book/des_rap_book/pages/verification_validation
+plugins: anyio-4.11.0, timeout-2.4.0
+collected 7 items
+
+tests_resources/test_mms.py .......                                      [100%]
+
+============================== 7 passed in 2.48s ===============================
+&lt;ExitCode.OK: 0&gt;</code></pre>
+</div>
+</div>
+</div>
+<div class="r-content">
+<p>Our test function uses <code>patrick</code> to run several different test cases.</p>
+<p>For each of these, it compares the results from the simulation model (from <code>run_simulation_model()</code>) with the results from the mathematical model from <code>queueing</code>, and checks they are reasonably similar.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(patrick)</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(testthat)</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>patrick<span class="sc">::</span><span class="fu">with_parameters_test_that</span>(</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>  <span class="st">"simulation is consistent with theoretical MMs queue calculations."</span>,</span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>  {</span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Create theoretical M/M/s queue model</span></span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>    lambda <span class="ot">&lt;-</span> <span class="dv">1</span>L <span class="sc">/</span> interarrival_time</span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a>    mu <span class="ot">&lt;-</span> <span class="dv">1</span>L <span class="sc">/</span> consultation_time</span>
+<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a>    i_mmc <span class="ot">&lt;-</span> queueing<span class="sc">::</span><span class="fu">NewInput.MMC</span>(</span>
+<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a>      <span class="at">lambda =</span> lambda, <span class="at">mu =</span> mu, <span class="at">c =</span> number_of_doctors, <span class="at">n =</span> <span class="dv">0</span>L, <span class="at">method =</span> <span class="dv">0</span>L</span>
+<span id="cb24-13"><a href="#cb24-13" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb24-14"><a href="#cb24-14" aria-hidden="true" tabindex="-1"></a>    theory <span class="ot">&lt;-</span> queueing<span class="sc">::</span><span class="fu">QueueingModel</span>(i_mmc)</span>
+<span id="cb24-15"><a href="#cb24-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-16"><a href="#cb24-16" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Run simulation</span></span>
+<span id="cb24-17"><a href="#cb24-17" aria-hidden="true" tabindex="-1"></a>    sim <span class="ot">&lt;-</span> <span class="fu">run_simulation_model</span>(</span>
+<span id="cb24-18"><a href="#cb24-18" aria-hidden="true" tabindex="-1"></a>      <span class="at">interarrival_time =</span> interarrival_time,</span>
+<span id="cb24-19"><a href="#cb24-19" aria-hidden="true" tabindex="-1"></a>      <span class="at">consultation_time =</span> consultation_time,</span>
+<span id="cb24-20"><a href="#cb24-20" aria-hidden="true" tabindex="-1"></a>      <span class="at">number_of_doctors =</span> number_of_doctors</span>
+<span id="cb24-21"><a href="#cb24-21" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb24-22"><a href="#cb24-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-23"><a href="#cb24-23" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Compare results with appropriate tolerance (round to 3dp + 15% tolerance)</span></span>
+<span id="cb24-24"><a href="#cb24-24" aria-hidden="true" tabindex="-1"></a>    metrics <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb24-25"><a href="#cb24-25" aria-hidden="true" tabindex="-1"></a>      <span class="fu">c</span>(<span class="st">"RO"</span>, <span class="st">"Utilisation"</span>),</span>
+<span id="cb24-26"><a href="#cb24-26" aria-hidden="true" tabindex="-1"></a>      <span class="fu">c</span>(<span class="st">"Lq"</span>, <span class="st">"Queue length"</span>),</span>
+<span id="cb24-27"><a href="#cb24-27" aria-hidden="true" tabindex="-1"></a>      <span class="fu">c</span>(<span class="st">"W"</span>, <span class="st">"System time"</span>),</span>
+<span id="cb24-28"><a href="#cb24-28" aria-hidden="true" tabindex="-1"></a>      <span class="fu">c</span>(<span class="st">"Wq"</span>, <span class="st">"Wait time"</span>)</span>
+<span id="cb24-29"><a href="#cb24-29" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb24-30"><a href="#cb24-30" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> (metric <span class="cf">in</span> metrics) {</span>
+<span id="cb24-31"><a href="#cb24-31" aria-hidden="true" tabindex="-1"></a>      key <span class="ot">&lt;-</span> metric[<span class="dv">1</span>L]</span>
+<span id="cb24-32"><a href="#cb24-32" aria-hidden="true" tabindex="-1"></a>      label <span class="ot">&lt;-</span> metric[<span class="dv">2</span>L]</span>
+<span id="cb24-33"><a href="#cb24-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-34"><a href="#cb24-34" aria-hidden="true" tabindex="-1"></a>      sim_val <span class="ot">&lt;-</span> <span class="fu">round</span>(sim[[key]], <span class="dv">3</span>L)</span>
+<span id="cb24-35"><a href="#cb24-35" aria-hidden="true" tabindex="-1"></a>      theory_val <span class="ot">&lt;-</span> <span class="fu">round</span>(theory[[key]], <span class="dv">3</span>L)</span>
+<span id="cb24-36"><a href="#cb24-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-37"><a href="#cb24-37" aria-hidden="true" tabindex="-1"></a>      <span class="fu">expect_equal</span>(</span>
+<span id="cb24-38"><a href="#cb24-38" aria-hidden="true" tabindex="-1"></a>        sim_val,</span>
+<span id="cb24-39"><a href="#cb24-39" aria-hidden="true" tabindex="-1"></a>        theory_val,</span>
+<span id="cb24-40"><a href="#cb24-40" aria-hidden="true" tabindex="-1"></a>        <span class="at">tolerance =</span> <span class="fl">0.15</span>,  <span class="co"># 15% relative tolerance</span></span>
+<span id="cb24-41"><a href="#cb24-41" aria-hidden="true" tabindex="-1"></a>        <span class="at">info =</span> <span class="fu">sprintf</span>(</span>
+<span id="cb24-42"><a href="#cb24-42" aria-hidden="true" tabindex="-1"></a>          <span class="st">"%s mismatch: sim=%.3f, theory=%.3f"</span>, label, sim_val, theory_val</span>
+<span id="cb24-43"><a href="#cb24-43" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb24-44"><a href="#cb24-44" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb24-45"><a href="#cb24-45" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb24-46"><a href="#cb24-46" aria-hidden="true" tabindex="-1"></a>  },</span>
+<span id="cb24-47"><a href="#cb24-47" aria-hidden="true" tabindex="-1"></a>  patrick<span class="sc">::</span><span class="fu">cases</span>(</span>
+<span id="cb24-48"><a href="#cb24-48" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Test case 1: Low utilisation (ρ ≈ 0.3)</span></span>
+<span id="cb24-49"><a href="#cb24-49" aria-hidden="true" tabindex="-1"></a>    <span class="fu">list</span>(<span class="at">interarrival_time =</span> <span class="dv">10</span>L,</span>
+<span id="cb24-50"><a href="#cb24-50" aria-hidden="true" tabindex="-1"></a>         <span class="at">consultation_time =</span> <span class="dv">3</span>L,</span>
+<span id="cb24-51"><a href="#cb24-51" aria-hidden="true" tabindex="-1"></a>         <span class="at">number_of_doctors =</span> <span class="dv">2</span>L),</span>
+<span id="cb24-52"><a href="#cb24-52" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Test case 2: Medium utilisation (ρ ≈ 0.67)</span></span>
+<span id="cb24-53"><a href="#cb24-53" aria-hidden="true" tabindex="-1"></a>    <span class="fu">list</span>(<span class="at">interarrival_time =</span> <span class="dv">6</span>L,</span>
+<span id="cb24-54"><a href="#cb24-54" aria-hidden="true" tabindex="-1"></a>         <span class="at">consultation_time =</span> <span class="dv">4</span>L,</span>
+<span id="cb24-55"><a href="#cb24-55" aria-hidden="true" tabindex="-1"></a>         <span class="at">number_of_doctors =</span> <span class="dv">2</span>L),</span>
+<span id="cb24-56"><a href="#cb24-56" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Test case 3: M/M/1 (ρ = 0.75)</span></span>
+<span id="cb24-57"><a href="#cb24-57" aria-hidden="true" tabindex="-1"></a>    <span class="fu">list</span>(<span class="at">interarrival_time =</span> <span class="dv">4</span>L,</span>
+<span id="cb24-58"><a href="#cb24-58" aria-hidden="true" tabindex="-1"></a>         <span class="at">consultation_time =</span> <span class="dv">3</span>L,</span>
+<span id="cb24-59"><a href="#cb24-59" aria-hidden="true" tabindex="-1"></a>         <span class="at">number_of_doctors =</span> <span class="dv">1</span>L),</span>
+<span id="cb24-60"><a href="#cb24-60" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Test case 4: Multiple servers, high utilisation (ρ ≈ 0.91)</span></span>
+<span id="cb24-61"><a href="#cb24-61" aria-hidden="true" tabindex="-1"></a>    <span class="fu">list</span>(<span class="at">interarrival_time =</span> <span class="fl">5.5</span>,</span>
+<span id="cb24-62"><a href="#cb24-62" aria-hidden="true" tabindex="-1"></a>         <span class="at">consultation_time =</span> <span class="dv">5</span>L,</span>
+<span id="cb24-63"><a href="#cb24-63" aria-hidden="true" tabindex="-1"></a>         <span class="at">number_of_doctors =</span> <span class="dv">3</span>L),</span>
+<span id="cb24-64"><a href="#cb24-64" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Test case 5: Balanced system (ρ = 0.5)</span></span>
+<span id="cb24-65"><a href="#cb24-65" aria-hidden="true" tabindex="-1"></a>    <span class="fu">list</span>(<span class="at">interarrival_time =</span> <span class="dv">8</span>L,</span>
+<span id="cb24-66"><a href="#cb24-66" aria-hidden="true" tabindex="-1"></a>         <span class="at">consultation_time =</span> <span class="dv">4</span>L,</span>
+<span id="cb24-67"><a href="#cb24-67" aria-hidden="true" tabindex="-1"></a>         <span class="at">number_of_doctors =</span> <span class="dv">1</span>L),</span>
+<span id="cb24-68"><a href="#cb24-68" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Test case 6: Many servers, low individual utilisation (ρ ≈ 0.63)</span></span>
+<span id="cb24-69"><a href="#cb24-69" aria-hidden="true" tabindex="-1"></a>    <span class="fu">list</span>(<span class="at">interarrival_time =</span> <span class="dv">4</span>L,</span>
+<span id="cb24-70"><a href="#cb24-70" aria-hidden="true" tabindex="-1"></a>         <span class="at">consultation_time =</span> <span class="dv">10</span>L,</span>
+<span id="cb24-71"><a href="#cb24-71" aria-hidden="true" tabindex="-1"></a>         <span class="at">number_of_doctors =</span> <span class="dv">4</span>L),</span>
+<span id="cb24-72"><a href="#cb24-72" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Test case 7: Very low utilisation (ρ ≈ 0.167)</span></span>
+<span id="cb24-73"><a href="#cb24-73" aria-hidden="true" tabindex="-1"></a>    <span class="fu">list</span>(<span class="at">interarrival_time =</span> <span class="dv">60</span>L,</span>
+<span id="cb24-74"><a href="#cb24-74" aria-hidden="true" tabindex="-1"></a>         <span class="at">consultation_time =</span> <span class="dv">10</span>L,</span>
+<span id="cb24-75"><a href="#cb24-75" aria-hidden="true" tabindex="-1"></a>         <span class="at">number_of_doctors =</span> <span class="dv">15</span>L)</span>
+<span id="cb24-76"><a href="#cb24-76" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb24-77"><a href="#cb24-77" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>
+══ Testing test_mms.R ══════════════════════════════════════════════════════════
+
+[ FAIL 0 | WARN 0 | SKIP 0 | PASS 0 ]
+[ FAIL 0 | WARN 0 | SKIP 0 | PASS 1 ]
+[ FAIL 0 | WARN 0 | SKIP 0 | PASS 2 ]
+[ FAIL 0 | WARN 0 | SKIP 0 | PASS 3 ]
+[ FAIL 0 | WARN 0 | SKIP 0 | PASS 4 ]
+[ FAIL 0 | WARN 0 | SKIP 0 | PASS 5 ]
+[ FAIL 0 | WARN 0 | SKIP 0 | PASS 6 ]
+[ FAIL 0 | WARN 0 | SKIP 0 | PASS 7 ]
+[ FAIL 0 | WARN 0 | SKIP 0 | PASS 8 ]
+[ FAIL 0 | WARN 0 | SKIP 0 | PASS 9 ]
+[ FAIL 0 | WARN 0 | SKIP 0 | PASS 10 ]
+[ FAIL 0 | WARN 0 | SKIP 0 | PASS 11 ]
+[ FAIL 0 | WARN 0 | SKIP 0 | PASS 12 ]
+[ FAIL 0 | WARN 0 | SKIP 0 | PASS 13 ]
+[ FAIL 0 | WARN 0 | SKIP 0 | PASS 14 ]
+[ FAIL 0 | WARN 0 | SKIP 0 | PASS 15 ]
+[ FAIL 0 | WARN 0 | SKIP 0 | PASS 16 ]
+[ FAIL 0 | WARN 0 | SKIP 0 | PASS 17 ]
+[ FAIL 0 | WARN 0 | SKIP 0 | PASS 18 ]
+[ FAIL 0 | WARN 0 | SKIP 0 | PASS 19 ]
+[ FAIL 0 | WARN 0 | SKIP 0 | PASS 20 ]
+[ FAIL 0 | WARN 0 | SKIP 0 | PASS 21 ]
+[ FAIL 0 | WARN 0 | SKIP 0 | PASS 22 ]
+[ FAIL 0 | WARN 0 | SKIP 0 | PASS 23 ]
+[ FAIL 0 | WARN 0 | SKIP 0 | PASS 24 ]
+[ FAIL 0 | WARN 0 | SKIP 0 | PASS 25 ]
+[ FAIL 0 | WARN 0 | SKIP 0 | PASS 26 ]
+[ FAIL 0 | WARN 0 | SKIP 0 | PASS 27 ]
+[ FAIL 0 | WARN 0 | SKIP 0 | PASS 28 ] Done!</code></pre>
+</div>
+</div>
 </div>
 </section>
 <section id="explore-the-example-models" class="level2">
@@ -820,10 +1504,6 @@ Note: When a Quarto document just contains Python code blocks (and no R code), Q
 <td><strong>Key files</strong></td>
 <td><code>tests/test_mms.py</code></td>
 </tr>
-<tr class="even">
-<td><strong>What to look for?</strong></td>
-<td></td>
-</tr>
 </tbody>
 </table>
 </div>
@@ -842,11 +1522,7 @@ Note: When a Quarto document just contains Python code blocks (and no R code), Q
 <tbody>
 <tr class="odd">
 <td><strong>Key files</strong></td>
-<td></td>
-</tr>
-<tr class="even">
-<td><strong>What to look for?</strong></td>
-<td></td>
+<td><code>tests/testthat/test-mms.R</code></td>
 </tr>
 </tbody>
 </table>
@@ -860,7 +1536,7 @@ Note: When a Quarto document just contains Python code blocks (and no R code), Q
 </section>
 <section id="test-yourself" class="level2">
 <h2 class="anchored" data-anchor-id="test-yourself">Test yourself</h2>
-<p>TODO</p>
+<p>Try adding this test to the model set-up using this book.</p>
 <p><br><br></p>
 
 
