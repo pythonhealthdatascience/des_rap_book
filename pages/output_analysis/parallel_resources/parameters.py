@@ -24,7 +24,7 @@ class Parameters:
     """
     def __init__(
         self, interarrival_time=5, consultation_time=10, number_of_doctors=3,
-        warm_up_period=3000, data_collection_period=20160, #<<
+        warm_up_period=30, data_collection_period=40,
         number_of_runs=18, cores=1, verbose=False#<<
     ):
         """
