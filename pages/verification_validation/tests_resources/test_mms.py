@@ -164,9 +164,9 @@ def run_simulation_model(
         interarrival_time=interarrival_time,
         consultation_time=consultation_time,
         number_of_doctors=number_of_doctors,
-        warm_up_period=3000,
-        data_collection_period=20160,
-        number_of_runs=18,
+        warm_up_period=2000,
+        data_collection_period=4000,
+        number_of_runs=20,
         cores=1,
         verbose=False
     )
