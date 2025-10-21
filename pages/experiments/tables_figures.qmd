@@ -139,8 +139,6 @@ kable(sensitivity) |> scroll_box(height = "400px")
 
 This function finds the average results from each experiment.
 
-In these examples, we've run it on the mean wait time for the doctor.
-
 :::: {.python-content}
 
 It uses the `summary_stats()` function introduced on the [Replications](../output_analysis/replications.qmd) page.
@@ -302,53 +300,148 @@ HTML(to_html_datatable(sensitivity_tables["mean_patients_in_system"]))
 
 ::::
 
-::: {.r-content}
+:::: {.r-content}
 
 ```{r}
-#' Find the average results from each scenario
+#' Summarise multiple performance measures at once
 #'
 #' @param results Dataframe with results from each replication of scenarios.
-#' @param groups List of columns to group by (provided as strings).
-#' @param result_var Name of performance measure to get results on.
-#' @param path Path to save table to.
+#' @param groups Vector of grouping columns (as strings).
+#' @param result_vars Vector of performance measures to summarise (as strings).
+#' @param path_prefix Optional path prefix to save each table to.
 #'
-#' @return Dataframe with the average results from each scenario.
+#' @return A named list of summary data frames.
 
-summarise_scenario <- function(results, groups, result_var, path) {
-  summary_table <- results |>
-    group_by_at(groups) |>
-    summarise(mean = mean(.data[[result_var]]),
-              std_dev = sd(.data[[result_var]]),
-              ci_lower = t.test(.data[[result_var]])[["conf.int"]][[1L]],
-              ci_upper = t.test(.data[[result_var]])[["conf.int"]][[2L]])
-  write.csv(summary_table, path)
-  summary_table
+summarise_scenarios <- function(results, groups, result_vars, path_prefix = NULL) {
+  summary_tables <- list()
+
+  for (result_var in result_vars) {
+    summary_table <- results |>
+      group_by(across(all_of(groups))) |>
+      summarise(
+        mean = mean(.data[[result_var]], na.rm = TRUE),
+        std_dev = sd(.data[[result_var]], na.rm = TRUE),
+        ci_lower = t.test(.data[[result_var]])$conf.int[1],
+        ci_upper = t.test(.data[[result_var]])$conf.int[2],
+        .groups = "drop"
+      ) |>
+      mutate(metric = result_var)
+
+    # Save table if prefix specified
+    if (!is.null(path_prefix)) {
+      output_path <- paste0(path_prefix, "_", result_var, ".csv")
+      write.csv(summary_table, output_path, row.names = FALSE)
+    }
+
+    # Store in list
+    summary_tables[[result_var]] <- summary_table
+  }
+
+  return(summary_tables)
 }
 ```
 
 ### Scenario analysis
 
 ```{r}
-scenario_table <- summarise_scenario(
-  scenario, groups = c("scenario", "interarrival_time", "number_of_doctors"),
-  result_var = "mean_wait_time_doctor",
-  path = file.path("tables_figures_resources", "r_scenario_table.csv")
+result_variables = c(
+  "mean_wait_time_doctor",
+  "utilisation_doctor",
+  "mean_queue_length_doctor",
+  "mean_time_in_system",
+  "mean_patients_in_system"
 )
-kable(scenario_table)
 ```
+
+```{r}
+scenario_tables <- summarise_scenarios(
+  results = scenario,
+  groups = c("scenario", "interarrival_time", "number_of_doctors"),
+  result_vars = result_variables,
+  path_prefix = file.path("tables_figures_resources", "r_scenario")
+)
+```
+
+::: {.panel-tabset}
+
+## Mean wait time
+
+```{r}
+kable(scenario_tables[["mean_wait_time_doctor"]])
+```
+
+## Mean utilisation
+
+```{r}
+kable(scenario_tables[["utilisation_doctor"]])
+```
+
+## Mean queue length
+
+```{r}
+kable(scenario_tables[["mean_queue_length_doctor"]])
+```
+
+## Mean time in system
+
+```{r}
+kable(scenario_tables[["mean_time_in_system"]])
+```
+
+## Mean patients in system
+
+```{r}
+kable(scenario_tables[["mean_patients_in_system"]])
+```
+
+:::
 
 ### Sensitivity analysis
 
 ```{r}
-sensitivity_table <- summarise_scenario(
-  sensitivity, groups = c("scenario", "interarrival_time"),
-  result_var = "mean_wait_time_doctor",
-  path = file.path("tables_figures_resources", "r_sensitivity_table.csv")
+sensitivity_tables <- summarise_scenarios(
+  results = sensitivity,
+  groups = c("scenario", "interarrival_time"),
+  result_vars = result_variables,
+  path_prefix = file.path("tables_figures_resources", "r_sensitivity")
 )
-kable(sensitivity_table)
+```
+
+::: {.panel-tabset}
+
+## Mean wait time
+
+```{r}
+kable(sensitivity_tables[["mean_wait_time_doctor"]])
+```
+
+## Mean utilisation
+
+```{r}
+kable(sensitivity_tables[["utilisation_doctor"]])
+```
+
+## Mean queue length
+
+```{r}
+kable(sensitivity_tables[["mean_queue_length_doctor"]])
+```
+
+## Mean time in system
+
+```{r}
+kable(sensitivity_tables[["mean_time_in_system"]])
+```
+
+## Mean patients in system
+
+```{r}
+kable(sensitivity_tables[["mean_patients_in_system"]])
 ```
 
 :::
+
+::::
 
 ## Example figures
 
@@ -604,81 +697,167 @@ sensitivity_plots["mean_patients_in_system"]
 This function is used to plot the results from the scenarios and sensitivity analysis.
 
 ```{r}
-#' Plot results from different model scenarios.
+#' Plot multiple performance measures at once
 #'
-#' @param summary_table Dataframe with average results from each scenario.
+#' @param summary_tables Named list of summary tables, one per metric (like output from summarise_scenarios()).
 #' @param x_var Name of variable to plot on x axis.
-#' @param y_var Name of variable with results, to plot on y axis.
-#' @param colour_var Name of variable to colour lines with.
-#' @param xaxis_title Title for x axis.
-#' @param yaxis_title Title for y axis.
-#' @param legend_title Title for figure legend.
-#' @param path Path to save figure to.
+#' @param colour_var Name of variable to colour lines with (can be NULL).
+#' @param name_mappings Optional named list for prettier axis/legend labels.
+#' @param path_prefix Optional path prefix to save figures.
+#' @return Named list of ggplot objects
 
-plot_scenario <- function(
-  summary_table, x_var, y_var, colour_var,
-  xaxis_title, yaxis_title, legend_title, path
+plot_metrics <- function(
+  summary_tables, x_var, colour_var = NULL,
+  name_mappings = NULL, path_prefix = NULL
 ) {
-  if (!is.null(colour_var)) {
-    # Convert colour variable to a factor so its treated as categorical
-    summary_table[[colour_var]] <- as.factor(summary_table[[colour_var]])
-    # Plot with colour groups
-    p <- ggplot(summary_table, aes(x = .data[[x_var]], y = .data[[y_var]],
-                                   group = .data[[colour_var]])) +
-      geom_line(aes(color = .data[[colour_var]])) +
-      geom_ribbon(aes(ymin = .data[["ci_lower"]], ymax = .data[["ci_upper"]],
-                      fill = .data[[colour_var]]), alpha = 0.1)
-  } else {
-    # Plot without colour groups
-    p <- ggplot(summary_table, aes(x = .data[[x_var]], y = .data[[y_var]])) +
-      geom_line() +
-      geom_ribbon(aes(ymin = .data[["ci_lower"]], ymax = .data[["ci_upper"]],
-                      alpha = 0.1), show.legend = FALSE)
+  plot_list <- list()
+
+  for (metric_name in names(summary_tables)) {
+    summary_table <- summary_tables[[metric_name]]
+
+    y_var <- "mean"
+    ci_lower <- "ci_lower"
+    ci_upper <- "ci_upper"
+
+    xaxis_title <- if (!is.null(name_mappings[[x_var]])) name_mappings[[x_var]] else x_var
+    yaxis_title <- if (!is.null(name_mappings[[metric_name]])) name_mappings[[metric_name]] else metric_name
+    legend_title <- if (!is.null(colour_var) && !is.null(name_mappings[[colour_var]])) name_mappings[[colour_var]] else colour_var
+
+    if (!is.null(colour_var)) {
+      summary_table[[colour_var]] <- as.factor(summary_table[[colour_var]])
+      p <- ggplot(summary_table, aes_string(x = x_var, y = y_var, group = colour_var, color = colour_var, fill = colour_var)) +
+        geom_line() +
+        geom_ribbon(aes_string(ymin = ci_lower, ymax = ci_upper), alpha = 0.1) +
+        labs(x = xaxis_title, y = yaxis_title, color = legend_title, fill = legend_title) +
+        theme_minimal()
+    } else {
+      p <- ggplot(summary_table, aes_string(x = x_var, y = y_var)) +
+        geom_line() +
+        geom_ribbon(aes_string(ymin = ci_lower, ymax = ci_upper), alpha = 0.1, show.legend = FALSE) +
+        labs(x = xaxis_title, y = yaxis_title) +
+        theme_minimal()
+    }
+
+    # Save plot if prefix supplied
+    if (!is.null(path_prefix)) {
+      output_path <- paste0(path_prefix, "_", metric_name, ".png")
+      ggsave(filename = output_path, plot = p, width = 6.5, height = 4, bg = "white")
+    }
+
+    plot_list[[metric_name]] <- p
   }
-  # Modify labels and style
-  p <- p +
-    labs(x = xaxis_title, y = yaxis_title, color = legend_title,
-         fill = legend_title) +
-    theme_minimal()
 
-  # Save plot
-  ggsave(filename = path, width = 6.5, height = 4L, bg = "white")
-
-  p
+  return(plot_list)
 }
 ```
 
 ### Scenario analysis
 
 ```{r}
-plot_scenario(
-  summary_table = scenario_table,
-  x_var = "interarrival_time",
-  y_var = "mean",
-  colour_var = "number_of_doctors",
-  xaxis_title = "Patient inter-arrival time",
-  yaxis_title = "Mean wait time for the doctor",
-  legend_title = "Number of doctors",
-  path = file.path("tables_figures_resources", "r_scenario_plot.png")
+name_mappings <- list(
+  interarrival_time = "Patient inter-arrival time",
+  number_of_doctors = "Number of doctors",
+  mean_wait_time_doctor = "Mean wait time for the doctor",
+  utilisation_doctor = "Mean utilisation",
+  mean_queue_length_doctor = "Mean queue length",
+  mean_time_in_system = "Mean patient time in the system",
+  mean_patients_in_system = "Mean number of patients in the system"
 )
 ```
+
+```{r}
+scenario_plots <- plot_metrics(
+  summary_tables = scenario_tables,
+  x_var = "interarrival_time",
+  colour_var = "number_of_doctors",
+  name_mappings = name_mappings,
+  path_prefix = file.path("tables_figures_resources", "r_scenario")
+)
+```
+
+::: {.panel-tabset}
+
+## Mean wait time
+
+```{r}
+scenario_plots[["mean_wait_time_doctor"]]
+```
+
+## Mean utilisation
+
+```{r}
+scenario_plots[["utilisation_doctor"]]
+```
+
+## Mean queue length
+
+```{r}
+scenario_plots[["mean_queue_length_doctor"]]
+```
+
+## Mean time in system
+
+```{r}
+scenario_plots[["mean_time_in_system"]]
+```
+
+## Mean patients in system
+
+```{r}
+scenario_plots[["mean_patients_in_system"]]
+```
+
+:::
+
+These plots look a little funny simple due to the wide confidence intervals - with very short run times and few replications in our illustrative example, the confidence intervals are very wide!
 
 ### Sensitivity analysis
 
 ```{r}
-plot_scenario(
-  summary_table = sensitivity_table,
+sensitivity_plots <- plot_metrics(
+  summary_tables = sensitivity_tables,
   x_var = "interarrival_time",
-  y_var = "mean",
-  colour_var = NULL,
-  xaxis_title = "Patient inter-arrival time",
-  yaxis_title = "Mean wait time for the doctor",
-  legend_title = NULL,
-  path = file.path("tables_figures_resources", "r_sensitivity_plot.png")
+  colour_var = "number_of_doctors",
+  name_mappings = name_mappings,
+  path_prefix = file.path("tables_figures_resources", "r_sensitivity")
 )
 ```
 
+::: {.panel-tabset}
+
+## Mean wait time
+
+```{r}
+sensitivity_plots[["mean_wait_time_doctor"]]
+```
+
+## Mean utilisation
+
+```{r}
+sensitivity_plots[["utilisation_doctor"]]
+```
+
+## Mean queue length
+
+```{r}
+sensitivity_plots[["mean_queue_length_doctor"]]
+```
+
+## Mean time in system
+
+```{r}
+sensitivity_plots[["mean_time_in_system"]]
+```
+
+## Mean patients in system
+
+```{r}
+sensitivity_plots[["mean_patients_in_system"]]
+```
+
 :::
+
+::::
 
 ## Explore the example models
 
