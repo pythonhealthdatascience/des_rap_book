@@ -104,7 +104,7 @@ It's important to include **all relevant metrics** when implementing this approa
 > * Mean time in consultation: Not impacted by initialisation bias
 > * Unseen (backlogged) patients: In the current model set-up, number of unseen patients is very low or zero, so this is not that useful in our consideration of initialisation bias. However, if your model configuration leads to significant backlogs, this metric could become relevant for warm-up analysis.
 
-::: {.python-content}
+:::: {.python-content}
 
 <br>
 
@@ -357,8 +357,8 @@ def run_warmup_analysis(
 ```{python}
 audit_results = run_warmup_analysis(
     audit_interval=10,
-    data_collection_period=20000,
-    number_of_runs=5
+    data_collection_period=14400,
+    number_of_runs=10
 )
 # Preview audit results
 HTML(to_html_datatable(audit_results.head(200)))
@@ -429,15 +429,41 @@ def plot_time_series(audit_results, metric, warmup_time=None):
     return fig
 ```
 
+::: {.panel-tabset}
+
+## Mean wait time
+
 ```{python}
 plot_time_series(audit_results, "wait_time", 3000)
-plot_time_series(audit_results, "time_in_system", 3000)
+```
+
+## Mean utilisation
+
+```{python}
 plot_time_series(audit_results, "utilisation", 3000)
+```
+
+## Mean queue length
+
+```{python}
 plot_time_series(audit_results, "queue_length", 3000)
+```
+
+## Mean time in system
+
+```{python}
+plot_time_series(audit_results, "time_in_system", 3000)
+```
+
+## Mean patients in system
+
+```{python}
 plot_time_series(audit_results, "patients_in_system", 3000)
 ```
 
 :::
+
+::::
 
 ::: {.r-content}
 
@@ -813,25 +839,23 @@ The plots are then arranged vertically in a single figure using `marrangeGrob()`
 
 If you've already built warm-up logic into your model (as we have done), make sure the **warm-up period is set to 0** for this assessment (`warm_up_period = 0`).
 
-As mentioned above, we have used multiple replications (`number_of_runs = 5`) and a long run length (`data_collection_period = 100000`). This run length is based on the assumption that our desired simulation run length is 2 weeks (20,160 minutes).
+As mentioned above, we have used multiple replications and a long run length. This run length is based on the assumption that our desired simulation run length is 1 day (1440 minutes).
 
 > So far, the model we have been constructing in this book has intentionally had a short duration. This is handy when developing - for example, for looking over the log messages. However, this is unrealistic of an actual simulation of a healthcare system, and will produce great variability (requiring very long warm-up / large number of replications for stable results). From this point onwards, we increase the run time as mentioned.
 
 ```{r}
 #| warning: false
 
-# Run model with base parameters for 5 replications with no warm-up and
-# long data collection period
 param <- create_params(warm_up_period = 0L,
-                       data_collection_period = 100000L,
-                       number_of_runs = 5L)
+                       data_collection_period = 14400L,
+                       number_of_runs = 10L)
 results <- runner(param = param)
 
 # Provide to time_series_inspection() function
 plots = time_series_inspection(
   result = results,
   file_path = file.path("length_warmup_resources", "r_length_warmup.png"),
-  warm_up = 40000L
+  warm_up = 6400L
 )
 ```
 
@@ -869,9 +893,15 @@ ggplotly(plots[[5L]])
 
 :::
 
-The selection of a warm-up period is **subjective**. In this example, we have suggested a value of 40,000, but this choice could be changed subject to discussion and evaluation of other metrics.
-
 ::::
+
+The selection of a warm-up period is **subjective**. The dotted red line shows our suggestion, but this choice could be changed subject to discussion and evaluation of other metrics.
+
+::: {.callout-note}
+
+In this example, we assumed a total run length of one day (1440 minutes) to illustrate how to determine an appropriate warm-up period. However, for the remainder of this book, we will return to using shorter parameters (i.e., 30 minute warm-up, 40 minute data collection period, 5 replications) to keep examples simple, quick to run, and easy to follow.
+
+:::
 
 ## Explore the example models
 
