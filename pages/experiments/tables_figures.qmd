@@ -139,8 +139,6 @@ kable(sensitivity) |> scroll_box(height = "400px")
 
 This function finds the average results from each experiment.
 
-In these examples, we've run it on the mean wait time for the doctor.
-
 :::: {.python-content}
 
 It uses the `summary_stats()` function introduced on the [Replications](../output_analysis/replications.qmd) page.
@@ -154,9 +152,9 @@ It uses the `summary_stats()` function introduced on the [Replications](../outpu
 :::
 
 ```{python}
-def summarise_scenarios(results, groups, result_var, path=None):
+def summarise_scenarios(results, groups, result_vars, path_prefix=None):
     """
-    Find the average results from each scenario.
+    Find the average results from each scenario for multiple metrics.
 
     Parameters
     ----------
@@ -164,105 +162,290 @@ def summarise_scenarios(results, groups, result_var, path=None):
         Run-level results from every scenario.
     groups : list
         List of columns to group by (provided as strings).
-    result_var : str
-        Performance measure to get results on.
-    path : str
-        Path to save table to.
+    result_vars : list
+        List of performance measures to get results on (provided as strings).
+    path_prefix : str, optional
+        Path prefix to save tables to. Each metric will be saved as 
+        {path_prefix}_{metric}.csv
 
     Returns
     -------
-    summary_table : pd.DataFrame
-        Average results from each scenario.
+    summary_tables : dict
+        Dictionary with metric names as keys and summary DataFrames as values.
     """
-    summary_table = (
-        results.groupby(groups)[result_var]
-        .apply(summary_stats)
-        .apply(pd.Series)
-        .reset_index()
-    )
-    summary_table.columns = (list(summary_table.columns[:-4]) +
-                             ["mean", "std_dev", "ci_lower", "ci_upper"])
-    if path:
-        summary_table.to_csv(path)
-    return summary_table
+    summary_tables = {}
+
+    for result_var in result_vars:
+        summary_table = (
+            results.groupby(groups)[result_var]
+            .apply(summary_stats)
+            .apply(pd.Series)
+            .reset_index()
+        )
+        summary_table.columns = (list(summary_table.columns[:-4]) +
+                                ["mean", "std_dev", "ci_lower", "ci_upper"])
+
+        # Add column to identify which metric this is
+        summary_table["metric"] = result_var
+
+        summary_tables[result_var] = summary_table
+
+        # Save if path provided
+        if path_prefix:
+            output_path = f"{path_prefix}_{result_var}.csv"
+            summary_table.to_csv(output_path, index=False)
+
+    return summary_tables
 ```
 
 ### Scenario analysis
 
 ```{python}
-scenario_table = summarise_scenarios(
-    scenario, groups=["scenario", "interarrival_time", "number_of_doctors"],
-    result_var="mean_wait_time",
-    path=os.path.join("tables_figures_resources", "python_scenario_table.csv")
-)
-HTML(to_html_datatable(scenario_table))
+result_variables = [
+    "mean_wait_time",
+    "mean_utilisation_tw",
+    "mean_queue_length",
+    "mean_time_in_system",
+    "mean_patients_in_system"
+]
 ```
+
+```{python}
+scenario_tables = summarise_scenarios(
+    results=scenario,
+    groups=["scenario", "interarrival_time", "number_of_doctors"],
+    result_vars=result_variables,
+    path_prefix=os.path.join("tables_figures_resources", "python_scenario")
+)
+```
+
+::: {.panel-tabset}
+
+## Mean wait time
+
+```{python}
+HTML(to_html_datatable(scenario_tables["mean_wait_time"]))
+```
+
+## Mean utilisation
+
+```{python}
+HTML(to_html_datatable(scenario_tables["mean_utilisation_tw"]))
+```
+
+## Mean queue length
+
+```{python}
+HTML(to_html_datatable(scenario_tables["mean_queue_length"]))
+```
+
+## Mean time in system
+
+```{python}
+HTML(to_html_datatable(scenario_tables["mean_time_in_system"]))
+```
+
+## Mean patients in system
+
+```{python}
+HTML(to_html_datatable(scenario_tables["mean_patients_in_system"]))
+```
+
+:::
 
 ### Sensitivity analysis
 
 ```{python}
-sensitivity_table = summarise_scenarios(
-    sensitivity, groups=["scenario", "interarrival_time"],
-    result_var="mean_wait_time",
-    path=os.path.join("tables_figures_resources",
-                      "python_sensitivity_table.csv")
+sensitivity_tables = summarise_scenarios(
+    results=sensitivity,
+    groups=["scenario", "interarrival_time"],
+    result_vars=result_variables,
+    path_prefix=os.path.join("tables_figures_resources", "python_sensitivity")
 )
-HTML(to_html_datatable(sensitivity_table))
 ```
+
+::: {.panel-tabset}
+
+## Mean wait time
+
+```{python}
+HTML(to_html_datatable(sensitivity_tables["mean_wait_time"]))
+```
+
+## Mean utilisation
+
+```{python}
+HTML(to_html_datatable(sensitivity_tables["mean_utilisation_tw"]))
+```
+
+## Mean queue length
+
+```{python}
+HTML(to_html_datatable(sensitivity_tables["mean_queue_length"]))
+```
+
+## Mean time in system
+
+```{python}
+HTML(to_html_datatable(sensitivity_tables["mean_time_in_system"]))
+```
+
+## Mean patients in system
+
+```{python}
+HTML(to_html_datatable(sensitivity_tables["mean_patients_in_system"]))
+```
+
+:::
 
 ::::
 
-::: {.r-content}
+:::: {.r-content}
 
 ```{r}
-#' Find the average results from each scenario
+#' Summarise multiple performance measures at once
 #'
 #' @param results Dataframe with results from each replication of scenarios.
-#' @param groups List of columns to group by (provided as strings).
-#' @param result_var Name of performance measure to get results on.
-#' @param path Path to save table to.
+#' @param groups Vector of grouping columns (as strings).
+#' @param result_vars Vector of performance measures to summarise (as strings).
+#' @param path_prefix Optional path prefix to save each table to.
 #'
-#' @return Dataframe with the average results from each scenario.
+#' @return A named list of summary data frames.
 
-summarise_scenario <- function(results, groups, result_var, path) {
-  summary_table <- results |>
-    group_by_at(groups) |>
-    summarise(mean = mean(.data[[result_var]]),
-              std_dev = sd(.data[[result_var]]),
-              ci_lower = t.test(.data[[result_var]])[["conf.int"]][[1L]],
-              ci_upper = t.test(.data[[result_var]])[["conf.int"]][[2L]])
-  write.csv(summary_table, path)
-  summary_table
+summarise_scenarios <- function(results, groups, result_vars, path_prefix = NULL) {
+  summary_tables <- list()
+
+  for (result_var in result_vars) {
+    summary_table <- results |>
+      group_by(across(all_of(groups))) |>
+      summarise(
+        mean = mean(.data[[result_var]], na.rm = TRUE),
+        std_dev = sd(.data[[result_var]], na.rm = TRUE),
+        ci_lower = t.test(.data[[result_var]])$conf.int[1],
+        ci_upper = t.test(.data[[result_var]])$conf.int[2],
+        .groups = "drop"
+      ) |>
+      mutate(metric = result_var)
+
+    # Save table if prefix specified
+    if (!is.null(path_prefix)) {
+      output_path <- paste0(path_prefix, "_", result_var, ".csv")
+      write.csv(summary_table, output_path, row.names = FALSE)
+    }
+
+    # Store in list
+    summary_tables[[result_var]] <- summary_table
+  }
+
+  return(summary_tables)
 }
 ```
 
 ### Scenario analysis
 
 ```{r}
-scenario_table <- summarise_scenario(
-  scenario, groups = c("scenario", "interarrival_time", "number_of_doctors"),
-  result_var = "mean_wait_time_doctor",
-  path = file.path("tables_figures_resources", "r_scenario_table.csv")
+result_variables = c(
+  "mean_wait_time_doctor",
+  "utilisation_doctor",
+  "mean_queue_length_doctor",
+  "mean_time_in_system",
+  "mean_patients_in_system"
 )
-kable(scenario_table)
 ```
 
-### Sensitivity analysis
+```{r}
+scenario_tables <- summarise_scenarios(
+  results = scenario,
+  groups = c("scenario", "interarrival_time", "number_of_doctors"),
+  result_vars = result_variables,
+  path_prefix = file.path("tables_figures_resources", "r_scenario")
+)
+```
+
+::: {.panel-tabset}
+
+## Mean wait time
 
 ```{r}
-sensitivity_table <- summarise_scenario(
-  sensitivity, groups = c("scenario", "interarrival_time"),
-  result_var = "mean_wait_time_doctor",
-  path = file.path("tables_figures_resources", "r_sensitivity_table.csv")
-)
-kable(sensitivity_table)
+kable(scenario_tables[["mean_wait_time_doctor"]])
+```
+
+## Mean utilisation
+
+```{r}
+kable(scenario_tables[["utilisation_doctor"]])
+```
+
+## Mean queue length
+
+```{r}
+kable(scenario_tables[["mean_queue_length_doctor"]])
+```
+
+## Mean time in system
+
+```{r}
+kable(scenario_tables[["mean_time_in_system"]])
+```
+
+## Mean patients in system
+
+```{r}
+kable(scenario_tables[["mean_patients_in_system"]])
 ```
 
 :::
 
+### Sensitivity analysis
+
+```{r}
+sensitivity_tables <- summarise_scenarios(
+  results = sensitivity,
+  groups = c("scenario", "interarrival_time"),
+  result_vars = result_variables,
+  path_prefix = file.path("tables_figures_resources", "r_sensitivity")
+)
+```
+
+::: {.panel-tabset}
+
+## Mean wait time
+
+```{r}
+kable(sensitivity_tables[["mean_wait_time_doctor"]])
+```
+
+## Mean utilisation
+
+```{r}
+kable(sensitivity_tables[["utilisation_doctor"]])
+```
+
+## Mean queue length
+
+```{r}
+kable(sensitivity_tables[["mean_queue_length_doctor"]])
+```
+
+## Mean time in system
+
+```{r}
+kable(sensitivity_tables[["mean_time_in_system"]])
+```
+
+## Mean patients in system
+
+```{r}
+kable(sensitivity_tables[["mean_patients_in_system"]])
+```
+
+:::
+
+::::
+
 ## Example figures
 
-::: {.python-content}
+:::: {.python-content}
 
 These functions are used to plot the results from the scenarios and sensitivity analysis.
 
@@ -299,20 +482,16 @@ def pale_colour(colour, alpha=0.2):
 ```
 
 ```{python}
-def plot_scenario(
-    summary_table, x_var, y_var, colour_var=None, name_mappings=None, path=None
+def plot_metrics(
+    summary_tables, colour_var=None, name_mappings=None, path_prefix=None
 ):
     """
     Plot results from different model scenarios.
 
     Parameters
     ----------
-    summary_table : pd.DataFrame
-        Average results from each scenario.
-    x_var : str
-        Name of variable to plot on X axis.
-    y_var : str
-        Name of variable with results, to plot on Y axis.
+    summary_tables : dict
+        Dictionary with metric names as keys and summary DataFrames as values.
     colour_var : str, optional
         Name of variable to colour lines with.
     name_mappings : dict, optional
@@ -320,195 +499,364 @@ def plot_scenario(
         function will default to variable names.
     path : str
         Path to save figure to.
+
+    Returns
+    -------
+    figs : dict
+        Dictionary with metric names as keys and plotly figures as values.
     """
-    # Initialise figure
-    fig = go.Figure()
+    figs = {}
 
-    # Handling color mappings (optional)
-    if colour_var:
-        unique_groups = summary_table[colour_var].unique()
-        colours = px.colors.qualitative.Plotly
-        colour_map = {
-            group: colours[i % len(colours)]
-            for i, group in enumerate(unique_groups)
-        }
-    else:
-        colour_map = {None: "blue"}
+    for metric_name, summary_table in summary_tables.items():
 
-    # Plot each scenario line and its shaded confidence interval
-    if colour_var:
-        groups = summary_table.groupby(colour_var)
-    else:
-        groups = [(None, summary_table)]
-    for group_name, group_data in groups:
-        x = group_data[x_var].values
-        mean = group_data["mean"].values
-        ci_upper = group_data["ci_upper"].values
-        ci_lower = group_data["ci_lower"].values
-        main_colour = colour_map[group_name]
-        shade_colour = pale_colour(main_colour, alpha=0.2)
+        # Initialise figure
+        fig = go.Figure()
 
-        # Filled confidence interval region
-        fig.add_trace(go.Scatter(
-            x=np.concatenate([x, x[::-1]]),
-            y=np.concatenate([ci_upper, ci_lower[::-1]]),
-            fill="toself",
-            fillcolor=shade_colour,
-            line={"color": "rgba(255,255,255,0)"},
-            showlegend=False,
-            name="95% CI",
-            hoverinfo="name+y"
-        ))
+        # Handling color mappings (optional)
+        if colour_var:
+            unique_groups = summary_table[colour_var].unique()
+            colours = px.colors.qualitative.Plotly
+            colour_map = {
+                group: colours[i % len(colours)]
+                for i, group in enumerate(unique_groups)
+            }
+        else:
+            colour_map = {None: "blue"}
 
-        # Mean line
-        fig.add_trace(go.Scatter(
-            x=x,
-            y=mean,
-            mode="lines",
-            line={"color": main_colour, "width": 2},
-            name=group_name,
-            hoverinfo="y"
-        ))
+        # Plot each scenario line and its shaded confidence interval
+        if colour_var:
+            groups = summary_table.groupby(colour_var)
+        else:
+            groups = [(None, summary_table)]
+        for group_name, group_data in groups:
+            x = group_data["interarrival_time"].values
+            mean = group_data["mean"].values
+            ci_upper = group_data["ci_upper"].values
+            ci_lower = group_data["ci_lower"].values
+            main_colour = colour_map[group_name]
+            shade_colour = pale_colour(main_colour, alpha=0.2)
 
-    # Set labels and layout
-    fig.update_layout(
-        xaxis_title=(name_mappings.get(x_var, x_var)
-                     if name_mappings else x_var),
-        yaxis_title=(name_mappings.get(y_var, y_var)
-                     if name_mappings else y_var),
-        legend_title_text=(name_mappings.get(colour_var, colour_var)
-                           if colour_var and name_mappings
-                           else (colour_var if colour_var else None)),
-        template="plotly_white"
-    )
+            # Filled confidence interval region
+            fig.add_trace(go.Scatter(
+                x=np.concatenate([x, x[::-1]]),
+                y=np.concatenate([ci_upper, ci_lower[::-1]]),
+                fill="toself",
+                fillcolor=shade_colour,
+                line={"color": "rgba(255,255,255,0)"},
+                showlegend=False,
+                name="95% CI",
+                hoverinfo="name+y"
+            ))
 
-    if not colour_var:
-        fig.update_layout(showlegend=False)
+            # Mean line
+            fig.add_trace(go.Scatter(
+                x=x,
+                y=mean,
+                mode="lines",
+                line={"color": main_colour, "width": 2},
+                name=group_name,
+                hoverinfo="y"
+            ))
 
-    # Save figure if path is provided
-    if path:
-        fig.write_image(path)
+        # Set labels and layout
+        fig.update_layout(
+            xaxis_title=(
+                name_mappings.get("interarrival_time", "interarrival_time")
+                if name_mappings else "interarrival_time"
+            ),
+            yaxis_title=(
+                name_mappings.get(metric_name, metric_name)
+                if name_mappings else metric_name
+            ),
+            legend_title_text=(
+                name_mappings.get(colour_var, colour_var)
+                if colour_var and name_mappings
+                else (colour_var if colour_var else None)
+            ),
+            template="plotly_white"
+        )
 
-    return fig
+        if not colour_var:
+            fig.update_layout(showlegend=False)
+
+        figs[metric_name] = fig
+
+        # Save if path provided
+        if path_prefix:
+            output_path = f"{path_prefix}_{metric_name}.png"
+            fig.write_image(output_path)
+
+    return figs
 ```
 
 ### Scenario analysis
 
 ```{python}
-scenario_plot = plot_scenario(
-    summary_table=scenario_table,
-    x_var="interarrival_time",
-    y_var="mean",
-    colour_var="number_of_doctors",
-    name_mappings={
-        "interarrival_time": "Patient inter-arrival time",
-        "mean": "Mean wait time for the doctor",
-        "number_of_doctors": "Number of doctors"
-    },
-    path=os.path.join("tables_figures_resources", "python_scenario_plot.png")
-)
-scenario_plot.show()
+name_mappings = {
+    "interarrival_time": "Patient inter-arrival time",
+    "number_of_doctors": "Number of doctors",
+    "mean_wait_time": "Mean wait time for the doctor",
+    "mean_utilisation_tw": "Mean utilisation",
+    "mean_queue_length": "Mean queue length",
+    "mean_time_in_system": "Mean patient time in the system",
+    "mean_patients_in_system": "Mean number of patients in the system"
+}
 ```
+
+```{python}
+scenario_plots = plot_metrics(
+    summary_tables=scenario_tables,
+    colour_var="number_of_doctors",
+    name_mappings=name_mappings,
+    path_prefix=os.path.join("tables_figures_resources", "python_scenario")
+)
+```
+
+::: {.panel-tabset}
+
+## Mean wait time
+
+```{python}
+scenario_plots["mean_wait_time"]
+```
+
+## Mean utilisation
+
+```{python}
+scenario_plots["mean_utilisation_tw"]
+```
+
+## Mean queue length
+
+```{python}
+scenario_plots["mean_queue_length"]
+```
+
+## Mean time in system
+
+```{python}
+scenario_plots["mean_time_in_system"]
+```
+
+## Mean patients in system
+
+```{python}
+scenario_plots["mean_patients_in_system"]
+```
+
+:::
 
 ### Sensitivity analysis
 
 ```{python}
-sensitivity_plot = plot_scenario(
-    summary_table=sensitivity_table,
-    x_var="interarrival_time",
-    y_var="mean",
-    name_mappings={
-        "interarrival_time": "Patient inter-arrival time",
-        "mean": "Mean wait time for the doctor"
-    },
-    path=os.path.join("tables_figures_resources",
-                      "python_sensitivity_plot.png")
+sensitivity_plots = plot_metrics(
+    summary_tables=sensitivity_tables,
+    name_mappings=name_mappings,
+    path_prefix=os.path.join("tables_figures_resources", "python_sensitivity")
 )
-sensitivity_plot.show()
+```
+
+::: {.panel-tabset}
+
+## Mean wait time
+
+```{python}
+sensitivity_plots["mean_wait_time"]
+```
+
+## Mean utilisation
+
+```{python}
+sensitivity_plots["mean_utilisation_tw"]
+```
+
+## Mean queue length
+
+```{python}
+sensitivity_plots["mean_queue_length"]
+```
+
+## Mean time in system
+
+```{python}
+sensitivity_plots["mean_time_in_system"]
+```
+
+## Mean patients in system
+
+```{python}
+sensitivity_plots["mean_patients_in_system"]
 ```
 
 :::
+
+::::
 
 ::: {.r-content}
 
 This function is used to plot the results from the scenarios and sensitivity analysis.
 
 ```{r}
-#' Plot results from different model scenarios.
+#' Plot multiple performance measures at once
 #'
-#' @param summary_table Dataframe with average results from each scenario.
+#' @param summary_tables Named list of summary tables, one per metric (like output from summarise_scenarios()).
 #' @param x_var Name of variable to plot on x axis.
-#' @param y_var Name of variable with results, to plot on y axis.
-#' @param colour_var Name of variable to colour lines with.
-#' @param xaxis_title Title for x axis.
-#' @param yaxis_title Title for y axis.
-#' @param legend_title Title for figure legend.
-#' @param path Path to save figure to.
+#' @param colour_var Name of variable to colour lines with (can be NULL).
+#' @param name_mappings Optional named list for prettier axis/legend labels.
+#' @param path_prefix Optional path prefix to save figures.
+#' @return Named list of ggplot objects
 
-plot_scenario <- function(
-  summary_table, x_var, y_var, colour_var,
-  xaxis_title, yaxis_title, legend_title, path
+plot_metrics <- function(
+  summary_tables, x_var, colour_var = NULL,
+  name_mappings = NULL, path_prefix = NULL
 ) {
-  if (!is.null(colour_var)) {
-    # Convert colour variable to a factor so its treated as categorical
-    summary_table[[colour_var]] <- as.factor(summary_table[[colour_var]])
-    # Plot with colour groups
-    p <- ggplot(summary_table, aes(x = .data[[x_var]], y = .data[[y_var]],
-                                   group = .data[[colour_var]])) +
-      geom_line(aes(color = .data[[colour_var]])) +
-      geom_ribbon(aes(ymin = .data[["ci_lower"]], ymax = .data[["ci_upper"]],
-                      fill = .data[[colour_var]]), alpha = 0.1)
-  } else {
-    # Plot without colour groups
-    p <- ggplot(summary_table, aes(x = .data[[x_var]], y = .data[[y_var]])) +
-      geom_line() +
-      geom_ribbon(aes(ymin = .data[["ci_lower"]], ymax = .data[["ci_upper"]],
-                      alpha = 0.1), show.legend = FALSE)
+  plot_list <- list()
+
+  for (metric_name in names(summary_tables)) {
+    summary_table <- summary_tables[[metric_name]]
+
+    y_var <- "mean"
+    ci_lower <- "ci_lower"
+    ci_upper <- "ci_upper"
+
+    xaxis_title <- if (!is.null(name_mappings[[x_var]])) name_mappings[[x_var]] else x_var
+    yaxis_title <- if (!is.null(name_mappings[[metric_name]])) name_mappings[[metric_name]] else metric_name
+    legend_title <- if (!is.null(colour_var) && !is.null(name_mappings[[colour_var]])) name_mappings[[colour_var]] else colour_var
+
+    if (!is.null(colour_var)) {
+      summary_table[[colour_var]] <- as.factor(summary_table[[colour_var]])
+      p <- ggplot(summary_table, aes_string(x = x_var, y = y_var, group = colour_var, color = colour_var, fill = colour_var)) +
+        geom_line() +
+        geom_ribbon(aes_string(ymin = ci_lower, ymax = ci_upper), alpha = 0.1) +
+        labs(x = xaxis_title, y = yaxis_title, color = legend_title, fill = legend_title) +
+        theme_minimal()
+    } else {
+      p <- ggplot(summary_table, aes_string(x = x_var, y = y_var)) +
+        geom_line() +
+        geom_ribbon(aes_string(ymin = ci_lower, ymax = ci_upper), alpha = 0.1, show.legend = FALSE) +
+        labs(x = xaxis_title, y = yaxis_title) +
+        theme_minimal()
+    }
+
+    # Save plot if prefix supplied
+    if (!is.null(path_prefix)) {
+      output_path <- paste0(path_prefix, "_", metric_name, ".png")
+      ggsave(filename = output_path, plot = p, width = 6.5, height = 4, bg = "white")
+    }
+
+    plot_list[[metric_name]] <- p
   }
-  # Modify labels and style
-  p <- p +
-    labs(x = xaxis_title, y = yaxis_title, color = legend_title,
-         fill = legend_title) +
-    theme_minimal()
 
-  # Save plot
-  ggsave(filename = path, width = 6.5, height = 4L, bg = "white")
-
-  p
+  return(plot_list)
 }
 ```
 
 ### Scenario analysis
 
 ```{r}
-plot_scenario(
-  summary_table = scenario_table,
-  x_var = "interarrival_time",
-  y_var = "mean",
-  colour_var = "number_of_doctors",
-  xaxis_title = "Patient inter-arrival time",
-  yaxis_title = "Mean wait time for the doctor",
-  legend_title = "Number of doctors",
-  path = file.path("tables_figures_resources", "r_scenario_plot.png")
+name_mappings <- list(
+  interarrival_time = "Patient inter-arrival time",
+  number_of_doctors = "Number of doctors",
+  mean_wait_time_doctor = "Mean wait time for the doctor",
+  utilisation_doctor = "Mean utilisation",
+  mean_queue_length_doctor = "Mean queue length",
+  mean_time_in_system = "Mean patient time in the system",
+  mean_patients_in_system = "Mean number of patients in the system"
 )
 ```
+
+```{r}
+scenario_plots <- plot_metrics(
+  summary_tables = scenario_tables,
+  x_var = "interarrival_time",
+  colour_var = "number_of_doctors",
+  name_mappings = name_mappings,
+  path_prefix = file.path("tables_figures_resources", "r_scenario")
+)
+```
+
+::: {.panel-tabset}
+
+## Mean wait time
+
+```{r}
+scenario_plots[["mean_wait_time_doctor"]]
+```
+
+## Mean utilisation
+
+```{r}
+scenario_plots[["utilisation_doctor"]]
+```
+
+## Mean queue length
+
+```{r}
+scenario_plots[["mean_queue_length_doctor"]]
+```
+
+## Mean time in system
+
+```{r}
+scenario_plots[["mean_time_in_system"]]
+```
+
+## Mean patients in system
+
+```{r}
+scenario_plots[["mean_patients_in_system"]]
+```
+
+:::
+
+These plots look a little funny simple due to the wide confidence intervals - with very short run times and few replications in our illustrative example, the confidence intervals are very wide!
 
 ### Sensitivity analysis
 
 ```{r}
-plot_scenario(
-  summary_table = sensitivity_table,
+sensitivity_plots <- plot_metrics(
+  summary_tables = sensitivity_tables,
   x_var = "interarrival_time",
-  y_var = "mean",
-  colour_var = NULL,
-  xaxis_title = "Patient inter-arrival time",
-  yaxis_title = "Mean wait time for the doctor",
-  legend_title = NULL,
-  path = file.path("tables_figures_resources", "r_sensitivity_plot.png")
+  name_mappings = name_mappings,
+  path_prefix = file.path("tables_figures_resources", "r_sensitivity")
 )
 ```
 
+::: {.panel-tabset}
+
+## Mean wait time
+
+```{r}
+sensitivity_plots[["mean_wait_time_doctor"]]
+```
+
+## Mean utilisation
+
+```{r}
+sensitivity_plots[["utilisation_doctor"]]
+```
+
+## Mean queue length
+
+```{r}
+sensitivity_plots[["mean_queue_length_doctor"]]
+```
+
+## Mean time in system
+
+```{r}
+sensitivity_plots[["mean_time_in_system"]]
+```
+
+## Mean patients in system
+
+```{r}
+sensitivity_plots[["mean_patients_in_system"]]
+```
+
 :::
+
+::::
 
 ## Explore the example models
 

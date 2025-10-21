@@ -20,9 +20,9 @@ filters:
 
 **Pre-reading:**
 
-This page continues on from: [Length of warm-up](length_warmup.qmd).
+This page continues on from: [Replications](replications.qmd).
 
-> *Entity generation → Entity processing → Initialisation bias → Performance measures → Replications → Length of warm-up → Number of replications*
+> *Entity generation → Entity processing → Initialisation bias → Performance measures → Replications → Number of replications*
 
 **Required packages:**
 
@@ -54,6 +54,7 @@ pio.renderers.default = "plotly_mimetype"
 ```{r}
 #| output: false
 library(dplyr)
+library(kableExtra)
 library(knitr)
 library(R6)
 library(simmer)
@@ -84,76 +85,23 @@ When selecting the number of replications you should **repeat the analysis for a
 
 We'll show two ways of implementing this: **manually** and **automated**.
 
-### Simulation code
+## Simulation code
 
-The simulation being used is that from the [Replications](replications.qmd) page - but the `Parameters` class has been updated based on the determined [length of warm-up](length_warmup.qmd) on the previous page, and a data collection period of 2 weeks (20,160 minutes).
+The simulation being used is that from the [Replications](replications.qmd) page.
 
-::: {.python-content}
+::: {.callout-note}
 
-<!--TODO: Once Tom updates sim-tools, import functions at start of script from sim-tools rather than here from local file-->
-```{python}
-#| echo: false
-{{< include n_reps_resources/output_analysis.py >}}
-```
+On this page, we will use a longer warm-up and run length than the short illustrative values used earlier (i.e., 30 minute warm-up, 40 minute data collection).
 
-```{python}
-class Parameters:
-    """
-    Parameter class.
+We are not using the previously determined warm-up length, but have simply chosen reasonably long values for this example. Very short runs, like 30/40 minutes, will be unstable and need many replications to achieve reliable outcomes.
 
-    Attributes
-    ----------
-    interarrival_time : float
-        Mean time between arrivals (minutes).
-    consultation_time : float
-        Mean length of doctor's consultation (minutes).
-    number_of_doctors : int
-        Number of doctors.
-    warm_up_period : int
-        Duration of the warm-up period (minutes).
-    data_collection_period : int
-        Duration of the data collection period (minutes).
-    number_of_runs : int
-        The number of runs (i.e., replications).
-    verbose : bool
-        Whether to print messages as simulation runs.
-    """
-    def __init__(
-        self, interarrival_time=5, consultation_time=10, number_of_doctors=3,
-        warm_up_period=15000, data_collection_period=20160,#<<
-        number_of_runs=5, verbose=False
-    ):
-        """
-        Initialise Parameters instance.
+As before, these assumptions are for demonstration only, and in later examples we will return to the shorter parameter settings for simplicity.
 
-        Parameters
-        ----------
-        interarrival_time : float
-            Time between arrivals (minutes).
-        consultation_time : float
-            Length of consultation (minutes).
-        number_of_doctors : int
-            Number of doctors.
-        warm_up_period : int
-            Duration of the warm-up period (minutes).
-        data_collection_period : int
-            Duration of the data collection period (minutes).
-        number_of_runs : int
-            The number of runs (i.e., replications).
-        verbose : bool
-            Whether to print messages as simulation runs.
-        """
-        self.interarrival_time = interarrival_time
-        self.consultation_time = consultation_time
-        self.number_of_doctors = number_of_doctors
-        self.warm_up_period = warm_up_period
-        self.data_collection_period = data_collection_period
-        self.number_of_runs = number_of_runs
-        self.verbose = verbose
-```
+:::
 
 ```{python}
 #| echo: false
+{{< include replications_resources/parameters.py >}}
 {{< include replications_resources/patient.py >}}
 {{< include replications_resources/monitored_resource.py >}}
 {{< include replications_resources/model.py >}}
@@ -161,45 +109,9 @@ class Parameters:
 {{< include replications_resources/runner.py >}}
 ```
 
-:::
-
-::: {.r-content}
-
 ```{r}
-#' Generate parameter list.
-#'
-#' @param interarrival_time Numeric. Time between arrivals (minutes).
-#' @param consultation_time Numeric. Mean length of doctor's
-#'   consultation (minutes).
-#' @param number_of_doctors Numeric. Number of doctors.
-#' @param warm_up_period Numeric. Duration of the warm-up period (minutes).
-#' @param data_collection_period Numeric. Duration of the data collection
-#'   period (minutes).
-#' @param number_of_runs Numeric. The number of runs (i.e., replications).
-#' @param verbose Boolean. Whether to print messages as simulation runs.
-#'
-#' @return A named list of parameters.
-#' @export
-
-create_params <- function(
-  interarrival_time = 5L,
-  consultation_time = 10L,
-  number_of_doctors = 3L,
-  warm_up_period = 5000L, #<<
-  data_collection_period = 20000L, #<<
-  number_of_runs = 5L,
-  verbose = FALSE
-) {
-  list(
-    interarrival_time = interarrival_time,
-    consultation_time = consultation_time,
-    number_of_doctors = number_of_doctors,
-    warm_up_period = warm_up_period,
-    data_collection_period = data_collection_period,
-    number_of_runs = number_of_runs,
-    verbose = verbose
-  )
-}
+#| echo: false
+#| file: replications_resources/create_params.R
 ```
 
 ```{r}
@@ -209,17 +121,12 @@ create_params <- function(
 
 ```{r}
 #| echo: false
-#| file: replications_resources/calc_arrivals.R
-```
-
-```{r}
-#| echo: false
-#| file: replications_resources/calc_mean_wait.R
-```
-
-```{r}
-#| echo: false
 #| file: replications_resources/get_run_results.R
+```
+
+```{r}
+#| echo: false
+#| file: replications_resources/metrics.R
 ```
 
 ```{r}
@@ -232,19 +139,20 @@ create_params <- function(
 #| file: replications_resources/runner.R
 ```
 
-:::
 
 ## Manual inspection
 
-::: {.python-content}
+:::: {.python-content}
 
-To begin, we run our simulation model for multiple replications using our usual workflow. Here, we have set to run for 30 replications.
+To begin, we run our simulation model for multiple replications using our usual workflow. Here, we have set to run for 50 replications.
 
 For this analysis, we are interested in the mean results from each replication (`result["run"]`).
 
 ```{python}
 # Run simulation for multiple replications
-runner = Runner(param=Parameters(number_of_runs=30))
+runner = Runner(param=Parameters(warm_up_period=10000,
+                                 data_collection_period=10000,
+                                 number_of_runs=50))
 result = runner.run_reps()
 HTML(to_html_datatable(result["run"]))
 ```
@@ -253,43 +161,154 @@ HTML(to_html_datatable(result["run"]))
 
 We pass these results to the `confidence_interval_method` function from our [sim-tools](https://github.com/TomMonks/sim-tools) package.
 
-The `desired_precision` parameter is set to 0.1, which means we are interested in identifying when the percentage deviation of the confidence interval from the mean falls below 10%. *Note: This threshold is our default but relatively arbitrary. We are just using it to help us identify the point where results are stable enough.*
+::: {.callout-note title="`sim-tools` v1.0.0 workaround" collapse="true"}
+
+This page uses the (currently unreleased) `sim-tools` version 1.0.0. At present, a copy of the functions from this version are included. Once the new version is released, this work-around will be removed, as you will be able to install 1.0.0 from pypi/conda.
+
+<!--TODO: Once Tom updates sim-tools, import functions at start of script from sim-tools rather than here from local file-->
+
+```{python}
+{{< include n_reps_resources/output_analysis.py >}}
+```
+
+:::
+
+The `desired_precision` parameter is set to 0.1, which means we are interested in identifying when the percentage deviation of the confidence interval from the mean falls **below 10%**. *Note: This threshold is our default but relatively arbitrary. We are just using it to help us identify the point where results are stable enough.*
 
 ```{python}
 # Define metrics to inspect
-metrics = ["arrivals", "mean_wait_time"]
+metrics = ["mean_wait_time", "mean_utilisation_tw", "mean_queue_length",
+           "mean_time_in_system", "mean_patients_in_system"]
 
 # Run the confidence interval method
 confint_results = confidence_interval_method(
     replications=result["run"][metrics],
     desired_precision=0.1,
+    min_rep=5,
     decimal_places=6
 )
 ```
 
 <br>
 
-The function returns dataframes for each metric that include cumulative calculations: the mean, cumulative mean, standard deviation, confidence interval bounds, and the percentage deviation of the confidence interval from the mean (displayed in the far-right column).
+For each metric, the function returns:
 
-For example, looking at mean wait time...
+1. The number of replications required for **deviation to fall below 10%** (and must also be **higher than `min_rep`** set in `confidence_interval_method()`).
+2. A dataframe of cumulative calculations: the mean, cumulative mean, standard deviation, confidence interval bounds, and the percentage deviation of the confidence interval from the mean (displayed in the far-right column).
+
+::: {.panel-tabset}
+
+## Mean wait time
+
+```{python}
+print(confint_results["mean_wait_time"][0])
+```
 
 ```{python}
 HTML(to_html_datatable(confint_results["mean_wait_time"][1]))
 ```
 
+## Mean utilisation
+
+```{python}
+print(confint_results["mean_utilisation_tw"][0])
+```
+
+```{python}
+HTML(to_html_datatable(confint_results["mean_utilisation_tw"][1]))
+```
+
+## Mean queue length
+
+```{python}
+print(confint_results["mean_queue_length"][0])
+```
+
+```{python}
+HTML(to_html_datatable(confint_results["mean_queue_length"][1]))
+```
+
+## Mean time in system
+
+```{python}
+print(confint_results["mean_time_in_system"][0])
+```
+
+```{python}
+HTML(to_html_datatable(confint_results["mean_time_in_system"][1]))
+```
+
+## Mean patients in system
+
+```{python}
+print(confint_results["mean_patients_in_system"][0])
+```
+
+```{python}
+HTML(to_html_datatable(confint_results["mean_patients_in_system"][1]))
+```
+
+:::
+
 <br>
 
 To visualise when precision is achieved and check for stability, we can use the `plotly_confidence_interval_method` function from [sim-tools](https://github.com/TomMonks/sim-tools):
+
+::: {.panel-tabset}
+
+## Mean wait time
 
 ```{python}
 p = plotly_confidence_interval_method(
     n_reps=confint_results["mean_wait_time"][0],
     conf_ints=confint_results["mean_wait_time"][1],
-    metric_name="Wait Time")
+    metric_name="Mean Wait Time")
+p.update_layout(autosize=True, width=None, height=390)
+```
+
+## Mean utilisation
+
+```{python}
+p = plotly_confidence_interval_method(
+    n_reps=confint_results["mean_utilisation_tw"][0],
+    conf_ints=confint_results["mean_utilisation_tw"][1],
+    metric_name="Mean Utilisation")
+p.update_layout(autosize=True, width=None, height=390)
+```
+
+## Mean queue length
+
+```{python}
+p = plotly_confidence_interval_method(
+    n_reps=confint_results["mean_queue_length"][0],
+    conf_ints=confint_results["mean_queue_length"][1],
+    metric_name="Mean Queue Length")
+p.update_layout(autosize=True, width=None, height=390)
+```
+
+## Mean time in system
+
+```{python}
+p = plotly_confidence_interval_method(
+    n_reps=confint_results["mean_time_in_system"][0],
+    conf_ints=confint_results["mean_time_in_system"][1],
+    metric_name="Mean Time In System")
+p.update_layout(autosize=True, width=None, height=390)
+```
+
+## Mean patients in system
+
+```{python}
+p = plotly_confidence_interval_method(
+    n_reps=confint_results["mean_patients_in_system"][0],
+    conf_ints=confint_results["mean_patients_in_system"][1],
+    metric_name="Mean Patients In System")
 p.update_layout(autosize=True, width=None, height=390)
 ```
 
 :::
+
+::::
 
 :::: {.r-content}
 
@@ -303,7 +322,7 @@ For this analysis, we have created two functions `confidence_interval_method` an
 #' This could be altered to use WelfordStats and ReplicationTabuliser if
 #' desired, but currently is independent.
 #'
-#' @param replications Number of times to run the model.
+#' @param param List of parameters for the model.
 #' @param desired_precision Desired mean deviation from confidence interval.
 #' @param metric Name of performance metric to assess.
 #' @param verbose Boolean, whether to print messages about parameters.
@@ -315,10 +334,9 @@ For this analysis, we have created two functions `confidence_interval_method` an
 #' @export
 
 confidence_interval_method <- function(
-  replications, desired_precision, metric, verbose = TRUE
+  param, desired_precision, metric, verbose = TRUE
 ) {
   # Run model for specified number of replications
-  param <- create_params(number_of_runs = replications)
   if (isTRUE(verbose)) {
     print(param)
   }
@@ -329,7 +347,7 @@ confidence_interval_method <- function(
 
   # For each row in the dataframe, filter to rows up to the i-th replication
   # then perform calculations
-  for (i in 1L:replications) {
+  for (i in 1L:param[["number_of_runs"]]) {
 
     # Filter rows up to the i-th replication
     subset_data <- results[[metric]][1L:i]
@@ -386,7 +404,7 @@ confidence_interval_method <- function(
     message("Reached desired precision (", desired_precision, ") in ",
             n_reps, " replications.")
   } else {
-    warning("Running ", replications, " replications did not reach ",
+    warning("Running ", param[["number_of_runs"]], " replications did not reach ",
             "desired precision (", desired_precision, ").", call. = FALSE)
   }
   cumulative
@@ -448,29 +466,101 @@ plot_replication_ci <- function(
 :::
 
 ```{r}
-ci_df <- confidence_interval_method(
-  replications = 30L,
-  desired_precision = 0.1,
-  metric = "mean_wait_time_doctor"
-)
-kable(ci_df)
+metrics <- c("mean_wait_time_doctor", "utilisation_doctor",
+             "mean_queue_length_doctor", "mean_time_in_system",
+             "mean_patients_in_system")
+
+ci_df <- list()
+for (m in metrics) {
+  ci_df[[m]] <- confidence_interval_method(
+    param = create_params(warm_up_period = 10000L,
+                          data_collection_period = 10000L,
+                          number_of_runs = 50L),
+    desired_precision = 0.1,
+    metric = m,
+    verbose = FALSE
+  )
+}
 ```
 
-We specify `min_rep` - and though first meet desired precision at 10 replications, this is not stable - subsequently returns to above 0.1 - until 18 replications.
+::: {.panel-tabset}
+
+## Mean wait time
 
 ```{r}
+ci_df[["mean_wait_time_doctor"]] |>
+  kable() |>
+  scroll_box(height = "400px")
 plot_replication_ci(
-  conf_ints = ci_df,
-  yaxis_title = "Mean wait time for doctor",
-  min_rep = 18L
+  conf_ints = ci_df[["mean_wait_time_doctor"]],
+  yaxis_title = "Mean wait time",
+  min_rep = 5L
 )
 ```
+
+## Mean utilisation
+
+```{r}
+ci_df[["utilisation_doctor"]] |>
+  kable() |>
+  scroll_box(height = "400px")
+plot_replication_ci(
+  conf_ints = ci_df[["utilisation_doctor"]],
+  yaxis_title = "Utilisation",
+  min_rep = 5L
+)
+```
+
+## Mean queue length
+
+```{r}
+ci_df[["mean_queue_length_doctor"]] |>
+  kable() |>
+  scroll_box(height = "400px")
+plot_replication_ci(
+  conf_ints = ci_df[["mean_queue_length_doctor"]],
+  yaxis_title = "Mean queue length",
+  min_rep = 5L
+)
+```
+
+## Mean time in system
+
+```{r}
+ci_df[["mean_time_in_system"]] |>
+  kable() |>
+  scroll_box(height = "400px")
+plot_replication_ci(
+  conf_ints = ci_df[["mean_time_in_system"]],
+  yaxis_title = "Mean time in system",
+  min_rep = 5L
+)
+```
+
+## Mean patients in system
+
+```{r}
+ci_df[["mean_patients_in_system"]] |>
+  kable() |>
+  scroll_box(height = "400px")
+plot_replication_ci(
+  conf_ints = ci_df[["mean_patients_in_system"]],
+  yaxis_title = "Mean number of patients in system",
+  min_rep = 5L
+)
+```
+
+:::
 
 ::::
 
 ## Automated
 
 ::: {.python-content}
+
+<div class="h3-tight"></div>
+
+### Description of the algorithm
 
 Using the automated method, an algorithm will tell us the number of runs needed. We will use the `ReplicationsAlgorithm` class from [sim-tools](https://github.com/TomMonks/sim-tools).
 
@@ -480,7 +570,7 @@ Here's how it works:
 * After each run, it checks if the results are **stable enough**. It does this by looking at the percentage deviation of the confidence interval from the mean.
 * The algorithm also incorporates a **look-ahead period**, meaning it continues to run the simulation and check that results stay stable for the next few runs (and that this wasn't just a lucky one-off!).
 
-<br>
+### Model adapter
 
 The `ReplicationsAlgorithm` can be used on a variety of model structures - it just requires a standardised interface, as defined by the `ReplicationsAlgorithmModelAdapter` class in `sim-tools` 
 
@@ -563,42 +653,105 @@ adapter = SimulationAdapter(param=Parameters(), metrics=metrics)
 adapter.single_run(replication_number=0)
 ```
 
-<br>
+### Run algorithm
 
 We can then use this adapter to run `ReplicationsAlgorithm`.
 
 ```{python}
 # Set up model with adapter
-sim_model = SimulationAdapter(param=Parameters(), metrics=metrics)
+sim_model = SimulationAdapter(
+  param=Parameters(warm_up_period=10000,
+                   data_collection_period=10000),
+  metrics=metrics)
 
 # Set up and run the algorithm
 analyser = ReplicationsAlgorithm(
     alpha=0.05,
     half_width_precision=0.1,
-    initial_replications=3,
     look_ahead=5,
     replication_budget=100,
     verbose=False
 )
 nreps, summary_frame = analyser.select(model=sim_model, metrics=metrics)
+```
 
+<br>
+
+The algorithm returns:
+
+1. The number of replications required for each metric (here, assigned to `nreps`).
+2. A dataframe containing the cumulative results and deviations for each metric (in a single dataframe, here assigned to `summary_frame`).
+
+```{python}
 # View results
 print(nreps)
 HTML(to_html_datatable(summary_frame))
 ```
 
-Again, can use `plotly_confidence_interval_method` to create plots, for example:
+<br>
+
+Again, we can use `plotly_confidence_interval_method` to create plots.
+
+::: {.panel-tabset}
+
+## Mean wait time
 
 ```{python}
 p = plotly_confidence_interval_method(
     n_reps=nreps["mean_wait_time"],
     conf_ints=summary_frame[
         summary_frame["metric"] == "mean_wait_time"].reset_index(),
-    metric_name="Mean wait time")
+    metric_name="Mean Wait Time")
+p.update_layout(autosize=True, width=None, height=390)
+```
+
+## Mean utilisation
+
+```{python}
+p = plotly_confidence_interval_method(
+    n_reps=nreps["mean_utilisation_tw"],
+    conf_ints=summary_frame[
+        summary_frame["metric"] == "mean_utilisation_tw"].reset_index(),
+    metric_name="Mean Utilisation")
+p.update_layout(autosize=True, width=None, height=390)
+```
+
+## Mean queue length
+
+```{python}
+p = plotly_confidence_interval_method(
+    n_reps=nreps["mean_queue_length"],
+    conf_ints=summary_frame[
+        summary_frame["metric"] == "mean_queue_length"].reset_index(),
+    metric_name="Mean Queue Length")
+p.update_layout(autosize=True, width=None, height=390)
+```
+
+## Mean time in system
+
+```{python}
+p = plotly_confidence_interval_method(
+    n_reps=nreps["mean_time_in_system"],
+    conf_ints=summary_frame[
+        summary_frame["metric"] == "mean_time_in_system"].reset_index(),
+    metric_name="Mean Time In System")
+p.update_layout(autosize=True, width=None, height=390)
+```
+
+## Mean patients in system
+
+```{python}
+p = plotly_confidence_interval_method(
+    n_reps=nreps["mean_patients_in_system"],
+    conf_ints=summary_frame[
+        summary_frame["metric"] == "mean_patients_in_system"].reset_index(),
+    metric_name="Mean Patients In System")
 p.update_layout(autosize=True, width=None, height=390)
 ```
 
 :::
+
+::::
 
 :::: {.r-content}
 
@@ -827,7 +980,7 @@ ReplicationTabuliser <- R6Class("ReplicationTabuliser", list( # nolint: object_n
 
 ReplicationsAlgorithm <- R6Class("ReplicationsAlgorithm", list( # nolint: object_name_linter
 
-  #' @field param Model parameters (from parameters()).
+  #' @field param Model parameters.
   param = NA,
 
   #' @field metrics List of performance measure to track (should correspond to
@@ -873,7 +1026,7 @@ ReplicationsAlgorithm <- R6Class("ReplicationsAlgorithm", list( # nolint: object
   #' @param verbose Boolean, whether to print messages about parameters.
   initialize = function(
     param,
-    metrics = c("arrivals", "mean_wait_time_doctor"),
+    metrics,
     desired_precision = 0.1,
     initial_replications = 3L,
     look_ahead = 5L,
@@ -1116,7 +1269,11 @@ ReplicationsAlgorithm <- R6Class("ReplicationsAlgorithm", list( # nolint: object
 
 ```{r}
 # Set up algorithm
-alg <- ReplicationsAlgorithm$new(param = create_params())
+alg <- ReplicationsAlgorithm$new(
+  param = create_params(warm_up_period = 10000L,
+                        data_collection_period = 10000L),
+  metrics = metrics
+)
 
 # Run algorithm
 alg$select()
@@ -1125,18 +1282,68 @@ alg$select()
 alg$nreps
 
 # View full results table
-kable(alg$summary_table)
+alg$summary_table |>
+  kable() |>
+  scroll_box(height = "400px")
 ```
 
-We can use the function `plot_replication_ci` from above again to create a plot.
+<br>
+
+We can use the function `plot_replication_ci` from above again to create the plots.
+
+::: {.panel-tabset}
+
+## Mean wait time
 
 ```{r}
 plot_replication_ci(
   conf_ints = filter(alg$summary_table, metric == "mean_wait_time_doctor"),
-  yaxis_title = "Mean wait time for the doctor",
+  yaxis_title = "Mean wait time",
   min_rep = alg$nreps[["mean_wait_time_doctor"]]
 )
 ```
+
+## Mean utilisation
+
+```{r}
+plot_replication_ci(
+  conf_ints = filter(alg$summary_table, metric == "utilisation_doctor"),
+  yaxis_title = "Mean utilisation",
+  min_rep = alg$nreps[["utilisation_doctor"]]
+)
+```
+
+## Mean queue length
+
+```{r}
+plot_replication_ci(
+  conf_ints = filter(alg$summary_table, metric == "mean_queue_length_doctor"),
+  yaxis_title = "Mean queue length",
+  min_rep = alg$nreps[["mean_queue_length_doctor"]]
+)
+```
+
+## Mean time in system
+
+```{r}
+plot_replication_ci(
+  conf_ints = filter(alg$summary_table, metric == "mean_time_in_system"),
+  yaxis_title = "Mean time in system",
+  min_rep = alg$nreps[["mean_time_in_system"]]
+)
+```
+
+## Mean patients in system
+
+```{r}
+plot_replication_ci(
+  conf_ints = filter(alg$summary_table, metric == "mean_patients_in_system"),
+  yaxis_title = "Mean patients in system",
+  min_rep = alg$nreps[["mean_patients_in_system"]]
+)
+```
+
+:::
 
 ::::
 

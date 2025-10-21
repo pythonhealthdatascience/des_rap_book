@@ -46,7 +46,7 @@ Check it out at: **https://pythonhealthdatascience.github.io/des_rap_book/**.
 
 ## Getting started/Navigation
 
-* Visit the [DES RAP Book website](https://pythonhealthdatascience.github.io/des_rap_book/) for all tutorials and resources (also viewable locally as described below).
+* Visit the [DES RAP Book website](https://pythonhealthdatascience.github.io/des_rap_book/) for all tutorials and resources (also viewable locally as described in `CONTRIBUTING.md`).
 
 * The example model repositories linked from the book are:
     * [Python M/M/s example](https://github.com/pythonhealthdatascience/pydesrap_mms)

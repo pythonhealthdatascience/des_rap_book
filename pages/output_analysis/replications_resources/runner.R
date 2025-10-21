@@ -32,10 +32,15 @@ runner <- function(param) {
     lapply(results, function(x) x[["run_results"]])
   )
 
+  all_patients_in_system <- dplyr::bind_rows(
+    lapply(results, function(x) x[["patients_in_system"]])
+  )
+
   # Return a list containing the combined tables
   list(
     arrivals = all_arrivals,
     resources = all_resources,
-    run_results = all_run_results
+    run_results = all_run_results,
+    patients_in_system = all_patients_in_system
   )
 }

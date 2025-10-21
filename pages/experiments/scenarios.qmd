@@ -26,7 +26,7 @@ bibliography: scenarios_resources/references.bib
 
 This page continues on from: [Parallel processing](../output_analysis/parallel.qmd).
 
-> *Entity generation → Entity processing → Initialisation bias → Performance measures → Replications → Length of warm-up → Number of replications → Parallel processing → Scenario and sensitivity analysis*
+> *Entity generation → Entity processing → Initialisation bias → Performance measures → Replications → Parallel processing → Scenario and sensitivity analysis*
 
 **Required packages:**
 
@@ -103,7 +103,7 @@ In @Heather2025, six out of seven studies with scenarios lacked scenario code. T
 {{< include ../output_analysis/replications_resources/summary_stats.py >}}
 {{< include ../output_analysis/parallel_resources/runner.py >}}
 ```
-
+= 18
 ```{r}
 #| echo: false
 #| file: ../output_analysis/replications_resources/create_params.R
@@ -116,12 +116,7 @@ In @Heather2025, six out of seven studies with scenarios lacked scenario code. T
 
 ```{r}
 #| echo: false
-#| file: ../output_analysis/replications_resources/calc_arrivals.R
-```
-
-```{r}
-#| echo: false
-#| file: ../output_analysis/replications_resources/calc_mean_wait.R
+#| file: ../output_analysis/replications_resources/metrics.R
 ```
 
 ```{r}
@@ -378,7 +373,7 @@ scenarios <- list(
   number_of_doctors = c(3L, 4L, 5L)
 )
 scenario_results <- run_scenarios(
-  scenarios = scenarios, base_list = create_params(number_of_runs = 100L)
+  scenarios = scenarios, base_list = create_params()
 )
 
 # Save to CSV
@@ -433,7 +428,7 @@ HTML(to_html_datatable(sensitivity_results.head(200)))
 # Run sensitivity analysis
 sensitivity_results <- run_scenarios(
   scenarios = list(interarrival_time = c(4L, 4.5, 5L, 5.5, 6L, 6.5, 7L)),
-  base_list = create_params(number_of_runs = 100L)
+  base_list = create_params()
 )
 
 # Save to CSV
@@ -490,7 +485,7 @@ kable(sensitivity_results) |> scroll_box(height = "400px")
 | | |
 | - | - |
 | **Key files** | `notebooks/analysis.ipynb` |
-| **What to look for?** | These scenarios are run one-by-one in the Rmarkdown. They involve altering arrivals before running the simulation (5% increase in admissions), or changes in calculations (pooling beds). |
+| **What to look for?** | These scenarios are run one-by-one in the Jupyter notebook. They involve altering arrivals before running the simulation (5% increase in admissions), or changes in calculations (pooling beds). |
 : {tbl-colwidths="[20,80]"}
 :::
 

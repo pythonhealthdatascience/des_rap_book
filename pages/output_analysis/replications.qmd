@@ -265,26 +265,14 @@ No changes required.
 
 :::
 
-### Arrivals function
+### Functions to calculate different metrics
 
 No changes required.
 
-::: {.callout title="▶&nbsp;&nbsp;Arrivals function" collapse="true" style="minimal"}
+::: {.callout title="▶&nbsp;&nbsp;View metrics functions" collapse="true" style="minimal"}
 
 ```{r}
-#| file: replications_resources/calc_arrivals.R
-```
-
-:::
-
-### Wait time function
-
-No changes required.
-
-::: {.callout title="▶&nbsp;&nbsp;Wait time function" collapse="true" style="minimal"}
-
-```{r}
-#| file: replications_resources/calc_mean_wait.R
+#| file: replications_resources/metrics.R
 ```
 
 :::
@@ -323,14 +311,6 @@ It combines the results into unified output tables for arrivals, resources and r
 #| file: replications_resources/runner.R
 ```
 
-**Note:** If you are recording patients in service, just add:
-
-```
-all_patients_in_service <- dplyr::bind_rows(
-  lapply(results, function(x) x[["patients_in_service"]])
-)
-```
-
 ### Run the model
 
 ```{r}
@@ -342,6 +322,9 @@ result[["arrivals"]] |>
   scroll_box(height = "400px")
 kable(result[["resources"]]) |> scroll_box(height = "400px")
 kable(result[["run_results"]])
+result[["patients_in_system"]] |>
+  kable() |>
+  scroll_box(height = "400px")
 ```
 
 ::::

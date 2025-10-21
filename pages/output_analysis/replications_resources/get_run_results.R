@@ -14,7 +14,12 @@
 get_run_results <- function(results, run_number) {
   metrics <- list(
     calc_arrivals(results[["arrivals"]]),
-    calc_mean_wait(results[["arrivals"]])
+    calc_mean_wait(results[["arrivals"]]),
+    calc_mean_serve_length(results[["arrivals"]]),
+    calc_utilisation(results[["resources"]]),
+    calc_mean_queue_length(results[["arrivals"]]),
+    calc_mean_time_in_system(results[["arrivals"]]),
+    calc_mean_patients_in_system(results[["patients_in_system"]])
   )
   dplyr::bind_cols(tibble(replication = run_number), metrics)
 }

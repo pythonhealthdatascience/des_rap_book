@@ -62,6 +62,7 @@ library(dplyr)
 library(ggplot2)
 library(gridExtra)
 library(knitr)
+library(plotly)
 library(R6)
 library(simmer)
 library(tidyr)
@@ -103,7 +104,7 @@ It's important to include **all relevant metrics** when implementing this approa
 > * Mean time in consultation: Not impacted by initialisation bias
 > * Unseen (backlogged) patients: In the current model set-up, number of unseen patients is very low or zero, so this is not that useful in our consideration of initialisation bias. However, if your model configuration leads to significant backlogs, this metric could become relevant for warm-up analysis.
 
-::: {.python-content}
+:::: {.python-content}
 
 <br>
 
@@ -356,8 +357,8 @@ def run_warmup_analysis(
 ```{python}
 audit_results = run_warmup_analysis(
     audit_interval=10,
-    data_collection_period=20000,
-    number_of_runs=5
+    data_collection_period=14400,
+    number_of_runs=10
 )
 # Preview audit results
 HTML(to_html_datatable(audit_results.head(200)))
@@ -428,21 +429,49 @@ def plot_time_series(audit_results, metric, warmup_time=None):
     return fig
 ```
 
+::: {.panel-tabset}
+
+## Mean wait time
+
 ```{python}
 plot_time_series(audit_results, "wait_time", 3000)
-plot_time_series(audit_results, "time_in_system", 3000)
+```
+
+## Mean utilisation
+
+```{python}
 plot_time_series(audit_results, "utilisation", 3000)
+```
+
+## Mean queue length
+
+```{python}
 plot_time_series(audit_results, "queue_length", 3000)
+```
+
+## Mean time in system
+
+```{python}
+plot_time_series(audit_results, "time_in_system", 3000)
+```
+
+## Mean patients in system
+
+```{python}
 plot_time_series(audit_results, "patients_in_system", 3000)
 ```
 
 :::
 
+::::
+
 ::: {.r-content}
 
 ### Simulation code
 
-The simulation being used is that from the [Replications](replications.qmd) page.
+The simulation being used and edited on this page is that from the [Replications](replications.qmd) page.
+
+The parameter, warm-up, run results, model and runner functions are unchanged. However, we do need to make a change to the function used to calculate utilisation
 
 ```{r}
 #| echo: false
@@ -456,17 +485,12 @@ The simulation being used is that from the [Replications](replications.qmd) page
 
 ```{r}
 #| echo: false
-#| file: replications_resources/calc_arrivals.R
-```
-
-```{r}
-#| echo: false
-#| file: replications_resources/calc_mean_wait.R
-```
-
-```{r}
-#| echo: false
 #| file: replications_resources/get_run_results.R
+```
+
+```{r}
+#| echo: false
+#| file: length_warmup_resources/metrics.R
 ```
 
 ```{r}
@@ -477,6 +501,83 @@ The simulation being used is that from the [Replications](replications.qmd) page
 ```{r}
 #| echo: false
 #| file: replications_resources/runner.R
+```
+
+
+#### Functions to calculate different metrics
+
+We will re-use the `calc_utilisation` function to calculate utilisation at each timepoint. To enable this, we need to add two new arguments:
+
+* `groups` - previously we just grouped by resource, but we now want to also group by replication (as we are processing a full results table containing multiple replications).
+* `summarise` - previously we just returned the overall utilisation for a single run, but now we want to return the full dataframe with utilisation values at each timepoint.
+
+```{.r}
+#' Calculate the resource utilisation
+#'
+#' Utilisation is given by the total effective usage time (`in_use`) over
+#' the total time intervals considered (`dt`).
+#'
+#' Credit: The utilisation calculation is adapted from the
+#' `plot.resources.utilization()` function in simmer.plot 0.1.18, which is
+#' shared under an MIT Licence (Ucar I, Smeets B (2023). simmer.plot: Plotting
+#' Methods for 'simmer'. https://r-simmer.org
+#' https://github.com/r-simmer/simmer.plot.).
+#'
+#' @param resources Dataframe with times patients use or queue for resources.
+#' @param groups Optional list of columns to group by for the calculation.#<<
+#' @param summarise If TRUE, return overall utilisation. If FALSE, just#<<
+#' return the resource dataframe with the additional columns#<<
+#' interval_duration, effective_capacity and utilisation.#<<
+#'
+#' @importFrom dplyr across group_by mutate ungroup#<<
+#' @importFrom rlang .data
+#' @importFrom tidyr pivot_wider
+#' @importFrom tidyselect all_of#<<
+#'
+#' @return Tibble with columns containing result for each resource.
+#' @export
+
+calc_utilisation <- function(resources, groups = NULL, summarise = TRUE) {#<<
+
+  # Create list of grouping variables (always "resource" but can add others)#<<
+  group_vars <- c("resource", groups)#<<
+
+  # Calculate utilisation
+  util_df <- resources |>
+    group_by(across(all_of(group_vars))) |>#<<
+    mutate(
+      # Time between this row and the next
+      interval_duration = lead(.data[["time"]]) - .data[["time"]],
+      # Ensures effective capacity is never less than number of servers in
+      # use (in case of situations where servers may exceed "capacity").
+      effective_capacity = pmax(.data[["capacity"]], .data[["server"]]),
+      # Divide number of servers in use by effective capacity
+      # Set to NA if effective capacity is 0
+      utilisation = ifelse(.data[["effective_capacity"]] > 0L,
+                           .data[["server"]] / .data[["effective_capacity"]],
+                           NA_real_)
+    )
+
+  # If summarise = TRUE, find total utilisation#<<
+  if (summarise) {#<<
+    util_df |>
+      summarise(
+        # Multiply each utilisation by its own unique duration. The total of
+        # those is then divided by the total duration of all intervals.
+        # Hence, we are calculated a time-weighted average utilisation.
+        utilisation = (sum(.data[["utilisation"]] *
+                             .data[["interval_duration"]], na.rm = TRUE) /
+                         sum(.data[["interval_duration"]], na.rm = TRUE))
+      ) |>
+      pivot_wider(names_from = "resource",
+                  values_from = "utilisation",
+                  names_glue = "utilisation_{resource}") |>
+      ungroup()
+  } else {#<<
+    # If summarise = FALSE, just return util_df with no further processing#<<
+    ungroup(util_df)#<<
+  }#<<
+}
 ```
 
 ### Time series inspection function
@@ -508,10 +609,32 @@ time_series_inspection <- function(result, file_path, warm_up = NULL) {
   plot_list <- list()
   metrics <- list()
 
-  # Wait time of each patient at each time point
+  # Wait time of each patient at each timepoint
   metrics[[1L]] <- result[["arrivals"]] |>
-    rename(time = serve_start) |> # nolint
+    rename(time = serve_start) |>
     dplyr::select(all_of(c("replication", "time", "wait_time")))
+
+  # Utilisation at each timepoint
+  metrics[[2L]] <- calc_utilisation(
+        result[["resources"]],
+        groups = c("resource", "replication"),
+        summarise = FALSE
+    ) |>
+    dplyr::select(all_of(c("replication", "time", "utilisation")))
+
+  # Queue length at each timepoint
+  metrics[[3L]] <- result[["arrivals"]] |>
+    rename(time = start_time) |>
+    dplyr::select(all_of(c("replication", "time", "queue_on_arrival")))
+
+  # Time in system at each timepoint
+  metrics[[4L]] <- result[["arrivals"]] |>
+    rename(time = start_time) |>
+    dplyr::select(all_of(c("replication", "time", "time_in_system")))
+
+  # Patients in system at each timepoint
+  metrics[[5L]] <- result[["patients_in_system"]] |>
+    rename(patients_in_system = count)
 
   # Loop through all the dataframes in df_list
   for (i in seq_along(metrics)) {
@@ -557,15 +680,13 @@ time_series_inspection <- function(result, file_path, warm_up = NULL) {
     plot_list[[i]] <- p
   }
 
-  # Arrange plots in a single column
+  # Arrange plots in a single column and save to file
   combined_plot <- marrangeGrob(plot_list, ncol = 1L, nrow = length(plot_list),
                                 top = NULL)
-
-  # Save to file
   ggsave(file_path, combined_plot, width = 8L, height = 4L * length(plot_list))
 
-  # View plot
-  combined_plot
+  # Return plot list
+  plot_list
 }
 ```
 
@@ -606,17 +727,39 @@ The function has three inputs:
   plot_list <- list()
   metrics <- list()
 
-  # Wait time of each patient at each time point
+  # Wait time of each patient at each timepoint
   metrics[[1L]] <- result[["arrivals"]] |>
-    rename(time = serve_start) |> # nolint
-    dplyr::select(all_of(c("replication", "time", "wait_time")))
+    rename(time = serve_start) |>
+    select(all_of(c("replication", "time", "wait_time")))
+
+  # Utilisation at each timepoint
+  metrics[[2L]] <- calc_utilisation(
+        result[["resources"]],
+        groups = c("resource", "replication"),
+        summarise = FALSE
+    ) |>
+    select(all_of(c("replication", "time", "utilisation")))
+
+  # Queue length at each timepoint
+  metrics[[3L]] <- result[["arrivals"]] |>
+    rename(time = start_time) |>
+    select(all_of(c("replication", "time", "queue_on_arrival")))
+
+  # Time in system at each timepoint
+  metrics[[4L]] <- result[["arrivals"]] |>
+    rename(time = start_time) |>
+    select(all_of(c("replication", "time", "time_in_system")))
+
+  # Patients in system at each timepoint
+  metrics[[5L]] <- result[["patients_in_system"]] |>
+    rename(count = patients_in_system)
 ```
 
 The function begins by setting up empty lists to store plots and metrics.
 
-It then creates a dataframe for each metric to be inspected. It renames the time column (so consistent between `arrivals`/`resources`/etc.) and then selects the columns `replication`, `time` and the metric (`wait_time` in this example).
+It then creates a dataframe for each metric to be inspected. It renames the time column (so consistent between `arrivals`/`resources`/etc.) and then selects the columns `replication`, `time` and the metric.
 
-Our simple model just has arrivals (which is not applicable) and wait time. However, if you had other metrics like utilisation, you could add those to the `metrics` list at this step.
+Utilisation is slightly different, as we need to remake the dataframe of utilisation at each timepoint using `calc_utilisation()`, as this is not returned by Runner (as that just returns overall utilisation of run).
 
 <br>
 
@@ -680,15 +823,13 @@ This section creates the plot, which overlays the cumulative mean lines per repl
 <br>
 
 ```{.r}
-  # Arrange plots in a single column
+  # Arrange plots in a single column and save to file
   combined_plot <- marrangeGrob(plot_list, ncol = 1L, nrow = length(plot_list),
                                 top = NULL)
-
-  # Save to file
   ggsave(file_path, combined_plot, width = 8L, height = 4L * length(plot_list))
 
-  # View plot
-  combined_plot
+  # Return plot list
+  plot_list
 }
 ```
 
@@ -698,31 +839,69 @@ The plots are then arranged vertically in a single figure using `marrangeGrob()`
 
 If you've already built warm-up logic into your model (as we have done), make sure the **warm-up period is set to 0** for this assessment (`warm_up_period = 0`).
 
-As mentioned above, we have used multiple replications (`number_of_runs = 5`) and a long run length (`data_collection_period = 100000`). This run length is based on the assumption that our desired simulation run length is 2 weeks (20,160 minutes).
+As mentioned above, we have used multiple replications and a long run length. This run length is based on the assumption that our desired simulation run length is 1 day (1440 minutes).
 
 > So far, the model we have been constructing in this book has intentionally had a short duration. This is handy when developing - for example, for looking over the log messages. However, this is unrealistic of an actual simulation of a healthcare system, and will produce great variability (requiring very long warm-up / large number of replications for stable results). From this point onwards, we increase the run time as mentioned.
 
 ```{r}
 #| warning: false
 
-# Run model with base parameters for 5 replications with no warm-up and
-# long data collection period
 param <- create_params(warm_up_period = 0L,
-                       data_collection_period = 100000L,
-                       number_of_runs = 5L)
+                       data_collection_period = 14400L,
+                       number_of_runs = 10L)
 results <- runner(param = param)
 
 # Provide to time_series_inspection() function
-time_series_inspection(
+plots = time_series_inspection(
   result = results,
   file_path = file.path("length_warmup_resources", "r_length_warmup.png"),
-  warm_up = 15000L
+  warm_up = 6400L
 )
 ```
 
-The selection of a warm-up period is **subjective**. In this example, we have suggested a value of 15,000, but this choice could be changed subject to discussion and evaluation of other metrics.
+::: {.panel-tabset}
+
+## Mean wait time
+
+```{r}
+ggplotly(plots[[1L]])
+```
+
+## Mean utilisation
+
+```{r}
+ggplotly(plots[[2L]])
+```
+
+## Mean queue length
+
+```{r}
+ggplotly(plots[[3L]])
+```
+
+## Mean time in system
+
+```{r}
+ggplotly(plots[[4L]])
+```
+
+## Mean patients in system
+
+```{r}
+ggplotly(plots[[5L]])
+```
+
+:::
 
 ::::
+
+The selection of a warm-up period is **subjective**. The dotted red line shows our suggestion, but this choice could be changed subject to discussion and evaluation of other metrics.
+
+::: {.callout-note}
+
+In this example, we assumed a total run length of one day (1440 minutes) to illustrate how to determine an appropriate warm-up period. However, for the remainder of this book, we will return to using shorter parameters (i.e., 30 minute warm-up, 40 minute data collection period, 5 replications) to keep examples simple, quick to run, and easy to follow.
+
+:::
 
 ## Explore the example models
 
@@ -738,7 +917,7 @@ The selection of a warm-up period is **subjective**. In this example, we have su
 | | |
 | - | - |
 | **Key files** | `simulation/param.py`<br>`simulation/model.py`<br>`simulation/runner.py`<br>`notebooks/choosing_warmup.ipynb` |
-| **What to look for?** | This model also uses an audit approach, but this is currently a method within Model itself, and only runs on a few performance measures (but this will be updated, as above, to use `WarmupAuditor`). |
+| **What to look for?** | This model also uses an audit approach, but this is currently a method within Model itself, and only runs on a few performance measures (but this will be updated, as above, to use `WarmupAuditor`). <!--TODO: update once add more--> |
 : {tbl-colwidths="[20,80]"}
 :::
 
@@ -752,7 +931,7 @@ The selection of a warm-up period is **subjective**. In this example, we have su
 | | |
 | - | - |
 | **Key files** | `rmarkdown/choosing_warmup.md`<br>`R/choose_warmup.R`<br>`R/get_run_results.R` |
-| **What to look for?** | Uses time series inspection approach as above, but has extra metric: utilisation. This requires the `calc_utilisation()` function to accept a `groups` parameter, and to set `summarise` to False. |
+| **What to look for?** | Uses time series inspection approach as above, but currently just uses a few performance measures (but this will be updated to include more). <!--TODO: update once add more--> |
 : {tbl-colwidths="[20,80]"}
 :::
 
@@ -764,9 +943,7 @@ Not relevant - replicating an existing model described in a paper, so just used 
 
 ## Test yourself
 
-Try using/adapting the `time_series_inspection()` for your own simulation and identify a suitable length of warm-up.
-
-If you track additional performance metrics like resource utilisation or queue length, extend the function to run with these metrics also.
+Try using/adapting the code above for your own simulation and identify a suitable length of warm-up.
 
 ## References
 
