@@ -1,5 +1,5 @@
 ---
-title: ❌ Mathematical proof of correctness
+title: Mathematical proof of correctness
 ---
 
 {{< include ../../scripts/_reticulate-setup.md >}}
@@ -14,7 +14,7 @@ title: ❌ Mathematical proof of correctness
 
 **Learning objectives:**
 
-* TODO
+* Understand why and how to verify a model using mathematical proof of correctness.
 
 **Pre-reading:**
 
@@ -22,7 +22,7 @@ This page implements mathematical proof of correctness implemented on the [verif
 
 The test is run on the model from the [parallel processing](../output_analysis/parallel.qmd) page (likewise, also used on the [scenario and sensitivity analysis](../experiments/scenarios.qmd) page and [tests](tests.qmd) pages).
 
-> *Entity generation → Entity processing → Initialisation bias → Performance measures → Replications → Length of warm-up → Number of replications → Parallel processing → Mathematical proof of correctness*
+> *Entity generation → Entity processing → Initialisation bias → Performance measures → Replications → Parallel processing → Mathematical proof of correctness*
 
 **Required packages:**
 
@@ -65,6 +65,7 @@ library(future.apply)
 library(ggplot2)
 library(knitr)
 library(plotly)
+library(queueing)
 library(simmer)
 library(tidyr)
 ```
@@ -81,15 +82,9 @@ A mathematical model is a set of equations or formulas that describe how systems
 
 Real-world systems are often too complex for neat equations (e.g., variable arrivals, different service rules or other complex features). In these cases, discrete-event simulation allows us to better mimic the system. However, if your simulation is simple enough - or if you start with a basic model to verify your code (and later build in complexity) - you can use mathematical proof of correctness.
 
-The small example we've been building throughout this book is an instance of an **M/M/s queue model** (as is the nurse visit simulation example). For a reminder on what an M/M/s queue model is, see the section "*Find out more about M/M/s models*" on the [example conceptual models](../intro/examples.qmd) page. In the next section, we'll show how to verify our small example by comparing it to a mathematical model.
+The small example we've been building throughout this book is an instance of an **M/M/s queue model** (as is the nurse visit simulation example). For a reminder on what an M/M/s queue model is, see the section "*Find out more about M/M/s models*" on the [example conceptual models](../intro/examples.qmd) page. In the following sections, we'll show how to verify our small example by comparing it to a mathematical model.
 
-## How to verify the model against mathematical results
-
-::: {.python-content}
-
-<div class="h3-tight"></div>
-
-### Simulation code
+## Simulation code
 
 The model used is the same as that on the [parallel processing](../output_analysis/parallel.qmd) page - as also used on the [scenario and sensitivity analysis](../experiments/scenarios.qmd) and [tests](tests.qmd) pages.
 
@@ -98,7 +93,15 @@ The model used is the same as that on the [parallel processing](../output_analys
 #| echo: false
 ```
 
-### Mathematical M/M/s queue model
+```{r}
+#| file: "tests_resources/simulation.R"
+#| echo: false
+```
+
+
+## Mathematical M/M/s queue model
+
+::: {.python-content}
 
 The class implementing a mathematical M/M/s queue model is explained line-by-line below.
 
@@ -238,7 +241,7 @@ class MMSQueue:
         return 1 / (sum_part + server_term)
 ```
 
-#### Explaining `MMSQueue`
+### Explaining `MMSQueue`
 
 ```{.python}
 class MMSQueue:
@@ -426,7 +429,53 @@ First, we compute P0 which is the probability that the system is completely empt
         """
         # Sum for n = 0 to s-1
         sum_part = sum(
-            (self.lambda_over_mu**n) / math.factorial(n)
+            (self.lambda_over_mu**n) / math.factorial(n)# Validates a discrete event simulation of a healthcare M/M/S queue by
+# comparing simulation results to analytical queueing theory.
+#
+# Metrics (using standard queueing theory notation):
+# - ρ (rho): utilisation
+# - Lq: mean queue length
+# - W: mean time in system
+# - Wq: mean waiting
+#
+# Results must match theory with a 15% tolerance (accomodates stochasticity).
+# Tests are run across diverse parameter combinations and utilisation levels.
+# System stability requires arrival rate < number_of_servers * service_rate.
+
+
+#' Run simulation and return key performance indicators using standard queueing
+#' theory notation.
+#'
+#' The warm-up period should be sufficiently long to allow the system to reach
+#' steady-state before data collection begins.
+
+run_simulation_model <- function(
+  patient_inter, mean_n_consult_time, number_of_nurses
+) {
+  # Run simulation
+  param <- parameters(
+    patient_inter = patient_inter,
+    mean_n_consult_time = mean_n_consult_time,
+    number_of_nurses = number_of_nurses,
+    warm_up_period = 500L,
+    data_collection_period = 1500L,
+    number_of_runs = 100L,
+    scenario_name = 0L,
+    cores = 1L
+  )
+  run_results <- runner(param)[["run_results"]]
+
+  # Get overall results, using queueing theory notation in column names
+  results <- run_results |>
+    summarise(
+      RO = mean(.data[["utilisation_nurse"]]),
+      Lq = mean(.data[["mean_queue_length_nurse"]]),
+      W = mean(.data[["mean_time_in_system"]]),
+      Wq = mean(.data[["mean_waiting_time_nurse"]])
+    )
+  results
+}
+
             for n in range(self.num_servers)
         )
 
@@ -440,13 +489,52 @@ First, we compute P0 which is the probability that the system is completely empt
 
 This method calculates P0, which is the probability that the system is completely empty - i.e., no customers are waiting and all servers are idle.
 
-### Function to run the model
+:::
+
+::: {.r-content}
+
+In R, there is a package [queueing](https://cran.r-project.org/web/packages/queueing/index.html) which makes this task super easy!
+
+To create a theoretical M/M/s queue model, we first need to calculate lambda and mu based on our inter-arrival time and service times:
+
+```{r}
+# Example parameters
+interarrival_time <- 5
+service_length <- 5
+servers <- 2
+
+# Calculate lambda and mu
+lambda <- 1L / interarrival_time
+mu <- 1L / service_length
+```
+
+We can then use `queueing::NewInput.MMC()` to set-up an M/M/s (M/M/c) model. This function takes the arrival rate (`lambda`), service rate (`mu`) and the number of servers (`c`). There are two other parameters `n` and `method`, but we just specify the defaults here (0) (see [documentation](https://cran.r-project.org/web/packages/queueing/queueing.pdf) for more details).
+
+```{r}
+math_model <- queueing::NewInput.MMC(
+  lambda = lambda, mu = mu, c = servers, n = 0L, method = 0L
+)
+math_model
+```
+
+We then provide this model to `queueing::QueueingModel()`, which builds the model and returns the relevant calculations.
+
+```{r}
+math_results <- queueing::QueueingModel(math_model)
+math_results
+```
+
+:::
+
+## Function to run our simulation
 
 This function simply runs our simulation model and returns the relevant metrics, renamed to use queueing theory notation.
 
 We could have included this code as part of the test function below - but have just made it in a separate function to keep that test function a little simpler.
 
 Our short illustrative parameters (30 minute warm-up, 40 minute data collection, 5 replications) are very unstable, so we have increased them to get more reliable results for the comparison in this test.
+
+::: {.python-content}
 
 ```{python}
 def run_simulation_model(
@@ -504,7 +592,62 @@ run_simulation_model(interarrival_time=5,
                      number_of_doctors=3)
 ```
 
-### Verification test
+:::
+
+::: {.r-content}
+
+```{r}
+#' Run simulation and return key performance indicators using standard queueing
+#' theory notation.
+#'
+#' The warm-up period should be sufficiently long to allow the system to reach
+#' steady-state before data collection begins.
+#' 
+#' @param interarrival_time Mean time between arrivals (minutes).
+#' @param consultation_time Mean length of doctor's consultation (minutes).
+#' @param number_of_doctors Number of doctors.
+
+run_simulation_model <- function(
+  interarrival_time, consultation_time, number_of_doctors
+) {
+  # Run simulation
+  param <- create_params(
+    interarrival_time = interarrival_time,
+    consultation_time = consultation_time,
+    number_of_doctors = number_of_doctors,
+    warm_up_period = 2000L,
+    data_collection_period = 4000L,
+    number_of_runs = 20L,
+    verbose = FALSE,
+    cores = 1L
+  )
+  run_results <- runner(param)[["run_results"]]
+
+  # Get overall results, using queueing theory notation in column names
+  results <- run_results |>
+    summarise(
+      RO = mean(.data[["utilisation_doctor"]]),
+      Lq = mean(.data[["mean_queue_length_doctor"]]),
+      W = mean(.data[["mean_time_in_system"]]),
+      Wq = mean(.data[["mean_wait_time_doctor"]])
+    )
+  results
+}
+```
+
+For example:
+
+```{r}
+run_simulation_model(interarrival_time = 5L,
+                     consultation_time = 10L,
+                     number_of_doctors = 3L)
+```
+
+:::
+
+## Test comparing simulation with mathematical model results
+
+::: {.python-content}
 
 Our test function `test_simulation_against_theory()` uses `@pytest.mark.parametrize` to run several different test cases.
 
@@ -572,6 +715,29 @@ pytest.main(["tests_resources/test_mms.py"])
 
 :::
 
+::: {.r-content}
+
+Our test function uses `patrick` to run several different test cases.
+
+For each of these, it compares the results from the simulation model (from `run_simulation_model()`) with the results from the mathematical model from `queueing`, and checks they are reasonably similar.
+
+```{r}
+#| file: "tests_resources/test_mms.R"
+#| eval: false
+```
+
+```{r}
+#| echo: false
+#| output: false
+library(testthat)
+```
+
+```{r}
+#| echo: false
+testthat::test_file(file.path("tests_resources", "test_mms.R"))
+```
+
+:::
 
 ## Explore the example models
 
@@ -599,8 +765,7 @@ pytest.main(["tests_resources/test_mms.py"])
 ::: {.blue-table}
 | | |
 | - | - |
-| **Key files** | |
-| **What to look for?** | |
+| **Key files** | `tests/testthat/test-mms.R` |
 : {tbl-colwidths="[20,80]"}
 :::
 
