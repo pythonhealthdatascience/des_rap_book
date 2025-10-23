@@ -103,8 +103,10 @@ model <- function(param, run_number) {
                                            replication = run_number) 
 
   # Calculate wait time for each patient
-  result[["arrivals"]] <- result[["arrivals"]] |>
-    mutate(wait_time = .data[["serve_start"]] - .data[["start_time"]])
+  result[["arrivals"]] <- mutate(
+    result[["arrivals"]],
+    wait_time = .data[["serve_start"]] - .data[["start_time"]]
+  )
 
   # Calculate the average results for that run
   result[["run_results"]] <- get_run_results(result, run_number)
