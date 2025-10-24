@@ -8,6 +8,7 @@ bibliography: scenarios_resources/references.bib
 ```{python}
 #| echo: false
 # pylint: disable=too-many-locals,undefined-variable,unused-import
+# pylint: disable=pointless-statement
 ```
 
 :::: {.pale-blue}
@@ -165,7 +166,7 @@ def summarise_scenarios(results, groups, result_vars, path_prefix=None):
     result_vars : list
         List of performance measures to get results on (provided as strings).
     path_prefix : str, optional
-        Path prefix to save tables to. Each metric will be saved as 
+        Path prefix to save tables to. Each metric will be saved as
         {path_prefix}_{metric}.csv
 
     Returns
@@ -182,8 +183,10 @@ def summarise_scenarios(results, groups, result_vars, path_prefix=None):
             .apply(pd.Series)
             .reset_index()
         )
-        summary_table.columns = (list(summary_table.columns[:-4]) +
-                                ["mean", "std_dev", "ci_lower", "ci_upper"])
+        summary_table.columns = (
+            list(summary_table.columns[:-4]) +
+            ["mean", "std_dev", "ci_lower", "ci_upper"]
+        )
 
         # Add column to identify which metric this is
         summary_table["metric"] = result_var
@@ -312,7 +315,9 @@ HTML(to_html_datatable(sensitivity_tables["mean_patients_in_system"]))
 #'
 #' @return A named list of summary data frames.
 
-summarise_scenarios <- function(results, groups, result_vars, path_prefix = NULL) {
+summarise_scenarios <- function(
+  results, groups, result_vars, path_prefix = NULL
+) {
   summary_tables <- list()
 
   for (result_var in result_vars) {
@@ -321,8 +326,8 @@ summarise_scenarios <- function(results, groups, result_vars, path_prefix = NULL
       summarise(
         mean = mean(.data[[result_var]], na.rm = TRUE),
         std_dev = sd(.data[[result_var]], na.rm = TRUE),
-        ci_lower = t.test(.data[[result_var]])$conf.int[1],
-        ci_upper = t.test(.data[[result_var]])$conf.int[2],
+        ci_lower = t.test(.data[[result_var]])$conf.int[1L],
+        ci_upper = t.test(.data[[result_var]])$conf.int[2L],
         .groups = "drop"
       ) |>
       mutate(metric = result_var)
@@ -344,7 +349,7 @@ summarise_scenarios <- function(results, groups, result_vars, path_prefix = NULL
 ### Scenario analysis
 
 ```{r}
-result_variables = c(
+result_variables <- c(
   "mean_wait_time_doctor",
   "utilisation_doctor",
   "mean_queue_length_doctor",
@@ -699,7 +704,8 @@ This function is used to plot the results from the scenarios and sensitivity ana
 ```{r}
 #' Plot multiple performance measures at once
 #'
-#' @param summary_tables Named list of summary tables, one per metric (like output from summarise_scenarios()).
+#' @param summary_tables Named list of summary tables, one per metric
+#' (like output from summarise_scenarios()).
 #' @param x_var Name of variable to plot on x axis.
 #' @param colour_var Name of variable to colour lines with (can be NULL).
 #' @param name_mappings Optional named list for prettier axis/legend labels.
@@ -707,33 +713,46 @@ This function is used to plot the results from the scenarios and sensitivity ana
 #' @return Named list of ggplot objects
 
 plot_metrics <- function(
-  summary_tables, x_var, colour_var = NULL,
-  name_mappings = NULL, path_prefix = NULL
+  summary_tables, x_var, colour_var = NULL, name_mappings = NULL,
+  path_prefix = NULL
 ) {
+  # List to store plots for each metric
   plot_list <- list()
 
   for (metric_name in names(summary_tables)) {
+    # Extract relevant results table
     summary_table <- summary_tables[[metric_name]]
 
-    y_var <- "mean"
-    ci_lower <- "ci_lower"
-    ci_upper <- "ci_upper"
+    # Helper to map a variable to display name if available in `name_mappings`.
+    # Just uses variable name if no mapping is found.
+    get_name <- function(var) {
+      if (!is.null(var) && !is.null(name_mappings[[var]])) {
+        name_mappings[[var]]
+      } else {
+        var
+      }
+    }
+    xaxis_title <- get_name(x_var)
+    yaxis_title <- get_name(metric_name)
+    legend_title <- get_name(colour_var)
 
-    xaxis_title <- if (!is.null(name_mappings[[x_var]])) name_mappings[[x_var]] else x_var
-    yaxis_title <- if (!is.null(name_mappings[[metric_name]])) name_mappings[[metric_name]] else metric_name
-    legend_title <- if (!is.null(colour_var) && !is.null(name_mappings[[colour_var]])) name_mappings[[colour_var]] else colour_var
-
+    # Create plot, with or without grouping colour variable
     if (!is.null(colour_var)) {
       summary_table[[colour_var]] <- as.factor(summary_table[[colour_var]])
-      p <- ggplot(summary_table, aes_string(x = x_var, y = y_var, group = colour_var, color = colour_var, fill = colour_var)) +
+      p <- ggplot(summary_table,
+                  aes_string(x = x_var, y = "mean", group = colour_var,
+                  color = colour_var, fill = colour_var)) +
         geom_line() +
-        geom_ribbon(aes_string(ymin = ci_lower, ymax = ci_upper), alpha = 0.1) +
-        labs(x = xaxis_title, y = yaxis_title, color = legend_title, fill = legend_title) +
+        geom_ribbon(aes_string(ymin = "ci_lower", ymax = "ci_upper"),
+                    alpha = 0.1) +
+        labs(x = xaxis_title, y = yaxis_title, color = legend_title,
+             fill = legend_title) +
         theme_minimal()
     } else {
-      p <- ggplot(summary_table, aes_string(x = x_var, y = y_var)) +
+      p <- ggplot(summary_table, aes_string(x = x_var, y = "mean")) +
         geom_line() +
-        geom_ribbon(aes_string(ymin = ci_lower, ymax = ci_upper), alpha = 0.1, show.legend = FALSE) +
+        geom_ribbon(aes_string(ymin = "ci_lower", ymax = "ci_upper"),
+                    alpha = 0.1, show.legend = FALSE) +
         labs(x = xaxis_title, y = yaxis_title) +
         theme_minimal()
     }
@@ -741,7 +760,8 @@ plot_metrics <- function(
     # Save plot if prefix supplied
     if (!is.null(path_prefix)) {
       output_path <- paste0(path_prefix, "_", metric_name, ".png")
-      ggsave(filename = output_path, plot = p, width = 6.5, height = 4, bg = "white")
+      ggsave(filename = output_path, plot = p, width = 6.5, height = 4L,
+             bg = "white")
     }
 
     plot_list[[metric_name]] <- p

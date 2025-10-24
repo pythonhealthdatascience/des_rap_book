@@ -600,6 +600,7 @@ We have a new `time_series_inspection` function for this analysis, which is expl
 #' @importFrom ggplot2 ggplot geom_line aes_string labs theme_minimal
 #' @importFrom ggplot2 geom_vline annotate ggsave
 #' @importFrom gridExtra marrangeGrob
+#' @importFrom rlang .data
 #'
 #' @export
 
@@ -611,30 +612,28 @@ time_series_inspection <- function(result, file_path, warm_up = NULL) {
 
   # Wait time of each patient at each timepoint
   metrics[[1L]] <- result[["arrivals"]] |>
-    rename(time = serve_start) |>
+    rename(time = .data[["serve_start"]]) |>
     dplyr::select(all_of(c("replication", "time", "wait_time")))
 
   # Utilisation at each timepoint
-  metrics[[2L]] <- calc_utilisation(
-        result[["resources"]],
-        groups = c("resource", "replication"),
-        summarise = FALSE
-    ) |>
+  metrics[[2L]] <- calc_utilisation(result[["resources"]],
+                                    groups = c("resource", "replication"),
+                                    summarise = FALSE) |>
     dplyr::select(all_of(c("replication", "time", "utilisation")))
 
   # Queue length at each timepoint
   metrics[[3L]] <- result[["arrivals"]] |>
-    rename(time = start_time) |>
+    rename(time = .data[["start_time"]]) |>
     dplyr::select(all_of(c("replication", "time", "queue_on_arrival")))
 
   # Time in system at each timepoint
   metrics[[4L]] <- result[["arrivals"]] |>
-    rename(time = start_time) |>
+    rename(time = .data[["start_time"]]) |>
     dplyr::select(all_of(c("replication", "time", "time_in_system")))
 
   # Patients in system at each timepoint
-  metrics[[5L]] <- result[["patients_in_system"]] |>
-    rename(patients_in_system = count)
+  metrics[[5L]] <- rename(result[["patients_in_system"]],
+                          patients_in_system = .data[["count"]])
 
   # Loop through all the dataframes in df_list
   for (i in seq_along(metrics)) {
@@ -708,6 +707,7 @@ time_series_inspection <- function(result, file_path, warm_up = NULL) {
 #' @importFrom ggplot2 ggplot geom_line aes_string labs theme_minimal
 #' @importFrom ggplot2 geom_vline annotate ggsave
 #' @importFrom gridExtra marrangeGrob
+#' @importFrom rlang .data
 #'
 #' @export
 
@@ -729,30 +729,28 @@ The function has three inputs:
 
   # Wait time of each patient at each timepoint
   metrics[[1L]] <- result[["arrivals"]] |>
-    rename(time = serve_start) |>
+    rename(time = .data[["serve_start"]]) |>
     select(all_of(c("replication", "time", "wait_time")))
 
   # Utilisation at each timepoint
-  metrics[[2L]] <- calc_utilisation(
-        result[["resources"]],
-        groups = c("resource", "replication"),
-        summarise = FALSE
-    ) |>
+  metrics[[2L]] <- calc_utilisation(result[["resources"]],
+                                    groups = c("resource", "replication"),
+                                    summarise = FALSE) |>
     select(all_of(c("replication", "time", "utilisation")))
 
   # Queue length at each timepoint
   metrics[[3L]] <- result[["arrivals"]] |>
-    rename(time = start_time) |>
+    rename(time = .data[["start_time"]]) |>
     select(all_of(c("replication", "time", "queue_on_arrival")))
 
   # Time in system at each timepoint
   metrics[[4L]] <- result[["arrivals"]] |>
-    rename(time = start_time) |>
+    rename(time = .data[["start_time"]]) |>
     select(all_of(c("replication", "time", "time_in_system")))
 
   # Patients in system at each timepoint
-  metrics[[5L]] <- result[["patients_in_system"]] |>
-    rename(count = patients_in_system)
+  metrics[[5L]] <- rename(result[["patients_in_system"]],
+                          patients_in_system = .data[["count"]])
 ```
 
 The function begins by setting up empty lists to store plots and metrics.
@@ -852,7 +850,7 @@ param <- create_params(warm_up_period = 0L,
 results <- runner(param = param)
 
 # Provide to time_series_inspection() function
-plots = time_series_inspection(
+plots <- time_series_inspection(
   result = results,
   file_path = file.path("length_warmup_resources", "r_length_warmup.png"),
   warm_up = 6400L

@@ -21,6 +21,9 @@ bibliography: scenarios_resources/references.bib
 **Relevant reproducibility guidelines:**
 
 * STARS Reproducibility Recommendations (⭐): Provide code for all scenarios and sensitivity analyses.
+* STARS Reproducibility Recommendations: Save outputs to a file.
+* STARS Reproducibility Recommendations: Avoid excessive output files.
+* STARS Reproducibility Recommendations: Address large file sizes.
 
 **Pre-reading:**
 
@@ -440,6 +443,17 @@ kable(sensitivity_results) |> scroll_box(height = "400px")
 ```
 
 :::
+
+## Saving results
+
+Saving your simulation results to file is important for reproducility, as it allows others to verify your findings and generate consistent (or new) figures and analyses, even if they can't re-run your simulation.
+This practice is transparent, providing a clear record of what you found, and it is valuable for you as well, ensuring you always know exactly what results you obtained, and can regenerate your own tables and figures from the results.
+
+However, there are two key things to keep in mind:
+
+**1. Number of files.** Running many scenarios or replications can easily lead to an explosion of output files. Do not save each scenario or run as a separate file unless there is a specific need. Instead, combine all results into a **single file with columns marking scenario and replication IDs**. 
+
+**2. Avoid large file sizes.** Be strategic about what you save. For short tests and debugging, saving detailed ("patient-level") results makes sense. But for full-scale runs with many replications, those files can become unmanageably large. Generally, **save summary outputs** to file for analysis (e.g., means from each run), not massive raw datasets. If you absolutely need to save or share large files, use compressed formats (e.g., `csv.gz`). Also, keep in mind practical size limits for version control: for example, GitHub's individual file size limit is 100 MB.
 
 ## Explore the example models
 

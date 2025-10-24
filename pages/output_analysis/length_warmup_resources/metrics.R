@@ -104,7 +104,7 @@ calc_utilisation <- function(resources, groups = NULL, summarise = TRUE) {#<<
 
   # Calculate utilisation
   util_df <- resources |>
-    group_by(across(all_of(group_vars))) |>#<<
+    group_by(across(all_of(group_vars))) |> #<<
     mutate(
       # Time between this row and the next
       interval_duration = lead(.data[["time"]]) - .data[["time"]],

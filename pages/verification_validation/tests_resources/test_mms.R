@@ -2,7 +2,7 @@ library(patrick)
 library(testthat)
 
 
-patrick::with_parameters_test_that(
+with_parameters_test_that(
   "simulation is consistent with theoretical MMs queue calculations.",
   {
     # Create theoretical M/M/s queue model
@@ -44,7 +44,7 @@ patrick::with_parameters_test_that(
       )
     }
   },
-  patrick::cases(
+  cases(
     # Test case 1: Low utilisation (ρ ≈ 0.3)
     list(interarrival_time = 10L,
          consultation_time = 3L,
