@@ -87,7 +87,7 @@ Conceptual model validation
 
 Experimentation validation
 
-* [ ] Conduct warm-up analysis to determine appropriate initialisation period.
+* [ ] Use a warm-up period.
 * [ ] Use statistical methods to determine sufficient run length and number of replications.
 * [ ] Perform sensitivity analysis to test how changes in input parameters affect outputs.
 
