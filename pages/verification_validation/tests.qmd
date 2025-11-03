@@ -241,20 +241,7 @@ cases(
 
 :::
 
-We can identify other examples of functional tests from our [model verification](verification_validation.qmd) page. These include:
-
-* **Assertion checking** - tests check that assertions hold true.
-* **Stress testing** - tests simulate worst-case load and ensure model is robust under heavy demand.
-* **Boundary testing** - tests check that the behaviour at, just inside, and just outside each boundary (if you have input variables with explicit limits).
-* **Idle system** - tests run model with little or no activity/waits/service
-
-### Unit tests
-
-Unit tests are a type of functional testing that focuses on individual components (e.g. methods, classes) and tests them in isolation to ensure they work as intended.
-
-They can form part of "bottom-up" testing for model verification (see [verification and validation](verification_validation.qmd#bottom-up-testing) page).
-
-For example, we expect that our model should fail if the number of doctors or the patient inter-arrival time were set to 0. This is tested using `test_zero_inputs`:
+As another example, we expect that our model should fail if the number of doctors or the patient inter-arrival time were set to 0. This is tested using `test_zero_inputs`:
 
 :::: {.python-content}
 
@@ -290,6 +277,33 @@ testthat::test_file(file.path("tests_resources", "test_unit.R"))
 ```
 
 :::
+
+<br>
+
+We can identify other examples of functional tests from our [model verification](verification_validation.qmd) page. These include:
+
+* **Assertion checking** - tests check that assertions hold true.
+* **Stress testing** - tests simulate worst-case load and ensure model is robust under heavy demand.
+* **Boundary testing** - tests check that the behaviour at, just inside, and just outside each boundary (if you have input variables with explicit limits).
+* **Idle system** - tests run model with little or no activity/waits/service
+
+### Unit tests
+
+Unit tests are a type of functional testing that focuses on individual components (e.g. methods, classes) and tests them in isolation to ensure they work as intended. They can form part of "bottom-up" testing for model verification (see [verification and validation](verification_validation.qmd#bottom-up-testing) page).
+
+::: {.python-content}
+
+However, since we're using a simulation package (SimPy), much of the core functionality is already well-tested. As a result, it's often more relevant to write functional tests focused on your simulation logic, involving interactions between multiple classes or functions (e.g. parameters and model).
+
+:::
+
+::: {.r-content}
+
+However, since we're using a simulation package (simmer), much of the core functionality is already well-tested. As a result, it's often more relevant to write functional tests focused on your simulation logic, involving interactions between multiple classes or functions (e.g. parameters and model).
+
+:::
+
+You may still find some uses for unit tests though, such as for custom validation methods or small utility functions, before running bigger integration checks.
 
 ### Back tests
 
