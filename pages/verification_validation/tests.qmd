@@ -45,6 +45,8 @@ Testing is the process of evaluating a model to ensure it works as expected, giv
 
 When you create a model, you will naturally carry out tests, with simple manual checks where you observe outputs and ensure they look right. These checks can be formalised and **automated** so that you can run them after any changes, and catch any issues that arise.
 
+Writing tests is fundamental for [model verification](verification_validation.qmd). These tests should be run regularly and after code changes, to check that these changes haven't introduced new issues ("**regression testing**").
+
 ## Introduction to writing and running tests
 
 <div class="h3-tight"></div>
@@ -239,9 +241,18 @@ cases(
 
 :::
 
+We can identify other examples of functional tests from our [model verification](verification_validation.qmd) page. These include:
+
+* **Assertion checking** - tests check that assertions hold true.
+* **Stress testing** - tests simulate worst-case load and ensure model is robust under heavy demand.
+* **Boundary testing** - tests check that the behaviour at, just inside, and just outside each boundary (if you have input variables with explicit limits).
+* **Idle system** - tests run model with little or no activity/waits/service
+
 ### Unit tests
 
 Unit tests are a type of functional testing that focuses on individual components (e.g. methods, classes) and tests them in isolation to ensure they work as intended.
+
+They can form part of "bottom-up" testing for model verification (see [verification and validation](verification_validation.qmd#bottom-up-testing) page).
 
 For example, we expect that our model should fail if the number of doctors or the patient inter-arrival time were set to 0. This is tested using `test_zero_inputs`:
 
