@@ -276,9 +276,9 @@ ss = np.random.SeedSequence(self.run_number)
 seeds = ss.spawn(1)
 ```
 
-Instead of manually creating a list of seeds for the generators - such as with patterns like [`run_number`, `run_number + 1`] - we can use NumPy's `SeedSequence`.
+You might be tempted to create seeds for each generator using a simple pattern like: seed1 = `run_number`, seed2 = `run_number * 2`, seed = `run_number*3`.
 
-Provide a single starter seed (e.g., `run_number`), then call `SeedSequence.spawn()` to generate a list of independent seeds. In this case, we just create a list with one seed (`spawn(1)`).
+However, it is more robust to use NumPy's `SeedSequence` method. You simply provide a single starter seed (e.g., `run_number`), then call `SeedSequence.spawn()` to generate a list of independent seeds. In this case, we just create a list with one seed (`spawn(1)`).
 
 > **Why do we want independent seeds?** When you manually create seeds using simple rules (e.g., `+1`, `+2`), there's a chance that your random streams will end up correlated. These hidden correlations can make simulation results less reliable, particularly if you run many experiments, parallelise tasks, or rely on random streams interacting. `np.random.SeedSequence()` is specifically designed to produce seeds that will generate independent streams.
 
