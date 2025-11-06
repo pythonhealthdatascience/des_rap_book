@@ -367,7 +367,7 @@ HTML(to_html_datatable(scenario_results.head(200)))
 
 :::
 
-::: {.r-content}
+:::: {.r-content}
 
 ```{r}
 # Run scenarios
@@ -387,7 +387,21 @@ write.csv(scenario_results,
 kable(scenario_results) |> scroll_box(height = "400px")
 ```
 
+<br>
+
+::: {.callout-note title="Selective re-running"}
+
+For simulations with very long run times, you may wish to explore the [{targets}](https://books.ropensci.org/targets/) package. 
+
+With `{targets}`, you can set up your pipeline so that input changes (like updates to parameter files or scenario definitions) trigger the package to automatically re-run only the affected simulations and analyses, while all other results are reused from cache. This targeted re-running helps save computation time when there are many slow scenarios to run.
+
+If you change the code inside your model function, `{targets}` will detect those updates and make sure all impacted analysis steps are re-run.
+
+*Note: This package hasn't been personally tried in this project, so we can't vouch for whether it definitely works reliably with simmer simulation models - it's just a cool package we've heard about! For guides on using this, see the official [{targets} manual](https://books.ropensci.org/targets/)*.
+
 :::
+
+::::
 
 ## Sensitivity analysis
 
