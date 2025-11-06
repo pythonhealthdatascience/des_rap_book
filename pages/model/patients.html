@@ -653,6 +653,7 @@ Note: When a Quarto document just contains Python code blocks (and no R code), Q
 </div>
 <p><strong>Acknowledgements:</strong> Inspired by Rosser et al.&nbsp;(<a href="https://des.hsma.co.uk/">2025</a>).</p>
 </div>
+<div class="r-content">
 <div class="callout callout-style-default callout-note callout-titled" title="How to run the example code">
 <div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
@@ -678,6 +679,7 @@ Note: When a Quarto document just contains Python code blocks (and no R code), Q
 <li>Run <code>devtools::document()</code> (to update imports in your <code>NAMESPACE</code>) and <code>devtools::load_all()</code> (to load your package and dependencies).</li>
 <li>Do not need <code>library()</code> imports in script, as loading your package will make all imported functions available automatically.</li>
 </ul>
+</div>
 </div>
 </div>
 </div>
@@ -862,7 +864,12 @@ Note: When a Quarto document just contains Python code blocks (and no R code), Q
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8" data-code-line-numbers=""><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a random seed sequence based on the run number</span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>ss <span class="op">=</span> np.random.SeedSequence(<span class="va">self</span>.run_number)</span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>seeds <span class="op">=</span> ss.spawn(<span class="dv">1</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>A random seed sequence is created based on the <code>run_number</code>.</p>
+<p>You might be tempted to create seeds for each generator using a simple pattern like: seed1 = <code>run_number</code>, seed2 = <code>run_number * 2</code>, seed = <code>run_number*3</code>.</p>
+<p>However, it is more robust to use NumPy’s <code>SeedSequence</code> method. You simply provide a single starter seed (e.g., <code>run_number</code>), then call <code>SeedSequence.spawn()</code> to generate a list of independent seeds. In this case, we just create a list with one seed (<code>spawn(1)</code>).</p>
+<blockquote class="blockquote">
+<p><strong>Why do we want independent seeds?</strong> When you manually create seeds using simple rules (e.g., <code>+1</code>, <code>+2</code>), there’s a chance that your random streams will end up correlated. These hidden correlations can make simulation results less reliable, particularly if you run many experiments, parallelise tasks, or rely on random streams interacting. <code>np.random.SeedSequence()</code> is specifically designed to produce seeds that will generate independent streams.</p>
+</blockquote>
+<p>Independent seeding also helps you avoid subtle mistakes that can happen with manual schemes. For example, if you used <code>[run_number * 1, run_number * 2, run_number * 3]</code> to make seeds for different generators, then for <code>run_number = 0</code> every stream would get a seed of 0, making all your streams identical!</p>
 <p><br></p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9" data-code-line-numbers=""><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Set up attributes to store results</span></span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="va">self</span>.patients <span class="op">=</span> []</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>

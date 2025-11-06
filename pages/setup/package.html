@@ -725,14 +725,30 @@ cookieconsent.run({
 </section>
 <section id="why-create-a-package" class="level3">
 <h3 class="anchored" data-anchor-id="why-create-a-package">Why create a package?</h3>
-<p>Building our simulation model as a package has several advantages…</p>
+<p>Packages make code easier to distribute, reuse and maintain. This structure is recommended by the NHS Levels of RAP gold tier for high-quality reproduce research. However, adopting a package structure may not always be the right approach for every project.</p>
+<p>The benefits of building our simulation model as a package are:</p>
 <ul>
 <li><p>The model is <strong>installed</strong> in our environment and can then be easily used anywhere else in our directory (or even from other directories) without needing to specify a system path.</p></li>
 <li><p>It encourages us to create a well-organised repository following <strong>standardised</strong> established package structures.</p></li>
 <li><p>It helps keep the model and analysis code <strong>separate</strong>, improving maintainability, reusability, and reducing the risk of unintended side effects.</p></li>
-<li><p>It supports <strong>automated <a href="../../pages/verification_validation/tests.html">testing</a></strong> frameworks which can verify functionality.</p></li>
+</ul>
+<div class="r-content">
+<ul>
+<li>Tools like <code>devtools::document()</code> and <code>roxygen2</code> create <strong>documentation</strong> that can be accessed using <code>?functionname</code>.</li>
+</ul>
+</div>
+<ul>
+<li>It supports <strong>automated <a href="../../pages/verification_validation/tests.html">testing</a></strong> frameworks which can verify functionality.</li>
 </ul>
 <p><a href="package_resources/package_summary.png" class="lightbox" data-gallery="quarto-lightbox-gallery-1"><img src="package_resources/package_summary.png" class="img-fluid"></a></p>
+<p>The downside of structuring your project as a package is that it <strong>adds complexity</strong>. For beginners, setting up a package introduces many new concepts - there’s a lot to learn, and it can feel overwhelming. We wrote this tutorial to help guide you through it, but it’s still a fair amount to take in!</p>
+<p>For quick, exploratory analyses that won’t be reused or shared, a full package structure may be more effort than necessary. In those cases, a well-organised folder with a few files might be perfectly sufficient.</p>
+<p>However, we <strong>generally recommend investing the time to adopt a package structure early on</strong> - it’s usually easier to start that way, and the benefits tend to outweigh the initial effort.</p>
+</section>
+<section id="choosing-a-package-manager" class="level3 python-content">
+<h3 class="anchored" data-anchor-id="choosing-a-package-manager">Choosing a package manager</h3>
+<p>Python has several different tools for building and managing packages. We have chosen <a href="https://flit.pypa.io/en/stable/">flit</a> for this tutorial and our example models due to its simplicity and ease of setup.</p>
+<p>Other widely used package managers include <a href="https://setuptools.pypa.io/en/latest/">setuptools</a>, <a href="https://python-poetry.org/">poetry</a> and <a href="https://hatch.pypa.io/latest/">hatch</a>. For a comprehensive comparison of packaging tools, see <a href="https://alpopkes.com/posts/python/packaging_tools/">“An unbiased evaluation of environment management and packaging tools”</a> by Anna-Lena Popkes (2024).</p>
 </section>
 </section>
 <section id="create-the-package-structure" class="level2">
@@ -1285,8 +1301,26 @@ Number of results: 20</code></pre>
 │   └── simulation_test.Rmd   &lt;---
 ├── DESCRIPTION
 └── NAMESPACE</code></pre>
-<p>As part of an R package, you can create a <code>vignettes</code> folder, which is typically used to hold guides, tutorials, or extended examples demonstrating how to use the package. Some people suggest putting your analysis in <code>vignettes/</code>, as this ensures everything is run from scratch each time you call <code>devtools::check()</code>, helping maintain reproducibility.</p>
-<p>However, we usually prefer to use an <code>rmarkdown/</code> folder when structuring research as a package because running analyses as vignettes is very inefficient for simulations with longer run times, and saving outputs from vignettes can lead to file path errors during the package build process.</p>
+<p><br></p>
+<div class="callout callout-style-default callout-note callout-titled" title="Alternative: vignettes">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Alternative: vignettes
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>As part of an R package, you can create a <code>vignettes/</code> folder, which is typically used to hold guides, tutorials, or extended examples demonstrating how to use the package.</p>
+<p>You can put your analysis in <code>vignettes/</code> (instead of <code>rmarkdown/</code>). The benefit of this is that it will run everything from scratch each time you call <code>devtools::check()</code>, helping maintain reproducibility. The <code>usethis</code> package provides infrastructure to easily manage vignettes. If you use GitHub actions, you can configure <code>usethis</code> continuous integration workflows to build and test your vignettes automatically on remote machines, further promoting reproducibility and consistency.</p>
+<p>However, we usually prefer to use an <code>rmarkdown/</code> folder when structuring research as a package because:</p>
+<ul>
+<li>Running analyses as vignettes is very inefficient for simulations with longer run times.</li>
+<li>Saving outputs from vignettes can lead to file path errors during the package build process.</li>
+</ul>
+</div>
+</div>
 </section>
 <section id="check-our-package-works-1" class="level3">
 <h3 class="anchored" data-anchor-id="check-our-package-works-1">2. Check our package works</h3>
