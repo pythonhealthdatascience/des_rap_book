@@ -1230,6 +1230,34 @@ Hence, using a lockfile like `renv.lock` is the only reliable way to ensure that
 
 :::
 
+<br>
+
+::: {.callout-note title="Alternative approach: time-based snapshots"}
+
+A **time-based snapshot** is a copy of all the packages from a repository (like CRAN) exactly as they were on a certain date. This provides an alternative approach to environment recreation, as you can point R at a particular snapshot, ensuring package versions match what was originally available for your project at that time.
+
+**MRAN** (Microsoft R Application Network) was a free service provided by Microsoft that acted as a copy ("mirror") of CRAN, the main R package repository. It had a "CRAN time machine" - a daily archive of packages as they appeared on each date since 2014. This let users recreate the exact package environment for a specific date in the past, helping with reproducibility and avoiding problems from changes in newer package versions. However, in July 2023, MRAN was retired and is no longer available
+
+After MRAN closed, [**Posit Public Package Manager (P3M)**](https://packagemanager.posit.co/client/#/) became the main free source for R package snapshots. P3M creates daily snapshots of CRAN, Bioconductor and Python's PyPI, which you can use the same way: to get the exact package set for a chosen date. It's limitation however is that it does not archive packages from GitHub and r-universe. For more on P3M, check out this video from [Posit PBC](https://www.youtube.com/@PositPBC):
+
+{{< video https://youtu.be/NwZ4sVjNKlI?si=hb4KG7MT9HMa07ky >}}
+
+:::
+
+<br>
+
+::: {.callout-note title="GitHub and r-universe package considerations"}
+
+For packages installed from GitHub, you can choose a specific version by pinning to a specific commit. Each commit has a unique ID (known as a SHA or hash), so you can follow this syntax when installing with renv:
+
+```{.r}
+renv::install("owner/repo@commit-sha")
+```
+
+As [explained in this ROpenSci article](https://ropensci.org/blog/2022/01/06/runiverse-renv/), r-universe does not maintain historical archives of all package versions; instead, it relies on the upstream git repositories to provide historical sources. This means that while r-universe can serve packages, long-term reproducibility depends on the stability of the original GitHub repositories. For critical projects, consider pinning to specific GitHub commits rather than relying on r-universe alone.
+
+:::
+
 ### 3. Troubleshooting
 
 Restoring an R environment can often run into issues, especially with older projects or system differences. Below are common problems and solutions.
@@ -1246,7 +1274,13 @@ When recreating environments with older R versions or package versions, you may 
 **Solutions:**
 
 * If exact reproducibility is not required, consider updating to a more recent R version and/or newer package versions.
-* For legacy work, search for archived source tarballs or consult the CRAN archive, but success isn't guaranteed.
+* If a package is available in the CRAN archive (`http://cran.r-project.org/src/contrib/Archive/PackageName/`), you may be able to install it using renv (as it will search the main CRAN repository first but then look in the CRAN archives). You just need to specify a version like:
+
+```{.r}
+renv::install("package@version")
+```
+
+* Consider using P3M snapshots from around the time the package was last available, which may provide compatible versions.
 
 <br>
 
