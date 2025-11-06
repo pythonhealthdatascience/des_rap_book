@@ -106,7 +106,7 @@ In @Heather2025, six out of seven studies with scenarios lacked scenario code. T
 {{< include ../output_analysis/replications_resources/summary_stats.py >}}
 {{< include ../output_analysis/parallel_resources/runner.py >}}
 ```
-= 18
+
 ```{r}
 #| echo: false
 #| file: ../output_analysis/replications_resources/create_params.R
@@ -119,7 +119,7 @@ In @Heather2025, six out of seven studies with scenarios lacked scenario code. T
 
 ```{r}
 #| echo: false
-#| file: ../output_analysis/replications_resources/metrics.R
+#| file: ../output_analysis/length_warmup_resources/metrics.R
 ```
 
 ```{r}
@@ -367,7 +367,7 @@ HTML(to_html_datatable(scenario_results.head(200)))
 
 :::
 
-::: {.r-content}
+:::: {.r-content}
 
 ```{r}
 # Run scenarios
@@ -387,7 +387,21 @@ write.csv(scenario_results,
 kable(scenario_results) |> scroll_box(height = "400px")
 ```
 
+<br>
+
+::: {.callout-note title="Selective re-running"}
+
+For simulations with very long run times, you may wish to explore the [{targets}](https://books.ropensci.org/targets/) package. 
+
+With `{targets}`, you can set up your pipeline so that input changes (like updates to parameter files or scenario definitions) trigger the package to automatically re-run only the affected simulations and analyses, while all other results are reused from cache. This targeted re-running helps save computation time when there are many slow scenarios to run.
+
+If you change the code inside your model function, `{targets}` will detect those updates and make sure all impacted analysis steps are re-run.
+
+*Note: This package hasn't been personally tried in this project, so we can't vouch for whether it definitely works reliably with simmer simulation models - it's just a cool package we've heard about! For guides on using this, see the official [{targets} manual](https://books.ropensci.org/targets/)*.
+
 :::
+
+::::
 
 ## Sensitivity analysis
 
@@ -398,6 +412,8 @@ kable(scenario_results) |> scroll_box(height = "400px")
 Scenario analysis focuses on a set of pre-defined situations which are plausible and relevant to the problem being studied. It can often involve varying multiple parameters simultaneously. The purpose is to understand how the system operates under different hypothetical scenarios.
 
 Sensitivity analysis varies one parameter (or a small group of parameters) and assess the impact of small changes in that parameter on outcomes. The purpose is to understand **how uncertainty in the inputs affects the model**, and how **robust** the model is to variation in those inputs.
+
+Sensitivity analysis is an important for model validation (and forms part of "[experimentation validation](../verification_validation/verification_validation.qmd#experimentation-validation)").
 
 ### Running sensitivity analyses
 

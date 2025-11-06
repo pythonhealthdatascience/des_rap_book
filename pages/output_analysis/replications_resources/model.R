@@ -22,6 +22,10 @@ model <- function(param, run_number) {
   # Create simmer environment
   env <- simmer("simulation", verbose = param[["verbose"]])
 
+  # Calculate full run length
+  full_run_length <- (param[["warm_up_period"]] +
+                      param[["data_collection_period"]])
+
   # Define the patient trajectory
   patient <- trajectory("consultation") |>
     # Record queue length on arrival 
@@ -45,8 +49,7 @@ model <- function(param, run_number) {
       rexp(n = 1L, rate = 1L / param[["interarrival_time"]])
     }, mon = 2L) |>
     # Run the simulation
-    simmer::run(until = (param[["warm_up_period"]] +
-                           param[["data_collection_period"]]))
+    simmer::run(until = full_run_length)
 
   # Extract information on arrivals and resources from simmer environment
   result <- list(
@@ -109,7 +112,9 @@ model <- function(param, run_number) {
   )
 
   # Calculate the average results for that run
-  result[["run_results"]] <- get_run_results(result, run_number)
+  result[["run_results"]] <- get_run_results(
+    result, run_number, simulation_end_time = full_run_length
+  )
 
   result
 }

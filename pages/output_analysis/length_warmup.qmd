@@ -88,6 +88,8 @@ When determining your warm-up period, you should:
 * Use a **long run length** (e.g., 5-10 times your planned simulation length).
 * Use your **base case parameters** (and, if these changes, re-assess the appropriate warm-up period).
 
+Choice of an appropriate warm-up length forms part of your model experimentation validation (see [verification and validation](../verification_validation/verification_validation.qmd#experimentation-validation) page).
+
 ## Implementing the time series inspection approach
 
 It's important to include **all relevant metrics** when implementing this approach. For our model, that means:
@@ -506,10 +508,9 @@ The parameter, warm-up, run results, model and runner functions are unchanged. H
 
 #### Functions to calculate different metrics
 
-We will re-use the `calc_utilisation` function to calculate utilisation at each timepoint. To enable this, we need to add two new arguments:
+We will re-use the `calc_utilisation` function to calculate utilisation at each timepoint. To enable this, we need to add a new argument: `groups`.
 
-* `groups` - previously we just grouped by resource, but we now want to also group by replication (as we are processing a full results table containing multiple replications).
-* `summarise` - previously we just returned the overall utilisation for a single run, but now we want to return the full dataframe with utilisation values at each timepoint.
+Previously we just grouped by resource, but we now want to also group by replication (as we are processing a full results table containing multiple replications).
 
 ```{.r}
 #' Calculate the resource utilisation
@@ -524,12 +525,13 @@ We will re-use the `calc_utilisation` function to calculate utilisation at each 
 #' https://github.com/r-simmer/simmer.plot.).
 #'
 #' @param resources Dataframe with times patients use or queue for resources.
+#' @param simulation_end_time Time at end of simulation run.
 #' @param groups Optional list of columns to group by for the calculation.#<<
-#' @param summarise If TRUE, return overall utilisation. If FALSE, just#<<
-#' return the resource dataframe with the additional columns#<<
-#' interval_duration, effective_capacity and utilisation.#<<
+#' @param summarise If TRUE, return overall utilisation. If FALSE, just return
+#' the resource dataframe with the additional columns interval_duration,
+#' effective_capacity and utilisation.
 #'
-#' @importFrom dplyr across group_by mutate ungroup#<<
+#' @importFrom dplyr across group_by mutate n row_number summarise ungroup#<<
 #' @importFrom rlang .data
 #' @importFrom tidyr pivot_wider
 #' @importFrom tidyselect all_of#<<
@@ -537,17 +539,24 @@ We will re-use the `calc_utilisation` function to calculate utilisation at each 
 #' @return Tibble with columns containing result for each resource.
 #' @export
 
-calc_utilisation <- function(resources, groups = NULL, summarise = TRUE) {#<<
+calc_utilisation <- function(
+  resources, simulation_end_time, groups = NULL, summarise = TRUE#<<
+) {
 
   # Create list of grouping variables (always "resource" but can add others)#<<
   group_vars <- c("resource", groups)#<<
 
   # Calculate utilisation
   util_df <- resources |>
-    group_by(across(all_of(group_vars))) |>#<<
+    group_by(across(all_of(group_vars))) |> #<<
     mutate(
-      # Time between this row and the next
-      interval_duration = lead(.data[["time"]]) - .data[["time"]],
+      # Calculate time between this row and the next. For final row,
+      # lead(time) returns NA, so use simulation_end_time - time
+      interval_duration = ifelse(
+        row_number() == n(),
+        simulation_end_time - .data[["time"]],
+        lead(.data[["time"]]) - .data[["time"]]
+      ),
       # Ensures effective capacity is never less than number of servers in
       # use (in case of situations where servers may exceed "capacity").
       effective_capacity = pmax(.data[["capacity"]], .data[["server"]]),
@@ -558,8 +567,8 @@ calc_utilisation <- function(resources, groups = NULL, summarise = TRUE) {#<<
                            NA_real_)
     )
 
-  # If summarise = TRUE, find total utilisation#<<
-  if (summarise) {#<<
+  # If summarise = TRUE, find total utilisation
+  if (summarise) {
     util_df |>
       summarise(
         # Multiply each utilisation by its own unique duration. The total of
@@ -573,10 +582,10 @@ calc_utilisation <- function(resources, groups = NULL, summarise = TRUE) {#<<
                   values_from = "utilisation",
                   names_glue = "utilisation_{resource}") |>
       ungroup()
-  } else {#<<
-    # If summarise = FALSE, just return util_df with no further processing#<<
-    ungroup(util_df)#<<
-  }#<<
+  } else {
+    # If summarise = FALSE, just return the util_df with no further processing
+    ungroup(util_df)
+  }
 }
 ```
 
@@ -592,6 +601,7 @@ We have a new `time_series_inspection` function for this analysis, which is expl
 #' @param result Named list with `arrivals` containing output from
 #' `get_mon_arrivals()` and `resources` containing output from
 #' `get_mon_resources()` (`per_resource = TRUE` and `ongoing = TRUE`).
+#' @param simulation_end_time Time at end of simulation run.
 #' @param file_path Path to save figure to.
 #' @param warm_up Location on X axis to plot vertical red line indicating the
 #' chosen warm-up period. Defaults to NULL, which will not plot a line.
@@ -604,7 +614,9 @@ We have a new `time_series_inspection` function for this analysis, which is expl
 #'
 #' @export
 
-time_series_inspection <- function(result, file_path, warm_up = NULL) {
+time_series_inspection <- function(
+  result, simulation_end_time, file_path, warm_up = NULL
+) {
 
   # Set up lists
   plot_list <- list()
@@ -617,6 +629,7 @@ time_series_inspection <- function(result, file_path, warm_up = NULL) {
 
   # Utilisation at each timepoint
   metrics[[2L]] <- calc_utilisation(result[["resources"]],
+                                    simulation_end_time = simulation_end_time,
                                     groups = c("resource", "replication"),
                                     summarise = FALSE) |>
     dplyr::select(all_of(c("replication", "time", "utilisation")))
@@ -699,6 +712,7 @@ time_series_inspection <- function(result, file_path, warm_up = NULL) {
 #' @param result Named list with `arrivals` containing output from
 #' `get_mon_arrivals()` and `resources` containing output from
 #' `get_mon_resources()` (`per_resource = TRUE` and `ongoing = TRUE`).
+#' @param simulation_end_time Time at end of simulation run.
 #' @param file_path Path to save figure to.
 #' @param warm_up Location on X axis to plot vertical red line indicating the
 #' chosen warm-up period. Defaults to NULL, which will not plot a line.
@@ -711,12 +725,15 @@ time_series_inspection <- function(result, file_path, warm_up = NULL) {
 #'
 #' @export
 
-time_series_inspection <- function(result, file_path, warm_up = NULL) {
+time_series_inspection <- function(
+  result, simulation_end_time, file_path, warm_up = NULL
+) {
 ```
 
-The function has three inputs:
+The function has four inputs:
 
 * **result** - the output from `runner()`.
+* **simulation_end_time** - the time at the end of the simulation run.
 * **file_path** - a path to save the figure to.
 * **warm_up** - chosen warm-up period - initially run set to `NULL`, then can amend with decision of warm-up length so this is add to the plot.
 
@@ -734,6 +751,7 @@ The function has three inputs:
 
   # Utilisation at each timepoint
   metrics[[2L]] <- calc_utilisation(result[["resources"]],
+                                    simulation_end_time = simulation-end_time,
                                     groups = c("resource", "replication"),
                                     summarise = FALSE) |>
     select(all_of(c("replication", "time", "utilisation")))
@@ -852,6 +870,7 @@ results <- runner(param = param)
 # Provide to time_series_inspection() function
 plots <- time_series_inspection(
   result = results,
+  simulation_end_time = param[["data_collection_period"]],
   file_path = file.path("length_warmup_resources", "r_length_warmup.png"),
   warm_up = 6400L
 )

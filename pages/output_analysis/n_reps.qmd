@@ -38,6 +38,12 @@ import pandas as pd
 import scipy.stats as st
 import simpy
 from sim_tools.distributions import Exponential
+from sim_tools.output_analysis import (
+    confidence_interval_method,
+    plotly_confidence_interval_method,
+    ReplicationsAlgorithm
+)
+from typing import Protocol, runtime_checkable
 ```
 
 ```{python}
@@ -70,6 +76,8 @@ library(tidyr)
 When running your simulation model, each replication will give a slightly different result because of randomness. To get a reliable estimate of any performance measure (such as average waiting time), you run the simulation multiple times and take the average across all these runs.
 
 **How many replications should you run?** If you run **too few**, your average could jump around alot with varying seeds, making your result unstable and unreliable. If you run **too many**, it will take a long time and use more computing resources than needed. To find a sensible balance, we can use the **confidence interval method**.
+
+Choice of an appropriate number of replications forms part of your model experimentation validation (see [verification and validation](../verification_validation/verification_validation.qmd#experimentation-validation) page).
 
 ## Confidence interval method
 
@@ -126,7 +134,7 @@ As before, these assumptions are for demonstration only, and in later examples w
 
 ```{r}
 #| echo: false
-#| file: replications_resources/metrics.R
+#| file: length_warmup_resources/metrics.R
 ```
 
 ```{r}
@@ -159,19 +167,7 @@ HTML(to_html_datatable(result["run"]))
 
 <br>
 
-We pass these results to the `confidence_interval_method` function from our [sim-tools](https://github.com/TomMonks/sim-tools) package.
-
-::: {.callout-note title="`sim-tools` v1.0.0 workaround" collapse="true"}
-
-This page uses the (currently unreleased) `sim-tools` version 1.0.0. At present, a copy of the functions from this version are included. Once the new version is released, this work-around will be removed, as you will be able to install 1.0.0 from pypi/conda.
-
-<!--TODO: Once Tom updates sim-tools, import functions at start of script from sim-tools rather than here from local file-->
-
-```{python}
-{{< include n_reps_resources/output_analysis.py >}}
-```
-
-:::
+We pass these results to the `confidence_interval_method` function from the [sim-tools](https://github.com/TomMonks/sim-tools) package.
 
 The `desired_precision` parameter is set to 0.1, which means we are interested in identifying when the percentage deviation of the confidence interval from the mean falls **below 10%**. *Note: This threshold is our default but relatively arbitrary. We are just using it to help us identify the point where results are stable enough.*
 

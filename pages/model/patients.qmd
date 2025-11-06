@@ -54,6 +54,8 @@ library(simmer)
 
 ::::
 
+:::: {.r-content}
+
 ::: {.callout-note title = "How to run the example code" collapse="true"}
 
 The examples below can be run in a script, notebook, or as part of a package. Setup and imports differ slightly depending on your method; see below for details.
@@ -71,6 +73,8 @@ The examples below can be run in a script, notebook, or as part of a package. Se
 * Do not need `library()` imports in script, as loading your package will make all imported functions available automatically.
 
 :::
+
+::::
 
 ## Creating a simple simulation model with arrivals
 
@@ -276,7 +280,13 @@ ss = np.random.SeedSequence(self.run_number)
 seeds = ss.spawn(1)
 ```
 
-A random seed sequence is created based on the `run_number`.
+You might be tempted to create seeds for each generator using a simple pattern like: seed1 = `run_number`, seed2 = `run_number * 2`, seed = `run_number*3`.
+
+However, it is more robust to use NumPy's `SeedSequence` method. You simply provide a single starter seed (e.g., `run_number`), then call `SeedSequence.spawn()` to generate a list of independent seeds. In this case, we just create a list with one seed (`spawn(1)`).
+
+> **Why do we want independent seeds?** When you manually create seeds using simple rules (e.g., `+1`, `+2`), there's a chance that your random streams will end up correlated. These hidden correlations can make simulation results less reliable, particularly if you run many experiments, parallelise tasks, or rely on random streams interacting. `np.random.SeedSequence()` is specifically designed to produce seeds that will generate independent streams.
+
+Independent seeding also helps you avoid subtle mistakes that can happen with manual schemes. For example, if you used `[run_number * 1, run_number * 2, run_number * 3]` to make seeds for different generators, then for `run_number = 0` every stream would get a seed of 0, making all your streams identical!
 
 <br>
 

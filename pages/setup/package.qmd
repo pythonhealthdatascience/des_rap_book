@@ -140,7 +140,9 @@ It has four key components.
 
 ### Why create a package?
 
-Building our simulation model as a package has several advantages...
+Packages make code easier to distribute, reuse and maintain. This structure is recommended by the NHS Levels of RAP gold tier for high-quality reproduce research. However, adopting a package structure may not always be the right approach for every project.
+
+The benefits of building our simulation model as a package are:
 
 * The model is **installed** in our environment and can then be easily used anywhere else in our directory (or even from other directories) without needing to specify a system path.
 
@@ -148,9 +150,31 @@ Building our simulation model as a package has several advantages...
 
 * It helps keep the model and analysis code **separate**, improving maintainability, reusability, and reducing the risk of unintended side effects.
 
+::: {.r-content}
+
+* Tools like `devtools::document()` and `roxygen2` create **documentation** that can be accessed using `?functionname`.
+
+:::
+
 * It supports **automated [testing](../verification_validation/tests.qmd)** frameworks which can verify functionality.
 
 ![](package_resources/package_summary.png)
+
+The downside of structuring your project as a package is that it **adds complexity**. For beginners, setting up a package introduces many new concepts - there's a lot to learn, and it can feel overwhelming. We wrote this tutorial to help guide you through it, but it's still a fair amount to take in!
+
+For quick, exploratory analyses that won't be reused or shared, a full package structure may be more effort than necessary. In those cases, a well-organised folder with a few files might be perfectly sufficient.
+
+However, we **generally recommend investing the time to adopt a package structure early on** - it's usually easier to start that way, and the benefits tend to outweigh the initial effort.
+
+::: {.python-content}
+
+### Choosing a package manager
+
+Python has several different tools for building and managing packages. We have chosen [flit](https://flit.pypa.io/en/stable/) for this tutorial and our example models due to its simplicity and ease of setup.
+
+Other widely used package managers include [setuptools](https://setuptools.pypa.io/en/latest/), [poetry](https://python-poetry.org/) and [hatch](https://hatch.pypa.io/latest/). For a comprehensive comparison of packaging tools, see ["An unbiased evaluation of environment management and packaging tools"](https://alpopkes.com/posts/python/packaging_tools/) by Anna-Lena Popkes (2024).
+
+:::
 
 ## Create the package structure
 
@@ -842,9 +866,20 @@ project-name/
 └── NAMESPACE
 ```
 
-As part of an R package, you can create a `vignettes` folder, which is typically used to hold guides, tutorials, or extended examples demonstrating how to use the package. Some people suggest putting your analysis in `vignettes/`, as this ensures everything is run from scratch each time you call `devtools::check()`, helping maintain reproducibility.
+<br>
 
-However, we usually prefer to use an `rmarkdown/` folder when structuring research as a package because running analyses as vignettes is very inefficient for simulations with longer run times, and saving outputs from vignettes can lead to file path errors during the package build process.
+::: {.callout-note title="Alternative: vignettes"}
+
+As part of an R package, you can create a `vignettes/` folder, which is typically used to hold guides, tutorials, or extended examples demonstrating how to use the package.
+
+You can put your analysis in `vignettes/` (instead of `rmarkdown/`). The benefit of this is that it will run everything  from scratch each time you call `devtools::check()`, helping maintain reproducibility. The `usethis` package provides infrastructure to easily manage vignettes. If you use GitHub actions, you can configure `usethis` continuous integration workflows to build and test your vignettes automatically on remote machines, further promoting reproducibility and consistency.
+
+However, we usually prefer to use an `rmarkdown/` folder when structuring research as a package because:
+
+* Running analyses as vignettes is very inefficient for simulations with longer run times.
+* Saving outputs from vignettes can lead to file path errors during the package build process.
+
+:::
 
 ### 2. Check our package works
 

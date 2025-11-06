@@ -181,12 +181,13 @@ calc_mean_serve_length <- function(arrivals, resources) {
 #' https://github.com/r-simmer/simmer.plot.).
 #'
 #' @param resources Dataframe with times patients use or queue for resources.
+#' @param simulation_end_time Time at end of simulation run.
 #' @param groups Optional list of columns to group by for the calculation.
-#' @param summarise If TRUE, return overall utilisation. If FALSE, just
-#' return the resource dataframe with the additional columns
-#' interval_duration, effective_capacity and utilisation.
+#' @param summarise If TRUE, return overall utilisation. If FALSE, just return
+#' the resource dataframe with the additional columns interval_duration,
+#' effective_capacity and utilisation.
 #'
-#' @importFrom dplyr across group_by mutate ungroup
+#' @importFrom dplyr across group_by mutate n row_number summarise ungroup
 #' @importFrom rlang .data
 #' @importFrom tidyr pivot_wider
 #' @importFrom tidyselect all_of
@@ -194,7 +195,9 @@ calc_mean_serve_length <- function(arrivals, resources) {
 #' @return Tibble with columns containing result for each resource.
 #' @export
 
-calc_utilisation <- function(resources, groups = NULL, summarise = TRUE) {
+calc_utilisation <- function(
+  resources, simulation_end_time, groups = NULL, summarise = TRUE
+) {
 
   # Create list of grouping variables (always "resource" but can add others)
   group_vars <- c("resource", groups)
@@ -203,8 +206,13 @@ calc_utilisation <- function(resources, groups = NULL, summarise = TRUE) {
   util_df <- resources |>
     group_by(across(all_of(group_vars))) |>
     mutate(
-      # Time between this row and the next
-      interval_duration = lead(.data[["time"]]) - .data[["time"]],
+      # Calculate time between this row and the next. For final row,
+      # lead(time) returns NA, so use simulation_end_time - time
+      interval_duration = ifelse(
+        row_number() == n(),
+        simulation_end_time - .data[["time"]],
+        lead(.data[["time"]]) - .data[["time"]]
+      ),
       # Ensures effective capacity is never less than number of servers in
       # use (in case of situations where servers may exceed "capacity").
       effective_capacity = pmax(.data[["capacity"]], .data[["server"]]),
@@ -231,7 +239,7 @@ calc_utilisation <- function(resources, groups = NULL, summarise = TRUE) {
                   names_glue = "utilisation_{resource}") |>
       ungroup()
   } else {
-    # If summarise = FALSE, just return util_df with no further processing
+    # If summarise = FALSE, just return the util_df with no further processing
     ungroup(util_df)
   }
 }
@@ -240,21 +248,28 @@ calc_utilisation <- function(resources, groups = NULL, summarise = TRUE) {
 #' Calculate the time-weighted mean queue length.
 #'
 #' @param arrivals Dataframe with times for each patient with each resource.
+#' @param simulation_end_time Time at end of simulation run.
 #'
-#' @importFrom dplyr arrange group_by lead mutate summarise ungroup
+#' @importFrom dplyr arrange group_by lead mutate n row_number summarise
+#' @importFrom dplyr ungroup
 #' @importFrom tidyr pivot_wider
 #'
 #' @return Tibble with column containing mean queue length.
 #' @export
 
-calc_mean_queue_length <- function(arrivals) {
+calc_mean_queue_length <- function(arrivals, simulation_end_time) {
   arrivals |>
     group_by(.data[["resource"]]) |>
     # Sort by arrival time
     arrange(.data[["start_time"]]) |>
-    # Calculate time between this row and the next
+    # Calculate time between this row and the next. For final row,
+    # lead(start_time) returns NA, so use simulation_end_time - start_time
     mutate(
-      interval_duration = (lead(.data[["start_time"]]) - .data[["start_time"]])
+      interval_duration = ifelse(
+        row_number() == n(),
+        simulation_end_time - .data[["start_time"]],
+        lead(.data[["start_time"]]) - .data[["start_time"]]
+      )
     ) |>
     # Multiply each queue length by its own unique duration. The total of
     # those is then divided by the total duration of all intervals.
@@ -294,18 +309,26 @@ calc_mean_time_in_system <- function(arrivals) {
 #' Calculate the time-weighted mean number of patients in the system.
 #'
 #' @param patient_count Dataframe with patient counts over time.
+#' @param simulation_end_time Time at end of simulation run.
 #'
-#' @importFrom dplyr arrange lead mutate summarise ungroup
+#' @importFrom dplyr arrange lead mutate n row_number summarise ungroup
 #'
 #' @return Tibble with column containing mean number of patients in the system.
 #' @export
 
-calc_mean_patients_in_system <- function(patient_count) {
+calc_mean_patients_in_system <- function(patient_count, simulation_end_time) {
   patient_count |>
     # Sort by time
     arrange(.data[["time"]]) |>
-    # Calculate time between this row and the next
-    mutate(interval_duration = (lead(.data[["time"]]) - .data[["time"]])) |>
+    # Calculate time between this row and the next. For final row,
+    # lead(time) returns NA, so use simulation_end_time - time
+    mutate(
+      interval_duration = ifelse(
+        row_number() == n(),
+        simulation_end_time - .data[["time"]],
+        lead(.data[["time"]]) - .data[["time"]]
+      )
+    ) |>
     # Multiply each patient count by its own unique duration. The total of
     # those is then divided by the total duration of all intervals.
     # Hence, we are calculated a time-weighted average patient count.
@@ -325,6 +348,7 @@ calc_mean_patients_in_system <- function(patient_count) {
 #'   `resources` from `get_mon_resources()`
 #'   (`per_resource = TRUE` and `ongoing = TRUE`).
 #' @param run_number Integer index of current simulation run.
+#' @param simulation_end_time Time at end of simulation run.
 #'
 #' @importFrom dplyr bind_cols
 #' @importFrom tibble tibble
@@ -332,15 +356,16 @@ calc_mean_patients_in_system <- function(patient_count) {
 #' @return Tibble with processed results from replication.
 #' @export
 
-get_run_results <- function(results, run_number) {
+get_run_results <- function(results, run_number, simulation_end_time) {
   metrics <- list(
     calc_arrivals(results[["arrivals"]]),
     calc_mean_wait(results[["arrivals"]]),
     calc_mean_serve_length(results[["arrivals"]]),
-    calc_utilisation(results[["resources"]]),
-    calc_mean_queue_length(results[["arrivals"]]),
+    calc_utilisation(results[["resources"]], simulation_end_time),
+    calc_mean_queue_length(results[["arrivals"]], simulation_end_time),
     calc_mean_time_in_system(results[["arrivals"]]),
-    calc_mean_patients_in_system(results[["patients_in_system"]])
+    calc_mean_patients_in_system(results[["patients_in_system"]],
+                                 simulation_end_time)
   )
   dplyr::bind_cols(tibble(replication = run_number), metrics)
 }
@@ -373,19 +398,23 @@ model <- function(param, run_number, set_seed = TRUE) {
   # Create simmer environment
   env <- simmer("simulation", verbose = param[["verbose"]])
 
+  # Calculate full run length
+  full_run_length <- (param[["warm_up_period"]] +
+                      param[["data_collection_period"]])
+
   # Define the patient trajectory
   patient <- trajectory("consultation") |>
-    # Record queue length on arrival
-    set_attribute("doctor_queue_on_arrival",
-                  function() get_queue_count(env, "doctor")) |>
+    # Record queue length on arrival 
+    set_attribute("doctor_queue_on_arrival", 
+                  function() get_queue_count(env, "doctor")) |> 
     seize("doctor", 1L) |>
     # Record time resource is obtained
     set_attribute("doctor_serve_start", function() now(env)) |>
-    # Record sampled length of consultation
-    set_attribute("doctor_serve_length", function() {
-      rexp(n = 1L, rate = 1L / param[["consultation_time"]])
-    }) |>
-    timeout(function() get_attribute(env, "doctor_serve_length")) |>
+    # Record sampled length of consultation 
+    set_attribute("doctor_serve_length", function() { 
+      rexp(n = 1L, rate = 1L / param[["consultation_time"]]) 
+    }) |> 
+    timeout(function() get_attribute(env, "doctor_serve_length")) |> 
     release("doctor", 1L)
 
   env <- env |>
@@ -396,8 +425,7 @@ model <- function(param, run_number, set_seed = TRUE) {
       rexp(n = 1L, rate = 1L / param[["interarrival_time"]])
     }, mon = 2L) |>
     # Run the simulation
-    simmer::run(until = (param[["warm_up_period"]] +
-                           param[["data_collection_period"]]))
+    simmer::run(until = full_run_length)
 
   # Extract information on arrivals and resources from simmer environment
   result <- list(
@@ -418,40 +446,40 @@ model <- function(param, run_number, set_seed = TRUE) {
     result[["arrivals"]], extra_attributes, by = c("name", "resource")
   )
 
-  # Add time in system (unfinished patients will set to NaN)
-  result[["arrivals"]][["time_in_system"]] <- (
-    result[["arrivals"]][["end_time"]] - result[["arrivals"]][["start_time"]]
+  # Add time in system (unfinished patients will set to NaN) 
+  result[["arrivals"]][["time_in_system"]] <- ( 
+    result[["arrivals"]][["end_time"]] - result[["arrivals"]][["start_time"]] 
   )
 
   # Filter to remove results from the warm-up period
   result <- filter_warmup(result, param[["warm_up_period"]])
 
-  # Gather all start and end times, with a row for each, marked +1 or -1
-  # Drop NA for end time, as those are patients who haven't left system
-  # at the end of the simulation
-  arrivals_start <- transmute(
-    result[["arrivals"]], time = .data[["start_time"]], change = 1L
-  )
-  arrivals_end <- result[["arrivals"]] |>
-    drop_na(all_of("end_time")) |>
-    transmute(time = .data[["end_time"]], change = -1L)
-  events <- bind_rows(arrivals_start, arrivals_end)
+  # Gather all start and end times, with a row for each, marked +1 or -1 
+  # Drop NA for end time, as those are patients who haven't left system 
+  # at the end of the simulation 
+  arrivals_start <- transmute( 
+    result[["arrivals"]], time = .data[["start_time"]], change = 1L 
+  ) 
+  arrivals_end <- result[["arrivals"]] |> 
+    drop_na(all_of("end_time")) |> 
+    transmute(time = .data[["end_time"]], change = -1L) 
+  events <- bind_rows(arrivals_start, arrivals_end) 
 
-  # Determine the count of patients in the service with each entry/exit
-  result[["patients_in_system"]] <- events |>
-    # Sort events by time
-    arrange(.data[["time"]], desc(.data[["change"]])) |>
-    # Use cumulative sum to find number of patients in system at each time
-    mutate(count = cumsum(.data[["change"]])) |>
-    dplyr::select(c("time", "count"))
+  # Determine the count of patients in the service with each entry/exit 
+  result[["patients_in_system"]] <- events |> 
+    # Sort events by time 
+    arrange(.data[["time"]], desc(.data[["change"]])) |> 
+    # Use cumulative sum to find number of patients in system at each time 
+    mutate(count = cumsum(.data[["change"]])) |> 
+    dplyr::select(c("time", "count")) 
 
   # Replace "replication" value with appropriate run number
   result[["arrivals"]] <- mutate(result[["arrivals"]],
                                  replication = run_number)
   result[["resources"]] <- mutate(result[["resources"]],
                                   replication = run_number)
-  result[["patients_in_system"]] <- mutate(result[["patients_in_system"]],
-                                           replication = run_number)
+  result[["patients_in_system"]] <- mutate(result[["patients_in_system"]], 
+                                           replication = run_number) 
 
   # Calculate wait time for each patient
   result[["arrivals"]] <- mutate(
@@ -460,7 +488,9 @@ model <- function(param, run_number, set_seed = TRUE) {
   )
 
   # Calculate the average results for that run
-  result[["run_results"]] <- get_run_results(result, run_number)
+  result[["run_results"]] <- get_run_results(
+    result, run_number, simulation_end_time = full_run_length
+  )
 
   result
 }

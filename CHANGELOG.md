@@ -5,7 +5,44 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Dates formatted as YYYY-MM-DD as per [ISO standard](https://www.iso.org/iso-8601-date-and-time-format.html).
 
+## v0.3.0 - 2025-11-06
+
+This release adds new pages on the mathematical proof of correctness, discrete-event simulation, and conclusions/feedback, as well as template repositories for structuring work as a package. It fixes the calculation of R time-weighted measures, updates the Python approach to determining warm-up length, and extends all pages to cover all performance metrics. Numerous smaller improvements are also included.
+
+### Added
+
+* Template repositories for package structure.
+* Mathematical proof of correctness page.
+* Discrete-event simulation introductory page.
+* Conclusions page.
+* Feedback page.
+
+### Fixed
+
+* Add correction for R time-weighted measures so last interval is included in calculations.
+
+### Changed
+
+* Pages following *Performance Measures* now use **all** metrics (and not just two) for Python and R.
+* Changed Python approach for determining length of warm-up (previous approach unsuitable when using all metrics).
+* Added patient end-time logging to all simulation model pages.
+* Upgraded to `sim-tools` v1.0.0 (Python) and add `queueing` (R).
+
+Also some minor improvements and refinements, including:
+
+* Extra desk-check suggestions in `verification_validation.qmd`
+* Removed colour variable for R sensitivity plots.
+* Expanded and cross-linked stuff on guidelines in `sharing/archive.qmd` and `intro/guidelines.qmd`.
+* Small corrections in README, docstrings, linting.
+* Refactoring tests.
+* Clarifications on R data storage, seed sequences, correlated streams, and limitations of structuring research as a package.
+* Mentions of MRAN, P3M, commit pinning, `data-raw`, `pins` and `{targets}`.
+* Mentioned relevant verification/validation concepts in topic pages.
+* Added link to repository `renv.lock` on environment page.
+
 ## v0.2.0 - 2025-10-14
+
+This release adds a large number of new pages. It also introduces pre-commits, contributor acknowledgements, a contributing guide, interface improvements, updated introduction boxes, and giscus comments.
 
 ### Added
 
