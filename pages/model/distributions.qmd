@@ -51,7 +51,7 @@ When simulating real-world systems (e.g. patients arriving, prescriptions queuei
 
 However, computers can't generate "true" randomness. Instead, they use **pseudorandom number generators (PRNGs)**: algorithms which produce a sequence of numbers that appear random, but are in fact completely determined by an initial starting point called a **seed**. If you use the same seed, you'll get the same random sequence every time - a crucial feature for reproducibility in research and development.
 
-By default, most software PRNGs initialise the seed based on something that changes rapidly and unpredictably, such as the current system time. This ensures a unique sequence with every fresh run. But for **reproducible experiments**, you should manually set the seed yourself, allowing you and others to exactly recreate simulation results.
+By default, most software PRNGs initialise the seed based on something that changes rapidly, such as the current system time. This ensures a unique sequence with every fresh run. But for **reproducible experiments**, you should manually set the seed yourself, allowing you and others to exactly recreate simulation results.
 
 ![](distributions_resources/prng_sample.png)
 
@@ -77,31 +77,23 @@ rng.exponential(scale=17, size=3)
 
 To ensure the same results everytime the code runs, initialise with a fixed seed:
 
-::::: {.columns}
-
-:::: {.column width="47.5%"}
-
 ```{python}
-rng = np.random.default_rng(20)
-rng.exponential(scale=17, size=3)
+# Create a generator with a fixed seed for reproducibility
+rng = np.random.default_rng(seed=20)
+
+# Generate 3 samples from an exponential distribution (mean=17)
+sample1 = rng.exponential(scale=17, size=3)
+
+# Reset the generator with the same seed
+rng = np.random.default_rng(seed=20)
+
+# Generate 3 samples again (should be identical to the first run)
+sample2 = rng.exponential(scale=17, size=3)
+
+# Print the results
+print(f"First run: {sample1}")
+print(f"Second run (same seed): {sample2}")
 ```
-
-::::
-
-:::: {.column width="5%"}
-::::
-
-:::: {.column width="47.5%"}
-
-```{python}
-rng = np.random.default_rng(20)
-rng.exponential(scale=17, size=3)
-```
-
-::::
-
-:::::
-
 
 #### Legacy API (not recommended for new code)
 
@@ -178,7 +170,38 @@ print(f"Arrivals: {arrivals}\nProcessing: {processing}")
 
 ::: {.pale-red}
 
-⚠️ Processing samples have changed, despite no changes to their sampling code! This is because they share a generator: drawing more arrival samples moves the random number sequence forward, so the processing draws start from a different place.
+⚠️ **Processing samples have changed, despite no changes to their sampling code!**
+
+This happens because both processes share a generator: drawing more arrival samples moves the random number sequence forward, so the processing draws start from a different place.
+Each draw from the generator advances its internal "state", delivering the next pseudo-random number in the sequence. These states aren’t visible to the user, but are shown here as A, B, C, etc. for illustration.
+
+**Sampling three arrivals:**
+
+| RNG state | Arrival sample | Processing sample |
+| :-: | :-: | :-: |
+| A | 3.21908708 | - |
+| B | 0.92535943 | - |
+| C | 16.12631062 | - |
+| D | - | 11.81071173 |
+| E | - | 10.89274914 |
+| F | - | 8.92609353 |
+
+**Sampling five arrivals:**
+
+Processing now uses states **F, G, H** instead of **D, E, F**.
+
+| RNG state | Arrival sample | Processing sample |
+| :-: | :-: | :-: |
+| A | 3.21908708 | - |
+| B | 0.92535943 | - |
+| C | 16.12631062 | - |
+| D | 1.09928134 | - |
+| E | 0.34608612 | - |
+| F | - | 8.92609353 |
+| G | - | 11.16223621 |
+| H | - | 10.72914479 |
+
+This means that if you change arrivals from 3 to 5 samples, processing samples will change too, even if you didn’t touch their code, simply because both use the same random stream.
 
 :::
 
@@ -272,7 +295,39 @@ print(processing)
 
 ::: {.pale-red}
 
-⚠️ Processing samples have changed, despite no changes to their sampling code! This is because they share a generator: drawing more arrival samples moves the random number sequence forward, so the processing draws start from a different place.
+⚠️ **Processing samples have changed, despite no changes to their sampling code!**
+
+This happens because both processes share a single random number generator: drawing more arrival samples moves the sequence forward, so the processing draws start from a different place. But in R, exactly how the random numbers are used depends not just on how many you draw, but which distributions you use and their internal algorithms.
+
+Each call to a random function in R advances the internal generator, but different distributions might use up the stream at different rates. For example, generating one normal value might use more than one core random draw. So the link between arrival and processing samples - shown as A, B, C, etc. - only gives a rough idea, not an exact step-by-step mapping.
+
+**Sampling three arrivals:**
+
+| RNG state | Arrival sample | Processing sample |
+| :-: | :-: | :-: |
+| A | 2.2655455 | - |
+| B | 3.5449283 | - |
+| C | 0.4371202 | - |
+| D | - | 12.65960 |
+| E | - | 12.54486 |
+| F | - | 10.82928 |
+
+**Sampling five arrivals:**
+
+Processing now uses states **F, G, H** instead of **D, E, F**.
+
+| RNG state | Arrival sample | Processing sample |
+| :-: | :-: | :-: |
+| A | 2.2655455 | - |
+| B | 3.5449283 | - |
+| C | 0.4371202 | - |
+| D | 0.4193858 | - |
+| E | 1.3082059 | - |
+| F | - | 6.920100 |
+| G | - | 8.142866 |
+| H | - | 9.410559 |
+
+In R, changing how many samples you draw for one process will almost always change the random numbers used later - even more so when you mix different distributions. That’s why results can shift unexpectedly, even if you only changed the arrivals.
 
 :::
 
