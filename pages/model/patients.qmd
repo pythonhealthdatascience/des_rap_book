@@ -30,6 +30,12 @@ As this builds on concepts introduced in prior pages, we suggest first reading:
 * [Parameters from file](../inputs/parameters_file.qmd)
 * [Randomness](distributions.qmd).
 
+**Acknowledgements:** Inspired by Rosser et al. ([2025](https://des.hsma.co.uk/)).
+
+::::
+
+:::: {.very-pale-blue}
+
 **Required packages:**
 
 These should be available from environment setup in the "Test yourself" section of [Environments](../setup/environment.qmd). 
@@ -52,8 +58,6 @@ library(simmer)
 ```
 
 :::
-
-**Acknowledgements:** Inspired by Rosser et al. ([2025](https://des.hsma.co.uk/)).
 
 ::::
 
@@ -282,6 +286,8 @@ For example, when patient arrivals are added, the environment is responsible for
 ss = np.random.SeedSequence(self.run_number)
 seeds = ss.spawn(1)
 ```
+
+[On the previous page](distributions.qmd), you saw how using separate random generators (streams) prevents changes in one process from affecting another. But to get truly independent random streams, you also need to make sure **those generators start with seeds that are themselves independent**. This avoids unwanted correlations and ensures reproducibility.
 
 You might be tempted to create seeds for each generator using a simple pattern like: seed1 = `run_number`, seed2 = `run_number * 2`, seed = `run_number*3`.
 
