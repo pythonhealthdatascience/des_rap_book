@@ -1371,6 +1371,10 @@ class Model:
             time_with_doctor = self.consult_dist.sample()
             yield self.env.timeout(time_with_doctor)
 
+            # Log end time
+            self.logger.log(msg=f"Patient {patient.patient_id} leaves.",
+                            sim_time=self.env.now)
+
     def run(self):
         """
         Run the simulation.
