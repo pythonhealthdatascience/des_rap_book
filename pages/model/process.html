@@ -6,6 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="dcterms.date" content="2025-11-25">
 
 <title>Entity processing – Reproducible Discrete-Event Simulation in Python and R</title>
 <style>
@@ -608,6 +609,12 @@ cookieconsent.run({
 <div class="quarto-title-meta">
 
     
+    <div>
+    <div class="quarto-title-meta-heading">Page last modified</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">November 25, 2025</p>
+    </div>
+  </div>
   
     
   </div>
@@ -632,6 +639,9 @@ Note: When a Quarto document just contains Python code blocks (and no R code), Q
 <blockquote class="blockquote">
 <p><em>Entity generation → Entity processing</em></p>
 </blockquote>
+<p><strong>Acknowledgements:</strong> Inspired by Rosser et al.&nbsp;(<a href="https://des.hsma.co.uk/">2025</a>).</p>
+</div>
+<div class="very-pale-blue">
 <p><strong>Required packages:</strong></p>
 <p>These should be available from environment setup in the “Test yourself” section of <a href="../../pages/setup/environment.html">Environments</a>.</p>
 <div class="python-content">
@@ -646,7 +656,6 @@ Note: When a Quarto document just contains Python code blocks (and no R code), Q
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(simmer)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
-<p><strong>Acknowledgements:</strong> Inspired by Rosser et al.&nbsp;(<a href="https://des.hsma.co.uk/">2025</a>).</p>
 </div>
 <section id="adding-a-consultation-with-a-doctor-to-the-model" class="level2">
 <h2 class="anchored" data-anchor-id="adding-a-consultation-with-a-doctor-to-the-model">Adding a consultation with a doctor to the model</h2>
@@ -851,6 +860,8 @@ Note: When a Quarto document just contains Python code blocks (and no R code), Q
 <span id="cb5-113"><a href="#cb5-113" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.env.run(until<span class="op">=</span><span class="va">self</span>.param.run_length)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p><br></p>
+<section id="explaining-changes-to-the-model-class" class="level4">
+<h4 class="anchored" data-anchor-id="explaining-changes-to-the-model-class">Explaining changes to the model class</h4>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6" data-code-line-numbers=""><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create resource</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="va">self</span>.doctor <span class="op">=</span> simpy.Resource(                                       </span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="va">self</span>.env, capacity<span class="op">=</span><span class="va">self</span>.param.number_of_doctors                 </span>
@@ -867,7 +878,8 @@ Note: When a Quarto document just contains Python code blocks (and no R code), Q
 <p><br></p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9" data-code-line-numbers=""><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Start process of consultation                                 </span></span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="va">self</span>.env.process(<span class="va">self</span>.consultation(patient))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>As soon as a patient arrives, we tell SimPy to begin handling this patient’s consultation using <code>self.env.process()</code>. SimPy will run this in parallel with other events like arrivals, so multiple patients and activities can progress at the same time.</p>
+<p>As soon as a patient arrives, we tell SimPy to begin handling this patient’s consultation using <code>self.env.process()</code>.</p>
+<p>SimPy uses a process-based approach - see the section on <a href="../../pages/intro/des.html">how DES models advance time and handle events</a> on the DES page for an explanation of how this works.</p>
 <p><br></p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10" data-code-line-numbers=""><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> consultation(<span class="va">self</span>, patient):</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
@@ -897,6 +909,7 @@ Note: When a Quarto document just contains Python code blocks (and no R code), Q
 <span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"Patient </span><span class="sc">{</span>patient<span class="sc">.</span>patient_id<span class="sc">}</span><span class="ss"> "</span> <span class="op">+</span></span>
 <span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>            <span class="ss">f"leaves at: </span><span class="sc">{</span><span class="va">self</span><span class="sc">.</span>env<span class="sc">.</span>now<span class="sc">:.3f}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>The duration of the consultation is then randomly sampled from the distribution set up earlier. The simulation then waits for this amount of time using <code>timeout()</code>, after which the doctor is released and free for the next patient.</p>
+</section>
 </section>
 <section id="run-the-model" class="level3">
 <h3 class="anchored" data-anchor-id="run-the-model">Run the model</h3>
@@ -1249,6 +1262,11 @@ Patient 8 starts consultation at: 47.598</code></pre>
 <li><p>Copy over the modifications above and run model.</p></li>
 <li><p>Try changing parameters like <code>consultation_time</code> or <code>number_of_doctors</code> - how do the results change?</p></li>
 </ul>
+<div class="python-content">
+<ul>
+<li>Try editing the print messages. For example, you could print the sampled consultation length and a calculation of when the patient is expected to leave (arrival + consultation length). Then, you can compare this with the actual time they leave - is it consistent?</li>
+</ul>
+</div>
 </section>
 <section id="further-information" class="level2">
 <h2 class="anchored" data-anchor-id="further-information">Further information</h2>

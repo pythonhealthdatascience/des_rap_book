@@ -6,6 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="dcterms.date" content="2025-11-25">
 
 <title>Discrete-event simulation (DES) – Reproducible Discrete-Event Simulation in Python and R</title>
 <style>
@@ -578,6 +579,7 @@ cookieconsent.run({
   <li><a href="#what-is-discrete-event-simulation" id="toc-what-is-discrete-event-simulation" class="nav-link active" data-scroll-target="#what-is-discrete-event-simulation">What is discrete-event simulation?</a></li>
   <li><a href="#core-components-of-des-models" id="toc-core-components-of-des-models" class="nav-link" data-scroll-target="#core-components-of-des-models">Core components of DES models</a></li>
   <li><a href="#randomness" id="toc-randomness" class="nav-link" data-scroll-target="#randomness">Randomness</a></li>
+  <li><a href="#how-des-models-advance-time-and-handle-events" id="toc-how-des-models-advance-time-and-handle-events" class="nav-link" data-scroll-target="#how-des-models-advance-time-and-handle-events">How DES models advance time and handle events</a></li>
   <li><a href="#applications-of-des" id="toc-applications-of-des" class="nav-link" data-scroll-target="#applications-of-des">Applications of DES</a></li>
   <li><a href="#test-yourself" id="toc-test-yourself" class="nav-link" data-scroll-target="#test-yourself">Test yourself</a></li>
   <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
@@ -597,6 +599,12 @@ cookieconsent.run({
 <div class="quarto-title-meta">
 
     
+    <div>
+    <div class="quarto-title-meta-heading">Page last modified</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">November 25, 2025</p>
+    </div>
+  </div>
   
     
   </div>
@@ -673,6 +681,71 @@ cookieconsent.run({
 <p>This randomness means that every run of a DES model can produce different results, just like real life. By running the simulation many times, you can see the range of possible outcomes and understand how the system performs under different scenarios—good days, bad days, and everything in between.</p>
 <p><a href="../inputs/input_data_resources/samples.png" class="lightbox" data-gallery="quarto-lightbox-gallery-2"><img src="../inputs/input_data_resources/samples.png" class="img-fluid"></a></p>
 </section>
+<section id="how-des-models-advance-time-and-handle-events" class="level2">
+<h2 class="anchored" data-anchor-id="how-des-models-advance-time-and-handle-events">How DES models advance time and handle events</h2>
+<p>As mentioned above, DES models the world as a series of events, jumping from one event to the next. When creating the model, there are several options for deciding <em>how</em> the simulation decides when the next event occurs and what actions to take. These are referred to as “world views” or “conceptual approaches” for building a DES model.</p>
+<p>These definitions are based on 3.1.2 World Views from the book “Discrete-Event System Simulation” by Banks, Carson, Nelson and Nicol 2005.</p>
+<section id="activity-based-approach" class="level3">
+<h3 class="anchored" data-anchor-id="activity-based-approach">Activity-based approach</h3>
+<p>The simulation advances in fixed increments (e.g., every minute). At each time step, it checks every activity to see if it can now begin (e.g., patient is waiting AND doctor is now free).</p>
+<p>If the chosen time unit is too small, the simulation runs very slowly because it checks conditions constantly. If the chosen time unit is too large, you may miss events of lose accuracy, with activities starting late or skipped over.</p>
+<p><br></p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><a href="des_resources/activity_based.drawio.png" class="lightbox" data-gallery="quarto-lightbox-gallery-3" title="Activity-based approach"><img src="des_resources/activity_based.drawio.png" class="img-fluid figure-img" alt="Activity-based approach"></a></p>
+<figcaption>Activity-based approach</figcaption>
+</figure>
+</div>
+</section>
+<section id="event-based-approach" class="level3">
+<h3 class="anchored" data-anchor-id="event-based-approach">Event-based approach</h3>
+<p>The simulation maintains a list of scheduled events ordered by time, known as the <strong>Future Event List (FEL)</strong>. The clock jumps directly to the next scheduled event (e.g., “patient arrives at 10:15”) and executes it. After handling each event, the simulation adds any new future events to the list.</p>
+<p>If no activities can happen right now (e.g., all doctors are busy, so the next possible event is “doctor becomes free at 10:30”), the simulation simply jumps forward in time to the next scheduled event. If the event list ever becomes empty (no future events), that’s the simulation’s signal to finish.</p>
+<p>This approach uses <strong>variable time advancement</strong>, which is when the simulation clock jumps to the next scheduled event (rather than ticking forward in regular steps).</p>
+<p><br></p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><a href="des_resources/event_based.drawio.png" class="lightbox" data-gallery="quarto-lightbox-gallery-4" title="Event-based approach"><img src="des_resources/event_based.drawio.png" class="img-fluid figure-img" alt="Event-based approach"></a></p>
+<figcaption>Event-based approach</figcaption>
+</figure>
+</div>
+</section>
+<section id="process-based-approach" class="level3">
+<h3 class="anchored" data-anchor-id="process-based-approach">Process-based approach</h3>
+<p>A “process” is defined for each entity. This process describes the sequence of events and activities the entity goes through. This differs from the event-based approach, as we defining the whole journey of each entity (instead of just having a list of events).</p>
+<p>The underlying mechanism for this approach is similar to event-based (building an FEL and using variable time advancement), but these technical details are hidden from you. Hence, process-based tools let you focus on the high-level actions and flows, without worrying about scheduling raw events manually.</p>
+<p>This is the approach in the simulation packages used in the book - SimPy (Python) and simmer (R).</p>
+<blockquote class="blockquote">
+<p>SimPy: “SimPy is a <strong>process-based</strong> discrete-event simulation framework based on standard Python.” (<a href="https://simpy.readthedocs.io/en/latest/">SimPy documentation</a>)</p>
+<p>simmer: “simmer is a DES package for R which enables high-level <strong>process-oriented</strong> modelling, in line with other modern simulators.” (<a href="https://doi.org/10.18637/jss.v090.i02">Ucar, Smeets and Azcorra 2019</a>)</p>
+</blockquote>
+<p><br></p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><a href="des_resources/process_based.drawio.png" class="lightbox" data-gallery="quarto-lightbox-gallery-5" title="Process-based approach"><img src="des_resources/process_based.drawio.png" class="img-fluid figure-img" alt="Process-based approach"></a></p>
+<figcaption>Process-based approach</figcaption>
+</figure>
+</div>
+</section>
+<section id="three-phase-approach" class="level3">
+<h3 class="anchored" data-anchor-id="three-phase-approach">Three-phase approach</h3>
+<p>This approach classes activities as either <strong>B-activities</strong> (bound to happen, scheduled events) or <strong>C-activities</strong> (conditional, depending on system state).</p>
+<p>The simulation repeats three phases in sequence:</p>
+<ol type="1">
+<li><p><strong>Phase A (advance time):</strong> Find the next scheduled B-event and advance clock to that time.</p></li>
+<li><p><strong>Phase B (execute B-events):</strong> Run all the B-events schedules for this time. This might free up resources or change system state.</p></li>
+<li><p><strong>Phase C (check C-activities):</strong> Scan the conditions for all C-activities. If they can begin, activate them.</p></li>
+</ol>
+<p>This approach improves efficiency by only scanning for conditional activities at times when something has actually changed (after B-events complete), rather than scanning at every tiny time increment.</p>
+<p><br></p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><a href="des_resources/three_phase.drawio.png" class="lightbox" data-gallery="quarto-lightbox-gallery-6" title="Three-phase approach"><img src="des_resources/three_phase.drawio.png" class="img-fluid figure-img" alt="Three-phase approach"></a></p>
+<figcaption>Three-phase approach</figcaption>
+</figure>
+</div>
+</section>
+</section>
 <section id="applications-of-des" class="level2">
 <h2 class="anchored" data-anchor-id="applications-of-des">Applications of DES</h2>
 <p><span class="citation" data-cites="Serrano2021">Vázquez-Serrano, Peimbert-García, and Cárdenas-Barrón (<a href="#ref-Serrano2021" role="doc-biblioref">2021</a>)</span> conducted a review of DES in healthcare, analysing over 200 published studies.</p>
@@ -698,8 +771,8 @@ cookieconsent.run({
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<div id="radio_WFUALICIGH" class="webex-radiogroup">
-<label><input type="radio" autocomplete="off" name="radio_WFUALICIGH" value=""> <span>Continuously at fixed time steps</span></label><label><input type="radio" autocomplete="off" name="radio_WFUALICIGH" value="answer"> <span>In jumps from one event to the next</span></label>
+<div id="radio_PJVCPQDEWV" class="webex-radiogroup">
+<label><input type="radio" autocomplete="off" name="radio_PJVCPQDEWV" value=""> <span>Continuously at fixed time steps</span></label><label><input type="radio" autocomplete="off" name="radio_PJVCPQDEWV" value="answer"> <span>In jumps from one event to the next</span></label>
 </div>
 </div>
 </div>
@@ -713,8 +786,8 @@ cookieconsent.run({
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<div id="radio_WOOOFKUMNS" class="webex-radiogroup">
-<label><input type="radio" autocomplete="off" name="radio_WOOOFKUMNS" value=""> <span>Random factors influencing system timing</span></label><label><input type="radio" autocomplete="off" name="radio_WOOOFKUMNS" value="answer"> <span>The people, equipment, or facilities that serve entities</span></label><label><input type="radio" autocomplete="off" name="radio_WOOOFKUMNS" value=""> <span>The time intervals between events</span></label>
+<div id="radio_ERDLVIEQYW" class="webex-radiogroup">
+<label><input type="radio" autocomplete="off" name="radio_ERDLVIEQYW" value=""> <span>Random factors influencing system timing</span></label><label><input type="radio" autocomplete="off" name="radio_ERDLVIEQYW" value="answer"> <span>The people, equipment, or facilities that serve entities</span></label><label><input type="radio" autocomplete="off" name="radio_ERDLVIEQYW" value=""> <span>The time intervals between events</span></label>
 </div>
 </div>
 </div>
@@ -728,8 +801,8 @@ cookieconsent.run({
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<div id="radio_EDWKCXGMPZ" class="webex-radiogroup">
-<label><input type="radio" autocomplete="off" name="radio_EDWKCXGMPZ" value="answer"> <span>It reflects real-world variability in arrivals and service times</span></label><label><input type="radio" autocomplete="off" name="radio_EDWKCXGMPZ" value=""> <span>It removes uncertainty from the system</span></label><label><input type="radio" autocomplete="off" name="radio_EDWKCXGMPZ" value=""> <span>It ensures all entities behave identically in each run</span></label>
+<div id="radio_WYYBAXDICW" class="webex-radiogroup">
+<label><input type="radio" autocomplete="off" name="radio_WYYBAXDICW" value="answer"> <span>It reflects real-world variability in arrivals and service times</span></label><label><input type="radio" autocomplete="off" name="radio_WYYBAXDICW" value=""> <span>It removes uncertainty from the system</span></label><label><input type="radio" autocomplete="off" name="radio_WYYBAXDICW" value=""> <span>It ensures all entities behave identically in each run</span></label>
 </div>
 </div>
 </div>

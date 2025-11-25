@@ -6,6 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="dcterms.date" content="2025-11-24">
 
 <title>Randomness – Reproducible Discrete-Event Simulation in Python and R</title>
 <style>
@@ -611,6 +612,12 @@ cookieconsent.run({
 <div class="quarto-title-meta">
 
     
+    <div>
+    <div class="quarto-title-meta-heading">Page last modified</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">November 24, 2025</p>
+    </div>
+  </div>
   
     
   </div>
@@ -636,6 +643,8 @@ Note: When a Quarto document just contains Python code blocks (and no R code), Q
 <ul>
 <li>STARS Reproducibility Recommendations: Control randomness.</li>
 </ul>
+</div>
+<div class="very-pale-blue">
 <p><strong>Required packages:</strong></p>
 <p>These should be available from environment setup in the “Test yourself” section of <a href="../../pages/setup/environment.html">Environments</a>.</p>
 <div class="python-content">
@@ -655,7 +664,7 @@ Note: When a Quarto document just contains Python code blocks (and no R code), Q
 <p>When simulating real-world systems (e.g.&nbsp;patients arriving, prescriptions queueing), using fixed values is unrealistic. Instead, <strong>discrete-event simulations rely on randomness</strong>: they generate event times and outcomes by sampling randomly from probability distributions.</p>
 <p><a href="../inputs/input_data_resources/samples.png" class="lightbox" data-gallery="quarto-lightbox-gallery-1"><img src="../inputs/input_data_resources/samples.png" class="img-fluid"></a></p>
 <p>However, computers can’t generate “true” randomness. Instead, they use <strong>pseudorandom number generators (PRNGs)</strong>: algorithms which produce a sequence of numbers that appear random, but are in fact completely determined by an initial starting point called a <strong>seed</strong>. If you use the same seed, you’ll get the same random sequence every time - a crucial feature for reproducibility in research and development.</p>
-<p>By default, most software PRNGs initialise the seed based on something that changes rapidly and unpredictably, such as the current system time. This ensures a unique sequence with every fresh run. But for <strong>reproducible experiments</strong>, you should manually set the seed yourself, allowing you and others to exactly recreate simulation results.</p>
+<p>By default, most software PRNGs initialise the seed based on something that changes rapidly, such as the current system time. This ensures a unique sequence with every fresh run. But for <strong>reproducible experiments</strong>, you should manually set the seed yourself, allowing you and others to exactly recreate simulation results.</p>
 <p><a href="distributions_resources/prng_sample.png" class="lightbox" data-gallery="quarto-lightbox-gallery-2"><img src="distributions_resources/prng_sample.png" class="img-fluid"></a></p>
 </section>
 <section id="introducing-tools-for-random-sampling" class="level2">
@@ -673,29 +682,31 @@ Note: When a Quarto document just contains Python code blocks (and no R code), Q
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng()</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>rng.exponential(scale<span class="op">=</span><span class="dv">17</span>, size<span class="op">=</span><span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>array([ 0.67683324, 24.4053033 , 49.77407724])</code></pre>
+<pre><code>array([ 0.4061222 , 12.05240963,  4.77657876])</code></pre>
 </div>
 </div>
 <p>To ensure the same results everytime the code runs, initialise with a fixed seed:</p>
-<div class="columns">
-<div class="column" style="width:47.5%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng(<span class="dv">20</span>)</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>rng.exponential(scale<span class="op">=</span><span class="dv">17</span>, size<span class="op">=</span><span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a generator with a fixed seed for reproducibility</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng(seed<span class="op">=</span><span class="dv">20</span>)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Generate 3 samples from an exponential distribution (mean=17)</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>sample1 <span class="op">=</span> rng.exponential(scale<span class="op">=</span><span class="dv">17</span>, size<span class="op">=</span><span class="dv">3</span>)</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Reset the generator with the same seed</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng(seed<span class="op">=</span><span class="dv">20</span>)</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Generate 3 samples again (should be identical to the first run)</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>sample2 <span class="op">=</span> rng.exponential(scale<span class="op">=</span><span class="dv">17</span>, size<span class="op">=</span><span class="dv">3</span>)</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Print the results</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"First run: </span><span class="sc">{</span>sample1<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>array([3.64795914, 9.04242889, 2.27536902])</code></pre>
+<pre><code>First run: [3.64795914 9.04242889 2.27536902]</code></pre>
 </div>
-</div>
-</div><div class="column" style="width:5%;">
-
-</div><div class="column" style="width:47.5%;">
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng(<span class="dv">20</span>)</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>rng.exponential(scale<span class="op">=</span><span class="dv">17</span>, size<span class="op">=</span><span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Second run (same seed): </span><span class="sc">{</span>sample2<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>array([3.64795914, 9.04242889, 2.27536902])</code></pre>
-</div>
-</div>
+<pre><code>Second run (same seed): [3.64795914 9.04242889 2.27536902]</code></pre>
 </div>
 </div>
 <section id="legacy-api-not-recommended-for-new-code" class="level4">
@@ -773,7 +784,104 @@ Processing: [ 8.92609353 11.16223621 10.72914479]</code></pre>
 </div>
 </div>
 <div class="pale-red">
-<p>⚠️ Processing samples have changed, despite no changes to their sampling code! This is because they share a generator: drawing more arrival samples moves the random number sequence forward, so the processing draws start from a different place.</p>
+<p>⚠️ <strong>Processing samples have changed, despite no changes to their sampling code!</strong></p>
+<p>This happens because both processes share a generator: drawing more arrival samples moves the random number sequence forward, so the processing draws start from a different place. Each draw from the generator advances its internal “state”, delivering the next pseudo-random number in the sequence. These states aren’t visible to the user, but are shown here as A, B, C, etc. for illustration.</p>
+<p><strong>Sampling three arrivals:</strong></p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: center;">RNG state</th>
+<th style="text-align: center;">Arrival sample</th>
+<th style="text-align: center;">Processing sample</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">A</td>
+<td style="text-align: center;">3.21908708</td>
+<td style="text-align: center;">-</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">B</td>
+<td style="text-align: center;">0.92535943</td>
+<td style="text-align: center;">-</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">C</td>
+<td style="text-align: center;">16.12631062</td>
+<td style="text-align: center;">-</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">D</td>
+<td style="text-align: center;">-</td>
+<td style="text-align: center;">11.81071173</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">E</td>
+<td style="text-align: center;">-</td>
+<td style="text-align: center;">10.89274914</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">F</td>
+<td style="text-align: center;">-</td>
+<td style="text-align: center;">8.92609353</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Sampling five arrivals:</strong></p>
+<p>Processing now uses states <strong>F, G, H</strong> instead of <strong>D, E, F</strong>.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: center;">RNG state</th>
+<th style="text-align: center;">Arrival sample</th>
+<th style="text-align: center;">Processing sample</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">A</td>
+<td style="text-align: center;">3.21908708</td>
+<td style="text-align: center;">-</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">B</td>
+<td style="text-align: center;">0.92535943</td>
+<td style="text-align: center;">-</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">C</td>
+<td style="text-align: center;">16.12631062</td>
+<td style="text-align: center;">-</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">D</td>
+<td style="text-align: center;">1.09928134</td>
+<td style="text-align: center;">-</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">E</td>
+<td style="text-align: center;">0.34608612</td>
+<td style="text-align: center;">-</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">F</td>
+<td style="text-align: center;">-</td>
+<td style="text-align: center;">8.92609353</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">G</td>
+<td style="text-align: center;">-</td>
+<td style="text-align: center;">11.16223621</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">H</td>
+<td style="text-align: center;">-</td>
+<td style="text-align: center;">10.72914479</td>
+</tr>
+</tbody>
+</table>
+<p>This means that if you change arrivals from 3 to 5 samples, processing samples will change too, even if you didn’t touch their code, simply because both use the same random stream.</p>
 </div>
 </section>
 <section id="solution-independent-generators" class="level3">
@@ -878,7 +986,105 @@ Processing: [10.37810676  8.95450312  9.17387291]</code></pre>
 </div>
 </div>
 <div class="pale-red">
-<p>⚠️ Processing samples have changed, despite no changes to their sampling code! This is because they share a generator: drawing more arrival samples moves the random number sequence forward, so the processing draws start from a different place.</p>
+<p>⚠️ <strong>Processing samples have changed, despite no changes to their sampling code!</strong></p>
+<p>This happens because both processes share a single random number generator: drawing more arrival samples moves the sequence forward, so the processing draws start from a different place. But in R, exactly how the random numbers are used depends not just on how many you draw, but which distributions you use and their internal algorithms.</p>
+<p>Each call to a random function in R advances the internal generator, but different distributions might use up the stream at different rates. For example, generating one normal value might use more than one core random draw. So the link between arrival and processing samples - shown as A, B, C, etc. - only gives a rough idea, not an exact step-by-step mapping.</p>
+<p><strong>Sampling three arrivals:</strong></p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: center;">RNG state</th>
+<th style="text-align: center;">Arrival sample</th>
+<th style="text-align: center;">Processing sample</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">A</td>
+<td style="text-align: center;">2.2655455</td>
+<td style="text-align: center;">-</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">B</td>
+<td style="text-align: center;">3.5449283</td>
+<td style="text-align: center;">-</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">C</td>
+<td style="text-align: center;">0.4371202</td>
+<td style="text-align: center;">-</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">D</td>
+<td style="text-align: center;">-</td>
+<td style="text-align: center;">12.65960</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">E</td>
+<td style="text-align: center;">-</td>
+<td style="text-align: center;">12.54486</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">F</td>
+<td style="text-align: center;">-</td>
+<td style="text-align: center;">10.82928</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Sampling five arrivals:</strong></p>
+<p>Processing now uses states <strong>F, G, H</strong> instead of <strong>D, E, F</strong>.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: center;">RNG state</th>
+<th style="text-align: center;">Arrival sample</th>
+<th style="text-align: center;">Processing sample</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">A</td>
+<td style="text-align: center;">2.2655455</td>
+<td style="text-align: center;">-</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">B</td>
+<td style="text-align: center;">3.5449283</td>
+<td style="text-align: center;">-</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">C</td>
+<td style="text-align: center;">0.4371202</td>
+<td style="text-align: center;">-</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">D</td>
+<td style="text-align: center;">0.4193858</td>
+<td style="text-align: center;">-</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">E</td>
+<td style="text-align: center;">1.3082059</td>
+<td style="text-align: center;">-</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">F</td>
+<td style="text-align: center;">-</td>
+<td style="text-align: center;">6.920100</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">G</td>
+<td style="text-align: center;">-</td>
+<td style="text-align: center;">8.142866</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">H</td>
+<td style="text-align: center;">-</td>
+<td style="text-align: center;">9.410559</td>
+</tr>
+</tbody>
+</table>
+<p>In R, changing how many samples you draw for one process will almost always change the random numbers used later - even more so when you mix different distributions. That’s why results can shift unexpectedly, even if you only changed the arrivals.</p>
 </div>
 </section>
 <section id="solution-independent-streams" class="level3">
