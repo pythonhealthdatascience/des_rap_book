@@ -2,6 +2,9 @@
 title: Entity processing
 filters:
   - line-highlight
+date: "2025-10-16T11:08:48+01:00"
+language:
+  title-block-published: "Page last modified"
 ---
 
 {{< include ../../scripts/_reticulate-setup.md >}}
@@ -17,6 +20,12 @@ filters:
 This page continues on from: [Entity generation](patients.qmd).
 
 > *Entity generation → Entity processing*
+
+**Acknowledgements:** Inspired by Rosser et al. ([2025](https://des.hsma.co.uk/)).
+
+::::
+
+:::: {.very-pale-blue}
 
 **Required packages:**
 
@@ -39,8 +48,6 @@ library(simmer)
 ```
 
 :::
-
-**Acknowledgements:** Inspired by Rosser et al. ([2025](https://des.hsma.co.uk/)).
 
 ::::
 
@@ -253,6 +260,8 @@ class Model:
 
 <br>
 
+#### Explaining changes to the model class
+
 ```{.python}
 # Create resource
 self.doctor = simpy.Resource(                                       
@@ -288,7 +297,9 @@ Alike arrivals, the length of each consultation is sampled from an exponential d
 self.env.process(self.consultation(patient))
 ```
 
-As soon as a patient arrives, we tell SimPy to begin handling this patient's consultation using `self.env.process()`. SimPy will run this in parallel with other events like arrivals, so multiple patients and activities can progress at the same time.
+As soon as a patient arrives, we tell SimPy to begin handling this patient's consultation using `self.env.process()`.
+
+SimPy uses a process-based approach - see the section on [how DES models advance time and handle events](../intro/des.qmd) on the DES page for an explanation of how this works.
 
 <br>
 
@@ -586,6 +597,12 @@ If you haven't already, try adding a resource-based process for your model.
 * Copy over the modifications above and run model.
 
 * Try changing parameters like `consultation_time` or `number_of_doctors` - how do the results change?
+
+::: {.python-content}
+
+* Try editing the print messages. For example, you could print the sampled consultation length and a calculation of when the patient is expected to leave (arrival + consultation length). Then, you can compare this with the actual time they leave - is it consistent?
+
+:::
 
 ## Further information
 

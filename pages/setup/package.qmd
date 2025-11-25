@@ -1,5 +1,8 @@
 ---
 title: Structuring as a package
+date: "2025-11-06T10:26:08+00:00"
+language:
+  title-block-published: "Page last modified"
 ---
 
 ::: {.pale-blue}
@@ -794,7 +797,7 @@ devtools::install()
 
 ## Test if the package works
 
-:::{.python-content}
+:::: {.python-content}
 
 We will run our model and analyse results within **Jupyter notebooks**, as they allow us to combine code, results and explanations in one document. This can help make our methods and results easier to share, read through and understand.
 
@@ -819,6 +822,9 @@ project-name/
 Open `notebooks/simulation_test.ipynb` and add the following code. This will test that we are able to import our package and use the basic function we had created.
 
 ```{.python}
+%load_ext autoreload
+%autoreload 2
+
 # Import our simulation package
 from simulation.model import run_simulation
 
@@ -833,6 +839,21 @@ print(f"Longer simulation completed with duration: {long_results['duration']}")
 print(f"Number of results: {len(long_results['results'])}")
 ```
 
+::: {.callout-tip title="Autoreload"}
+
+At the start of our cell, we run:
+
+```{.python}
+%load_ext autoreload
+%autoreload 2
+```
+
+This tells Jupyter to automatically reload your code files whenever you save changes. Without this, you'd need to restart the kernel each time you edit your `.py` files to see the updates.
+
+:::
+
+<br>
+
 When you run the cell, you should see an output confirming that the simulation function runs and returns results, if everything is set up correctly.
 
 ```
@@ -842,7 +863,7 @@ Longer simulation completed with duration: 200
 Number of results: 20
 ```
 
-:::
+::::
 
 ::: {.r-content}
 

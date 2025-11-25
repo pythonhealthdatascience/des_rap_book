@@ -2,6 +2,9 @@
 title: Entity generation
 filters:
   - line-highlight
+date: "2025-11-05T14:48:51+00:00"
+language:
+  title-block-published: "Page last modified"
 ---
 
 {{< include ../../scripts/_reticulate-setup.md >}}
@@ -27,6 +30,12 @@ As this builds on concepts introduced in prior pages, we suggest first reading:
 * [Parameters from file](../inputs/parameters_file.qmd)
 * [Randomness](distributions.qmd).
 
+**Acknowledgements:** Inspired by Rosser et al. ([2025](https://des.hsma.co.uk/)).
+
+::::
+
+:::: {.very-pale-blue}
+
 **Required packages:**
 
 These should be available from environment setup in the "Test yourself" section of [Environments](../setup/environment.qmd). 
@@ -49,8 +58,6 @@ library(simmer)
 ```
 
 :::
-
-**Acknowledgements:** Inspired by Rosser et al. ([2025](https://des.hsma.co.uk/)).
 
 ::::
 
@@ -279,6 +286,8 @@ For example, when patient arrivals are added, the environment is responsible for
 ss = np.random.SeedSequence(self.run_number)
 seeds = ss.spawn(1)
 ```
+
+[On the previous page](distributions.qmd), you saw how using separate random generators (streams) prevents changes in one process from affecting another. But to get truly independent random streams, you also need to make sure **those generators start with seeds that are themselves independent**. This avoids unwanted correlations and ensures reproducibility.
 
 You might be tempted to create seeds for each generator using a simple pattern like: seed1 = `run_number`, seed2 = `run_number * 2`, seed = `run_number*3`.
 
@@ -683,13 +692,37 @@ class Model:
 
 We can see that results are consistent with before.
 
-However, differences can occur when switching to `DistributionRegistry` if the order in which the distributions are initialised changes. When using `DistributionRegistry.create_batch()` with `sort=True` (the default), distributions are seeded in alphabetical order of their keys, ensuring deterministic setup. If `sort=False`, seeding follows the dictionary's insertion order.
-
 ```{python}
 param = Parameters()
 model = Model(param=param, run_number=0)
 model.run()
 ```
+
+### Changes in results when switch to using distribution registry
+
+If you switch from setting up distributions manually to using the sim-tools `DistributionRegistry`, you may see **differences in which seeds get used for your distributions**, even if your overall parameters and input seed stay the same. This is because the **order in which the seed sequence is assigned** to each distribution can change depending on your setup.
+
+#### Manual set-up (you choose the assignment order)
+
+Say you're simulating child and adult arrivals to a clinic. When you set up the distributions manually, you decide on which seeds are used. For example:
+
+```{.python}
+# Manual order: child first, adult second
+child_arrival_dist = Exponential(mean=..., random_seed=seeds[0])
+adult_arrival_dist = Exponential(mean=..., random_seed=seeds[1])
+```
+
+#### Registry set-up
+
+If you use `DistributionRegistry.create_batch()` with `sort=True` (the default), the distributions are sorted alphabetically before assigning seeds. This means they are always initialised in a predictable, consistent order - regardless of how the configuration dictionary has been written. However, this will often mean changes from your manual approach. For example:
+
+* Adult arrivals -> `seeds[0]`
+* Child arrivals -> `seeds[1]`
+
+With `sort=False`, seeds are assigned using the order in your configuration dictionary as written. This can mean it is consistent with your manual approach - although also means it will change if you change the order in the dictionary. For example:
+
+* Child arrivals -> `seeds[0]`
+* Adult arrivals -> `seeds[1]`
 
 :::
 
