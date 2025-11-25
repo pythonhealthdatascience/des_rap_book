@@ -376,7 +376,29 @@ The `log()` method is used to record messages as the simulation runs. If `verbos
 
 In `Model`, a new attribute `logger` stores as instance of `SimLogger`.
 
-Where previously we had statements "if verbose print...", these are replace with `self.param.log()`.
+Where previously we had statements "if verbose print...", these are replaced with `self.logger.log()`. As such, you will need to **remove** the following sections:
+
+```{.python}
+# Print arrival time
+if self.param.verbose:
+    print(f"Patient {patient.patient_id} arrives " +
+            f"at time: {patient.arrival_time:.3f}")
+```
+
+```{.python}
+if self.param.verbose:
+    print(f"Patient {patient.patient_id} starts consultation " +
+            f"at: {self.env.now:.3f}")
+```
+
+```{.python}
+# Record end time
+if self.param.verbose:
+    print(f"Patient {patient.patient_id} " +
+            f"leaves at: {self.env.now:.3f}")
+```
+
+These are then replaced as below:
 
 ```{python}
 class Model:
@@ -483,6 +505,10 @@ class Model:
             # Sample consultation duration and pass time spent with doctor
             time_with_doctor = self.consult_dist.sample()
             yield self.env.timeout(time_with_doctor)
+
+            # Log end time#<<
+            self.logger.log(msg=f"Patient {patient.patient_id} leaves.",#<<
+                            sim_time=self.env.now)#<<
 
     def run(self):
         """
