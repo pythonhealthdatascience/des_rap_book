@@ -39,10 +39,10 @@ IGNORE_LIST=(
 )
 
 RESOURCE_PATHS=(
-  pages/output_analysis/outputs_resources
-  pages/output_analysis/replications_resources
-  pages/output_analysis/parallel_resources
-  pages/verification_validation/tests_resources
+  pages/guide/output_analysis/outputs_resources
+  pages/guide/output_analysis/replications_resources
+  pages/guide/output_analysis/parallel_resources
+  pages/guide/verification_validation/tests_resources
 )
 # Lint all, skipping ignores
 pylint pages tests --ignore=$(IFS=,; echo "${IGNORE_LIST[*]}")
