@@ -1,0 +1,576 @@
+---
+title: Scenario and sensitivity analysis
+bibliography: scenarios_resources/references.bib
+date: "2025-11-06T10:44:04+00:00"
+---
+
+{{< include /scripts/_reticulate-setup.md >}}
+
+```{python}
+#| echo: false
+# pylint: disable=undefined-variable,unused-import
+```
+
+:::: {.pale-blue}
+
+**Learning objectives:**
+
+* Recognise the importance of sharing your scenario and sensitivity analysis code.
+* Learn how to run a combination of scenarios.
+* Understand differences between scenario and sensitivity analysis.
+
+**Relevant reproducibility guidelines:**
+
+* STARS Reproducibility Recommendations (⭐): Provide code for all scenarios and sensitivity analyses.
+* STARS Reproducibility Recommendations: Save outputs to a file.
+* STARS Reproducibility Recommendations: Avoid excessive output files.
+* STARS Reproducibility Recommendations: Address large file sizes.
+
+**Pre-reading:**
+
+This page continues on from: [Parallel processing](../output_analysis/parallel.qmd).
+
+> *Entity generation → Entity processing → Initialisation bias → Performance measures → Replications → Parallel processing → Scenario and sensitivity analysis*
+
+::::
+
+:::: {.very-pale-blue}
+
+**Required packages:**
+
+These should be available from environment setup in the "Test yourself" section of [Environments](../setup/environment.qmd). 
+
+::: {.python-content}
+
+```{python}
+import itertools
+
+from IPython.display import HTML
+from itables import to_html_datatable
+import numpy as np
+import pandas as pd
+import scipy.stats as st
+import simpy
+from sim_tools.distributions import Exponential
+```
+
+```{python}
+#| echo: false
+# To ensure renders correctly in quarto
+import plotly.io as pio  # pylint: disable=ungrouped-imports
+pio.renderers.default = "plotly_mimetype"
+```
+
+:::
+
+::: {.r-content}
+
+```{r}
+#| output: false
+library(dplyr)
+library(kableExtra)
+library(knitr)
+library(simmer)
+library(tidyr)
+```
+
+:::
+
+::::
+
+## Running and sharing scenarios
+
+When creating a DES, you won't just run one model - you run scenarios, which are different parameter set-ups. These are used to test how outcomes change under varying conditions.
+
+When running scenarios, there are two important things to remember:
+
+::: {.cream}
+
+**1. Run scenarios programmatically.**
+
+:::
+
+Don't duplicate whole scripts just to test different set-ups. The idea is to build the model with functions and classes so you only need to change the parameters and re-run. That's why we guide you through building the model this way in this book.
+
+::: {.cream}
+
+**2. Share your scenario code.**
+
+:::
+
+You should share code and data for every scenario - not just the base case.
+
+In @Heather2025, six out of seven studies with scenarios lacked scenario code. This made it challenging and time-consuming to reproduce their results, as descriptions of the scenarios in the articles were often ambiguous and key parameters unclear or missing.
+
+```{python}
+#| echo: false
+#| file: ../output_analysis/parallel_resources/parameters.py
+```
+
+```{python}
+#| echo: false
+#| file: ../output_analysis/replications_resources/patient.py
+```
+
+```{python}
+#| echo: false
+#| file: ../output_analysis/replications_resources/monitored_resource.py
+```
+
+```{python}
+#| echo: false
+#| file: ../output_analysis/replications_resources/model.py
+```
+
+```{python}
+#| echo: false
+#| file: ../output_analysis/replications_resources/summary_stats.py
+```
+
+```{python}
+#| echo: false
+#| file: ../output_analysis/parallel_resources/runner.py
+```
+
+```{r}
+#| echo: false
+#| file: ../output_analysis/replications_resources/create_params.R
+```
+
+```{r}
+#| echo: false
+#| file: ../output_analysis/replications_resources/filter_warmup.R
+```
+
+```{r}
+#| echo: false
+#| file: ../output_analysis/length_warmup_resources/metrics.R
+```
+
+```{r}
+#| echo: false
+#| file: ../output_analysis/replications_resources/get_run_results.R
+```
+
+```{r}
+#| echo: false
+#| file: ../output_analysis/replications_resources/model.R
+```
+
+```{r}
+#| echo: false
+#| file: ../output_analysis/replications_resources/runner.R
+```
+
+## Simple scenarios
+
+This code runs the simulation for each value of `number_of_doctors` from 3 to 6.
+
+The returned dataframe contains the results from each of the five runs from the four scenarios.
+
+::: {.python-content}
+
+```{python}
+results = []
+# Loop through doctor counts 3-6, running the simulation
+for i in range(3, 7):
+    param = Parameters(number_of_doctors=i)
+    runner = Runner(param=param)
+    result = runner.run_reps()["run"]
+    # Add scenario information to the results, then save to list
+    result["number_of_doctors"] = i
+    results.append(result)
+
+# Combine results into a single dataframe
+scenario_results = pd.concat(results, ignore_index=True)
+
+# Show as interactive table
+HTML(to_html_datatable(scenario_results))
+```
+
+:::
+
+::: {.r-content}
+
+```{r}
+results <- list()
+# Loop through doctor counts 3-6, running the simulation
+for (i in 3L:6L) {
+  param <- create_params(number_of_doctors = i)
+  result <- runner(param = param)[["run_results"]]
+  # Add scenario information to the results, then save to list
+  result["number_of_doctors"] <- i
+  results[[length(results) + 1L]] <- result
+}
+
+# Combine results into a single dataframe
+scenario_results <- do.call(rbind, results)
+
+# Show as interactive table
+kable(scenario_results) |> scroll_box(height = "400px")
+```
+
+:::
+
+## Running several scenario combinations
+
+::: {.python-content}
+
+If you are running several scenarios, it can be useful to define a helper function like the one shown below. This example is adapted from:
+
+> "[HSMA - little book of DES](https://des.hsma.co.uk/)" from Sammi Rosser, Dan Chalk and Amy Heather 2025 (MIT Licence).
+
+```{python}
+def run_scenarios(scenarios, param_factory=None):
+    """
+    Execute a set of scenarios and return the results from each run.
+
+    Parameters
+    ----------
+    scenarios : dict
+        Dictionary where key is name of parameter and value is a list with
+        different values to run in scenarios.
+    param_factory : callable or None, optional
+        A callable that returns a new Parameters object for each scenario run.
+        This can be a class (e.g., `Parameters`) or a factory function/lambda
+        with preset arguments (e.g., `lambda: Parameters(number_of_runs=4)`).
+        If not provided, defaults to using `Parameters()` with no arguments.
+
+    Returns
+    -------
+    pandas.DataFrame
+        DataFrame with results from each run of each scenario.
+
+    Notes
+    -----
+    Function adapted from Rosser, Chalk and Heather 2025.
+    """
+    # If none provided, use Parameters
+    if param_factory is None:
+        param_factory = Parameters
+
+    # Find every possible permutation of the scenarios
+    all_scenarios_tuples = list(itertools.product(*scenarios.values()))
+
+    # Convert back into dictionaries
+    all_scenarios_dicts = [
+        dict(zip(scenarios.keys(), p)) for p in all_scenarios_tuples
+    ]
+
+    # Preview some of the scenarios
+    print(f"There are {len(all_scenarios_dicts)} scenarios. Running:")
+
+    # Run the scenarios...
+    results = []
+    for index, scenario_to_run in enumerate(all_scenarios_dicts):
+        print(scenario_to_run)
+
+        # Create fresh instance of parameter class for each scenario
+        param = param_factory()
+
+        # Update parameter list with the scenario parameters
+        param.scenario_name = index
+        for key in scenario_to_run:
+            setattr(param, key, scenario_to_run[key])
+
+        # Perform replications
+        scenario_exp = Runner(param)
+        scenario_res = scenario_exp.run_reps()["run"]
+
+        # Add scenario number and values to the results dataframe
+        scenario_res["scenario"] = index
+        for key in scenario_to_run:
+            scenario_res[key] = scenario_to_run[key]
+
+        # Add results from scenario to list
+        results.append(scenario_res)
+    return pd.concat(results)
+```
+
+:::
+
+::: {.r-content}
+
+If you are running several scenarios, it can be useful to define a helper function like the one shown below.
+
+```{r}
+#' Run a set of scenarios
+#'
+#' @param scenarios List where key is name of parameter and value is a list of
+#' different values to run in scenarios
+#' @param base_list List of parameters to use as base for scenarios, which can
+#' be partial (as will input to create_params() function).
+#' @param verbose Boolean, whether to print messages about scenarios as run.
+#'
+#' @return Tibble with results from each replication for each scenario.
+#' @export
+
+run_scenarios <- function(scenarios, base_list, verbose = TRUE) {
+  # Generate all permutations of the scenarios
+  all_scenarios <- expand.grid(scenarios)
+
+  # Preview the number of scenarios
+  if (isTRUE(verbose)) {
+    message(sprintf("There are %d scenarios.", nrow(all_scenarios)))
+    message("Base parameters:")
+    print(base_list)
+  }
+
+  results <- list()
+
+  # Iterate through each scenario
+  for (index in seq_len(nrow(all_scenarios))) {
+
+    # Filter to one of the scenarios
+    scenario_to_run <- all_scenarios[index, , drop = FALSE]
+
+    # Print the scenario parameters
+    formatted_scenario <- toString(
+      paste0(names(scenario_to_run), " = ", scenario_to_run)
+    )
+
+    # Print the scenario currently running
+    if (isTRUE(verbose)) {
+      message("Scenario: ", formatted_scenario)
+    }
+
+    # Create parameter list with scenario-specific values
+    s_args <- c(scenario_to_run, list(scenario_name = index))
+
+    # Create instance of parameter class with specified base parameters
+    s_param <- do.call(create_params, base_list)
+
+    # Update parameter list with the scenario parameters
+    for (name in names(s_args)) {
+      s_param[[name]] <- s_args[[name]]
+    }
+
+    # Run replications for the current scenario and get processed results
+    scenario_result <- runner(s_param)[["run_results"]]
+
+    # Append scenario parameters to the results
+    scenario_result[["scenario"]] <- index
+    for (key in names(scenario_to_run)) {
+      scenario_result[[key]] <- scenario_to_run[[key]]
+    }
+
+    # Append to results list
+    results[[index]] <- scenario_result
+  }
+  do.call(rbind, results)
+}
+```
+
+:::
+
+The function generates all possible scenario combinations from the values supplied in `scenarios`.
+
+It then iterates through these, creating a fresh set of parameters for each scenario run. This ensures every scenario gets an independent set of parameters and avoids carrying state from one scenario to another.
+
+The replication results from each scenario are saved in a list and finally combined into a single table.
+
+Let's run it!
+
+::: {.python-content}
+
+```{python}
+# Run scenarios
+scenario_results = run_scenarios(
+    scenarios={"interarrival_time": [4, 5, 6, 7, 8],
+               "number_of_doctors": [3, 4, 5]},
+    param_factory=Parameters
+)
+
+# Save to CSV
+scenario_results.to_csv(
+    "scenarios_resources/python_scenario_results.csv", index=False
+)
+
+# View scenario results
+HTML(to_html_datatable(scenario_results.head(200)))
+```
+
+:::
+
+:::: {.r-content}
+
+```{r}
+# Run scenarios
+scenarios <- list(
+  interarrival_time = c(4L, 5L, 6L, 7L, 8L),
+  number_of_doctors = c(3L, 4L, 5L)
+)
+scenario_results <- run_scenarios(
+  scenarios = scenarios, base_list = create_params()
+)
+
+# Save to CSV
+write.csv(scenario_results,
+          file.path("scenarios_resources", "r_scenario_results.csv"))
+
+# View scenario results
+kable(scenario_results) |> scroll_box(height = "400px")
+```
+
+<br>
+
+::: {.callout-note title="Selective re-running"}
+
+For simulations with very long run times, you may wish to explore the [{targets}](https://books.ropensci.org/targets/) package. 
+
+With `{targets}`, you can set up your pipeline so that input changes (like updates to parameter files or scenario definitions) trigger the package to automatically re-run only the affected simulations and analyses, while all other results are reused from cache. This targeted re-running helps save computation time when there are many slow scenarios to run.
+
+If you change the code inside your model function, `{targets}` will detect those updates and make sure all impacted analysis steps are re-run.
+
+*Note: This package hasn't been personally tried in this project, so we can't vouch for whether it definitely works reliably with simmer simulation models - it's just a cool package we've heard about! For guides on using this, see the official [{targets} manual](https://books.ropensci.org/targets/)*.
+
+:::
+
+::::
+
+## Sensitivity analysis
+
+<div class="h3-tight"></div>
+
+### How does sensitivity analysis differ from scenario analysis?
+
+Scenario analysis focuses on a set of pre-defined situations which are plausible and relevant to the problem being studied. It can often involve varying multiple parameters simultaneously. The purpose is to understand how the system operates under different hypothetical scenarios.
+
+Sensitivity analysis varies one parameter (or a small group of parameters) and assess the impact of small changes in that parameter on outcomes. The purpose is to understand **how uncertainty in the inputs affects the model**, and how **robust** the model is to variation in those inputs.
+
+Sensitivity analysis is an important for model validation (and forms part of "[experimentation validation](../verification_validation/verification_validation.qmd#experimentation-validation)").
+
+### Running sensitivity analyses
+
+Sensitivity analyses should be run programmatically, just like scenario analyses, and the code should be shared for reproducibility.
+
+They can be run using similar code. Below is an example using the `run_scenarios` function to vary the `interarrival_time` parameter.
+
+::: {.python-content}
+
+```{python}
+# Run sensitivity analysis
+sensitivity_results = run_scenarios(
+    scenarios={"interarrival_time": [4, 4.5, 5, 5.5, 6, 6.5, 7]},
+    param_factory=Parameters
+)
+
+# Save to CSV
+sensitivity_results.to_csv(
+    "scenarios_resources/python_sensitivity_results.csv", index=False
+)
+
+# View sensitivity results
+HTML(to_html_datatable(sensitivity_results.head(200)))
+```
+
+:::
+
+::: {.r-content}
+
+```{r}
+# Run sensitivity analysis
+sensitivity_results <- run_scenarios(
+  scenarios = list(interarrival_time = c(4L, 4.5, 5L, 5.5, 6L, 6.5, 7L)),
+  base_list = create_params()
+)
+
+# Save to CSV
+write.csv(sensitivity_results,
+          file.path("scenarios_resources", "r_sensitivity_results.csv"))
+
+# View sensitivity results
+kable(sensitivity_results) |> scroll_box(height = "400px")
+```
+
+:::
+
+## Saving results
+
+Saving your simulation results to file is important for reproducility, as it allows others to verify your findings and generate consistent (or new) figures and analyses, even if they can't re-run your simulation.
+This practice is transparent, providing a clear record of what you found, and it is valuable for you as well, ensuring you always know exactly what results you obtained, and can regenerate your own tables and figures from the results.
+
+However, there are two key things to keep in mind:
+
+**1. Number of files.** Running many scenarios or replications can easily lead to an explosion of output files. Do not save each scenario or run as a separate file unless there is a specific need. Instead, combine all results into a **single file with columns marking scenario and replication IDs**. 
+
+**2. Avoid large file sizes.** Be strategic about what you save. For short tests and debugging, saving detailed ("patient-level") results makes sense. But for full-scale runs with many replications, those files can become unmanageably large. Generally, **save summary outputs** to file for analysis (e.g., means from each run), not massive raw datasets. If you absolutely need to save or share large files, use compressed formats (e.g., `csv.gz`). Also, keep in mind practical size limits for version control: for example, GitHub's individual file size limit is 100 MB.
+
+## Explore the example models
+
+<div class="h3-tight"></div>
+
+### Nurse visit simulation
+
+:::: {.python-content}
+
+{{< include /html/pydesrapmms.html >}}
+
+::: {.blue-table}
+| | |
+| - | - |
+| **Key files** | `simulation/run_scenarios.py`<br>`notebooks/analysis.ipynb` |
+| **What to look for?** | Similar implementation to above. |
+: {tbl-colwidths="[20,80]"}
+:::
+
+::::
+
+:::: {.r-content}
+
+{{< include /html/rdesrapmms.html >}}
+
+::: {.blue-table}
+| | |
+| - | - |
+| **Key files** | `R/scenarios.R`<br>`rmarkdown/analysis.md` |
+| **What to look for?** | Similar implementation to above. |
+: {tbl-colwidths="[20,80]"}
+:::
+
+::::
+
+### Stroke pathway simulation
+
+:::: {.python-content}
+
+{{< include /html/pydesrapstroke.html >}}
+
+::: {.blue-table}
+| | |
+| - | - |
+| **Key files** | `notebooks/analysis.ipynb` |
+| **What to look for?** | These scenarios are run one-by-one in the Jupyter notebook. They involve altering arrivals before running the simulation (5% increase in admissions), or changes in calculations (pooling beds). |
+: {tbl-colwidths="[20,80]"}
+:::
+
+::::
+
+:::: {.r-content}
+
+{{< include /html/rdesrapstroke.html >}}
+
+::: {.blue-table}
+| | |
+| - | - |
+| **Key files** | `rmarkdown/analysis.md` |
+| **What to look for?** | These scenarios are run one-by-one in the Rmarkdown. They involve altering arrivals before running the simulation (5% increase in admissions), or changes in calculations (pooling beds). |
+: {tbl-colwidths="[20,80]"}
+:::
+
+::::
+
+## Test yourself
+
+Try running your own scenario and sensitivity analyses.
+
+You could build your own simple loop to test different values - just make sure you use a fresh set of parameters for each run.
+
+Alternatively, use the `run_scenarios` function.
+
+## References
+
+::: {#refs}
+:::
+
+<br><br>
