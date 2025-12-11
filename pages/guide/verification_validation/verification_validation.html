@@ -1,0 +1,1788 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.25">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="dcterms.date" content="2025-12-10">
+
+<title>Verification and validation – DES RAP</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="../../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../../">
+<link href="../../../pages/guide/verification_validation/tests.html" rel="next">
+<link href="../../../pages/guide/experiments/full_run.html" rel="prev">
+<link href="../../../images/stars_logo_blue.png" rel="icon" type="image/png">
+<script src="../../../site_libs/cookie-consent/cookie-consent.js"></script>
+<link href="../../../site_libs/cookie-consent/cookie-consent.css" rel="stylesheet">
+<script src="../../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-7b89279ff1a6dce999919e0e67d4d9ec.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../../site_libs/bootstrap/bootstrap-cf9b3981a620de6d1ff1748a6509d2c1.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../../../site_libs/quarto-contrib/downloadthis-1.9.1/downloadthis.css" rel="stylesheet">
+<script src="../../../site_libs/quarto-contrib/glightbox/glightbox.min.js"></script>
+<link href="../../../site_libs/quarto-contrib/glightbox/glightbox.min.css" rel="stylesheet">
+<link href="../../../site_libs/quarto-contrib/glightbox/lightbox.css" rel="stylesheet">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script async="" src="https://www.googletagmanager.com/gtag/js?id=G-W2FC4GDHFK"></script>
+
+<script type="text/plain" cookie-consent="tracking">
+
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-W2FC4GDHFK', { 'anonymize_ip': true});
+</script>
+
+<script type="text/javascript" charset="UTF-8">
+document.addEventListener('DOMContentLoaded', function () {
+cookieconsent.run({
+  "notice_banner_type":"simple",
+  "consent_type":"implied",
+  "palette":"light",
+  "language":"en",
+  "page_load_consent_levels":["strictly-necessary","functionality","tracking","targeting"],
+  "notice_banner_reject_button_hide":false,
+  "preferences_center_close_button_hide":false,
+  "website_name":""
+  ,
+"language":"en"
+  });
+});
+</script> 
+  
+<style>
+
+      .quarto-title-block .quarto-title-banner h1,
+      .quarto-title-block .quarto-title-banner h2,
+      .quarto-title-block .quarto-title-banner h3,
+      .quarto-title-block .quarto-title-banner h4,
+      .quarto-title-block .quarto-title-banner h5,
+      .quarto-title-block .quarto-title-banner h6
+      {
+        color: #ffffff;
+      }
+
+      .quarto-title-block .quarto-title-banner {
+        color: #ffffff;
+background-image: url(../../../images/banner.png);
+background-size: cover;
+      }
+</style>
+
+
+<link rel="stylesheet" href="../../../styles/headings.css">
+<link rel="stylesheet" href="../../../styles/general.css">
+<link rel="stylesheet" href="../../../styles/buttons.css">
+<link rel="stylesheet" href="../../../styles/language-selector.css">
+<link rel="stylesheet" href="../../../styles/callout.css">
+<link rel="stylesheet" href="../../../styles/tables.css">
+<link rel="stylesheet" href="../../../styles/webex.css">
+</head>
+
+<body class="nav-sidebar docked nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top quarto-banner">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a href="../../../index.html" class="navbar-brand navbar-brand-logo">
+    <img src="../../../images/stars_logo_white.png" alt="" class="navbar-logo light-content">
+    <img src="../../../images/stars_logo_white.png" alt="" class="navbar-logo dark-content">
+    </a>
+    <a class="navbar-brand" href="../../../index.html">
+    <span class="navbar-title">DES RAP</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link active" href="../../../pages/guide/introduction.html" aria-current="page"> 
+<span class="menu-text">Step-by-step guide</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../../pages/example_models/example_models.html"> 
+<span class="menu-text">Examples</span></a>
+  </li>  
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-frameworks" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Frameworks</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-frameworks">    
+        <li>
+    <a class="dropdown-item" href="../../../pages/frameworks/levels_of_rap.html">
+ <span class="dropdown-text">NHS Levels of RAP</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../../pages/frameworks/stars_reproducibility.html">
+ <span class="dropdown-text">STARS reproducibility recommendations</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-intros" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Intros</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-intros">    
+        <li>
+    <a class="dropdown-item" href="../../../pages/intros/des.html">
+ <span class="dropdown-text">Intro to DES</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../../pages/intros/rap.html">
+ <span class="dropdown-text">Intro to reproducibility and RAPs</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../../pages/intros/foss.html">
+ <span class="dropdown-text">Intro to FOSS</span></a>
+  </li>  
+    </ul>
+  </li>
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/pythonhealthdatascience/des_rap_book"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../../pages/guide/verification_validation/verification_validation.html">Verification &amp; validation</a></li><li class="breadcrumb-item"><a href="../../../pages/guide/verification_validation/verification_validation.html">Verification and validation</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+    </div>
+  </nav>
+  <div id="quarto-announcement" data-announcement-id="4617d65ad9316c9b7606e9c95215be6c" class="alert alert-primary hidden"><div class="quarto-announcement-content">
+<div class="language-selector">
+<p>Choose your language:&nbsp;&nbsp; <button class="language-button" onclick="setLanguage('python')">Python</button> <button class="language-button" onclick="setLanguage('r')">R</button></p>
+</div>
+</div></div>
+</header>
+<!-- content -->
+<header id="title-block-header" class="quarto-title-block default page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../../pages/guide/verification_validation/verification_validation.html">Verification &amp; validation</a></li><li class="breadcrumb-item"><a href="../../../pages/guide/verification_validation/verification_validation.html">Verification and validation</a></li></ol></nav>
+      <h1 class="title">Verification and validation</h1>
+                      </div>
+  </div>
+    
+  
+  <div class="quarto-title-meta">
+
+      
+      <div>
+      <div class="quarto-title-meta-heading">Page last modified</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">December 10, 2025</p>
+      </div>
+    </div>
+    
+      
+    </div>
+    
+  
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header sidebar-header-stacked">
+      <a href="../../../index.html" class="sidebar-logo-link">
+      </a>
+      </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/introduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Setup</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/setup/version.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Version control</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/setup/environment.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Environments</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/setup/package.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Structuring as a package</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/setup/code_structure.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Code organisation</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">Model inputs</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/inputs/input_modelling.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Input modelling</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/inputs/input_data.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Input data management</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/inputs/parameters_script.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Parameters from script</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/inputs/parameters_file.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Parameters from file</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/inputs/parameters_validation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Parameter validation</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
+ <span class="menu-text">Model building</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/model/distributions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Randomness</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/model/patients.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Entity generation</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/model/process.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Entity processing</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/model/logs.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Logging</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true">
+ <span class="menu-text">Output analysis</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/output_analysis/warmup.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Initialisation bias</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/output_analysis/outputs.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Performance measures</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/output_analysis/replications.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Replications</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/output_analysis/length_warmup.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Length of warm-up</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/output_analysis/n_reps.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Number of replications</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/output_analysis/parallel.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Parallel processing</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true">
+ <span class="menu-text">Experimentation</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/experiments/scenarios.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Scenario and sensitivity analysis</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/experiments/tables_figures.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Tables and figures</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/experiments/full_run.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Full run</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true">
+ <span class="menu-text">Verification &amp; validation</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/verification_validation/verification_validation.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Verification and validation</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/verification_validation/tests.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Tests</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/verification_validation/mathematical.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Mathematical proof of correctness</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/verification_validation/quality_assurance.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Quality assurance</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="true">
+ <span class="menu-text">Style &amp; documentation</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/style_docs/linting.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Linting</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/style_docs/docstrings.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Docstrings</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/style_docs/github_actions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">GitHub actions</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/style_docs/documentation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Documentation</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="true">
+ <span class="menu-text">Collaboration &amp; sharing</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-8" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/sharing/peer_review.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Code review</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/sharing/licence.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Licensing</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/sharing/citation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Citation</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/sharing/changelog.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Changelog</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/sharing/archive.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Sharing and archiving</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="true">
+ <span class="menu-text">Closing remarks</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-9" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/further_info/conclusion.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Conclusion</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/further_info/feedback.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Feedback</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul class="collapse">
+  <li><a href="#what-is-the-difference-between-verification-and-validation" id="toc-what-is-the-difference-between-verification-and-validation" class="nav-link active" data-scroll-target="#what-is-the-difference-between-verification-and-validation">What is the difference between verification and validation?</a></li>
+  <li><a href="#methods-for-verification" id="toc-methods-for-verification" class="nav-link" data-scroll-target="#methods-for-verification">Methods for verification</a></li>
+  <li><a href="#methods-for-validation" id="toc-methods-for-validation" class="nav-link" data-scroll-target="#methods-for-validation">Methods for validation</a></li>
+  <li><a href="#explore-the-example-models" id="toc-explore-the-example-models" class="nav-link" data-scroll-target="#explore-the-example-models">Explore the example models</a></li>
+  <li><a href="#test-yourself" id="toc-test-yourself" class="nav-link" data-scroll-target="#test-yourself">Test yourself</a></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content quarto-banner-title-block" id="quarto-document-content">
+
+
+
+
+
+<div class="pale-blue">
+<p><strong>Learning objectives:</strong></p>
+<ul>
+<li>Define verification and validation.</li>
+<li>Learn about the range of methods for verification and validation.</li>
+</ul>
+</div>
+<section id="what-is-the-difference-between-verification-and-validation" class="level2">
+<h2 class="anchored" data-anchor-id="what-is-the-difference-between-verification-and-validation">What is the difference between verification and validation?</h2>
+<p>The following definitions are based on <span class="citation" data-cites="Robinson2007">Robinson (<a href="#ref-Robinson2007" role="doc-biblioref">2007</a>)</span> and <span class="citation" data-cites="Sargent2013">Sargent (<a href="#ref-Sargent2013" role="doc-biblioref">2013</a>)</span>.</p>
+<p><br></p>
+<div class="blue">
+<p><strong>Verification:</strong> The process of checking that the simulation model correctly implements the intended conceptual model.</p>
+<p>It involves checking that the model’s logic, structure and parameters are implemented as planned and free from coding errors.</p>
+</div>
+<p><a href="verification_validation_resources/verification.png" class="lightbox" data-gallery="quarto-lightbox-gallery-1"><img src="verification_validation_resources/verification.png" class="img-fluid"></a></p>
+<p>Verification ensures the model is built correctly, which is necessary for accuracy, so it can be seen as a subset of the broader topic of validation. In practice, these steps are sometimes discussed together under the general topic of V&amp;V (Verification and Validation).</p>
+<p><br></p>
+<div class="blue">
+<p><strong>Validation:</strong> The process of checking whether the simulation model is a sufficiently accurate representation of your real system.</p>
+<p>It involves comparing the model’s inputs, behaviour and results to the real system. The key question is whether any differences are small enough that the model can still reliably support the decisions or answer the questions it was designed for.</p>
+</div>
+<p><a href="verification_validation_resources/validation.png" class="lightbox" data-gallery="quarto-lightbox-gallery-2"><img src="verification_validation_resources/validation.png" class="img-fluid"></a></p>
+<p>You’ll come across many different categorisations for simulation validation techniques - a popular example comes from <span class="citation" data-cites="Sargent2013">Sargent (<a href="#ref-Sargent2013" role="doc-biblioref">2013</a>)</span> who suggest there are three overarching types of validation:</p>
+<ul>
+<li><strong>Operational validation</strong> - whether the model behaves accurately for its intended purpose.</li>
+<li><strong>Data validation</strong> - whether data used are adequate and correct.</li>
+<li><strong>Conceptual model validation</strong> - whether theories, assumptions, and model structure are reasonable for intended purpose.</li>
+</ul>
+<p><br></p>
+<p>The following sections outline various methods for verification and validation - but they are not comprehensive - just a selection we feel likely to be relevant and feasible for healthcare DES models. For more techniques, check out <span class="citation" data-cites="Balci1998">Balci (<a href="#ref-Balci1998" role="doc-biblioref">1998</a>)</span>.</p>
+</section>
+<section id="methods-for-verification" class="level2">
+<h2 class="anchored" data-anchor-id="methods-for-verification">Methods for verification</h2>
+<div class="h3-tight">
+
+</div>
+<section id="desk-checking" class="level3">
+<h3 class="anchored" data-anchor-id="desk-checking">Desk checking</h3>
+<p>“Desk checking” or “self-inspection” involves reviewing your own work to see if it appears correct. <span class="citation" data-cites="Balci1998">Balci (<a href="#ref-Balci1998" role="doc-biblioref">1998</a>)</span> suggest several types of checks you can use when reviewing.</p>
+<p><strong>Syntax checking</strong> means checking that the code is properly formatted, that parameters are correctly passed between functions, and that all required libraries are imported.</p>
+<p><strong>Cross-reference checking</strong> focuses on verifying that any links and file paths are correct, and that required functions can be called.</p>
+<p><strong>Documentation checking</strong> involves ensuring all documentation is complete, accurate and consistent with the implemented code.</p>
+<p><strong>Convention violation checking</strong> ensures adherence with coding standards.</p>
+<p><strong>Detailed comparison to specification</strong> involves systematically comparing the implemented model with the original plans. This makes sure that the requirements, logic, parameters and outputs as planned in the conceptual model are implemented in the code.</p>
+<p><strong>Reading the code</strong> line-by-line is also handy for seeing if the code makes sense and for spotting any possible issues. <span class="citation" data-cites="Rosser2025">Rosser (<a href="#ref-Rosser2025" role="doc-biblioref">2025</a>)</span> suggests two issues that often arise: inconsistent use of time units (e.g., mixing minutes, hours, days), and difficulties reproducing results.</p>
+<div class="cream">
+<p><strong>What does this mean in practice?</strong></p>
+<p>✔️ Systematically check your code.</p>
+<p>✔️ Keep your documentation complete and up-to-date.</p>
+<p>✔️ Maintain an environment with all required packages (see <a href="../../../pages/guide/setup/environment.html">environments</a> page).</p>
+<p>✔️ Lint your code (see <a href="../../../pages/guide/style_docs/linting.html">linting</a> page).</p>
+<p>✔️ Get code review (see <a href="../../../pages/guide/sharing/peer_review.html">code review</a> page).</p>
+</div>
+</section>
+<section id="debugging" class="level3">
+<h3 class="anchored" data-anchor-id="debugging">Debugging</h3>
+<p><strong>Debugging</strong> is the process of identifying and fixing bugs in your code. In <span class="citation" data-cites="Balci1998">Balci (<a href="#ref-Balci1998" role="doc-biblioref">1998</a>)</span>, they describe this as an iterative process of (1) identifying bugs, (2) determining their cause, (3) identifying necessary changes, and (4) making those changes.</p>
+<div class="cream">
+<p><strong>What does this mean in practice?</strong></p>
+<p>You’ll probably perform debugging naturally as you code the model - but it is helpful to:</p>
+<p>✔️ Write tests - they’ll help you spot bugs (see <a href="../../../pages/guide/verification_validation/tests.html">tests</a> page).</p>
+<p>✔️ As you develop the model, monitor it using logs - this will also help you spot bugs (see <a href="../../../pages/guide/model/logs.html">logs</a> page).</p>
+<p>✔️ Use GitHub issues to record bugs as they arise, so you don’t forget about them and so you have a record for future reference (see section on GitHub issues on the <a href="../../../pages/guide/sharing/peer_review.html#github-issues">peer review</a> page).</p>
+</div>
+</section>
+<section id="assertion-checking" class="level3">
+<h3 class="anchored" data-anchor-id="assertion-checking">Assertion checking</h3>
+<p>As defined in <span class="citation" data-cites="Balci1998">Balci (<a href="#ref-Balci1998" role="doc-biblioref">1998</a>)</span>, this technique involves making <strong>assertions</strong> - i.e., outlining the expected behaviour of your model. You should then check to ensure these hold true. These assertions can be placed throughout your code, monitoring things like:</p>
+<ul>
+<li>Patient flow logic (e.g., ensuring patients don’t skip required stages).</li>
+<li>Resource constraints (e.g., bed capacity never exceeds maximum).</li>
+<li>Parameter validation (e.g., service times are always positive).</li>
+<li>Conservation laws (e.g., total patients in system matches arrivals minus departures).</li>
+</ul>
+<blockquote class="blockquote">
+<p><strong>Note:</strong> Another type of verification called “<strong>invalid input testing</strong>” can fall under assertion checking, when you are writing tests that check the model behaves as expected (e.g., with appropriate error messages) if invalid parameters are used (<span class="citation" data-cites="Balci1998">Balci (<a href="#ref-Balci1998" role="doc-biblioref">1998</a>)</span>).</p>
+</blockquote>
+<div class="cream">
+<p><strong>What does this mean in practice?</strong></p>
+<p>✔️ Add checks in the model which cause errors if something doesn’t look right (e.g., <a href="../../../pages/guide/inputs/parameters_validation.html">Parameter validation</a> page).</p>
+<p>✔️ Write tests which check that assertions hold true (see <a href="../../../pages/guide/verification_validation/tests.html">Tests</a> page).</p>
+</div>
+</section>
+<section id="special-input-testing" class="level3">
+<h3 class="anchored" data-anchor-id="special-input-testing">Special input testing</h3>
+<p>There are several techniques for verification that involve varying your model inputs. Some we cover below include:</p>
+<ul>
+<li><strong>Boundary value testing</strong></li>
+<li><strong>Stress testing</strong></li>
+</ul>
+<p>We also mention overlap with:</p>
+<ul>
+<li><strong>Extreme input testing</strong> (covered by boundary value testing).</li>
+<li><strong>Invalid input testing</strong> (overlaps with boundary value testing and assertion checking).</li>
+</ul>
+<p>Finally, we mention running an <strong>idle system</strong> as an “unofficial” method (i.e., not covered by major simulation references for verification and validation like <span class="citation" data-cites="Balci1998">Balci (<a href="#ref-Balci1998" role="doc-biblioref">1998</a>)</span>).</p>
+<blockquote class="blockquote">
+<p><strong>Note:</strong> There is overlap between this and <strong>functional testing</strong> (sometimes called “black-box testing”), which is about assessing whether a simulation model accurately performs input-to-output transformations as specified.</p>
+</blockquote>
+<section id="boundary-value-testing" class="level4">
+<h4 class="anchored" data-anchor-id="boundary-value-testing">Boundary value testing</h4>
+<p>Boundary value testing (BVT) is relevant for input variables with defined minimum and maximum limits (e.g., age restrictions, bed capacity). It involves running the model with parameters just inside, exactly at, and just outside parameter boundaries. The aim is to catch errors in patient routing, resource allocation or event timing, as these can occur more frequently at boundaries than when more safe ranges (<span class="citation" data-cites="KLE2025">KLE’S Nijalingappa College (<a href="#ref-KLE2025" role="doc-biblioref">2025</a>)</span>, <span class="citation" data-cites="Balci1998">Balci (<a href="#ref-Balci1998" role="doc-biblioref">1998</a>)</span>).</p>
+<blockquote class="blockquote">
+<p><strong>Note:</strong> BVT specifically focuses on every boundary, not just the minimum and maximum values. This makes it more comprehensive, encompassing another type of verification called <strong>extreme input testing</strong> which just involves running minimum and maximum values. It can also overlap with <strong>invalid input testing</strong> when checking values that fall outside the minimum and maximum (<span class="citation" data-cites="Balci1998">Balci (<a href="#ref-Balci1998" role="doc-biblioref">1998</a>)</span>).</p>
+</blockquote>
+<p><strong>Example 1: Multiple boundaries</strong></p>
+<p>Suppose a simulation model routes patients based on their triage risk scores from 0 to 5. For example:</p>
+<ul>
+<li>Patients with score less than 2 go to Minor Injuries.</li>
+<li>Patients with score from 2 to less than 4 go to Urgent Care.</li>
+<li>Patients with scores of 4 to 5 inclusive go to Resuscitation.</li>
+</ul>
+<p>To check your routing logic, you would run boundary value tests using values just inside, exactly at, and just outside these thresholds:</p>
+<ul>
+<li>-0.1, 0, 0.1 (boundary for Minor Injuries).</li>
+<li>1.9, 2, 2.1 (boundary between Minor Injuries and Urgent Care).</li>
+<li>3.9, 4, 4.1 (boundary between Urgent Care and Resuscitation).</li>
+<li>4.9, 5, 5.1 (upper limit for Resuscitation).</li>
+</ul>
+<p><strong>Example 2: Just minimum and maximum boundaries</strong></p>
+<p>Suppose we simulate a screening programme where patients are only eligible if their age is betwen 18 and 75 inclusive. Boundary value tests would check:</p>
+<ul>
+<li>Patients below the minimum are rejected (17).</li>
+<li>Patients at/near the thresholds are accepted (18, 19, 74, 75).</li>
+<li>Patients above the maximum are rejected (76).</li>
+</ul>
+<div class="cream">
+<p><strong>What does this mean in practice?</strong></p>
+<p>✔️ If you have input variables with explicit limits, design tests to check the behaviour at, just inside, and just outside each boundary.</p>
+</div>
+</section>
+<section id="stress-testing" class="level4">
+<h4 class="anchored" data-anchor-id="stress-testing">Stress testing</h4>
+<p>Stress testing involves running your model under extremely demanding conditions. For example, with very high arrivals, limited resources, and/or long service times. The goal is to check that the system handles congestion/overload appropriately (<span class="citation" data-cites="Balci1998">Balci (<a href="#ref-Balci1998" role="doc-biblioref">1998</a>)</span>):</p>
+<ul>
+<li>Do patients queue correctly?</li>
+<li>Does it respect resource constraints?</li>
+<li>Do calculated performance measures remain valid (e.g., utilisation within 0-1).</li>
+</ul>
+<div class="cream">
+<p><strong>What does this mean in practice?</strong></p>
+<p>✔️ Write tests that simulate worst-case load and ensure model is robust under heavy demand (see <a href="../../../pages/guide/verification_validation/tests.html">tests</a> page).</p>
+</div>
+</section>
+<section id="idle-system" class="level4">
+<h4 class="anchored" data-anchor-id="idle-system">Idle system</h4>
+<p>Though not an “official” verification method, it can be helpful to run your model under “empty” or “idle” conditions. For example, with very few arrivals, ample resources, and/or extremely short service times. This is essentially the opposite of stress testing. The goal is still to confirm that the system behaviours sensibly in these unusual conditions (e.g., are performance measures reasonable and valid).</p>
+<div class="cream">
+<p><strong>What does this mean in practice?</strong></p>
+<p>✔️ Write tests with little or no activity/waits/service (see <a href="../../../pages/guide/verification_validation/tests.html">tests</a> page).</p>
+</div>
+</section>
+</section>
+<section id="bottom-up-testing" class="level3">
+<h3 class="anchored" data-anchor-id="bottom-up-testing">Bottom-up testing</h3>
+<p>Bottom-up testing means testing the smallest parts of your simulation code first, then gradually combining and testing them together as larger sections (<span class="citation" data-cites="Balci1998">Balci (<a href="#ref-Balci1998" role="doc-biblioref">1998</a>)</span>). This helps ensure each part is working as intended, making it easier to pinpoint the source of bugs.</p>
+<div class="cream">
+<p><strong>What does this mean in practice?</strong></p>
+<p>✔️ Write unit tests for each individual component of your simulation model (see <a href="../../../pages/guide/verification_validation/tests.html">tests</a> page).</p>
+<p>✔️ Once individual parts work correctly, combine them and test how they interact. This can be via integration testing or functional testing (see <a href="../../../pages/guide/verification_validation/tests.html">tests</a> page).</p>
+</div>
+</section>
+<section id="regression-testing" class="level3">
+<h3 class="anchored" data-anchor-id="regression-testing">Regression testing</h3>
+<p>When you make changes to your model, you should re-run your tests to ensure those changes haven’t introduced new errors. This is referred to as regression testing (<span class="citation" data-cites="Balci1998">Balci (<a href="#ref-Balci1998" role="doc-biblioref">1998</a>)</span>).</p>
+<div class="cream">
+<p><strong>What does this mean in practice?</strong></p>
+<p>✔️ Write your tests early! Don’t leave them all until the end. Having tests in place early means you can re-run them as you make changes and catch issues as you go.</p>
+<p>✔️ Run tests regularly. You can do this manually on your local machine, or automatically through CI/CD pipelines that could run tests on pull requests or merges to the main branch (see <a href="../../../pages/guide/style_docs/github_actions.html">GitHub actions</a> page).</p>
+</div>
+</section>
+<section id="mathematical-proof-of-correctness" class="level3">
+<h3 class="anchored" data-anchor-id="mathematical-proof-of-correctness">Mathematical proof of correctness</h3>
+<p>Formal validation of a model using mathematical proof of correctness (<span class="citation" data-cites="Balci1998">Balci (<a href="#ref-Balci1998" role="doc-biblioref">1998</a>)</span>) is typically possible only for simple models that have accepted theoretical solutions. For example, you can compare a simple M/M/s queueing model to known equations from queueing theory.</p>
+<p>As <span class="citation" data-cites="Robinson2007">Robinson (<a href="#ref-Robinson2007" role="doc-biblioref">2007</a>)</span> notes, this approach can involve comparing the simulation model to a simpler mathematical model. Though it will only be a crude approximation of the simulation and would not be able to predict the outcome exactly, it can be used as a rough comparison. This is sometimes called <strong>static analysis</strong> because the mathematical model doesn’t account for the full dynamics of the simulation model. When comparing, it can be useful to simplify the simulation model temporarily - for example, removing random events so it is possible to mathematically determine the outcome.</p>
+<p>We provide an example of this on the subsequent <a href="../../../pages/guide/verification_validation/mathematical.html">mathematical proof of correctness</a> page.</p>
+<div class="cream">
+<p><strong>What does this mean in practice?</strong></p>
+<p>✔️ For parts of your model where theoretical results exist (like an M/M/s queue), compare simulation outputs with results from mathematical formulas.</p>
+<p>This is a great baseline: start with a simple model you can compare against theory. That way, you have confidence in your code as a foundation before you build in more system complexity.</p>
+</div>
+</section>
+</section>
+<section id="methods-for-validation" class="level2">
+<h2 class="anchored" data-anchor-id="methods-for-validation">Methods for validation</h2>
+<div class="h3-tight">
+
+</div>
+<section id="face-validation" class="level3">
+<h3 class="anchored" data-anchor-id="face-validation">Face validation</h3>
+<p><strong>Face validation</strong> is a process where the project team, potential model users, and people with relevant experience of the healthcare system review the simulation. Based on their knowledge and experiences, they compare the model’s behaviour and results with what would be expected in the real system and judge whether the model appears realistic and appropriate (<span class="citation" data-cites="Balci1998">Balci (<a href="#ref-Balci1998" role="doc-biblioref">1998</a>)</span>).</p>
+<p>Evaluating and reporting face validity is a requirement of the DES reporting checklist from <span class="citation" data-cites="Zhang2025">Zhang, Lhachimi, and Rogowski (<a href="#ref-Zhang2025" role="doc-biblioref">2020</a>)</span> (which is based on reports from the International Society for Pharmacoeconomics and Outcomes Research (ISPOR)-Society for Medical Decision Making (SMDM) Modeling Good Research Practices Task Force).</p>
+<div class="cream">
+<p><strong>What does this mean in practice?</strong></p>
+<p>✔️ Present key simulation outputs and model behaviour to people such as:</p>
+<ul>
+<li>Project team members.</li>
+<li>Intended users of the model (e.g., healthcare analysts, managers).</li>
+<li>People familiar with the real system (e.g., clinicians, frontline staff, patient representatives).</li>
+</ul>
+<p>Ask for their subjective feedback on whether the model and results “look right”. Discuss specific areas, such as whether performance measures (e.g., patient flow, wait times) match expectations under similar conditions.</p>
+</div>
+</section>
+<section id="turing-test" class="level3">
+<h3 class="anchored" data-anchor-id="turing-test">Turing test</h3>
+<p><strong>Turing test</strong> validation is a technique where experts familiar with the healthcare system are shown real-world output data and simulation output data, without knowing which is which. This provides a “blind test”: they must decide which results they think are from the actual system and which are from the model. If experts cannot reliably tell the difference, it increases confidence in the model validity (<span class="citation" data-cites="Balci1998">Balci (<a href="#ref-Balci1998" role="doc-biblioref">1998</a>)</span>).</p>
+<p>This can be supplementary to face validation and other comparisons - rather than asking reviewers whether outputs seem plausible, they test whether they are indistinguishable.</p>
+<div class="cream">
+<p><strong>What does this mean in practice?</strong></p>
+<p>✔️ Collect matching sets of model output and real system, remove identifying labels, and present them to a panel of experts. Record whether experts can distinguish simulation outputs from real data. Use their feedback on distinguishing features to further improve the simulation.</p>
+</div>
+</section>
+<section id="predictive-validation" class="level3">
+<h3 class="anchored" data-anchor-id="predictive-validation">Predictive validation</h3>
+<p><strong>Predictive validation</strong> means running the simulation model based on data from a particular time period of your system (e.g., a specific year, season or event). The model results should then be compared with the actual observed outcomes from that time period (<span class="citation" data-cites="Balci1998">Balci (<a href="#ref-Balci1998" role="doc-biblioref">1998</a>)</span>).</p>
+<p>Predictive validation is a requirement in the DES reporting checklist from <span class="citation" data-cites="Zhang2025">Zhang, Lhachimi, and Rogowski (<a href="#ref-Zhang2025" role="doc-biblioref">2020</a>)</span>.</p>
+<div class="cream">
+<p><strong>What does this mean in practice?</strong></p>
+<p>✔️ Use historical arrival data, staffing schedules, treatment times, or other inputs from a specific time period to drive your simulation. Compare the simulation’s predictions for that period (e.g., waiting times, bed occupancy) against the real outcomes for the same period.</p>
+<p>✔️ Consider varying the periods you validate on—year-by-year, season-by-season, or even for particular policy changes or events—to detect strengths or weaknesses in the model across different scenarios.</p>
+<p>✔️ Use graphical comparisons (e.g., time series plots) or statistical measures (e.g., goodness-of-fit, mean errors, confidence intervals) to assess how closely the model matches reality - see below.</p>
+</div>
+</section>
+<section id="graphical-comparison" class="level3">
+<h3 class="anchored" data-anchor-id="graphical-comparison">Graphical comparison</h3>
+<p><strong>Graphical comparison</strong> involves comparing graphs of model variables over time with graphs of real system variables. You should look for similarities in patterns, trends, periodicities (i.e., recurring events), and other characteristics (<span class="citation" data-cites="Balci1998">Balci (<a href="#ref-Balci1998" role="doc-biblioref">1998</a>)</span>).</p>
+<div class="cream">
+<p><strong>What does this mean in practice?</strong></p>
+<p>✔️ Create time-series plots of key metrics (e.g., daily patient arrivals, resource utilisation) for both the model and system. Create distributions of waiting times, service times, and other performance measures. Compare the model and system graphs.</p>
+</div>
+</section>
+<section id="statistical-comparison" class="level3">
+<h3 class="anchored" data-anchor-id="statistical-comparison">Statistical comparison</h3>
+<p>Statistical comparison involves using formal <strong>statistical techniques</strong> to compare model outputs with real system data. <span class="citation" data-cites="Balci1998">Balci (<a href="#ref-Balci1998" role="doc-biblioref">1998</a>)</span> recommend a validation procedure using simultaneous confidence intervals. Other statistical techniques including t-tests and goodness-of-fits tests have also been proposed.</p>
+<p>This is a type of <strong>external validation</strong> (comparing model results to empirical data of actual event), which is a requirement in the DES reporting checklist from <span class="citation" data-cites="Zhang2025">Zhang, Lhachimi, and Rogowski (<a href="#ref-Zhang2025" role="doc-biblioref">2020</a>)</span>.</p>
+<div class="cream">
+<p><strong>What does this mean in practice?</strong></p>
+<p>✔️ Collect real system data on key performance measures (e.g., wait times, lengths of stay, throughput) and compare with model outputs statistically using appropriate tests.</p>
+</div>
+</section>
+<section id="animation-visualisation" class="level3">
+<h3 class="anchored" data-anchor-id="animation-visualisation">Animation visualisation</h3>
+<p>If you build an animation that shows your simulation model as it runs, it can help you spot errors by letting you “see” what’s happening (<span class="citation" data-cites="Balci1998">Balci (<a href="#ref-Balci1998" role="doc-biblioref">1998</a>)</span>). You can watch patients flow, queues grow and shrink, and resources being used - and you maybe be able to spot odd behaviours.</p>
+<div class="cream">
+<p><strong>What does this mean in practice?</strong></p>
+<p>Creating an animation takes time, but it has several benefits beyond just validation.</p>
+<ul>
+<li>✔️ <strong>Validation:</strong> It can help you spot mistakes</li>
+<li>✔️ <strong>Communication:</strong> It is really helpful for sharing the models with others (such as with stakeholders and decision makers).</li>
+<li>✔️ <strong>Reuse:</strong> It supports reuse of the model (as in the <a href="https://pythonhealthdatascience.github.io/stars/pages/research/stars_framework_reuse.html">STARS framework</a>).</li>
+</ul>
+<div class="python-content">
+<p>In Python, check out <a href="https://github.com/Bergam0t/vidigi/tree/main">vidigi</a> - a package developed by Sammi Rosser to make animated visualisations for open-source simulation models (e.g., SimPy with streamlit).</p>
+</div>
+</div>
+</section>
+<section id="comparison-testing" class="level3">
+<h3 class="anchored" data-anchor-id="comparison-testing">Comparison testing</h3>
+<p>If two or more simulation models exist for the same system (perhaps built using different methods, languages, or by different groups), <strong>comparison testing</strong> (or “back-to-back testing”) can be used. Running both models with identical input data and configurations and comparing their outputs can reveal problems or inconsistencies in at least one model’s logic, assumptions or implementation (<span class="citation" data-cites="Balci1998">Balci (<a href="#ref-Balci1998" role="doc-biblioref">1998</a>)</span>).</p>
+<div class="cream">
+<p><strong>What does this mean in practice?</strong></p>
+<p>✔️ If you have multiple models of the same system, compare them!</p>
+<p>You probably won’t have two models often, but when you do, comparing them is very useful. For example, if you create an open-source version of a commercial model or translate a model between R and Python (as in this book), comparing results can quickly uncover issues and improve quality.</p>
+</div>
+</section>
+<section id="input-data-validation" class="level3">
+<h3 class="anchored" data-anchor-id="input-data-validation">Input data validation</h3>
+<p>Data validation involves confirming that the data used in your model are appropriate and accurately reflect the real system (<span class="citation" data-cites="Sargent2013">Sargent (<a href="#ref-Sargent2013" role="doc-biblioref">2013</a>)</span>).</p>
+<p>This includes checking that statistical distributions are appropriate representations and that any data transformations preserve the essential characteristics of the original data (<span class="citation" data-cites="Banks2005">Banks et al. (<a href="#ref-Banks2005" role="doc-biblioref">2005</a>)</span>).</p>
+<div class="cream">
+<p><strong>What does this mean in practice?</strong></p>
+<p>✔️ Check the datasets used - screen for outliers, determine if they are correct, and if the reason for them occurring should be incorporated into the simulation (<span class="citation" data-cites="Sargent2013">Sargent (<a href="#ref-Sargent2013" role="doc-biblioref">2013</a>)</span>).</p>
+<p>✔️ Ensure you have performed appropriate input modelling steps when choosing your distributions - see <a href="../../../pages/guide/inputs/input_modelling.html">input modelling</a> page.</p>
+</div>
+</section>
+<section id="conceptual-model-validation" class="level3">
+<h3 class="anchored" data-anchor-id="conceptual-model-validation">Conceptual model validation</h3>
+<p>Conceptual model validation determines whether the theories, assumptions, and underlying structure of your conceptual model are correct and reasonable for the intended purpose (<span class="citation" data-cites="Sargent2013">Sargent (<a href="#ref-Sargent2013" role="doc-biblioref">2013</a>)</span>, <span class="citation" data-cites="Robinson2007">Robinson (<a href="#ref-Robinson2007" role="doc-biblioref">2007</a>)</span>). This focuses on whether the model includes the necessary details and relationships to meet the study objectives.</p>
+<p>Key questions include:</p>
+<ul>
+<li>Are the model’s assumptions realistic and justified?</li>
+<li>Does the model structure capture the essential elements of the real system?</li>
+<li>Are simplifications appropriate given the study purpose?</li>
+<li>Do the causal relationships make sense?</li>
+</ul>
+<div class="cream">
+<p><strong>What does this mean in practice?</strong></p>
+<p>✔️ Document and justify all modeling assumptions.</p>
+<p>✔️ Review the conceptual model with people familiar with the real system to assess completeness and accuracy.</p>
+</div>
+</section>
+<section id="experimentation-validation" class="level3">
+<h3 class="anchored" data-anchor-id="experimentation-validation">Experimentation validation</h3>
+<p><strong>Experimentation validation</strong> ensures that the procedures used to run experiments and analyse results are appropriate and will produce accurate, reliable findings (<span class="citation" data-cites="Robinson2007">Robinson (<a href="#ref-Robinson2007" role="doc-biblioref">2007</a>)</span>). Key components include:</p>
+<ul>
+<li><strong>Initialisation bias removal</strong> - ensuring the model reaches steady state.</li>
+<li><strong>Appropriate run length</strong> - sufficient time for reliable estimates.</li>
+<li><strong>Adequate replications</strong> - enough runs for statistical confidence.</li>
+<li><strong>Sensitivity analysis</strong> - testing robustness to parameter changes.</li>
+</ul>
+<div class="cream">
+<p>What does this mean in practice?</p>
+<p>✔️ Use a warm-up period - see <a href="../../../pages/guide/output_analysis/warmup.html">initialisation bias</a> page.</p>
+<p>✔️ Use statistical methods to determine sufficient run length and number of replications - see <a href="../../../pages/guide/output_analysis/length_warmup.html">length of warm-up</a> and <a href="../../../pages/guide/output_analysis/n_reps.html">number of replications</a> page.</p>
+<p>✔️ Perform sensitivity analysis to test how changes in input parameters affect outputs - see <a href="../../../pages/guide/experiments/scenarios.html">scenario and sensitivity analysis</a> page.</p>
+</div>
+</section>
+<section id="cross-validation" class="level3">
+<h3 class="anchored" data-anchor-id="cross-validation">Cross validation</h3>
+<p><strong>Cross validation</strong> involves comparing your simulation with other modelling studies that address the same or similar decision problems (<span class="citation" data-cites="Zhang2025">Zhang, Lhachimi, and Rogowski (<a href="#ref-Zhang2025" role="doc-biblioref">2020</a>)</span>). While assessing whether your results are consistent with the broader literature, you may also identify strengths or limitations of your model, and find alternative approaches to the same problem.</p>
+<p>Cross validation is a requirement in the DES reporting checklist from <span class="citation" data-cites="Zhang2025">Zhang, Lhachimi, and Rogowski (<a href="#ref-Zhang2025" role="doc-biblioref">2020</a>)</span>.</p>
+<div class="cream">
+<p><strong>What does this mean in practice?</strong></p>
+<p>✔️ Search for similar simulation studies and compare the key assumptions, methods and results. Discuss discrepancies and explain reasons for different findings or approaches. Use insights from other studies to improve or validate your own model.</p>
+</div>
+</section>
+</section>
+<section id="explore-the-example-models" class="level2">
+<h2 class="anchored" data-anchor-id="explore-the-example-models">Explore the example models</h2>
+<div class="python-content">
+<p><a href="https://github.com/pythonhealthdatascience/pydesrap_mms" target="_blank" style="text-decoration: none;"> <span style="display: inline-flex; align-items: center; background: #1d7898;
+  color: #fff; border-radius: 20px; padding: 0.4em 1em; font-weight: 600;
+  gap: 0.5em;"> <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/github.svg" alt="GitHub" width="20" height="20" style="filter: brightness(0)
+    invert(1);"> Click to visit pydesrap_mms repository </span> </a></p>
+</div>
+<div class="r-content">
+<p><a href="https://github.com/pythonhealthdatascience/rdesrap_mms" target="_blank" style="text-decoration: none;"> <span style="display: inline-flex; align-items: center; background: #1d7898;
+  color: #fff; border-radius: 20px; padding: 0.4em 1em; font-weight: 600;
+  gap: 0.5em;"> <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/github.svg" alt="GitHub" width="20" height="20" style="filter: brightness(0)
+    invert(1);"> Click to visit rdesrap_mms repository </span> </a></p>
+</div>
+<p>We have completed steps to <strong>verify</strong> the model. <strong>Validation</strong> has not been performed as this is just an example model with synthetic inputs and is not based on a real system.</p>
+<div class="python-content">
+<p><a href="https://github.com/pythonhealthdatascience/pydesrap_stroke" target="_blank" style="text-decoration: none;"> <span style="display: inline-flex; align-items: center; background: #1d7898;
+  color: #fff; border-radius: 20px; padding: 0.4em 1em; font-weight: 600;
+  gap: 0.5em;"> <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/github.svg" alt="GitHub" width="20" height="20" style="filter: brightness(0)
+    invert(1);"> Click to visit pydesrap_stroke repository </span> </a></p>
+</div>
+<div class="r-content">
+<p><a href="https://github.com/pythonhealthdatascience/rdesrap_stroke" target="_blank" style="text-decoration: none;"> <span style="display: inline-flex; align-items: center; background: #1d7898;
+  color: #fff; border-radius: 20px; padding: 0.4em 1em; font-weight: 600;
+  gap: 0.5em;"> <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/github.svg" alt="GitHub" width="20" height="20" style="filter: brightness(0)
+    invert(1);"> Click to visit rdesrap_stroke repository </span> </a></p>
+</div>
+<p>We have completed steps to <strong>verify</strong> the model. <strong>Validation</strong> has not been performed as this example just replicates an existing published model, and is not being re-applied to a real system.</p>
+</section>
+<section id="test-yourself" class="level2">
+<h2 class="anchored" data-anchor-id="test-yourself">Test yourself</h2>
+<p>We encourage you to apply as many verification and validation methods as you can to your simulation models. Each approach gives a fresh angle on model quality, and together they build a robust foundation of trust in your work.</p>
+<p>However, trying to do everything at once can feel overwhelming! Remember, verification and validation are iterative processes - it’s normal and expected to work on them bit by bit, returning to add, review, and improve methods as your project develops.</p>
+<p>To help you get started, we’ve put together a checklist you can copy into a <a href="../../../pages/guide/sharing/peer_review.html#github-issues">GitHub issue</a> on your project. Use it to track which methods you’ve tried, what you want to tackle next, and which seem most relevant or feasible for your current context. This makes it easier to plan, prioritise, and document your verification and validation efforts over time.</p>
+<p><a href="#dnldts57247" onclick="fetch('data:text/plain;base64,IyBWZXJpZmljYXRpb24gYW5kIHZhbGlkYXRpb24gY2hlY2tsaXN0CgpUaGlzIGNoZWNrbGlzdCBpcyBmcm9tOiBIZWF0aGVyLCBBLiwgTW9ua3MsIFQuLCBNdXN0YWZlZSwgTi4sICYgSGFycGVyLCBBLiAoMjAyNSkuIERFUyBSQVAgQm9vazogUmVwcm9kdWNpYmxlIERpc2NyZXRlLUV2ZW50IFNpbXVsYXRpb24gaW4gUHl0aG9uIGFuZCBSLiBodHRwczovL2dpdGh1Yi5jb20vcHl0aG9uaGVhbHRoZGF0YXNjaWVuY2UvZGVzX3JhcF9ib29rLiBodHRwczovL2RvaS5vcmcvMTAuNTI4MS96ZW5vZG8uMTcwOTQxNTUuCgojIyBWZXJpZmljYXRpb24KCkRlc2sgY2hlY2tpbmcKCiogWyBdIFN5c3RlbWF0aWNhbGx5IGNoZWNrIGNvZGUuCiogWyBdIEtlZXAgZG9jdW1lbnRhdGlvbiBjb21wbGV0ZSBhbmQgdXAtdG8tZGF0ZS4KKiBbIF0gTWFpbnRhaW4gYW4gZW52aXJvbm1lbnQgd2l0aCBhbGwgcmVxdWlyZWQgcGFja2FnZXMuCiogWyBdIExpbnQgY29kZS4KKiBbIF0gR2V0IGNvZGUgcmV2aWV3LgoKRGVidWdnaW5nCgoqIFsgXSBXcml0ZSB0ZXN0cyAtIHRoZXknbGwgaGVscCBmb3Igc3BvdHRpbmcgYnVncy4KKiBbIF0gRHVyaW5nIG1vZGVsIGRldmVsb3BtZW50LCBtb25pdG9yIHRoZSBtb2RlbCB1c2luZyBsb2dzIC0gdGhleSdsbCBoZWxwIHdpdGggc3BvdHRpbmcgYnVncy4KKiBbIF0gVXNlIEdpdEh1YiBpc3N1ZXMgdG8gcmVjb3JkIGJ1Z3MgYXMgdGhleSBhcmlzZSwgc28gdGhleSBhcmVuJ3QgZm9yZ290dGVuIGFuZCBhcmUgcmVjb3JkZWQgZm9yIGZ1dHVyZSByZWZlcmVuY2UuCgpBc3NlcnRpb24gY2hlY2tpbmcKCiogWyBdIEFkZCBjaGVja3MgaW4gdGhlIG1vZGVsIHdoaWNoIGNhdXNlIGVycm9ycyBpZiBzb21ldGhpbmcgZG9lc24ndCBsb29rIHJpZ2h0LgoqIFsgXSBXcml0ZSB0ZXN0cyB3aGljaCBjaGVjayB0aGF0IGFzc2VydGlvbnMgaG9sZCB0cnVlLgoKU3BlY2lhbCBpbnB1dCB0ZXN0aW5nCgoqIFsgXSBJZiB0aGVyZSBhcmUgaW5wdXQgdmFyaWFibGVzIHdpdGggZXhwbGljaXQgbGltaXRzLCBkZXNpZ24gYm91bmRhcnkgdmFsdWUgdGVzdHMgdG8gY2hlY2sgdGhlIGJlaGF2aW91ciBhdCwganVzdCBpbnNpZGUsIGFuZCBqdXN0IG91dHNpZGUgZWFjaCBib3VuZGFyeS4KKiBbIF0gV3JpdGUgc3RyZXNzIHRlc3RzIHdoaWNoIHNpbXVsYXRlIHdvcnN0LWNhc2UgbG9hZCBhbmQgZW5zdXJlIG1vZGVsIGlzIHJvYnVzdCB1bmRlciBoZWF2eSBkZW1hbmQuCiogWyBdIFdyaXRlIHRlc3RzIHdpdGggbGl0dGxlIG9yIG5vIGFjdGl2aXR5L3dhaXRzL3NlcnZpY2UuCgpCb3R0b20tdXAgdGVzdGluZwoKKiBbIF0gV3JpdGUgdW5pdCB0ZXN0cyBmb3IgZWFjaCBpbmRpdmlkdWFsIGNvbXBvbmVudCBvZiB0aGUgbW9kZWwuCiogWyBdIE9uY2UgaW5kaXZpZHVhbCBwYXJ0cyB3b3JrIGNvcnJlY3RseSwgY29tYmluZSB0aGVtIGFuZCB0ZXN0IGhvdyB0aGV5IGludGVyYWN0IC0gdGhpcyBjYW4gYmUgdmlhIGludGVncmF0aW9uIHRlc3Rpbmcgb3IgZnVuY3Rpb25hbCB0ZXN0aW5nLgoKUmVncmVzc2lvbiB0ZXN0aW5nCgoqIFsgXSBXcml0ZSB0ZXN0cyBlYXJseS4KKiBbIF0gUnVuIHRlc3RzIHJlZ3VsYXJseSAobG9jYWxseSBvciBhdXRvbWF0aWNhbGx5IHZpYS4gR2l0SHViIGFjdGlvbnMpLgoKTWF0aGVtYXRpY2FsIHByb29mIG9mIGNvcnJlY3RuZXNzCgoqIFsgXSBGb3IgcGFydHMgb2YgdGhlIG1vZGVsIHdoZXJlIHRoZW9yZXRpY2FsIHJlc3VsdHMgZXhpc3QgKGxpa2UgYW4gTS9NL3MgcXVldWUpLCBjb21wYXJlIHNpbXVsYXRpb24gb3V0cHV0cyB3aXRoIHJlc3VsdHMgZnJvbSBtYXRoZW1hdGljYWwgZm9ybXVsYXMuCgojIyBWYWxpZGF0aW9uCgpGYWNlIHZhbGlkYXRpb24KCiogWyBdIFByZXNlbnQga2V5IHNpbXVsYXRpb24gb3V0cHV0cyBhbmQgbW9kZWwgYmVoYXZpb3VyIHRvIHBlb3BsZSBzdWNoIGFzOiBwcm9qZWN0IHRlYW0gbWVtYmVyczsgaW50ZW5kZWQgdXNlcnMgb2YgdGhlIG1vZGVsIChlLmcuLCBoZWFsdGhjYXJlIGFuYWx5c3RzLCBtYW5hZ2Vycyk7IHBlb3BsZSBmYW1pbGlhciB3aXRoIHRoZSByZWFsIHN5c3RlbSAoZS5nLiwgY2xpbmljaWFucywgZnJvbnRsaW5lIHN0YWZmLCBwYXRpZW50IHJlcHJlc2VudGF0aXZlcykuIEFzayBmb3IgdGhlaXIgc3ViamVjdGl2ZSBmZWVkYmFjayBvbiB3aGV0aGVyIHRoZSBtb2RlbCBhbmQgcmVzdWx0cyAibG9vayByaWdodCIuIERpc2N1c3Mgc3BlY2lmaWMgYXJlYXMsIHN1Y2ggYXMgd2hldGhlciBwZXJmb3JtYW5jZSBtZWFzdXJlcyAoZS5nLiwgcGF0aWVudCBmbG93LCB3YWl0IHRpbWVzKSBtYXRjaCBleHBlY3RhdGlvbnMgdW5kZXIgc2ltaWxhciBjb25kaXRpb25zLgoKVHVyaW5nIHRlc3QKCiogWyBdIENvbGxlY3QgbWF0Y2hpbmcgc2V0cyBvZiBtb2RlbCBvdXRwdXQgYW5kIHJlYWwgc3lzdGVtLCByZW1vdmUgaWRlbnRpZnlpbmcgbGFiZWxzLCBhbmQgcHJlc2VudCB0aGVtIHRvIGEgcGFuZWwgb2YgZXhwZXJ0cy4gUmVjb3JkIHdoZXRoZXIgZXhwZXJ0cyBjYW4gZGlzdGluZ3Vpc2ggc2ltdWxhdGlvbiBvdXRwdXRzIGZyb20gcmVhbCBkYXRhLiBVc2UgdGhlaXIgZmVlZGJhY2sgb24gZGlzdGluZ3Vpc2hpbmcgZmVhdHVyZXMgdG8gZnVydGhlciBpbXByb3ZlIHRoZSBzaW11bGF0aW9uLgoKUHJlZGljdGl2ZSB2YWxpZGF0aW9uCgoqIFsgXSBVc2UgaGlzdG9yaWNhbCBhcnJpdmFsIGRhdGEsIHN0YWZmaW5nIHNjaGVkdWxlcywgdHJlYXRtZW50IHRpbWVzLCBvciBvdGhlciBpbnB1dHMgZnJvbSBhIHNwZWNpZmljIHRpbWUgcGVyaW9kIHRvIGRyaXZlIHlvdXIgc2ltdWxhdGlvbi4gQ29tcGFyZSB0aGUgc2ltdWxhdGlvbidzIHByZWRpY3Rpb25zIGZvciB0aGF0IHBlcmlvZCAoZS5nLiwgd2FpdGluZyB0aW1lcywgYmVkIG9jY3VwYW5jeSkgYWdhaW5zdCB0aGUgcmVhbCBvdXRjb21lcyBmb3IgdGhlIHNhbWUgcGVyaW9kLgoqIFsgXSBDb25zaWRlciB2YXJ5aW5nIHRoZSBwZXJpb2RzIHlvdSB2YWxpZGF0ZSBvbuKAlHllYXItYnkteWVhciwgc2Vhc29uLWJ5LXNlYXNvbiwgb3IgZXZlbiBmb3IgcGFydGljdWxhciBwb2xpY3kgY2hhbmdlcyBvciBldmVudHPigJR0byBkZXRlY3Qgc3RyZW5ndGhzIG9yIHdlYWtuZXNzZXMgaW4gdGhlIG1vZGVsIGFjcm9zcyBkaWZmZXJlbnQgc2NlbmFyaW9zLgoqIFsgXSBVc2UgZ3JhcGhpY2FsIGNvbXBhcmlzb25zIChlLmcuLCB0aW1lIHNlcmllcyBwbG90cykgb3Igc3RhdGlzdGljYWwgbWVhc3VyZXMgKGUuZy4sIGdvb2RuZXNzLW9mLWZpdCwgbWVhbiBlcnJvcnMsIGNvbmZpZGVuY2UgaW50ZXJ2YWxzKSB0byBhc3Nlc3MgaG93IGNsb3NlbHkgdGhlIG1vZGVsIG1hdGNoZXMgcmVhbGl0eSAtIHNlZSBiZWxvdy4KCkdyYXBoaWNhbCBjb21wYXJpc29uCgoqIFsgXSBDcmVhdGUgdGltZS1zZXJpZXMgcGxvdHMgb2Yga2V5IG1ldHJpY3MgKGUuZy4sIGRhaWx5IHBhdGllbnQgYXJyaXZhbHMsIHJlc291cmNlIHV0aWxpc2F0aW9uKSBmb3IgYm90aCB0aGUgbW9kZWwgYW5kIHN5c3RlbS4gQ3JlYXRlIGRpc3RyaWJ1dGlvbnMgb2Ygd2FpdGluZyB0aW1lcywgc2VydmljZSB0aW1lcywgYW5kIG90aGVyIHBlcmZvcm1hbmNlIG1lYXN1cmVzLiBDb21wYXJlIHRoZSBtb2RlbCBhbmQgc3lzdGVtIGdyYXBocy4KClN0YXRpc3RpY2FsIGNvbXBhcmlzb24KCiogWyBdIENvbGxlY3QgcmVhbCBzeXN0ZW0gZGF0YSBvbiBrZXkgcGVyZm9ybWFuY2UgbWVhc3VyZXMgKGUuZy4sIHdhaXQgdGltZXMsIGxlbmd0aHMgb2Ygc3RheSwgdGhyb3VnaHB1dCkgYW5kIGNvbXBhcmUgd2l0aCBtb2RlbCBvdXRwdXRzIHN0YXRpc3RpY2FsbHkgdXNpbmcgYXBwcm9wcmlhdGUgdGVzdHMuCgpBbmltYXRpb24gdmlzdWFsaXNhdGlvbgoKKiBbIF0gQ3JlYXRlIGFuIGFuaW1hdGlvbiB0byBoZWxwIHdpdGggdmFsaWRhdGlvbiAoYXMgd2VsbCBhcyBjb21tdW5pY2F0b24gYW5kIHJldXNlKS4KCkNvbXBhcmlzb24gdGVzdGluZwoKKiBbIF0gSWYgeW91IGhhdmUgbXVsdGlwbGUgbW9kZWxzIG9mIHRoZSBzYW1lIHN5c3RlbSwgY29tcGFyZSB0aGVtIQoKSW5wdXQgZGF0YSB2YWxpZGF0aW9uCgoqIFsgXSBDaGVjayB0aGUgZGF0YXNldHMgdXNlZCAtIHNjcmVlbiBmb3Igb3V0bGllcnMsIGRldGVybWluZSBpZiB0aGV5IGFyZSBjb3JyZWN0LCBhbmQgaWYgdGhlIHJlYXNvbiBmb3IgdGhlbSBvY2N1cnJpbmcgc2hvdWxkIGJlIGluY29ycG9yYXRlZCBpbnRvIHRoZSBzaW11bGF0aW9uLgoqIFsgXSBFbnN1cmUgeW91IGhhdmUgcGVyZm9ybWVkIGFwcHJvcHJpYXRlIGlucHV0IG1vZGVsbGluZyBzdGVwcyB3aGVuIGNob29zaW5nIHlvdXIgZGlzdHJpYnV0aW9ucy4KCkNvbmNlcHR1YWwgbW9kZWwgdmFsaWRhdGlvbgoKKiBbIF0gRG9jdW1lbnQgYW5kIGp1c3RpZnkgYWxsIG1vZGVsaW5nIGFzc3VtcHRpb25zLgoqIFsgXSBSZXZpZXcgdGhlIGNvbmNlcHR1YWwgbW9kZWwgd2l0aCBwZW9wbGUgZmFtaWxpYXIgd2l0aCB0aGUgcmVhbCBzeXN0ZW0gdG8gYXNzZXNzIGNvbXBsZXRlbmVzcyBhbmQgYWNjdXJhY3kuCgpFeHBlcmltZW50YXRpb24gdmFsaWRhdGlvbgoKKiBbIF0gVXNlIGEgd2FybS11cCBwZXJpb2QuCiogWyBdIFVzZSBzdGF0aXN0aWNhbCBtZXRob2RzIHRvIGRldGVybWluZSBzdWZmaWNpZW50IHJ1biBsZW5ndGggYW5kIG51bWJlciBvZiByZXBsaWNhdGlvbnMuCiogWyBdIFBlcmZvcm0gc2Vuc2l0aXZpdHkgYW5hbHlzaXMgdG8gdGVzdCBob3cgY2hhbmdlcyBpbiBpbnB1dCBwYXJhbWV0ZXJzIGFmZmVjdCBvdXRwdXRzLgoKQ3Jvc3MgdmFsaWRhdGlvbgoKKiBbIF0gU2VhcmNoIGZvciBzaW1pbGFyIHNpbXVsYXRpb24gc3R1ZGllcyBhbmQgY29tcGFyZSB0aGUga2V5IGFzc3VtcHRpb25zLCBtZXRob2RzIGFuZCByZXN1bHRzLiBEaXNjdXNzIGRpc2NyZXBhbmNpZXMgYW5kIGV4cGxhaW4gcmVhc29ucyBmb3IgZGlmZmVyZW50IGZpbmRpbmdzIG9yIGFwcHJvYWNoZXMuIFVzZSBpbnNpZ2h0cyBmcm9tIG90aGVyIHN0dWRpZXMgdG8gaW1wcm92ZSBvciB2YWxpZGF0ZSB5b3VyIG93biBtb2RlbC4K').then(res => res.blob()).then(blob => {
+      const downloadURL = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      document.body.appendChild(a);
+      a.href = downloadURL;
+      a.download = 'verification_validation_checklist.md'; a.click();
+      window.URL.revokeObjectURL(downloadURL);
+      document.body.removeChild(a);
+        });"><button class="btn btn-primary downloadthis  " id="dnldts57247"><i class="bi bi-download"></i> Download the verification and validation checklist </button></a></p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu"># Verification and validation checklist</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>This checklist is from: Heather, A., Monks, T., Mustafee, N., &amp; Harper, A. (2025). DES RAP Book: Reproducible Discrete-Event Simulation in Python and R. https://github.com/pythonhealthdatascience/des_rap_book. https://doi.org/10.5281/zenodo.17094155.</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">## Verification</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>Desk checking</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="ss">* </span><span class="va">[ ]</span> Systematically check code.</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="ss">* </span><span class="va">[ ]</span> Keep documentation complete and up-to-date.</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="ss">* </span><span class="va">[ ]</span> Maintain an environment with all required packages.</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="ss">* </span><span class="va">[ ]</span> Lint code.</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="ss">* </span><span class="va">[ ]</span> Get code review.</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>Debugging</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="ss">* </span><span class="va">[ ]</span> Write tests - they'll help for spotting bugs.</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="ss">* </span><span class="va">[ ]</span> During model development, monitor the model using logs - they'll help with spotting bugs.</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="ss">* </span><span class="va">[ ]</span> Use GitHub issues to record bugs as they arise, so they aren't forgotten and are recorded for future reference.</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>Assertion checking</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="ss">* </span><span class="va">[ ]</span> Add checks in the model which cause errors if something doesn't look right.</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="ss">* </span><span class="va">[ ]</span> Write tests which check that assertions hold true.</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>Special input testing</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a><span class="ss">* </span><span class="va">[ ]</span> If there are input variables with explicit limits, design boundary value tests to check the behaviour at, just inside, and just outside each boundary.</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a><span class="ss">* </span><span class="va">[ ]</span> Write stress tests which simulate worst-case load and ensure model is robust under heavy demand.</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a><span class="ss">* </span><span class="va">[ ]</span> Write tests with little or no activity/waits/service.</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>Bottom-up testing</span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a><span class="ss">* </span><span class="va">[ ]</span> Write unit tests for each individual component of the model.</span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a><span class="ss">* </span><span class="va">[ ]</span> Once individual parts work correctly, combine them and test how they interact - this can be via integration testing or functional testing.</span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>Regression testing</span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a><span class="ss">* </span><span class="va">[ ]</span> Write tests early.</span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a><span class="ss">* </span><span class="va">[ ]</span> Run tests regularly (locally or automatically via. GitHub actions).</span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>Mathematical proof of correctness</span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a><span class="ss">* </span><span class="va">[ ]</span> For parts of the model where theoretical results exist (like an M/M/s queue), compare simulation outputs with results from mathematical formulas.</span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a><span class="fu">## Validation</span></span>
+<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a>Face validation</span>
+<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a><span class="ss">* </span><span class="va">[ ]</span> Present key simulation outputs and model behaviour to people such as: project team members; intended users of the model (e.g., healthcare analysts, managers); people familiar with the real system (e.g., clinicians, frontline staff, patient representatives). Ask for their subjective feedback on whether the model and results "look right". Discuss specific areas, such as whether performance measures (e.g., patient flow, wait times) match expectations under similar conditions.</span>
+<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a>Turing test</span>
+<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a><span class="ss">* </span><span class="va">[ ]</span> Collect matching sets of model output and real system, remove identifying labels, and present them to a panel of experts. Record whether experts can distinguish simulation outputs from real data. Use their feedback on distinguishing features to further improve the simulation.</span>
+<span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a>Predictive validation</span>
+<span id="cb1-57"><a href="#cb1-57" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-58"><a href="#cb1-58" aria-hidden="true" tabindex="-1"></a><span class="ss">* </span><span class="va">[ ]</span> Use historical arrival data, staffing schedules, treatment times, or other inputs from a specific time period to drive your simulation. Compare the simulation's predictions for that period (e.g., waiting times, bed occupancy) against the real outcomes for the same period.</span>
+<span id="cb1-59"><a href="#cb1-59" aria-hidden="true" tabindex="-1"></a><span class="ss">* </span><span class="va">[ ]</span> Consider varying the periods you validate on—year-by-year, season-by-season, or even for particular policy changes or events—to detect strengths or weaknesses in the model across different scenarios.</span>
+<span id="cb1-60"><a href="#cb1-60" aria-hidden="true" tabindex="-1"></a><span class="ss">* </span><span class="va">[ ]</span> Use graphical comparisons (e.g., time series plots) or statistical measures (e.g., goodness-of-fit, mean errors, confidence intervals) to assess how closely the model matches reality - see below.</span>
+<span id="cb1-61"><a href="#cb1-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-62"><a href="#cb1-62" aria-hidden="true" tabindex="-1"></a>Graphical comparison</span>
+<span id="cb1-63"><a href="#cb1-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-64"><a href="#cb1-64" aria-hidden="true" tabindex="-1"></a><span class="ss">* </span><span class="va">[ ]</span> Create time-series plots of key metrics (e.g., daily patient arrivals, resource utilisation) for both the model and system. Create distributions of waiting times, service times, and other performance measures. Compare the model and system graphs.</span>
+<span id="cb1-65"><a href="#cb1-65" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-66"><a href="#cb1-66" aria-hidden="true" tabindex="-1"></a>Statistical comparison</span>
+<span id="cb1-67"><a href="#cb1-67" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-68"><a href="#cb1-68" aria-hidden="true" tabindex="-1"></a><span class="ss">* </span><span class="va">[ ]</span> Collect real system data on key performance measures (e.g., wait times, lengths of stay, throughput) and compare with model outputs statistically using appropriate tests.</span>
+<span id="cb1-69"><a href="#cb1-69" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-70"><a href="#cb1-70" aria-hidden="true" tabindex="-1"></a>Animation visualisation</span>
+<span id="cb1-71"><a href="#cb1-71" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-72"><a href="#cb1-72" aria-hidden="true" tabindex="-1"></a><span class="ss">* </span><span class="va">[ ]</span> Create an animation to help with validation (as well as communicaton and reuse).</span>
+<span id="cb1-73"><a href="#cb1-73" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-74"><a href="#cb1-74" aria-hidden="true" tabindex="-1"></a>Comparison testing</span>
+<span id="cb1-75"><a href="#cb1-75" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-76"><a href="#cb1-76" aria-hidden="true" tabindex="-1"></a><span class="ss">* </span><span class="va">[ ]</span> If you have multiple models of the same system, compare them!</span>
+<span id="cb1-77"><a href="#cb1-77" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-78"><a href="#cb1-78" aria-hidden="true" tabindex="-1"></a>Input data validation</span>
+<span id="cb1-79"><a href="#cb1-79" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-80"><a href="#cb1-80" aria-hidden="true" tabindex="-1"></a><span class="ss">* </span><span class="va">[ ]</span> Check the datasets used - screen for outliers, determine if they are correct, and if the reason for them occurring should be incorporated into the simulation.</span>
+<span id="cb1-81"><a href="#cb1-81" aria-hidden="true" tabindex="-1"></a><span class="ss">* </span><span class="va">[ ]</span> Ensure you have performed appropriate input modelling steps when choosing your distributions.</span>
+<span id="cb1-82"><a href="#cb1-82" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-83"><a href="#cb1-83" aria-hidden="true" tabindex="-1"></a>Conceptual model validation</span>
+<span id="cb1-84"><a href="#cb1-84" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-85"><a href="#cb1-85" aria-hidden="true" tabindex="-1"></a><span class="ss">* </span><span class="va">[ ]</span> Document and justify all modeling assumptions.</span>
+<span id="cb1-86"><a href="#cb1-86" aria-hidden="true" tabindex="-1"></a><span class="ss">* </span><span class="va">[ ]</span> Review the conceptual model with people familiar with the real system to assess completeness and accuracy.</span>
+<span id="cb1-87"><a href="#cb1-87" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-88"><a href="#cb1-88" aria-hidden="true" tabindex="-1"></a>Experimentation validation</span>
+<span id="cb1-89"><a href="#cb1-89" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-90"><a href="#cb1-90" aria-hidden="true" tabindex="-1"></a><span class="ss">* </span><span class="va">[ ]</span> Use a warm-up period.</span>
+<span id="cb1-91"><a href="#cb1-91" aria-hidden="true" tabindex="-1"></a><span class="ss">* </span><span class="va">[ ]</span> Use statistical methods to determine sufficient run length and number of replications.</span>
+<span id="cb1-92"><a href="#cb1-92" aria-hidden="true" tabindex="-1"></a><span class="ss">* </span><span class="va">[ ]</span> Perform sensitivity analysis to test how changes in input parameters affect outputs.</span>
+<span id="cb1-93"><a href="#cb1-93" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-94"><a href="#cb1-94" aria-hidden="true" tabindex="-1"></a>Cross validation</span>
+<span id="cb1-95"><a href="#cb1-95" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-96"><a href="#cb1-96" aria-hidden="true" tabindex="-1"></a><span class="ss">* </span><span class="va">[ ]</span> Search for similar simulation studies and compare the key assumptions, methods and results. Discuss discrepancies and explain reasons for different findings or approaches. Use insights from other studies to improve or validate your own model.</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="references" class="level2">
+<h2 class="anchored" data-anchor-id="references">References</h2>
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-Balci1998" class="csl-entry" role="listitem">
+Balci, Osman. 1998. <span>“Chapter 10: Verification, Validation, and Testing.”</span> In <em>Handbook of Simulation</em>, 335–93. John Wiley &amp; Sons.
+</div>
+<div id="ref-Banks2005" class="csl-entry" role="listitem">
+Banks, Jerry, John S. Carson II, Barry L. Nelson, and David M. Nicol. 2005. <span>“Chapter 10: Verification and Validation of Simulation Models.”</span> In <em>Discrete-Event System Simulation</em>, 4th ed., 310–33. Prentice Hall.
+</div>
+<div id="ref-KLE2025" class="csl-entry" role="listitem">
+KLE’S Nijalingappa College. 2025. <span>“Boundary Value Testing (Chapter 2, Unit 1).”</span> July 2025. <a href="https://bca.klesnc.edu.in/wp-content/uploads/2025/07/Chapter-2Unit-1-Boundary-Value-Testing.pdf">https://bca.klesnc.edu.in/wp-content/uploads/2025/07/Chapter-2Unit-1-Boundary-Value-Testing.pdf</a>.
+</div>
+<div id="ref-Robinson2007" class="csl-entry" role="listitem">
+Robinson, Stewart. 2007. <span>“Chapter 12: Verification, Validation and Confidence.”</span> In <em>Simulation: The Practice of Model Development and Use</em>, 95–125. John Wiley &amp; Sons.
+</div>
+<div id="ref-Rosser2025" class="csl-entry" role="listitem">
+Rosser, Sammi. 2025. <span>“HSMA 6 April 2025 Project Forum - Tips, Tricks and Updates.”</span> 2025. <a href="https://hsma-programme.github.io/h6_april_2025_forum_presentation/">https://hsma-programme.github.io/h6_april_2025_forum_presentation/</a>.
+</div>
+<div id="ref-Sargent2013" class="csl-entry" role="listitem">
+Sargent, R G. 2013. <span>“Verification and Validation of Simulation Models.”</span> <em>Journal of Simulation</em> 7 (1): 12–24. <a href="https://doi.org/10.1057/jos.2012.20">https://doi.org/10.1057/jos.2012.20</a>.
+</div>
+<div id="ref-Zhang2025" class="csl-entry" role="listitem">
+Zhang, Xiange, Stefan K. Lhachimi, and Wolf H. Rogowski. 2020. <span>“Reporting Quality of Discrete Event Simulations in Healthcare—Results from a Generic Reporting Checklist.”</span> <em>Value in Health</em> 23 (4): 506–14. https://doi.org/<a href="https://doi.org/10.1016/j.jval.2020.01.005">https://doi.org/10.1016/j.jval.2020.01.005</a>.
+</div>
+</div>
+<p><br><br></p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script>
+
+/*
+Acknowledgments. This file is from webexercises:
+  Barr D, DeBruine L (2023). webexercises: Create Interactive Web Exercises in
+  'R Markdown' (Formerly 'webex'). R package version 1.1.0.9000,
+  https://github.com/psyteachr/webexercises.
+*/
+
+/* update total correct if #webex-total_correct exists */
+update_total_correct = function() {
+  console.log("webex: update total_correct");
+
+  var t = document.getElementsByClassName("webex-total_correct");
+  for (var i = 0; i < t.length; i++) {
+    p = t[i].parentElement;
+    var correct = p.getElementsByClassName("webex-correct").length;
+    var solvemes = p.getElementsByClassName("webex-solveme").length;
+    var radiogroups = p.getElementsByClassName("webex-radiogroup").length;
+    var selects = p.getElementsByClassName("webex-select").length;
+
+    t[i].innerHTML = correct + " of " + (solvemes + radiogroups + selects) + " correct";
+  }
+}
+
+/* webex-solution button toggling function */
+b_func = function() {
+  console.log("webex: toggle hide");
+
+  var cl = this.parentElement.classList;
+  if (cl.contains('open')) {
+    cl.remove("open");
+  } else {
+    cl.add("open");
+  }
+}
+
+/* check answers */
+check_func = function() {
+  console.log("webex: check answers");
+
+  var cl = this.parentElement.classList;
+  if (cl.contains('unchecked')) {
+    cl.remove("unchecked");
+    this.innerHTML = "Hide Answers";
+  } else {
+    cl.add("unchecked");
+    this.innerHTML = "Show Answers";
+  }
+}
+
+/* function for checking solveme answers */
+solveme_func = function(e) {
+  console.log("webex: check solveme");
+
+  var real_answers = JSON.parse(this.dataset.answer);
+  var my_answer = this.value;
+  var cl = this.classList;
+  if (cl.contains("ignorecase")) {
+    my_answer = my_answer.toLowerCase();
+  }
+  if (cl.contains("nospaces")) {
+    my_answer = my_answer.replace(/ /g, "")
+  }
+
+  if (my_answer == "") {
+    cl.remove("webex-correct");
+    cl.remove("webex-incorrect");
+  } else if (real_answers.includes(my_answer)) {
+    cl.add("webex-correct");
+    cl.remove("webex-incorrect");
+  } else {
+    cl.add("webex-incorrect");
+    cl.remove("webex-correct");
+  }
+
+  // match numeric answers within a specified tolerance
+  if(this.dataset.tol > 0){
+    var tol = JSON.parse(this.dataset.tol);
+    var matches = real_answers.map(x => Math.abs(x - my_answer) < tol)
+    if (matches.reduce((a, b) => a + b, 0) > 0) {
+      cl.add("webex-correct");
+    } else {
+      cl.remove("webex-correct");
+    }
+  }
+
+  // added regex bit
+  if (cl.contains("regex")){
+    answer_regex = RegExp(real_answers.join("|"))
+    if (answer_regex.test(my_answer)) {
+      cl.add("webex-correct");
+    }
+  }
+
+  update_total_correct();
+}
+
+/* function for checking select answers */
+select_func = function(e) {
+  console.log("webex: check select");
+
+  var cl = this.classList
+
+  /* add style */
+  cl.remove("webex-incorrect");
+  cl.remove("webex-correct");
+  if (this.value == "answer") {
+    cl.add("webex-correct");
+  } else if (this.value != "blank") {
+    cl.add("webex-incorrect");
+  }
+
+  update_total_correct();
+}
+
+/* function for checking radiogroups answers */
+radiogroups_func = function(e) {
+  console.log("webex: check radiogroups");
+
+  var checked_button = document.querySelector('input[name=' + this.id + ']:checked');
+  var cl = checked_button.parentElement.classList;
+  var labels = checked_button.parentElement.parentElement.children;
+
+  /* get rid of styles */
+  for (i = 0; i < labels.length; i++) {
+    labels[i].classList.remove("webex-incorrect");
+    labels[i].classList.remove("webex-correct");
+  }
+
+  /* add style */
+  if (checked_button.value == "answer") {
+    cl.add("webex-correct");
+  } else {
+    cl.add("webex-incorrect");
+  }
+
+  update_total_correct();
+}
+
+window.onload = function() {
+  console.log("webex onload");
+  /* set up solution buttons */
+  var buttons = document.getElementsByTagName("button");
+
+  for (var i = 0; i < buttons.length; i++) {
+    if (buttons[i].parentElement.classList.contains('webex-solution')) {
+      buttons[i].onclick = b_func;
+    }
+  }
+
+  var check_sections = document.getElementsByClassName("webex-check");
+  console.log("check:", check_sections.length);
+  for (var i = 0; i < check_sections.length; i++) {
+    check_sections[i].classList.add("unchecked");
+
+    let btn = document.createElement("button");
+    btn.innerHTML = "Show Answers";
+    btn.classList.add("webex-check-button");
+    btn.onclick = check_func;
+    check_sections[i].appendChild(btn);
+
+    let spn = document.createElement("span");
+    spn.classList.add("webex-total_correct");
+    check_sections[i].appendChild(spn);
+  }
+
+  /* set up webex-solveme inputs */
+  var solveme = document.getElementsByClassName("webex-solveme");
+
+  for (var i = 0; i < solveme.length; i++) {
+    /* make sure input boxes don't auto-anything */
+    solveme[i].setAttribute("autocomplete","off");
+    solveme[i].setAttribute("autocorrect", "off");
+    solveme[i].setAttribute("autocapitalize", "off");
+    solveme[i].setAttribute("spellcheck", "false");
+    solveme[i].value = "";
+
+    /* adjust answer for ignorecase or nospaces */
+    var cl = solveme[i].classList;
+    var real_answer = solveme[i].dataset.answer;
+    if (cl.contains("ignorecase")) {
+      real_answer = real_answer.toLowerCase();
+    }
+    if (cl.contains("nospaces")) {
+      real_answer = real_answer.replace(/ /g, "");
+    }
+    solveme[i].dataset.answer = real_answer;
+
+    /* attach checking function */
+    solveme[i].onkeyup = solveme_func;
+    solveme[i].onchange = solveme_func;
+
+    solveme[i].insertAdjacentHTML("afterend", " <span class='webex-icon'></span>")
+  }
+
+  /* set up radiogroups */
+  var radiogroups = document.getElementsByClassName("webex-radiogroup");
+  for (var i = 0; i < radiogroups.length; i++) {
+    radiogroups[i].onchange = radiogroups_func;
+  }
+
+  /* set up selects */
+  var selects = document.getElementsByClassName("webex-select");
+  for (var i = 0; i < selects.length; i++) {
+    selects[i].onchange = select_func;
+    selects[i].insertAdjacentHTML("afterend", " <span class='webex-icon'></span>")
+  }
+
+  update_total_correct();
+}
+
+</script>
+<script>
+
+function setLanguage(lang) {
+  // Store the selected language in localStorage
+  localStorage.setItem('preferredLanguage', lang);
+
+  // Update button active state
+  document.querySelectorAll('.language-button').forEach(btn => {
+      btn.classList.remove('active');
+      if (btn.textContent.toLowerCase() === lang || (lang === 'both' && btn.textContent.toLowerCase() === 'both')) {
+          btn.classList.add('active');
+      }
+  });
+  // Show/hide the appropriate content
+  if (lang === 'python') {
+      document.querySelectorAll('.python-content').forEach(el => el.style.display = 'block');
+      document.querySelectorAll('.r-content').forEach(el => el.style.display = 'none');
+  } else if (lang === 'r') {
+      document.querySelectorAll('.python-content').forEach(el => el.style.display = 'none');
+      document.querySelectorAll('.r-content').forEach(el => el.style.display = 'block');
+  }
+}
+
+// On page load, set the language based on localStorage or default to Python
+document.addEventListener('DOMContentLoaded', function() {
+  const lang = localStorage.getItem('preferredLanguage') || 'python';
+  setLanguage(lang);
+});
+
+</script>
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/pythonhealthdatascience\.github\.io\/des_rap_book\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<input type="hidden" id="giscus-base-theme" value="light">
+<input type="hidden" id="giscus-alt-theme" value="light">
+<script>
+  function loadGiscus() {
+    // Function to get the theme based on body class
+    const getTheme = () => {
+      let baseTheme = document.getElementById('giscus-base-theme').value;
+      let altTheme = document.getElementById('giscus-alt-theme').value;
+      return document.body.classList.contains('quarto-dark') ? altTheme : baseTheme;
+    };
+    const script = document.createElement("script");
+    script.src = "https://giscus.app/client.js";
+    script.async = true;
+    script.dataset.repo = "pythonhealthdatascience/des_rap_book";
+    script.dataset.repoId = "R_kgDOOXKhOA";
+    script.dataset.category = "Announcements";
+    script.dataset.categoryId = "DIC_kwDOOXKhOM4CuWAj";
+    script.dataset.mapping = "pathname";
+    script.dataset.reactionsEnabled = "1";
+    script.dataset.emitMetadata = "0";
+    script.dataset.inputPosition = "bottom";
+    script.dataset.theme = getTheme();
+    script.dataset.lang = "en";
+    script.crossOrigin = "anonymous";
+    // Append the script to the desired div instead of at the end of the body
+    document.getElementById("quarto-content").appendChild(script);
+  }
+  loadGiscus();
+</script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../../../pages/guide/experiments/full_run.html" class="pagination-link" aria-label="Full run">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Full run</span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../../../pages/guide/verification_validation/tests.html" class="pagination-link" aria-label="Tests">
+        <span class="nav-page-text">Tests</span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      <ul class="footer-items list-unstyled">
+    <li class="nav-item">
+ The STARS project is supported by the Medical Research Council [grant number MR/Z503915/1].
+  </li>  
+</ul>
+    </div>   
+    <div class="nav-footer-center">
+      <ul class="footer-items list-unstyled">
+    <li class="nav-item">
+ Part of the STARS research project.<br>
+Code licence: <a href="https://opensource.org/license/mit" target="_blank" rel="noopener">MIT</a>.  
+Text licence: <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC-BY-SA 4.0</a>.
+  </li>  
+</ul>
+    <div class="cookie-consent-footer"><a href="#" id="open_preferences_center">Cookie Preferences</a></div></div>
+    <div class="nav-footer-right">
+      <ul class="footer-items list-unstyled">
+    <li class="nav-item">
+ Heather, A., Monks, T., Mustafee, N., &amp; Harper, A. (2025). DES RAP Book: Reproducible Discrete-Event Simulation in Python and R. https://github.com/pythonhealthdatascience/des_rap_book. https://doi.org/10.5281/zenodo.17094155.
+  </li>  
+</ul>
+    </div>
+  </div>
+</footer>
+<script>var lightboxQuarto = GLightbox({"closeEffect":"zoom","descPosition":"bottom","loop":false,"openEffect":"zoom","selector":".lightbox"});
+(function() {
+  let previousOnload = window.onload;
+  window.onload = () => {
+    if (previousOnload) {
+      previousOnload();
+    }
+    lightboxQuarto.on('slide_before_load', (data) => {
+      const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+      const href = trigger.getAttribute('href');
+      if (href !== null) {
+        const imgEl = window.document.querySelector(`a[href="${href}"] img`);
+        if (imgEl !== null) {
+          const srcAttr = imgEl.getAttribute("src");
+          if (srcAttr && srcAttr.startsWith("data:")) {
+            slideConfig.href = srcAttr;
+          }
+        }
+      } 
+    });
+  
+    lightboxQuarto.on('slide_after_load', (data) => {
+      const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(slideNode);
+      }
+    });
+  
+  };
+  
+})();
+          </script>
+
+
+
+
+</body></html>

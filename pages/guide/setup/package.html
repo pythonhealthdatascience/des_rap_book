@@ -1,0 +1,2154 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.25">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="dcterms.date" content="2025-12-10">
+
+<title>Structuring as a package – DES RAP</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../../">
+<link href="../../../pages/guide/setup/code_structure.html" rel="next">
+<link href="../../../pages/guide/setup/environment.html" rel="prev">
+<link href="../../../images/stars_logo_blue.png" rel="icon" type="image/png">
+<script src="../../../site_libs/cookie-consent/cookie-consent.js"></script>
+<link href="../../../site_libs/cookie-consent/cookie-consent.css" rel="stylesheet">
+<script src="../../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-7b89279ff1a6dce999919e0e67d4d9ec.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../../site_libs/bootstrap/bootstrap-cf9b3981a620de6d1ff1748a6509d2c1.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="../../../site_libs/quarto-contrib/glightbox/glightbox.min.js"></script>
+<link href="../../../site_libs/quarto-contrib/glightbox/glightbox.min.css" rel="stylesheet">
+<link href="../../../site_libs/quarto-contrib/glightbox/lightbox.css" rel="stylesheet">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script async="" src="https://www.googletagmanager.com/gtag/js?id=G-W2FC4GDHFK"></script>
+
+<script type="text/plain" cookie-consent="tracking">
+
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-W2FC4GDHFK', { 'anonymize_ip': true});
+</script>
+
+<script type="text/javascript" charset="UTF-8">
+document.addEventListener('DOMContentLoaded', function () {
+cookieconsent.run({
+  "notice_banner_type":"simple",
+  "consent_type":"implied",
+  "palette":"light",
+  "language":"en",
+  "page_load_consent_levels":["strictly-necessary","functionality","tracking","targeting"],
+  "notice_banner_reject_button_hide":false,
+  "preferences_center_close_button_hide":false,
+  "website_name":""
+  ,
+"language":"en"
+  });
+});
+</script> 
+  
+<style>
+
+      .quarto-title-block .quarto-title-banner h1,
+      .quarto-title-block .quarto-title-banner h2,
+      .quarto-title-block .quarto-title-banner h3,
+      .quarto-title-block .quarto-title-banner h4,
+      .quarto-title-block .quarto-title-banner h5,
+      .quarto-title-block .quarto-title-banner h6
+      {
+        color: #ffffff;
+      }
+
+      .quarto-title-block .quarto-title-banner {
+        color: #ffffff;
+background-image: url(../../../images/banner.png);
+background-size: cover;
+      }
+</style>
+
+
+<link rel="stylesheet" href="../../../styles/headings.css">
+<link rel="stylesheet" href="../../../styles/general.css">
+<link rel="stylesheet" href="../../../styles/buttons.css">
+<link rel="stylesheet" href="../../../styles/language-selector.css">
+<link rel="stylesheet" href="../../../styles/callout.css">
+<link rel="stylesheet" href="../../../styles/tables.css">
+<link rel="stylesheet" href="../../../styles/webex.css">
+</head>
+
+<body class="nav-sidebar docked nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top quarto-banner">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a href="../../../index.html" class="navbar-brand navbar-brand-logo">
+    <img src="../../../images/stars_logo_white.png" alt="" class="navbar-logo light-content">
+    <img src="../../../images/stars_logo_white.png" alt="" class="navbar-logo dark-content">
+    </a>
+    <a class="navbar-brand" href="../../../index.html">
+    <span class="navbar-title">DES RAP</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link active" href="../../../pages/guide/introduction.html" aria-current="page"> 
+<span class="menu-text">Step-by-step guide</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../../pages/example_models/example_models.html"> 
+<span class="menu-text">Examples</span></a>
+  </li>  
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-frameworks" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Frameworks</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-frameworks">    
+        <li>
+    <a class="dropdown-item" href="../../../pages/frameworks/levels_of_rap.html">
+ <span class="dropdown-text">NHS Levels of RAP</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../../pages/frameworks/stars_reproducibility.html">
+ <span class="dropdown-text">STARS reproducibility recommendations</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-intros" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Intros</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-intros">    
+        <li>
+    <a class="dropdown-item" href="../../../pages/intros/des.html">
+ <span class="dropdown-text">Intro to DES</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../../pages/intros/rap.html">
+ <span class="dropdown-text">Intro to reproducibility and RAPs</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../../pages/intros/foss.html">
+ <span class="dropdown-text">Intro to FOSS</span></a>
+  </li>  
+    </ul>
+  </li>
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/pythonhealthdatascience/des_rap_book"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../../pages/guide/setup/version.html">Setup</a></li><li class="breadcrumb-item"><a href="../../../pages/guide/setup/package.html">Structuring as a package</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+    </div>
+  </nav>
+  <div id="quarto-announcement" data-announcement-id="4617d65ad9316c9b7606e9c95215be6c" class="alert alert-primary hidden"><div class="quarto-announcement-content">
+<div class="language-selector">
+<p>Choose your language:&nbsp;&nbsp; <button class="language-button" onclick="setLanguage('python')">Python</button> <button class="language-button" onclick="setLanguage('r')">R</button></p>
+</div>
+</div></div>
+</header>
+<!-- content -->
+<header id="title-block-header" class="quarto-title-block default page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../../pages/guide/setup/version.html">Setup</a></li><li class="breadcrumb-item"><a href="../../../pages/guide/setup/package.html">Structuring as a package</a></li></ol></nav>
+      <h1 class="title">Structuring as a package</h1>
+                      </div>
+  </div>
+    
+  
+  <div class="quarto-title-meta">
+
+      
+      <div>
+      <div class="quarto-title-meta-heading">Page last modified</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">December 10, 2025</p>
+      </div>
+    </div>
+    
+      
+    </div>
+    
+  
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header sidebar-header-stacked">
+      <a href="../../../index.html" class="sidebar-logo-link">
+      </a>
+      </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/introduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Setup</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/setup/version.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Version control</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/setup/environment.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Environments</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/setup/package.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Structuring as a package</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/setup/code_structure.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Code organisation</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">Model inputs</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/inputs/input_modelling.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Input modelling</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/inputs/input_data.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Input data management</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/inputs/parameters_script.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Parameters from script</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/inputs/parameters_file.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Parameters from file</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/inputs/parameters_validation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Parameter validation</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
+ <span class="menu-text">Model building</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/model/distributions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Randomness</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/model/patients.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Entity generation</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/model/process.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Entity processing</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/model/logs.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Logging</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true">
+ <span class="menu-text">Output analysis</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/output_analysis/warmup.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Initialisation bias</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/output_analysis/outputs.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Performance measures</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/output_analysis/replications.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Replications</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/output_analysis/length_warmup.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Length of warm-up</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/output_analysis/n_reps.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Number of replications</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/output_analysis/parallel.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Parallel processing</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true">
+ <span class="menu-text">Experimentation</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/experiments/scenarios.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Scenario and sensitivity analysis</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/experiments/tables_figures.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Tables and figures</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/experiments/full_run.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Full run</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true">
+ <span class="menu-text">Verification &amp; validation</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/verification_validation/verification_validation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Verification and validation</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/verification_validation/tests.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Tests</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/verification_validation/mathematical.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Mathematical proof of correctness</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/verification_validation/quality_assurance.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Quality assurance</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="true">
+ <span class="menu-text">Style &amp; documentation</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/style_docs/linting.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Linting</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/style_docs/docstrings.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Docstrings</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/style_docs/github_actions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">GitHub actions</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/style_docs/documentation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Documentation</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="true">
+ <span class="menu-text">Collaboration &amp; sharing</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-8" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/sharing/peer_review.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Code review</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/sharing/licence.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Licensing</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/sharing/citation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Citation</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/sharing/changelog.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Changelog</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/sharing/archive.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Sharing and archiving</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="true">
+ <span class="menu-text">Closing remarks</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-9" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/further_info/conclusion.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Conclusion</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/further_info/feedback.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Feedback</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul class="collapse">
+  <li><a href="#packages" id="toc-packages" class="nav-link active" data-scroll-target="#packages">Packages</a></li>
+  <li><a href="#create-the-package-structure" id="toc-create-the-package-structure" class="nav-link" data-scroll-target="#create-the-package-structure">Create the package structure</a></li>
+  <li><a href="#configure-your-project" id="toc-configure-your-project" class="nav-link" data-scroll-target="#configure-your-project">Configure your project</a></li>
+  <li><a href="#test-if-the-package-works" id="toc-test-if-the-package-works" class="nav-link" data-scroll-target="#test-if-the-package-works">Test if the package works</a></li>
+  <li><a href="#summary" id="toc-summary" class="nav-link" data-scroll-target="#summary">Summary</a></li>
+  <li><a href="#template-repository" id="toc-template-repository" class="nav-link" data-scroll-target="#template-repository">Template repository</a></li>
+  <li><a href="#test-yourself" id="toc-test-yourself" class="nav-link" data-scroll-target="#test-yourself">Test yourself</a></li>
+  <li><a href="#further-information" id="toc-further-information" class="nav-link" data-scroll-target="#further-information">Further information</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content quarto-banner-title-block" id="quarto-document-content">
+
+
+
+
+
+<div class="pale-blue">
+<p><strong>Learning objectives:</strong></p>
+<ul>
+<li>Learn what <strong>packages</strong> are and their <strong>benefits</strong> for research projects</li>
+<li>Set up the core <strong>folder and file structure</strong> needed for a package.</li>
+<li><strong>Configure project, metadata and environment files</strong> appropriately.</li>
+<li><strong>Check</strong> that package functions load and execute as expected.</li>
+</ul>
+<p><strong>Relevant reproducibility guidelines:</strong></p>
+<ul>
+<li>NHS Levels of RAP (🥈): Code is well-organised following standard directory format.</li>
+<li>NHS Levels of RAP (🥇): Code is fully packaged.</li>
+</ul>
+</div>
+<p><br></p>
+<p>This page explains how (and why) to structure your research as a package. At the end, we provide a template repository you can use to easily set-up your own:</p>
+<div class="python-content">
+<p><a href="https://github.com/pythonhealthdatascience/pydesrap_template" target="_blank" style="text-decoration: none;"> <span style="display: inline-flex; align-items: center; background: #1d7898;
+  color: #fff; border-radius: 20px; padding: 0.4em 1em; font-weight: 600;
+  gap: 0.5em;"> <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/github.svg" alt="GitHub" width="20" height="20" style="filter: brightness(0)
+    invert(1);"> Click to visit pydesrap_template repository </span> </a></p>
+</div>
+<div class="r-content">
+<p><a href="https://github.com/pythonhealthdatascience/rdesrap_template" target="_blank" style="text-decoration: none;"> <span style="display: inline-flex; align-items: center; background: #1d7898;
+  color: #fff; border-radius: 20px; padding: 0.4em 1em; font-weight: 600;
+  gap: 0.5em;"> <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/github.svg" alt="GitHub" width="20" height="20" style="filter: brightness(0)
+    invert(1);"> Click to visit rdesrap_template repository </span> </a></p>
+</div>
+<section id="packages" class="level2">
+<h2 class="anchored" data-anchor-id="packages">Packages</h2>
+<div class="h3-tight">
+
+</div>
+<section id="what-is-a-package" class="level3">
+<h3 class="anchored" data-anchor-id="what-is-a-package">What is a package?</h3>
+<p>A <strong>package</strong> is a structured collection of code, data, and documentation that can be easily distributed, installed, and reused across projects. They allow developers to group related functions, classes, and documentation together so that they can be managed as a single unit.</p>
+<div class="python-content">
+<p><strong>If you’ve imported libraries like <code>pandas</code>, <code>numpy</code> or <code>simpy</code> in Python, then you’ve already been using packages.</strong> These packages are created and shared by other developers in exactly the way described here: as reusable bundles that make it easy to build on existing code rather than starting from scratch.</p>
+</div>
+<div class="r-content">
+<p><strong>If you’ve imported libraries like <code>dplyr</code>, <code>ggplot2</code> or <code>simmer</code> in R, then you’ve already been using packages.</strong> These packages are created and shared by other developers in exactly the way described here: as reusable bundles that make it easy to build on existing code rather than starting from scratch.</p>
+</div>
+</section>
+<section id="how-are-packages-structured" class="level3">
+<h3 class="anchored" data-anchor-id="how-are-packages-structured">How are packages structured?</h3>
+<div class="python-content">
+<p>This is an example of a basic python package structure:</p>
+<pre><code>yourrepository
+├── yourpackage
+│   ├── __init__.py
+│   └── module1.py
+└── pyproject.toml</code></pre>
+<p>It has three key components.</p>
+<p><strong>1. A directory containing one or more modules</strong>.</p>
+<ul>
+<li>The package folder (<code>yourpackage/</code>) holds one or more Python files called modules.</li>
+<li>Each module (e.g.&nbsp;<code>module1.py</code>) contains code like functions, classes, and variables that perform the core tasks of your package.</li>
+</ul>
+<p><strong>2. An <code>__init__.py</code> file.</strong></p>
+<ul>
+<li>The <code>__init__.py</code> file tells Python that a directory should be treated like a package, not just a folder.</li>
+<li>This enables you to import your modules with statements like <code>import yourpackage.module1</code>.</li>
+</ul>
+<p><strong>3. A <code>pyproject.toml</code> file.</strong></p>
+<ul>
+<li>This file sits outside the package folder, and is required if you want your package to be installable or published.</li>
+<li>It contains information that helps tools to build and install the package, like the package name, version and dependencies.</li>
+</ul>
+</div>
+<div class="r-content">
+<p>This is an example of a basic R package structure:</p>
+<pre><code>yourrepository
+├── R
+│   └── module1.R
+├── DESCRIPTION
+├── man/
+└── NAMESPACE</code></pre>
+<p>It has four key components.</p>
+<p><strong>1. A directory containing one or more modules</strong>.</p>
+<ul>
+<li>The package folder (<code>R/</code>) holds one or more R files called modules.</li>
+<li>Each module (e.g.&nbsp;<code>module1.R</code>) contains code like functions, classes, and variables that perform the core tasks of your package.</li>
+</ul>
+<p><strong>2. A <code>DESCRIPTION</code> file</strong>.</p>
+<ul>
+<li>This file sits outside the package folder, and is required if you want your package to be installable or published.</li>
+<li>It contains information that helps tools to build and install the package, like the package name, version and dependencies.</li>
+</ul>
+<p><strong>3. A <code>man/</code> folder</strong>.</p>
+<ul>
+<li>This is automatically generated by the <code>roxygen2</code> package.</li>
+<li>It contains help files (using an <code>.Rd</code> format) which contain the documentation users will see when they run help commands like <code>?function_name</code>. They are generated based on the <a href="../../../pages/guide/style_docs/docstrings.html">docstrings</a>.</li>
+</ul>
+<p><strong>4. A <code>NAMESPACE</code> file</strong>.</p>
+<ul>
+<li>This is also automatically generated by <code>roxygen2</code>.</li>
+<li>It lists which objects from your package (e.g.&nbsp;functions) are made available to users (as based on <code>@export</code> and <code>@importFrom</code> tags in your docstrings).</li>
+</ul>
+</div>
+</section>
+<section id="why-create-a-package" class="level3">
+<h3 class="anchored" data-anchor-id="why-create-a-package">Why create a package?</h3>
+<p>Packages make code easier to distribute, reuse and maintain. This structure is recommended by the NHS Levels of RAP gold tier for high-quality reproduce research. However, adopting a package structure may not always be the right approach for every project.</p>
+<p>The benefits of building our simulation model as a package are:</p>
+<ul>
+<li><p>The model is <strong>installed</strong> in our environment and can then be easily used anywhere else in our directory (or even from other directories) without needing to specify a system path.</p></li>
+<li><p>It encourages us to create a well-organised repository following <strong>standardised</strong> established package structures.</p></li>
+<li><p>It helps keep the model and analysis code <strong>separate</strong>, improving maintainability, reusability, and reducing the risk of unintended side effects.</p></li>
+</ul>
+<div class="r-content">
+<ul>
+<li>Tools like <code>devtools::document()</code> and <code>roxygen2</code> create <strong>documentation</strong> that can be accessed using <code>?functionname</code>.</li>
+</ul>
+</div>
+<ul>
+<li>It supports <strong>automated <a href="../../../pages/guide/verification_validation/tests.html">testing</a></strong> frameworks which can verify functionality.</li>
+</ul>
+<p><a href="package_resources/package_summary.png" class="lightbox" data-gallery="quarto-lightbox-gallery-1"><img src="package_resources/package_summary.png" class="img-fluid"></a></p>
+<p>The downside of structuring your project as a package is that it <strong>adds complexity</strong>. For beginners, setting up a package introduces many new concepts - there’s a lot to learn, and it can feel overwhelming. We wrote this tutorial to help guide you through it, but it’s still a fair amount to take in!</p>
+<p>For quick, exploratory analyses that won’t be reused or shared, a full package structure may be more effort than necessary. In those cases, a well-organised folder with a few files might be perfectly sufficient.</p>
+<p>However, we <strong>generally recommend investing the time to adopt a package structure early on</strong> - it’s usually easier to start that way, and the benefits tend to outweigh the initial effort.</p>
+</section>
+<section id="choosing-a-package-manager" class="level3 python-content">
+<h3 class="anchored" data-anchor-id="choosing-a-package-manager">Choosing a package manager</h3>
+<p>Python has several different tools for building and managing packages. We have chosen <a href="https://flit.pypa.io/en/stable/">flit</a> for this tutorial and our example models due to its simplicity and ease of setup.</p>
+<p>Other widely used package managers include <a href="https://setuptools.pypa.io/en/latest/">setuptools</a>, <a href="https://python-poetry.org/">poetry</a> and <a href="https://hatch.pypa.io/latest/">hatch</a>. For a comprehensive comparison of packaging tools, see <a href="https://alpopkes.com/posts/python/packaging_tools/">“An unbiased evaluation of environment management and packaging tools”</a> by Anna-Lena Popkes (2024).</p>
+</section>
+</section>
+<section id="create-the-package-structure" class="level2">
+<h2 class="anchored" data-anchor-id="create-the-package-structure">Create the package structure</h2>
+<div class="python-content">
+<p>First, let’s create the basic directory structure for our simulation package.</p>
+<section id="create-folder" class="level3">
+<h3 class="anchored" data-anchor-id="create-folder">1. Create folder</h3>
+<p>In the main project folder, create a folder called <code>simulation/</code>.</p>
+<pre><code>project-name/
+└── simulation/   &lt;---</code></pre>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>If you followed the <a href="../../../pages/guide/setup/version.html">Version control</a> and <a href="../../../pages/guide/setup/environment.html">Environments</a> pages, then this could be within you <code>des-rap-python</code> directory.</p>
+<p>This will already contain other files, so your directory with the <code>simulation/</code> folder added may look like:</p>
+<pre><code>des-rap-python/
+├── .git/
+├── simulation/   &lt;---
+├── .gitignore
+├── environment.yaml
+├── LICENSE
+└── README.md</code></pre>
+</div>
+</div>
+</section>
+<section id="make-__init__.py-file" class="level3">
+<h3 class="anchored" data-anchor-id="make-__init__.py-file">2. Make <code>__init__.py</code> file</h3>
+<p>Inside the <code>simulation/</code> folder, create an <code>__init__.py</code> file.</p>
+<pre><code>project-name/
+└── simulation/
+    └── __init__.py   &lt;---</code></pre>
+<p>Open this file and copy in some basic metadata.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co">"""SimPy Discrete-Event Simulation (DES) Model.</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="co">"""</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>__version__ <span class="op">=</span> <span class="st">"0.1.0"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="add-a-.py-file-with-a-function" class="level3">
+<h3 class="anchored" data-anchor-id="add-a-.py-file-with-a-function">3. Add a <code>.py</code> file with a function</h3>
+<p>Within <code>simulation/</code>, create another file called <code>model.py</code>.</p>
+<pre><code>project-name/
+└── simulation/
+    ├── __init__.py
+    └── model.py   &lt;---</code></pre>
+<p>In this, we will add our model code. For now, just copy in this simple function that generates a list of numbers. We will add some real code for our model later.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co">"""Core simulation model functionality."""</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> run_simulation(duration<span class="op">=</span><span class="dv">100</span>):</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="co">    Run a simple dummy simulation for the specified duration.</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="co">    Parameters</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="co">    ----------</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="co">    duration: int</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="co">        The length of time to run the simulation.</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a><span class="co">    Returns:</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a><span class="co">        dict:</span></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a><span class="co">            Dummy simulation results.</span></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> {</span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>        <span class="st">"duration"</span>: duration,</span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>        <span class="st">"status"</span>: <span class="st">"completed"</span>,</span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>        <span class="st">"results"</span>: [i <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(duration) <span class="cf">if</span> i <span class="op">%</span> <span class="dv">10</span> <span class="op">==</span> <span class="dv">0</span>]</span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>    }</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="make-pyproject.toml-file" class="level3">
+<h3 class="anchored" data-anchor-id="make-pyproject.toml-file">4. Make <code>pyproject.toml</code> file</h3>
+<p>In the main project folder, create a file called <code>pyproject.toml</code>.</p>
+<pre><code>project-name/
+├── simulation/
+│   ├── __init__.py
+│   └── model.py
+└── pyproject.toml   &lt;---</code></pre>
+<p>Copy the text below into your <code>pyproject.toml</code> file. This provides instructions for building the package. We’re using <code>flit</code> as our build tool because of its simplicity.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="ex">[build-system]</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="ex">requires</span> = <span class="pp">[</span><span class="st">"flit"</span><span class="pp">]</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="ex">build-backend</span> = <span class="st">"flit_core.buildapi"</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="ex">[project]</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="ex">name</span> = <span class="st">"simulation"</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="ex">description</span> = <span class="st">"Discrete-event simulation model."</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="ex">dynamic</span> = <span class="pp">[</span><span class="st">"version"</span><span class="pp">]</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><br></p>
+<div class="callout callout-style-default callout-note callout-titled" title="Dynamic version number">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Dynamic version number
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>You have to assign your package a version number using <a href="https://semver.org/">semantic versioning</a>. This follows the syntax <code>MAJOR.MINOR.PATCH</code> e.g.&nbsp;<code>0.1.0</code>. When packages are updated, then the version number is incremented (e.g.&nbsp;to <code>0.2.0</code>).</p>
+<p>In our <code>pyproject.toml</code>, the <code>[project]</code> section uses <code>dynamic = ["version"]</code>. This means Flit will automatically look for a variable named <code>__version__</code> in your package’s <code>__init__.py</code> file.</p>
+<p>That means (as instructed above) <code>simulation/__init__.py</code> should contain:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="ex">__version__</span> = <span class="st">"0.1.0"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</div>
+</section>
+</div>
+<div class="r-content">
+<p>We would recommend setting up an <code>renv</code> environment before creating your package. If you have not already, following the instructions on the <a href="../../../pages/guide/setup/environment.html">environments</a> page to do this.</p>
+<p>For this section, your environment will need to include <code>roxygen2</code>, <code>usethis</code> and <code>devtools</code>. If you set-up the complete enviroment for this book from the “Test yourself” section of the the <a href="../../../pages/guide/setup/environment.html">environments</a> page then you should have these already. If you did not, make sure to install them! An example of a minimal <code>DESCRIPTION</code> file for this page would be:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>Package<span class="sc">:</span> simulation</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>Title<span class="sc">:</span> What the Package <span class="fu">Does</span> (One Line, Title Case)</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>Version<span class="sc">:</span> <span class="dv">0</span>.<span class="dv">0</span>.<span class="fl">0.9000</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>Authors<span class="sc">@</span>R<span class="sc">:</span> </span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">person</span>(<span class="st">"First"</span>, <span class="st">"Last"</span>, , <span class="st">"first.last@example.com"</span>, <span class="at">role =</span> <span class="fu">c</span>(<span class="st">"aut"</span>, <span class="st">"cre"</span>))</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>Description<span class="sc">:</span> What the package <span class="fu">does</span> (one paragraph).</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>License<span class="sc">:</span> <span class="st">`</span><span class="at">use_mit_license()</span><span class="st">`</span>, <span class="st">`</span><span class="at">use_gpl3_license()</span><span class="st">`</span> or friends to pick a</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>    license</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>Encoding<span class="sc">:</span> UTF<span class="dv">-8</span></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>Roxygen<span class="sc">:</span> <span class="fu">list</span>(<span class="at">markdown =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>RoxygenNote<span class="sc">:</span> <span class="dv">7</span>.<span class="fl">0.0</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>Imports<span class="sc">:</span></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>    devtools,</span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>    roxygen2,</span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>    usethis</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>You can check if the three packages we mention are in your environment by running this command from the R console:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">packageVersion</span>(<span class="st">"devtools"</span>)</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="fu">packageVersion</span>(<span class="st">"usethis"</span>)</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="fu">packageVersion</span>(<span class="st">"roxygen2"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>If will print the version number of each package if installed.</p>
+<p>Now, let’s first create the basic directory structure for our simulation package.</p>
+<section id="create-folder-1" class="level3">
+<h3 class="anchored" data-anchor-id="create-folder-1">1. Create folder</h3>
+<p>In the main project folder, create a folder called <code>R/</code>.</p>
+<pre><code>project-name/
+└── R/           &lt;---</code></pre>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>If you followed the <a href="../../../pages/guide/setup/version.html">Version control</a> and <a href="../../../pages/guide/setup/environment.html">Environments</a> pages, then this could be within you <code>des-rap-r</code> directory.</p>
+<p>This will already contain other files, so your directory with the <code>R/</code> folder added may look like:</p>
+<pre><code>des-rap-r/
+├── .git/
+├── .Rproject.user/
+├── R/           &lt;---
+├── renv/
+├── .gitignore
+├── .Rprofile
+├── .Rproj
+├── DESCRIPTION
+├── LICENSE
+├── README.md
+└── renv.lock</code></pre>
+</div>
+</div>
+</section>
+<section id="add-a-.r-file-with-a-function" class="level3">
+<h3 class="anchored" data-anchor-id="add-a-.r-file-with-a-function">2. Add a <code>.R</code> file with a function</h3>
+<p>Within <code>R/</code>, create a file called <code>model.R</code>.</p>
+<pre><code>project-name/
+└── R/
+    └── model.R   &lt;---</code></pre>
+<p>This file is our module, into which we could later add modelling functions.</p>
+<p>For now, just copy in this simple function that generates a list of numbers. We will add some real code for our model later.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Core simulation model functionality</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="co">#' Run a simple dummy simulation for the specified duration.</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="co">#'</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a><span class="co">#' @param duration Numeric. The length of time to run the simulation.</span></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a><span class="co">#'</span></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a><span class="co">#' @return list. Dummy simulation results.</span></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a><span class="co">#' @export</span></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>run_simulation <span class="ot">&lt;-</span> <span class="cf">function</span>(<span class="at">duration =</span> <span class="dv">100</span>) {</span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>  results <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="dv">0</span>, duration <span class="sc">-</span> <span class="dv">1</span>)</span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>  results <span class="ot">&lt;-</span> results[results <span class="sc">%%</span> <span class="dv">10</span> <span class="sc">==</span> <span class="dv">0</span>]</span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(<span class="fu">list</span>(</span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">duration =</span> duration,</span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">status =</span> <span class="st">"completed"</span>,</span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">results =</span> results</span>
+<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a>  ))</span>
+<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="edit-your-description-file" class="level3">
+<h3 class="anchored" data-anchor-id="edit-your-description-file">3. Edit your <code>DESCRIPTION</code> file</h3>
+<p>If you have worked through the <a href="../../../pages/guide/setup/environment.html">environments</a> page then you should already have a <code>DESCRIPTION</code> file listing dependencies, though this step will walk you through more of the meta-data in that file important when structuring our work as a package.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="If you don't yet have a `DESCRIPTION` file...">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>If you don’t yet have a <code>DESCRIPTION</code> file…
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-4" class="callout-4-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>If you haven’t already, then create a <code>DESCRIPTION</code> file in the main project folder.</p>
+<pre><code>project-name/
+├── R/
+│   └── model.R
+└── DESCRIPTION   &lt;---</code></pre>
+<p>Open the file and copy in the template below. This is similar to the standard template generated by <code>usethis::use_description()</code>, but with a few extra sections.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb19"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="ex">Package:</span> simulation</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="ex">Type:</span> Package</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="ex">Title:</span> What the Package Does <span class="er">(</span><span class="ex">One</span> Line, Title Case<span class="kw">)</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a><span class="ex">Version:</span> 0.0.0.9000</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a><span class="ex">URL:</span> ...</span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a><span class="ex">Authors@R:</span> </span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>    <span class="ex">person</span><span class="er">(</span><span class="st">"First"</span><span class="ex">,</span> <span class="st">"Last"</span>, , <span class="st">"first.last@example.com"</span>, role = c<span class="er">(</span><span class="st">"aut"</span><span class="ex">,</span> <span class="st">"cre"</span><span class="kw">))</span></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a><span class="ex">Description:</span> What the package does <span class="er">(</span><span class="ex">one</span> paragraph<span class="kw">)</span><span class="bu">.</span></span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a><span class="ex">License:</span> <span class="kw">`</span><span class="fu">use_mit_license()</span><span class="kw">`</span>, <span class="kw">`</span><span class="fu">use_gpl3_license()</span><span class="kw">`</span> or friends to pick a</span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>    <span class="ex">license</span></span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a><span class="ex">Encoding:</span> UTF-8</span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a><span class="ex">Roxygen:</span> list<span class="er">(</span><span class="ex">markdown</span> = TRUE<span class="kw">)</span></span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a><span class="ex">RoxygenNote:</span> 7.0.0</span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a><span class="ex">Imports:</span></span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a>    <span class="ex">...</span></span>
+<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a><span class="ex">Suggests:</span></span>
+<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a>    <span class="ex">...</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</div>
+</div>
+<p>We will then fill in the template with relevant information for our project. You don’t need to change <code>Type</code>, <code>Encoding</code>, or <code>Roxygen</code>. For the other arguments:</p>
+<ul>
+<li><p><strong>Package</strong>: When using <code>devtools</code> to work with our package (as below), it will prompt you to use a name that complies with CRAN (the main R package repository). They require that the name is only made up of letters, numbers and periods (<code>.</code>) - and that it must start with a letter and cannot end with a period. When structuring our research project as a package, this is not often with the aim of uploading it to CRAN, but it can be simple/good practice to follow these guidelines anyway, and means you avoid <code>devtools</code> error messages!</p></li>
+<li><p><strong>Title</strong>: Capitalised single line description of the package which does not end with a period (<code>.</code>).</p></li>
+<li><p><strong>Version</strong>: The package version. For R packages, this is usually set to <code>0.0.0.9000</code> during early development - though some developers prefer to set it to <code>0.1.0</code>, as we have done. The version number is used to track changes to the package over time. It typically follows <a href="https://semver.org/spec/v2.0.0.html">semantic versioning</a>, with three numbers representing major, minor and patch changes. For more about how and when to update the version, see the page on <a href="../../../pages/guide/sharing/changelog.html">changelogs</a>.</p></li>
+<li><p><strong>Authors</strong>: List of author names, emails and roles. The main role options are the current maintainer (creator, <code>cre</code>), people who have made significant contributions (author, <code>aut</code>), those who have made smaller contributions (contributor, <code>ctb</code>), copyright holders (<code>cph</code>) and funders (<code>fnd</code>). You can add additional information using the <code>comment</code> argument, like your ORCID ID.</p></li>
+<li><p><strong>URL</strong>: Link to your repository. If you don’t have one, we’d strongly recommend making one - check out the <a href="../../../pages/guide/setup/version.html">version control</a> page.</p></li>
+<li><p><strong>Description</strong>: Single paragraph describing project.</p></li>
+<li><p><strong>License</strong>: A license tells others how they can use your code. The <code>usethis</code> package makes it easy to add a license: just call the function for your chosen license, for example:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">use_mit_license</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>This will update the License field in <code>DESCRIPTION</code> and create both <code>LICENSE</code> (with the year and copyright holder) and <code>LICENSE.md</code> (with the full licence text). Note: it will prompt you to overwrite any existing licence files.</p>
+<p>R packages use this two-file structure, while GitHub typically expects a single <code>LICENSE</code> file containing the full text. Unless you plan to submit to CRAN - which requires the R package structure - either approach is fine. For simplicity, we recommend sticking with the standard R package setup using <code>usethis</code>, and agreeing if prompted to overwrite old license files.</p>
+<p>For more information, see the <a href="../../../pages/guide/sharing/licence.html">licensing</a> page in this book, and the <a href="https://r-pkgs.org/license.html">R Packages book</a>.</p></li>
+<li><p><strong>RoxygenNote</strong>: <code>roxygen2</code> is used when documenting code. Update this to the version of <code>roxygen2</code> which you have installed - to check, run:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">packageVersion</span>(<span class="st">"roxygen2"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div></li>
+<li><p><strong>Imports</strong>: These are packages necessary for your package. In other words, if it’s used by code in <code>R/</code>, then list it here.</p></li>
+<li><p><strong>Suggests</strong>: These are any other packages needed. For example, you might include those for development (<code>devtools</code>), testing (<code>testthat</code>), linting (<code>lintr</code>) - or packages used in your analysis (i.e.&nbsp;any code <em>not</em> in <code>R/</code>).</p></li>
+</ul>
+<p>As an example:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb22"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="ex">Package:</span> simulation</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="ex">Type:</span> Package</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="ex">Title:</span> Simulation</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="ex">Version:</span> 0.1.0</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a><span class="ex">Authors@R:</span> c<span class="er">(</span></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>    <span class="ex">person</span><span class="er">(</span></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Amy"</span><span class="ex">,</span> <span class="st">"Heather"</span>,</span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>      <span class="ex">email</span> = <span class="st">"a.heather2@exeter.ac.uk"</span>,</span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>      <span class="ex">role</span> = c<span class="er">(</span><span class="st">"aut"</span><span class="ex">,</span> <span class="st">"cre"</span><span class="kw">)</span><span class="ex">,</span></span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>      <span class="ex">comment</span> = c<span class="er">(</span><span class="ex">ORCID</span> = <span class="st">"0000-0002-6983-2759"</span><span class="kw">)</span></span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">)</span></span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a>  <span class="kw">)</span></span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a><span class="ex">URL:</span> https://github.com/pythonhealthdatascience/rdesrap_mms</span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a><span class="ex">Description:</span> Template reproducible analytical pipeline <span class="er">(</span><span class="ex">RAP</span><span class="kw">)</span> <span class="cf">for</span> simple <span class="ex">R</span></span>
+<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a>    <span class="ex">discrete-event</span> simulation <span class="er">(</span><span class="ex">DES</span><span class="kw">)</span> <span class="ex">model.</span></span>
+<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a><span class="ex">License:</span> MIT + file LICENSE</span>
+<span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a><span class="ex">Encoding:</span> UTF-8</span>
+<span id="cb22-18"><a href="#cb22-18" aria-hidden="true" tabindex="-1"></a><span class="ex">LazyData:</span> true</span>
+<span id="cb22-19"><a href="#cb22-19" aria-hidden="true" tabindex="-1"></a><span class="ex">RoxygenNote:</span> 7.3.2</span>
+<span id="cb22-20"><a href="#cb22-20" aria-hidden="true" tabindex="-1"></a><span class="ex">Imports:</span></span>
+<span id="cb22-21"><a href="#cb22-21" aria-hidden="true" tabindex="-1"></a>    <span class="ex">simmer,</span></span>
+<span id="cb22-22"><a href="#cb22-22" aria-hidden="true" tabindex="-1"></a>    <span class="ex">magrittr,</span></span>
+<span id="cb22-23"><a href="#cb22-23" aria-hidden="true" tabindex="-1"></a>    <span class="ex">dplyr,</span></span>
+<span id="cb22-24"><a href="#cb22-24" aria-hidden="true" tabindex="-1"></a>    <span class="ex">purrr,</span></span>
+<span id="cb22-25"><a href="#cb22-25" aria-hidden="true" tabindex="-1"></a>    <span class="ex">rlang,</span></span>
+<span id="cb22-26"><a href="#cb22-26" aria-hidden="true" tabindex="-1"></a>    <span class="ex">tidyr,</span></span>
+<span id="cb22-27"><a href="#cb22-27" aria-hidden="true" tabindex="-1"></a>    <span class="ex">tidyselect,</span></span>
+<span id="cb22-28"><a href="#cb22-28" aria-hidden="true" tabindex="-1"></a>    <span class="ex">future,</span></span>
+<span id="cb22-29"><a href="#cb22-29" aria-hidden="true" tabindex="-1"></a>    <span class="ex">future.apply,</span></span>
+<span id="cb22-30"><a href="#cb22-30" aria-hidden="true" tabindex="-1"></a>    <span class="ex">ggplot2,</span></span>
+<span id="cb22-31"><a href="#cb22-31" aria-hidden="true" tabindex="-1"></a>    <span class="ex">tibble,</span></span>
+<span id="cb22-32"><a href="#cb22-32" aria-hidden="true" tabindex="-1"></a>    <span class="ex">gridExtra,</span></span>
+<span id="cb22-33"><a href="#cb22-33" aria-hidden="true" tabindex="-1"></a>    <span class="ex">R6</span></span>
+<span id="cb22-34"><a href="#cb22-34" aria-hidden="true" tabindex="-1"></a><span class="ex">Suggests:</span></span>
+<span id="cb22-35"><a href="#cb22-35" aria-hidden="true" tabindex="-1"></a>    <span class="ex">testthat</span> <span class="er">(</span><span class="op">&gt;</span>= <span class="ex">3.0.0</span><span class="kw">)</span><span class="ex">,</span></span>
+<span id="cb22-36"><a href="#cb22-36" aria-hidden="true" tabindex="-1"></a>    <span class="ex">patrick,</span></span>
+<span id="cb22-37"><a href="#cb22-37" aria-hidden="true" tabindex="-1"></a>    <span class="ex">lintr,</span></span>
+<span id="cb22-38"><a href="#cb22-38" aria-hidden="true" tabindex="-1"></a>    <span class="ex">devtools,</span></span>
+<span id="cb22-39"><a href="#cb22-39" aria-hidden="true" tabindex="-1"></a>    <span class="ex">xtable,</span></span>
+<span id="cb22-40"><a href="#cb22-40" aria-hidden="true" tabindex="-1"></a>    <span class="ex">data.table,</span></span>
+<span id="cb22-41"><a href="#cb22-41" aria-hidden="true" tabindex="-1"></a>    <span class="ex">mockery</span></span>
+<span id="cb22-42"><a href="#cb22-42" aria-hidden="true" tabindex="-1"></a><span class="ex">Config/testthat/edition:</span> 3</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="addedit-.rbuildignore" class="level3">
+<h3 class="anchored" data-anchor-id="addedit-.rbuildignore">4. Add/edit <code>.Rbuildignore</code></h3>
+<p>You should find an <code>.Rbuildignore</code> file is automatically created which has the following lines:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb23"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="ex">^renv$</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="ex">^renv\.lock$</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>This tells <code>devtools</code> to ignore <code>renv/</code> when working with your local package.</p>
+<p>We want to amend this to also ignore our R project files like so:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb24"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="ex">^renv$</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="ex">^renv\.lock$</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="ex">^.*\.Rproj$</span></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a><span class="ex">^\.Rproj\.user$</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>If you don’t already have one, then create an <code>.Rbuildignore</code> file and copy the text above in.</p>
+<p>This is to avoid warnings when we run <code>devtools::check()</code> in the following section.</p>
+</section>
+</div>
+</section>
+<section id="configure-your-project" class="level2">
+<h2 class="anchored" data-anchor-id="configure-your-project">Configure your project</h2>
+<div class="python-content">
+<p>We now want to install our package into our environment.</p>
+<section id="option-a-pre-existing-environment" class="level3">
+<h3 class="anchored" data-anchor-id="option-a-pre-existing-environment">Option A: Pre-existing environment</h3>
+<p>If you already have a conda environment (e.g.&nbsp;from following instructions in the <a href="../../../pages/guide/setup/environment.html">environments</a> page), then you should first activate it:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb25"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="ex">conda</span> activate envname</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Then edit the <code>environment.yaml</code> to add your local package using <code>-e .</code> within the <code>pip:</code> installation section. The syntax <code>-e .</code> installs the package from the current directory (<code>.</code>) in “editable” mode (<code>-e</code>) so that it will update with any changes to the source code in <code>simulation/</code>.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb26"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>  <span class="ex">-</span> pip:</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>    <span class="ex">-</span> <span class="at">-e</span> .</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>To update the installed environment based on the file, run:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb27"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="ex">conda</span> env update <span class="at">--file</span> environment.yaml <span class="at">--prune</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>If you run <code>conda list</code>, you should now see our <code>simulation</code> package listed as a dependency like so:</p>
+<pre><code># Name                    Version                   Build  Channel
+simulation                0.1.0                    pypi_0    pypi</code></pre>
+</section>
+<section id="option-b-new-environment" class="level3">
+<h3 class="anchored" data-anchor-id="option-b-new-environment">Option B: New environment</h3>
+<p>If you do not have an environment yet, create one using the <a href="../../../pages/guide/setup/environment.html">environments</a> page instructions.</p>
+<p>A simple <code>environment.yaml</code> with your local package (<code>-e .</code>, as explained above) might look like:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb29"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="ex">name:</span> envname</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="ex">channels:</span></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>  <span class="ex">-</span> conda-forge</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a><span class="ex">dependencies:</span></span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>  <span class="ex">-</span> ipykernel</span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>  <span class="ex">-</span> pip</span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>  <span class="ex">-</span> python=3.13</span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>  <span class="ex">-</span> pip:</span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>    <span class="ex">-</span> <span class="at">-e</span> .</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>We’ve included <code>ipykernel</code> as this is needed to run Jupyter notebooks - which we will create in the next section to test our package works.</p>
+<p>As explained on <a href="../../../pages/guide/setup/environment.html">environments</a>, you can then create, activate and check your environment by running:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb30"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="ex">conda</span> env create <span class="at">--file</span> environment.yaml</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="ex">conda</span> activate envname</span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a><span class="ex">conda</span> list</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="option-c-other-environment-managers" class="level3">
+<h3 class="anchored" data-anchor-id="option-c-other-environment-managers">Option C: Other environment managers</h3>
+<p>A similar syntax is followed for other Python environment managers.</p>
+<ul>
+<li><strong>venv:</strong> Add <code>-e .</code> to your <code>requirements.txt</code> file or run <code>pip install -e .</code></li>
+<li><strong>poetry:</strong> Run <code>poetry add -e .</code></li>
+<li><strong>uv:</strong> Run <code>uv add -e .</code></li>
+</ul>
+</section>
+</div>
+<div class="r-content">
+<p>We will use <code>devtools</code> to build documentation and run checks.</p>
+<section id="build-package-documentation" class="level3">
+<h3 class="anchored" data-anchor-id="build-package-documentation">1. Build package documentation</h3>
+<p>The function we created in <code>model.R</code> had a docstring (for more info on writing docstrings, see the <a href="../../../pages/guide/style_docs/docstrings.html">docstrings</a> page). We can create the documentation for this by calling:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">document</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>This will create:</p>
+<ul>
+<li><code>man/</code>: folder with roxygen2 documentation for each function in package.</li>
+<li><code>NAMESPACE</code>: file which will list all the functions and packages used within your package.</li>
+</ul>
+<pre><code>project-name/
+├── man/        &lt;---
+│   └── ...
+├── R/
+│   └── model.R
+├── DESCRIPTION
+└── NAMESPACE   &lt;---</code></pre>
+</section>
+<section id="check-the-package" class="level3">
+<h3 class="anchored" data-anchor-id="check-the-package">2. Check the package</h3>
+<p>You can check that the package is set-up correctly by running:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">check</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>This will load it and perform standard checks. If all is well, you should get an output similar to:</p>
+<pre><code>&gt; devtools::check()
+══ Documenting ══════════════════════════════════════════════════════════════════════════════
+ℹ Updating simulation documentation
+ℹ Loading simulation
+Writing NAMESPACE
+Writing run_simulation.Rd
+
+══ Building ═════════════════════════════════════════════════════════════════════════════════
+Setting env vars:
+• CFLAGS    : -Wall -pedantic -fdiagnostics-color=always
+• CXXFLAGS  : -Wall -pedantic -fdiagnostics-color=always
+• CXX11FLAGS: -Wall -pedantic -fdiagnostics-color=always
+• CXX14FLAGS: -Wall -pedantic -fdiagnostics-color=always
+• CXX17FLAGS: -Wall -pedantic -fdiagnostics-color=always
+• CXX20FLAGS: -Wall -pedantic -fdiagnostics-color=always
+── R CMD build ──────────────────────────────────────────────────────────────────────────────
+✔  checking for file ‘/home/amy/Documents/stars/hospital-des-r/DESCRIPTION’ ...
+─  preparing ‘simulation’:
+✔  checking DESCRIPTION meta-information ...
+─  checking for LF line-endings in source and make files and shell scripts
+─  checking for empty or unneeded directories
+─  building ‘simulation_0.1.0.tar.gz’
+   
+══ Checking ═════════════════════════════════════════════════════════════════════════════════
+Setting env vars:
+• _R_CHECK_CRAN_INCOMING_USE_ASPELL_           : TRUE
+• _R_CHECK_CRAN_INCOMING_REMOTE_               : FALSE
+• _R_CHECK_CRAN_INCOMING_                      : FALSE
+• _R_CHECK_FORCE_SUGGESTS_                     : FALSE
+• _R_CHECK_PACKAGES_USED_IGNORE_UNUSED_IMPORTS_: FALSE
+• NOT_CRAN                                     : true
+── R CMD check ──────────────────────────────────────────────────────────────────────────────
+─  using log directory ‘/tmp/RtmpyQepIc/file4b07699e20de/simulation.Rcheck’
+─  using R version 4.4.1 (2024-06-14)
+─  using platform: x86_64-pc-linux-gnu
+─  R was compiled by
+       gcc (Ubuntu 11.4.0-1ubuntu1~22.04) 11.4.0
+       GNU Fortran (Ubuntu 11.4.0-1ubuntu1~22.04) 11.4.0
+─  running under: Ubuntu 24.04.2 LTS
+─  using session charset: UTF-8
+─  using options ‘--no-manual --as-cran’
+✔  checking for file ‘simulation/DESCRIPTION’
+─  this is package ‘simulation’ version ‘0.1.0’
+─  package encoding: UTF-8
+✔  checking package namespace information
+✔  checking package dependencies (1.4s)
+✔  checking if this is a source package ...
+✔  checking if there is a namespace
+✔  checking for executable files
+✔  checking for hidden files and directories
+✔  checking for portable file names
+✔  checking for sufficient/correct file permissions
+✔  checking serialization versions
+✔  checking whether package ‘simulation’ can be installed (771ms)
+✔  checking installed package size ...
+✔  checking package directory
+✔  checking for future file timestamps
+✔  checking DESCRIPTION meta-information ...
+✔  checking top-level files
+✔  checking for left-over files
+✔  checking index information
+✔  checking package subdirectories ...
+✔  checking code files for non-ASCII characters ...
+✔  checking R files for syntax errors ...
+✔  checking whether the package can be loaded ...
+✔  checking whether the package can be loaded with stated dependencies ...
+✔  checking whether the package can be unloaded cleanly ...
+✔  checking whether the namespace can be loaded with stated dependencies ...
+✔  checking whether the namespace can be unloaded cleanly ...
+✔  checking loading without being on the library search path ...
+N  checking dependencies in R code ...
+   Namespaces in Imports field not imported from:
+     ‘R6’ ‘dplyr’ ‘future’ ‘future.apply’ ‘ggplot2’ ‘gridExtra’ ‘magrittr’
+     ‘purrr’ ‘rlang’ ‘simmer’ ‘tibble’ ‘tidyr’ ‘tidyselect’
+     All declared Imports should be used.
+✔  checking S3 generic/method consistency ...
+✔  checking replacement functions ...
+✔  checking foreign function calls ...
+✔  checking R code for possible problems (1.5s)
+✔  checking Rd files ...
+✔  checking Rd metadata ...
+✔  checking Rd line widths ...
+✔  checking Rd cross-references ...
+✔  checking for missing documentation entries ...
+✔  checking for code/documentation mismatches (343ms)
+✔  checking Rd \usage sections ...
+✔  checking Rd contents ...
+✔  checking for unstated dependencies in examples ...
+─  checking examples ... NONE
+✔  checking for non-standard things in the check directory
+✔  checking for detritus in the temp directory
+   
+   See
+     ‘/tmp/RtmpyQepIc/file4b07699e20de/simulation.Rcheck/00check.log’
+   for details.
+   
+── R CMD check results ──────────────────────────────────────────────── simulation 0.1.0 ────
+Duration: 7.3s
+
+❯ checking dependencies in R code ... NOTE
+  Namespaces in Imports field not imported from:
+    ‘R6’ ‘dplyr’ ‘future’ ‘future.apply’ ‘ggplot2’ ‘gridExtra’ ‘magrittr’
+    ‘purrr’ ‘rlang’ ‘simmer’ ‘tibble’ ‘tidyr’ ‘tidyselect’
+    All declared Imports should be used.
+
+0 errors ✔ | 0 warnings ✔ | 1 note ✖</code></pre>
+<p>The note in this case is because we modified the <code>DESCRIPTION</code> file used for the <code>des-rap-r</code> environment (from the <a href="../../../pages/guide/setup/environment.html">environments</a> page) which contains imports that are not currently used within <code>R/</code> - but don’t worry about this for now, as will do later when build our simulation model.</p>
+</section>
+<section id="install-the-package" class="level3">
+<h3 class="anchored" data-anchor-id="install-the-package">3. Install the package</h3>
+<p>We can also verify that our package is working by trying to install it. From the console, run:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">install</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+</div>
+</section>
+<section id="test-if-the-package-works" class="level2">
+<h2 class="anchored" data-anchor-id="test-if-the-package-works">Test if the package works</h2>
+<div class="python-content">
+<p>We will run our model and analyse results within <strong>Jupyter notebooks</strong>, as they allow us to combine code, results and explanations in one document. This can help make our methods and results easier to share, read through and understand.</p>
+<p>In this case, we’re creating an <code>.ipynb</code> file so we can have a go at loading and using our package, to check it works.</p>
+<section id="create-directory-and-notebook" class="level3">
+<h3 class="anchored" data-anchor-id="create-directory-and-notebook">1. Create directory and notebook</h3>
+<p>We create a dedicated directory for our notebooks in the main project folder (<code>notebooks/</code>), and add a notebook (<code>simulation_test.ipynb</code>).</p>
+<pre><code>project-name/
+├── notebooks/                  &lt;---
+│   └── simulation_test.ipynb   &lt;---
+├── simulation/
+│   ├── __init__.py
+│   └── model.py
+└── pyproject.toml</code></pre>
+</section>
+<section id="check-our-package-works" class="level3">
+<h3 class="anchored" data-anchor-id="check-our-package-works">2. Check our package works</h3>
+<p>Open <code>notebooks/simulation_test.ipynb</code> and add the following code. This will test that we are able to import our package and use the basic function we had created.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb37"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>load_ext autoreload</span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>autoreload <span class="dv">2</span></span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Import our simulation package</span></span>
+<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> simulation.model <span class="im">import</span> run_simulation</span>
+<span id="cb37-6"><a href="#cb37-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-7"><a href="#cb37-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Run the simulation with default parameters</span></span>
+<span id="cb37-8"><a href="#cb37-8" aria-hidden="true" tabindex="-1"></a>results <span class="op">=</span> run_simulation()</span>
+<span id="cb37-9"><a href="#cb37-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Simulation completed with duration: </span><span class="sc">{</span>results[<span class="st">'duration'</span>]<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb37-10"><a href="#cb37-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Results: </span><span class="sc">{</span>results[<span class="st">'results'</span>]<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb37-11"><a href="#cb37-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-12"><a href="#cb37-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Run with a different duration</span></span>
+<span id="cb37-13"><a href="#cb37-13" aria-hidden="true" tabindex="-1"></a>long_results <span class="op">=</span> run_simulation(duration<span class="op">=</span><span class="dv">200</span>)</span>
+<span id="cb37-14"><a href="#cb37-14" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Longer simulation completed with duration: </span><span class="sc">{</span>long_results[<span class="st">'duration'</span>]<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb37-15"><a href="#cb37-15" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"Number of results: </span><span class="sc">{</span><span class="bu">len</span>(long_results[<span class="st">'results'</span>])<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="callout callout-style-default callout-tip callout-titled" title="Autoreload">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Autoreload
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>At the start of our cell, we run:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb38"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>load_ext autoreload</span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>autoreload <span class="dv">2</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>This tells Jupyter to automatically reload your code files whenever you save changes. Without this, you’d need to restart the kernel each time you edit your <code>.py</code> files to see the updates.</p>
+</div>
+</div>
+<p><br></p>
+<p>When you run the cell, you should see an output confirming that the simulation function runs and returns results, if everything is set up correctly.</p>
+<pre><code>Simulation completed with duration: 100
+Results: [0, 10, 20, 30, 40, 50, 60, 70, 80, 90]
+Longer simulation completed with duration: 200
+Number of results: 20</code></pre>
+</section>
+</div>
+<div class="r-content">
+<p>We will run our model and analyse results within <strong>R markdown (.Rmd)</strong> files, as they combine code, results and explanations in one document. This can help make our methods and results easier to share, read through and understand.</p>
+<p>In this case, we’re creating an <code>.Rmd</code> file so we can have a go at loading and using our package, to check it works.</p>
+<section id="create-directory-and-r-markdown-file" class="level3">
+<h3 class="anchored" data-anchor-id="create-directory-and-r-markdown-file">1. Create directory and R markdown file</h3>
+<p>We create a dedicated directory for our R markdown files in the project root (<code>rmarkdown/</code>), and add a file (<code>simulation_test.Rmd</code>).</p>
+<pre><code>project-name/
+├── man/
+│   └── ...
+├── R/
+│   └── model.R
+├── rmarkdown/                &lt;---
+│   └── simulation_test.Rmd   &lt;---
+├── DESCRIPTION
+└── NAMESPACE</code></pre>
+<p><br></p>
+<div class="callout callout-style-default callout-note callout-titled" title="Alternative: vignettes">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Alternative: vignettes
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>As part of an R package, you can create a <code>vignettes/</code> folder, which is typically used to hold guides, tutorials, or extended examples demonstrating how to use the package.</p>
+<p>You can put your analysis in <code>vignettes/</code> (instead of <code>rmarkdown/</code>). The benefit of this is that it will run everything from scratch each time you call <code>devtools::check()</code>, helping maintain reproducibility. The <code>usethis</code> package provides infrastructure to easily manage vignettes. If you use GitHub actions, you can configure <code>usethis</code> continuous integration workflows to build and test your vignettes automatically on remote machines, further promoting reproducibility and consistency.</p>
+<p>However, we usually prefer to use an <code>rmarkdown/</code> folder when structuring research as a package because:</p>
+<ul>
+<li>Running analyses as vignettes is very inefficient for simulations with longer run times.</li>
+<li>Saving outputs from vignettes can lead to file path errors during the package build process.</li>
+</ul>
+</div>
+</div>
+</section>
+<section id="check-our-package-works-1" class="level3">
+<h3 class="anchored" data-anchor-id="check-our-package-works-1">2. Check our package works</h3>
+<p>Open <code>rmarkdown/simulation_test.Rmd</code> and add the following code into a cell. This means you put ```{r} in the line before the code, and ``` in the line after.</p>
+<p>This code will test that we are able to import our package and use the basic function we had created.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load the package from the local directory</span></span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">load_all</span>()</span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Load the package</span></span>
+<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(simulation)</span>
+<span id="cb41-6"><a href="#cb41-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-7"><a href="#cb41-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Run the simulation with default parameters</span></span>
+<span id="cb41-8"><a href="#cb41-8" aria-hidden="true" tabindex="-1"></a>results <span class="ot">&lt;-</span> <span class="fu">run_simulation</span>()</span>
+<span id="cb41-9"><a href="#cb41-9" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"Simulation completed with duration: %s</span><span class="sc">\n</span><span class="st">"</span>, results<span class="sc">$</span>duration))</span>
+<span id="cb41-10"><a href="#cb41-10" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"Results: %s</span><span class="sc">\n</span><span class="st">"</span>, <span class="fu">toString</span>(results<span class="sc">$</span>results)))</span>
+<span id="cb41-11"><a href="#cb41-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-12"><a href="#cb41-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Run with a different duration</span></span>
+<span id="cb41-13"><a href="#cb41-13" aria-hidden="true" tabindex="-1"></a>long_results <span class="ot">&lt;-</span> <span class="fu">run_simulation</span>(<span class="at">duration =</span> <span class="dv">200</span>)</span>
+<span id="cb41-14"><a href="#cb41-14" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"Longer simulation completed with duration: %s</span><span class="sc">\n</span><span class="st">"</span>, long_results<span class="sc">$</span>duration))</span>
+<span id="cb41-15"><a href="#cb41-15" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"Number of results: %d</span><span class="sc">\n</span><span class="st">"</span>, <span class="fu">length</span>(long_results<span class="sc">$</span>results)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>When you run the cell, you should see an output confirming that the simulation function runs and returns results, if everything is set up correctly.</p>
+<pre><code>ℹ Loading simulation
+Simulation completed with duration: 100
+Results: 0, 10, 20, 30, 40, 50, 60, 70, 80, 90
+Longer simulation completed with duration: 200
+Number of results: 20</code></pre>
+</section>
+</div>
+</section>
+<section id="summary" class="level2">
+<h2 class="anchored" data-anchor-id="summary">Summary</h2>
+<div class="python-content">
+<p>To structure your simulation project as a python package:</p>
+<ul>
+<li>Place all core python functions in the <code>simulation/</code> directory (e.g.&nbsp;<code>model.py</code>).</li>
+<li>Create <code>simulation/__init__.py</code> and <code>pyproject.toml</code> to set-up as a package.</li>
+<li>Organise analysis into a separate directory (e.g.&nbsp;<code>notebooks/</code>).</li>
+</ul>
+<p>For example:</p>
+<pre><code>project-name/
+├── notebooks/
+│   └── simulation_test.ipynb
+├── simulation/
+│   ├── __init__.py
+│   └── model.py
+└── pyproject.toml</code></pre>
+</div>
+<div class="r-content">
+<p>To structure your simulation project as an R package:</p>
+<ul>
+<li>Place all core R functions in the <code>R/</code> directory (e.g.&nbsp;<code>model.R</code>).</li>
+<li>Create a <code>DESCRIPTION</code> file to define package metadata.</li>
+<li>Use <code>devtools</code> and <code>roxygen2</code> to generate documentation (<code>man/</code>, <code>NAMESPACE</code>) and check your package.</li>
+<li>Organise analysis into a separate directory (e.g.&nbsp;<code>rmarkdown/</code>).</li>
+</ul>
+<p>For example:</p>
+<pre><code>project-name/
+├── man/
+├── R/
+│   └── ...
+├── rmarkdown/
+│   └── ...
+├── DESCRIPTION
+└── NAMESPACE</code></pre>
+</div>
+</section>
+<section id="template-repository" class="level2">
+<h2 class="anchored" data-anchor-id="template-repository">Template repository</h2>
+<p>To help speed up project set-up, a <strong>template repository</strong> is available that contains the complete structure described on this page.</p>
+<div class="python-content">
+<p><a href="https://github.com/pythonhealthdatascience/pydesrap_template" target="_blank" style="text-decoration: none;"> <span style="display: inline-flex; align-items: center; background: #1d7898;
+  color: #fff; border-radius: 20px; padding: 0.4em 1em; font-weight: 600;
+  gap: 0.5em;"> <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/github.svg" alt="GitHub" width="20" height="20" style="filter: brightness(0)
+    invert(1);"> Click to visit pydesrap_template repository </span> </a></p>
+</div>
+<div class="r-content">
+<p>You should follow the instructions above to amend the template <code>DESCRIPTION</code> file.</p>
+<p><a href="https://github.com/pythonhealthdatascience/rdesrap_template" target="_blank" style="text-decoration: none;"> <span style="display: inline-flex; align-items: center; background: #1d7898;
+  color: #fff; border-radius: 20px; padding: 0.4em 1em; font-weight: 600;
+  gap: 0.5em;"> <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/github.svg" alt="GitHub" width="20" height="20" style="filter: brightness(0)
+    invert(1);"> Click to visit rdesrap_template repository </span> </a></p>
+</div>
+<p><br></p>
+<p>On the GitHub, simply click &nbsp;<span style="background: #597341; color: #fff; border-radius:4px; padding:2px 8px; font-family:monospace; font-weight:bold; font-size:90%;">Use this template</span>&nbsp; and then select “Create a new repository” to set-up your own repository using the template.</p>
+<div class="python-content">
+<p><a href="package_resources/pydesrap_template.png" class="lightbox" data-gallery="quarto-lightbox-gallery-2"><img src="package_resources/pydesrap_template.png" class="img-fluid"></a></p>
+</div>
+<div class="r-content">
+<p><a href="package_resources/rdesrap_template.png" class="lightbox" data-gallery="quarto-lightbox-gallery-3"><img src="package_resources/rdesrap_template.png" class="img-fluid"></a></p>
+</div>
+<p><br></p>
+<p>If you want to use the template outside of GitHub, that is also possible.</p>
+<p>Click the &nbsp;<span style="background: #597341; color: #fff; border-radius:4px; padding:2px 8px; font-family:monospace; font-weight:bold; font-size:90%;">Code</span>&nbsp; button then select “Download ZIP”.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><a href="package_resources/download_zip.png" class="lightbox" data-gallery="quarto-lightbox-gallery-4"><img src="package_resources/download_zip.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:50.0%"></a></p>
+</figure>
+</div>
+</section>
+<section id="test-yourself" class="level2">
+<h2 class="anchored" data-anchor-id="test-yourself">Test yourself</h2>
+<p>If you haven’t already followed along, <strong>now’s the time to put everything from this page into practice!</strong></p>
+<p>You have two options:</p>
+<p><strong>1. Set up manually</strong>. Follow the steps above to create the folder structure, configuration files, and test code from scratch. Before getting started, make sure to set-up your repository with <a href="../../../pages/guide/setup/version.html">version control</a> and an <a href="../../../pages/guide/setup/environment.html">environment</a>.</p>
+<div class="python-content">
+<p><strong>2. Use the template.</strong> <a href="https://github.com/pythonhealthdatascience/pydesrap_template">Use the template repository</a> to create a pre-configured repository. You could then customise it - for example, if you are following along with this book, you could change the environment to that provided on the <a href="../../../pages/guide/setup/environment.html">environment</a> page.</p>
+</div>
+<div class="r-content">
+<p><strong>2. Use the template.</strong> <a href="https://github.com/pythonhealthdatascience/rdesrap_template">Use the template repository</a> to create a pre-configured repository.</p>
+<ul>
+<li>You could then customise it - for example, if you are following along with this book, you could change the environment to that provided on the <a href="../../../pages/guide/setup/environment.html">environment</a> page.</li>
+<li>You should also edit the <code>DESCRIPTION</code> file - follow the detailed instructions above to do so! If you change the name of the package, you will need to change your <code>library(simulation)</code> call in <code>simulation_test.Rmd</code> to refer to the new name.</li>
+</ul>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled" title="Hints">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Hints
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li>Use the folder, file and code templates already given above.</li>
+<li>Tweak names and descriptions for your own project.</li>
+<li>If you hit any errors, check your files are in the right place, and look back at earlier steps for solutions.</li>
+</ul>
+</div>
+</div>
+</section>
+<section id="further-information" class="level2">
+<h2 class="anchored" data-anchor-id="further-information">Further information</h2>
+<div class="python-content">
+<ul>
+<li><p><a href="https://joshuacook.netlify.app/posts/2024-07-27_python-data-analysis-org/">“How I use Python to organize my data analyses”</a> from Joshua Cook 2024</p>
+<p><em>Approach to structuring python data analysis as a package.</em></p></li>
+</ul>
+</div>
+<div class="r-content">
+<ul>
+<li><p><a href="https://dante-sttr.gitlab.io/r-open-science/">“Open, Reproducible, and Distributable Research With R Packages”</a> from the DANTE Project</p>
+<p><em>Website on using packages for structuring your work - lots of great information, like this page on <a href="https://dante-sttr.gitlab.io/r-open-science/reports-manuscripts.html">vignettes</a>.</em></p></li>
+<li><p><a href="https://doi.org/10.3758/s13428-020-01436-x">“Sharing and organizing research products as R packages”</a> from Vuorre and Crump 2020</p>
+<p><em>Publication on structuring research as a package</em>.</p></li>
+<li><p><a href="https://r-pkgs.org/">“R Packages” book</a> by Hadley Wickham and Jennifer Bryan</p>
+<p><em>Go-to-resource for writing R packages. Some suggested pages to read at this point would include <a href="https://r-pkgs.org/workflow101.html">“4 Fundamental development workflows”</a> and <a href="https://r-pkgs.org/description.html">“9 DESCRIPTION”</a>.</em></p></li>
+</ul>
+</div>
+<p><br><br></p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script>
+
+/*
+Acknowledgments. This file is from webexercises:
+  Barr D, DeBruine L (2023). webexercises: Create Interactive Web Exercises in
+  'R Markdown' (Formerly 'webex'). R package version 1.1.0.9000,
+  https://github.com/psyteachr/webexercises.
+*/
+
+/* update total correct if #webex-total_correct exists */
+update_total_correct = function() {
+  console.log("webex: update total_correct");
+
+  var t = document.getElementsByClassName("webex-total_correct");
+  for (var i = 0; i < t.length; i++) {
+    p = t[i].parentElement;
+    var correct = p.getElementsByClassName("webex-correct").length;
+    var solvemes = p.getElementsByClassName("webex-solveme").length;
+    var radiogroups = p.getElementsByClassName("webex-radiogroup").length;
+    var selects = p.getElementsByClassName("webex-select").length;
+
+    t[i].innerHTML = correct + " of " + (solvemes + radiogroups + selects) + " correct";
+  }
+}
+
+/* webex-solution button toggling function */
+b_func = function() {
+  console.log("webex: toggle hide");
+
+  var cl = this.parentElement.classList;
+  if (cl.contains('open')) {
+    cl.remove("open");
+  } else {
+    cl.add("open");
+  }
+}
+
+/* check answers */
+check_func = function() {
+  console.log("webex: check answers");
+
+  var cl = this.parentElement.classList;
+  if (cl.contains('unchecked')) {
+    cl.remove("unchecked");
+    this.innerHTML = "Hide Answers";
+  } else {
+    cl.add("unchecked");
+    this.innerHTML = "Show Answers";
+  }
+}
+
+/* function for checking solveme answers */
+solveme_func = function(e) {
+  console.log("webex: check solveme");
+
+  var real_answers = JSON.parse(this.dataset.answer);
+  var my_answer = this.value;
+  var cl = this.classList;
+  if (cl.contains("ignorecase")) {
+    my_answer = my_answer.toLowerCase();
+  }
+  if (cl.contains("nospaces")) {
+    my_answer = my_answer.replace(/ /g, "")
+  }
+
+  if (my_answer == "") {
+    cl.remove("webex-correct");
+    cl.remove("webex-incorrect");
+  } else if (real_answers.includes(my_answer)) {
+    cl.add("webex-correct");
+    cl.remove("webex-incorrect");
+  } else {
+    cl.add("webex-incorrect");
+    cl.remove("webex-correct");
+  }
+
+  // match numeric answers within a specified tolerance
+  if(this.dataset.tol > 0){
+    var tol = JSON.parse(this.dataset.tol);
+    var matches = real_answers.map(x => Math.abs(x - my_answer) < tol)
+    if (matches.reduce((a, b) => a + b, 0) > 0) {
+      cl.add("webex-correct");
+    } else {
+      cl.remove("webex-correct");
+    }
+  }
+
+  // added regex bit
+  if (cl.contains("regex")){
+    answer_regex = RegExp(real_answers.join("|"))
+    if (answer_regex.test(my_answer)) {
+      cl.add("webex-correct");
+    }
+  }
+
+  update_total_correct();
+}
+
+/* function for checking select answers */
+select_func = function(e) {
+  console.log("webex: check select");
+
+  var cl = this.classList
+
+  /* add style */
+  cl.remove("webex-incorrect");
+  cl.remove("webex-correct");
+  if (this.value == "answer") {
+    cl.add("webex-correct");
+  } else if (this.value != "blank") {
+    cl.add("webex-incorrect");
+  }
+
+  update_total_correct();
+}
+
+/* function for checking radiogroups answers */
+radiogroups_func = function(e) {
+  console.log("webex: check radiogroups");
+
+  var checked_button = document.querySelector('input[name=' + this.id + ']:checked');
+  var cl = checked_button.parentElement.classList;
+  var labels = checked_button.parentElement.parentElement.children;
+
+  /* get rid of styles */
+  for (i = 0; i < labels.length; i++) {
+    labels[i].classList.remove("webex-incorrect");
+    labels[i].classList.remove("webex-correct");
+  }
+
+  /* add style */
+  if (checked_button.value == "answer") {
+    cl.add("webex-correct");
+  } else {
+    cl.add("webex-incorrect");
+  }
+
+  update_total_correct();
+}
+
+window.onload = function() {
+  console.log("webex onload");
+  /* set up solution buttons */
+  var buttons = document.getElementsByTagName("button");
+
+  for (var i = 0; i < buttons.length; i++) {
+    if (buttons[i].parentElement.classList.contains('webex-solution')) {
+      buttons[i].onclick = b_func;
+    }
+  }
+
+  var check_sections = document.getElementsByClassName("webex-check");
+  console.log("check:", check_sections.length);
+  for (var i = 0; i < check_sections.length; i++) {
+    check_sections[i].classList.add("unchecked");
+
+    let btn = document.createElement("button");
+    btn.innerHTML = "Show Answers";
+    btn.classList.add("webex-check-button");
+    btn.onclick = check_func;
+    check_sections[i].appendChild(btn);
+
+    let spn = document.createElement("span");
+    spn.classList.add("webex-total_correct");
+    check_sections[i].appendChild(spn);
+  }
+
+  /* set up webex-solveme inputs */
+  var solveme = document.getElementsByClassName("webex-solveme");
+
+  for (var i = 0; i < solveme.length; i++) {
+    /* make sure input boxes don't auto-anything */
+    solveme[i].setAttribute("autocomplete","off");
+    solveme[i].setAttribute("autocorrect", "off");
+    solveme[i].setAttribute("autocapitalize", "off");
+    solveme[i].setAttribute("spellcheck", "false");
+    solveme[i].value = "";
+
+    /* adjust answer for ignorecase or nospaces */
+    var cl = solveme[i].classList;
+    var real_answer = solveme[i].dataset.answer;
+    if (cl.contains("ignorecase")) {
+      real_answer = real_answer.toLowerCase();
+    }
+    if (cl.contains("nospaces")) {
+      real_answer = real_answer.replace(/ /g, "");
+    }
+    solveme[i].dataset.answer = real_answer;
+
+    /* attach checking function */
+    solveme[i].onkeyup = solveme_func;
+    solveme[i].onchange = solveme_func;
+
+    solveme[i].insertAdjacentHTML("afterend", " <span class='webex-icon'></span>")
+  }
+
+  /* set up radiogroups */
+  var radiogroups = document.getElementsByClassName("webex-radiogroup");
+  for (var i = 0; i < radiogroups.length; i++) {
+    radiogroups[i].onchange = radiogroups_func;
+  }
+
+  /* set up selects */
+  var selects = document.getElementsByClassName("webex-select");
+  for (var i = 0; i < selects.length; i++) {
+    selects[i].onchange = select_func;
+    selects[i].insertAdjacentHTML("afterend", " <span class='webex-icon'></span>")
+  }
+
+  update_total_correct();
+}
+
+</script>
+<script>
+
+function setLanguage(lang) {
+  // Store the selected language in localStorage
+  localStorage.setItem('preferredLanguage', lang);
+
+  // Update button active state
+  document.querySelectorAll('.language-button').forEach(btn => {
+      btn.classList.remove('active');
+      if (btn.textContent.toLowerCase() === lang || (lang === 'both' && btn.textContent.toLowerCase() === 'both')) {
+          btn.classList.add('active');
+      }
+  });
+  // Show/hide the appropriate content
+  if (lang === 'python') {
+      document.querySelectorAll('.python-content').forEach(el => el.style.display = 'block');
+      document.querySelectorAll('.r-content').forEach(el => el.style.display = 'none');
+  } else if (lang === 'r') {
+      document.querySelectorAll('.python-content').forEach(el => el.style.display = 'none');
+      document.querySelectorAll('.r-content').forEach(el => el.style.display = 'block');
+  }
+}
+
+// On page load, set the language based on localStorage or default to Python
+document.addEventListener('DOMContentLoaded', function() {
+  const lang = localStorage.getItem('preferredLanguage') || 'python';
+  setLanguage(lang);
+});
+
+</script>
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/pythonhealthdatascience\.github\.io\/des_rap_book\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<input type="hidden" id="giscus-base-theme" value="light">
+<input type="hidden" id="giscus-alt-theme" value="light">
+<script>
+  function loadGiscus() {
+    // Function to get the theme based on body class
+    const getTheme = () => {
+      let baseTheme = document.getElementById('giscus-base-theme').value;
+      let altTheme = document.getElementById('giscus-alt-theme').value;
+      return document.body.classList.contains('quarto-dark') ? altTheme : baseTheme;
+    };
+    const script = document.createElement("script");
+    script.src = "https://giscus.app/client.js";
+    script.async = true;
+    script.dataset.repo = "pythonhealthdatascience/des_rap_book";
+    script.dataset.repoId = "R_kgDOOXKhOA";
+    script.dataset.category = "Announcements";
+    script.dataset.categoryId = "DIC_kwDOOXKhOM4CuWAj";
+    script.dataset.mapping = "pathname";
+    script.dataset.reactionsEnabled = "1";
+    script.dataset.emitMetadata = "0";
+    script.dataset.inputPosition = "bottom";
+    script.dataset.theme = getTheme();
+    script.dataset.lang = "en";
+    script.crossOrigin = "anonymous";
+    // Append the script to the desired div instead of at the end of the body
+    document.getElementById("quarto-content").appendChild(script);
+  }
+  loadGiscus();
+</script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../../../pages/guide/setup/environment.html" class="pagination-link" aria-label="Environments">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Environments</span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../../../pages/guide/setup/code_structure.html" class="pagination-link" aria-label="Code organisation">
+        <span class="nav-page-text">Code organisation</span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      <ul class="footer-items list-unstyled">
+    <li class="nav-item">
+ The STARS project is supported by the Medical Research Council [grant number MR/Z503915/1].
+  </li>  
+</ul>
+    </div>   
+    <div class="nav-footer-center">
+      <ul class="footer-items list-unstyled">
+    <li class="nav-item">
+ Part of the STARS research project.<br>
+Code licence: <a href="https://opensource.org/license/mit" target="_blank" rel="noopener">MIT</a>.  
+Text licence: <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC-BY-SA 4.0</a>.
+  </li>  
+</ul>
+    <div class="cookie-consent-footer"><a href="#" id="open_preferences_center">Cookie Preferences</a></div></div>
+    <div class="nav-footer-right">
+      <ul class="footer-items list-unstyled">
+    <li class="nav-item">
+ Heather, A., Monks, T., Mustafee, N., &amp; Harper, A. (2025). DES RAP Book: Reproducible Discrete-Event Simulation in Python and R. https://github.com/pythonhealthdatascience/des_rap_book. https://doi.org/10.5281/zenodo.17094155.
+  </li>  
+</ul>
+    </div>
+  </div>
+</footer>
+<script>var lightboxQuarto = GLightbox({"closeEffect":"zoom","descPosition":"bottom","loop":false,"openEffect":"zoom","selector":".lightbox"});
+(function() {
+  let previousOnload = window.onload;
+  window.onload = () => {
+    if (previousOnload) {
+      previousOnload();
+    }
+    lightboxQuarto.on('slide_before_load', (data) => {
+      const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+      const href = trigger.getAttribute('href');
+      if (href !== null) {
+        const imgEl = window.document.querySelector(`a[href="${href}"] img`);
+        if (imgEl !== null) {
+          const srcAttr = imgEl.getAttribute("src");
+          if (srcAttr && srcAttr.startsWith("data:")) {
+            slideConfig.href = srcAttr;
+          }
+        }
+      } 
+    });
+  
+    lightboxQuarto.on('slide_after_load', (data) => {
+      const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(slideNode);
+      }
+    });
+  
+  };
+  
+})();
+          </script>
+
+
+
+
+</body></html>

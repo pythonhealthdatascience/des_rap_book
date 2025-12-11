@@ -1,0 +1,2611 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.25">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="dcterms.date" content="2025-12-10">
+
+<title>Environments – DES RAP</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../../">
+<link href="../../../pages/guide/setup/package.html" rel="next">
+<link href="../../../pages/guide/setup/version.html" rel="prev">
+<link href="../../../images/stars_logo_blue.png" rel="icon" type="image/png">
+<script src="../../../site_libs/cookie-consent/cookie-consent.js"></script>
+<link href="../../../site_libs/cookie-consent/cookie-consent.css" rel="stylesheet">
+<script src="../../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-7b89279ff1a6dce999919e0e67d4d9ec.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../../site_libs/bootstrap/bootstrap-cf9b3981a620de6d1ff1748a6509d2c1.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="../../../site_libs/quarto-contrib/glightbox/glightbox.min.js"></script>
+<link href="../../../site_libs/quarto-contrib/glightbox/glightbox.min.css" rel="stylesheet">
+<link href="../../../site_libs/quarto-contrib/glightbox/lightbox.css" rel="stylesheet">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script async="" src="https://www.googletagmanager.com/gtag/js?id=G-W2FC4GDHFK"></script>
+
+<script type="text/plain" cookie-consent="tracking">
+
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-W2FC4GDHFK', { 'anonymize_ip': true});
+</script>
+
+<script type="text/javascript" charset="UTF-8">
+document.addEventListener('DOMContentLoaded', function () {
+cookieconsent.run({
+  "notice_banner_type":"simple",
+  "consent_type":"implied",
+  "palette":"light",
+  "language":"en",
+  "page_load_consent_levels":["strictly-necessary","functionality","tracking","targeting"],
+  "notice_banner_reject_button_hide":false,
+  "preferences_center_close_button_hide":false,
+  "website_name":""
+  ,
+"language":"en"
+  });
+});
+</script> 
+  
+<style>
+
+      .quarto-title-block .quarto-title-banner h1,
+      .quarto-title-block .quarto-title-banner h2,
+      .quarto-title-block .quarto-title-banner h3,
+      .quarto-title-block .quarto-title-banner h4,
+      .quarto-title-block .quarto-title-banner h5,
+      .quarto-title-block .quarto-title-banner h6
+      {
+        color: #ffffff;
+      }
+
+      .quarto-title-block .quarto-title-banner {
+        color: #ffffff;
+background-image: url(../../../images/banner.png);
+background-size: cover;
+      }
+</style>
+
+
+<link rel="stylesheet" href="../../../styles/headings.css">
+<link rel="stylesheet" href="../../../styles/general.css">
+<link rel="stylesheet" href="../../../styles/buttons.css">
+<link rel="stylesheet" href="../../../styles/language-selector.css">
+<link rel="stylesheet" href="../../../styles/callout.css">
+<link rel="stylesheet" href="../../../styles/tables.css">
+<link rel="stylesheet" href="../../../styles/webex.css">
+<link rel="stylesheet" href="../../styles/wrap_code.css">
+</head>
+
+<body class="nav-sidebar docked nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top quarto-banner">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a href="../../../index.html" class="navbar-brand navbar-brand-logo">
+    <img src="../../../images/stars_logo_white.png" alt="" class="navbar-logo light-content">
+    <img src="../../../images/stars_logo_white.png" alt="" class="navbar-logo dark-content">
+    </a>
+    <a class="navbar-brand" href="../../../index.html">
+    <span class="navbar-title">DES RAP</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link active" href="../../../pages/guide/introduction.html" aria-current="page"> 
+<span class="menu-text">Step-by-step guide</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../../pages/example_models/example_models.html"> 
+<span class="menu-text">Examples</span></a>
+  </li>  
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-frameworks" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Frameworks</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-frameworks">    
+        <li>
+    <a class="dropdown-item" href="../../../pages/frameworks/levels_of_rap.html">
+ <span class="dropdown-text">NHS Levels of RAP</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../../pages/frameworks/stars_reproducibility.html">
+ <span class="dropdown-text">STARS reproducibility recommendations</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-intros" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Intros</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-intros">    
+        <li>
+    <a class="dropdown-item" href="../../../pages/intros/des.html">
+ <span class="dropdown-text">Intro to DES</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../../pages/intros/rap.html">
+ <span class="dropdown-text">Intro to reproducibility and RAPs</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../../pages/intros/foss.html">
+ <span class="dropdown-text">Intro to FOSS</span></a>
+  </li>  
+    </ul>
+  </li>
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/pythonhealthdatascience/des_rap_book"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../../pages/guide/setup/version.html">Setup</a></li><li class="breadcrumb-item"><a href="../../../pages/guide/setup/environment.html">Environments</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+    </div>
+  </nav>
+  <div id="quarto-announcement" data-announcement-id="4617d65ad9316c9b7606e9c95215be6c" class="alert alert-primary hidden"><div class="quarto-announcement-content">
+<div class="language-selector">
+<p>Choose your language:&nbsp;&nbsp; <button class="language-button" onclick="setLanguage('python')">Python</button> <button class="language-button" onclick="setLanguage('r')">R</button></p>
+</div>
+</div></div>
+</header>
+<!-- content -->
+<header id="title-block-header" class="quarto-title-block default page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../../pages/guide/setup/version.html">Setup</a></li><li class="breadcrumb-item"><a href="../../../pages/guide/setup/environment.html">Environments</a></li></ol></nav>
+      <h1 class="title">Environments</h1>
+                      </div>
+  </div>
+    
+  
+  <div class="quarto-title-meta">
+
+      
+      <div>
+      <div class="quarto-title-meta-heading">Page last modified</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">December 10, 2025</p>
+      </div>
+    </div>
+    
+      
+    </div>
+    
+  
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header sidebar-header-stacked">
+      <a href="../../../index.html" class="sidebar-logo-link">
+      </a>
+      </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/introduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Setup</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/setup/version.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Version control</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/setup/environment.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Environments</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/setup/package.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Structuring as a package</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/setup/code_structure.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Code organisation</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">Model inputs</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/inputs/input_modelling.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Input modelling</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/inputs/input_data.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Input data management</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/inputs/parameters_script.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Parameters from script</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/inputs/parameters_file.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Parameters from file</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/inputs/parameters_validation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Parameter validation</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
+ <span class="menu-text">Model building</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/model/distributions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Randomness</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/model/patients.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Entity generation</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/model/process.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Entity processing</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/model/logs.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Logging</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true">
+ <span class="menu-text">Output analysis</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/output_analysis/warmup.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Initialisation bias</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/output_analysis/outputs.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Performance measures</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/output_analysis/replications.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Replications</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/output_analysis/length_warmup.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Length of warm-up</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/output_analysis/n_reps.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Number of replications</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/output_analysis/parallel.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Parallel processing</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true">
+ <span class="menu-text">Experimentation</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/experiments/scenarios.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Scenario and sensitivity analysis</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/experiments/tables_figures.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Tables and figures</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/experiments/full_run.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Full run</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true">
+ <span class="menu-text">Verification &amp; validation</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/verification_validation/verification_validation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Verification and validation</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/verification_validation/tests.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Tests</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/verification_validation/mathematical.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Mathematical proof of correctness</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/verification_validation/quality_assurance.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Quality assurance</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="true">
+ <span class="menu-text">Style &amp; documentation</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/style_docs/linting.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Linting</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/style_docs/docstrings.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Docstrings</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/style_docs/github_actions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">GitHub actions</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/style_docs/documentation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Documentation</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="true">
+ <span class="menu-text">Collaboration &amp; sharing</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-8" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/sharing/peer_review.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Code review</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/sharing/licence.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Licensing</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/sharing/citation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Citation</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/sharing/changelog.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Changelog</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/sharing/archive.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Sharing and archiving</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="true">
+ <span class="menu-text">Closing remarks</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-9" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/further_info/conclusion.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Conclusion</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../pages/guide/further_info/feedback.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Feedback</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul class="collapse">
+  <li><a href="#environments" id="toc-environments" class="nav-link active" data-scroll-target="#environments">Environments</a></li>
+  <li><a href="#tools" id="toc-tools" class="nav-link" data-scroll-target="#tools">Tools</a></li>
+  <li><a href="#version" id="toc-version" class="nav-link" data-scroll-target="#version">Version</a></li>
+  <li><a href="#packages" id="toc-packages" class="nav-link" data-scroll-target="#packages">Packages</a></li>
+  <li><a href="#other" id="toc-other" class="nav-link" data-scroll-target="#other">Other</a></li>
+  <li><a href="#recreate-troubleshoot" id="toc-recreate-troubleshoot" class="nav-link" data-scroll-target="#recreate-troubleshoot">Recreate &amp; troubleshoot</a></li>
+  <li><a href="#further-ideas" id="toc-further-ideas" class="nav-link" data-scroll-target="#further-ideas">Further ideas</a></li>
+  <li><a href="#test-yourself" id="toc-test-yourself" class="nav-link" data-scroll-target="#test-yourself">Test yourself</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content quarto-banner-title-block" id="quarto-document-content">
+
+
+
+
+
+<div class="pale-blue">
+<p><strong>Learning objectives:</strong></p>
+<div class="python-content">
+<ul>
+<li>Understand what python <strong>environments</strong> are and why they matter.</li>
+<li>Compare <strong>tools</strong> for managing environments.</li>
+<li>Learn methods for switching between python <strong>versions</strong>.</li>
+<li>Use <strong>conda</strong> for dependency management.</li>
+<li>Learn steps to <strong>restore</strong> environments and <strong>troubleshoot</strong> common issues.</li>
+</ul>
+</div>
+<div class="r-content">
+<ul>
+<li>Understand what R <strong>environments</strong> are and why they matter.</li>
+<li>Compare <strong>tools</strong> for managing environments.</li>
+<li>Learn methods for switching between R <strong>versions</strong>.</li>
+<li>Use <strong>renv</strong> for dependency management.</li>
+<li>Learn steps to <strong>restore</strong> environments and <strong>troubleshoot</strong> common issues.</li>
+</ul>
+</div>
+<p><strong>Relevant reproducibility guidelines:</strong></p>
+<ul>
+<li>STARS Reproducibility Recommendations: List dependencies and versions.</li>
+<li>NHS Levels of RAP (🥈): Repository includes dependency information.</li>
+</ul>
+</div>
+<section id="environments" class="level2">
+<h2 class="anchored" data-anchor-id="environments">Environments</h2>
+<div class="python-content">
+<p>A python environment is the complete computational context required to run a python project. It includes:</p>
+<ul>
+<li>The <strong>version of Python</strong> itself.</li>
+<li>All <strong>python packages</strong> (and their versions) used in your analysis.</li>
+</ul>
+</div>
+<div class="r-content">
+<p>An R environment is the complete computational context required to run an R project. It includes:</p>
+<ul>
+<li>The <strong>version of R</strong> itself.</li>
+<li>All <strong>R packages</strong> (and their versions) used in your analysis.</li>
+<li><strong>System libraries</strong> required by some R packages.</li>
+<li><strong>Project-specific settings</strong> (e.g., <code>.Rproj</code>, .<code>Rprofile</code>).</li>
+</ul>
+</div>
+<section id="keeping-track-of-your-environment" class="level3">
+<h3 class="anchored" data-anchor-id="keeping-track-of-your-environment">Keeping track of your environment</h3>
+<p>Recording the environment used acts like a <strong>time capsule</strong>, allowing you to return to a project later and run it with the exact same packages and versions, reproducing the results generated previously.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><a href="environment_resources/time_capsule.png" class="lightbox" data-gallery="quarto-lightbox-gallery-1"><img src="environment_resources/time_capsule.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:70.0%"></a></p>
+</figure>
+</div>
+<p>Managing dependencies allows you to <strong>isolate environments for different projects</strong>. Each project can maintain its own set of packages and R version, preventing conflicts between projects and making it effortless to switch between them without worrying about version mismatches.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><a href="environment_resources/isolated_env.png" class="lightbox" data-gallery="quarto-lightbox-gallery-2"><img src="environment_resources/isolated_env.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:70.0%"></a></p>
+</figure>
+</div>
+<p>Consistent environments are important for collaboration. Ensuring everyone on the team uses the same setup prevents issues caused by differing packages or versions.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><a href="environment_resources/collaborate.png" class="lightbox" data-gallery="quarto-lightbox-gallery-3"><img src="environment_resources/collaborate.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:70.0%"></a></p>
+</figure>
+</div>
+</section>
+</section>
+<section id="tools" class="level2">
+<h2 class="anchored" data-anchor-id="tools">Tools</h2>
+<div class="python-content">
+<p>In Python, there are several popular tools for environment management. We’d recommend using a tool that can both:</p>
+<ul>
+<li><strong>Install and switch between different versions of Python</strong>, and-</li>
+<li><strong>Install required packages and dependencies</strong>.</li>
+</ul>
+<p>As outlined in the table below, there are several tools that can achieve this - <code>conda</code>, <code>mamba</code> and <code>uv</code>. However, there are other factors to consider - for example:</p>
+<ul>
+<li><strong>Environment location</strong> - by default, are environments created in the project folder (local) or in a central cache (shared across projects)? Can the location be customised?</li>
+<li><strong>Dependency files</strong> - does the tool maintain a list of top-level packages (i.e.&nbsp;those you explicitly request) or a fully snapshot (i.e.&nbsp;including all transitive dependencies and pinned versions)?</li>
+<li><strong>Packaging</strong> - can the tool build Python packages for distribution? If you are <a href="../../../pages/guide/setup/package.html">structuring your research as a package</a>, you may wish to use one tool - or separate tools - for dependency management and creation of your package.</li>
+</ul>
+<div class="grey-table">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 12%">
+<col style="width: 12%">
+<col style="width: 12%">
+<col style="width: 12%">
+<col style="width: 12%">
+<col style="width: 12%">
+<col style="width: 12%">
+<col style="width: 12%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Tool</th>
+<th>Python versions</th>
+<th>Env location</th>
+<th>Custom location</th>
+<th>Package source</th>
+<th>Config file</th>
+<th>Speed</th>
+<th>Build + publish package</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>venv</code></td>
+<td>❌ No</td>
+<td>Project folder</td>
+<td>✅ Yes</td>
+<td>PyPI</td>
+<td><code>requirements.txt</code> <em>(top-level only)</em></td>
+<td>⚡ Fast</td>
+<td>❌ No</td>
+</tr>
+<tr class="even">
+<td><code>conda</code></td>
+<td>✅ Yes</td>
+<td>Central</td>
+<td>✅ Yes</td>
+<td>Conda / PyPI</td>
+<td><code>environment.yml</code> <em>(top-level or snapshot)</em></td>
+<td>🐢 Slow</td>
+<td>❌ No</td>
+</tr>
+<tr class="odd">
+<td><code>mamba</code></td>
+<td>✅ Yes</td>
+<td>Central</td>
+<td>✅ Yes</td>
+<td>Conda / PyPI</td>
+<td><code>environment.yml</code> <em>(top-level or snapshot)</em></td>
+<td>⚡ Fast</td>
+<td>❌ No</td>
+</tr>
+<tr class="even">
+<td><code>poetry</code></td>
+<td>⚠️ Partial</td>
+<td>Central</td>
+<td>✅ Yes</td>
+<td>PyPI</td>
+<td><code>pyproject.toml</code> <em>(top-level)</em> + <code>poetry.lock</code> <em>(snapshot)</em></td>
+<td>⚡ Fast</td>
+<td>✅ Yes</td>
+</tr>
+<tr class="odd">
+<td><code>uv</code></td>
+<td>✅ Yes</td>
+<td>Project folder</td>
+<td>❌ No</td>
+<td>PyPI</td>
+<td><code>pyproject.toml</code> <em>(top-level)</em> + <code>uv.lock</code> <em>(snapshot)</em></td>
+<td>🚀 Very fast</td>
+<td>✅ Yes</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>⚠️ Partial: <code>Poetry</code> can select among installed versions of Python, but cannot install new Python versions itself</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Find out more about each tool">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Find out more about each tool
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-1" class="callout-1-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="line-block"><strong>venv</strong> (2012)<br>
+🔗 <a href="https://docs.python.org/3/library/venv.html" class="uri">https://docs.python.org/3/library/venv.html</a></div>
+<p>Part of Python’s standard library (from 3.3+), <code>venv</code> quickly replaced <code>pyvenv</code> and <code>virtualenv</code> as the standard way of managing virtual environments. It is included as part of the standard Python library, and so requires no installation. No support for Python version switching.</p>
+<div class="line-block"><strong>conda</strong> (2012)<br>
+🔗 <a href="https://github.com/conda/conda" class="uri">https://github.com/conda/conda</a></div>
+<p>Comes with Anaconda/Miniconda or can be installed separately. It can install and manage multiple Python versions, and non-Python dependencies (e.g.&nbsp;R, Node.js, compilers and system libraries).</p>
+<div class="line-block"><strong>mamba</strong> (2020)<br>
+🔗 <a href="https://github.com/mamba-org/mamba" class="uri">https://github.com/mamba-org/mamba</a></div>
+<p>A drop-in replacement for <code>conda</code> written in C++. It offers faster installs and clearer conflict messages.</p>
+<div class="line-block"><strong>poetry</strong> (2019)<br>
+🔗 <a href="https://github.com/python-poetry/poetry" class="uri">https://github.com/python-poetry/poetry</a></div>
+<p>An all-in-one tool for dependency management and packaging. Supports reproducible environments via <code>poetry.lock</code>, and can build/distribute your project as a Python package. Cannot install Python versions itself, but allows selecting from those available on your system.</p>
+<div class="line-block"><strong>uv</strong> (2024)<br>
+🔗 <a href="https://github.com/astral-sh/uv" class="uri">https://github.com/astral-sh/uv</a></div>
+<p>A modern tool written in Rust. It is designed to be very fast - 10-100x faster than <code>pip</code> or <code>conda</code>. It combines features of <code>pip</code>, <code>venv</code> and <code>poetry</code>, managing python versions and supporting packaging. It is an emerging all-in-one solution.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="r-content">
+<p>In R, managing your project environment typically requires multiple, specialised tools rather than a single all-in-one solution. The current solutions are:</p>
+<div class="grey-table">
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Tool</th>
+<th>Install + switch between R versions?</th>
+<th>Package management?</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>rig</code></td>
+<td>✅ Yes</td>
+<td>❌ No</td>
+</tr>
+<tr class="even">
+<td><code>renv</code></td>
+<td>❌ No</td>
+<td>✅ Yes</td>
+</tr>
+<tr class="odd">
+<td><code>rv</code> (in development)</td>
+<td>❌ No</td>
+<td>✅ Yes</td>
+</tr>
+</tbody>
+</table>
+</div>
+<section id="legacy-tools" class="level3">
+<h3 class="anchored" data-anchor-id="legacy-tools">Legacy tools</h3>
+<p><strong>R version management:</strong> Before <code>rig</code>, users had to install and switch R versions using platform-specific tools (e.g.&nbsp;RSwitch on Mac, CRAN installer on Windows, Homebrew or manual compilation on Linux). These approaches are more involved and prone to inconsistencies.</p>
+<p><strong>R package management:</strong> <code>packrat</code> used to be the most popular package manager, but was superseded by <code>renv</code> which is simpler to use and more robust.</p>
+</section>
+</div>
+</section>
+<section id="version" class="level2">
+<h2 class="anchored" data-anchor-id="version">Version</h2>
+<div class="python-content">
+<p>This book and its examples use <code>conda</code>/<code>mamba</code>, as they are <strong>established</strong> tools for package management that can also install <strong>specific versions of Python</strong>, enabling you to easily switch between versions for different projects.</p>
+<p>You can choose between them - <strong><code>mamba</code> is just a drop-in replacement for <code>conda</code></strong> that is faster and has clearer error messages.</p>
+<section id="how-will-we-work" class="level3">
+<h3 class="anchored" data-anchor-id="how-will-we-work">How will we work?</h3>
+<p>For reproducibility and universal applicability, all <code>conda</code>/<code>mamba</code> instructions in this book will be run from the <strong>command line</strong>. These commands should be run from the <strong>terminal</strong> on Linux or macOS, or <strong>Git Bash</strong> (or <strong>Anaconda Prompt</strong>) on Windows. This approach gives you full control, works in any environment, and aligns with best practices used in collaborative and professional settings.</p>
+<p>However, there is also <strong>Anaconda Navigator</strong> - an application bundled with the Anaconda Distribution. Navigator allows you to manage environments and install packages using a point-and-click interface. If you’re curious about using Anaconda Navigator instead, you can follow along with this walkthrough: <a href="https://youtu.be/D9ppWlkO-dI?si=zyzEUOICWeIn8LoX">How to Create Virtual Environment in Anaconda Navigator | Python</a>.</p>
+</section>
+<section id="install-condamamba" class="level3">
+<h3 class="anchored" data-anchor-id="install-condamamba">Install <code>conda</code>/<code>mamba</code></h3>
+<p>Refer to the documentation for the latest instructions on installing <code>conda</code>/<code>mamba</code> for your operating system:</p>
+<ul>
+<li><a href="https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html">Conda installation instructions</a>.</li>
+<li><a href="https://mamba.readthedocs.io/en/latest/installation/mamba-installation.html">Mamba installation instructions</a>.</li>
+</ul>
+</section>
+<section id="create-an-environment-file" class="level3">
+<h3 class="anchored" data-anchor-id="create-an-environment-file">Create an environment file</h3>
+<p>In the main project folder, create a file called <code>environment.yaml</code>. For example, your folder structure might look like:</p>
+<pre><code>project-name/
+├── .git/
+├── environment.yaml
+├── LICENSE
+└── README.md</code></pre>
+<p>Within <code>environment.yaml</code>, we add three sections:</p>
+<ul>
+<li><strong>Name</strong>. The environment name.</li>
+<li><strong>Channels</strong>. Where to find packages (e.g.&nbsp;<code>conda-forge</code>).</li>
+<li><strong>Dependencies</strong>. The packages you need.</li>
+</ul>
+<p>When first creating our environment, we just want to specify the version of python used. For example:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">name:</span> envname</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="ex">channels:</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="ex">-</span> conda-forge</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="ex">dependencies:</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="ex">-</span> python=3.13</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Conda channels
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Channels</strong> are locations where conda stores and retrieves packages. You can choose which channel to use, and can a select a few with an order of priority.</p>
+<p>We have used <code>conda-forge</code> which is a community-maintained channel run by volunteers. It offers a wide range of packages and is a popular choice for many users.</p>
+<p>Other main channels include:</p>
+<ul>
+<li><code>default</code> and <code>anaconda</code> - Maintained by Anaconda’s engineers and designed for high security and stability. Organisations with 200 or more employees have to pay to use this channel (excluding students and non-commercial research at universities)</li>
+<li><code>bioconda</code> - Volunteer-run, offers bioinformatics-related packages.</li>
+</ul>
+</div>
+</div>
+</section>
+<section id="build-and-activate-the-environment" class="level3">
+<h3 class="anchored" data-anchor-id="build-and-activate-the-environment">Build and activate the environment</h3>
+<p>In the command line, run either set of commands to:</p>
+<ul>
+<li>Create your environment.</li>
+<li>Activate it (replacing <code>envname</code> with your environment name).</li>
+<li>List the packages in your environment.</li>
+</ul>
+<p>Using <code>conda</code>:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">conda</span> env create <span class="at">--file</span> environment.yaml</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="ex">conda</span> activate envname</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="ex">conda</span> list</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Using <code>mamba</code>:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">mamba</span> env create <span class="at">--file</span> environment.yaml</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="ex">mamba</span> activate envname</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="ex">mamba</span> list</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>When you run the <code>list</code> command, you should see a list of packages, versions, builds and channels, similar to:</p>
+<pre><code># packages in environment at /home/amy/mambaforge/envs/testenv:
+#
+# Name                    Version                   Build  Channel
+_libgcc_mutex             0.1                 conda_forge    conda-forge
+_openmp_mutex             4.5                       2_gnu    conda-forge
+bzip2                     1.0.8                h4bc722e_7    conda-forge
+ca-certificates           2025.7.14            hbd8a1cb_0    conda-forge
+icu                       75.1                 he02047a_0    conda-forge
+ld_impl_linux-64          2.44                 h1423503_1    conda-forge
+libexpat                  2.7.0                h5888daf_0    conda-forge
+libffi                    3.4.6                h2dba641_1    conda-forge
+libgcc                    15.1.0               h767d61c_3    conda-forge
+libgcc-ng                 15.1.0               h69a702a_3    conda-forge
+libgomp                   15.1.0               h767d61c_3    conda-forge
+liblzma                   5.8.1                hb9d3cd8_2    conda-forge
+libmpdec                  4.0.0                hb9d3cd8_0    conda-forge
+libsqlite                 3.50.2               hee844dc_2    conda-forge
+libstdcxx                 15.1.0               h8f9b012_3    conda-forge
+libstdcxx-ng              15.1.0               h4852527_3    conda-forge
+libuuid                   2.38.1               h0b41bf4_0    conda-forge
+libzlib                   1.3.1                hb9d3cd8_2    conda-forge
+ncurses                   6.5                  h2d0b736_3    conda-forge
+openssl                   3.5.1                h7b32b05_0    conda-forge
+pip                       25.1.1             pyh145f28c_0    conda-forge
+python                    3.13.5          hec9711d_102_cp313    conda-forge
+python_abi                3.13                    7_cp313    conda-forge
+readline                  8.2                  h8c095d6_2    conda-forge
+tk                        8.6.13          noxft_hd72426e_102    conda-forge
+tzdata                    2025b                h78e105d_0    conda-forge</code></pre>
+</section>
+</div>
+<div class="r-content">
+<p>For most users, the best way to manage R versions is to use <a href="https://github.com/r-lib/rig"><code>rig</code></a>. It is a tool that allows you to easily install, list and switch between R versions on Windows, Mac and Linux.</p>
+<section id="install-rig" class="level3">
+<h3 class="anchored" data-anchor-id="install-rig">Install <code>rig</code></h3>
+<p>Follow the installation instructions for your operating system on the <a href="https://github.com/r-lib/rig">rig GitHub</a> page. After installation, check that it works by running:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">rig</span> <span class="at">--version</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="view-available-r-versions" class="level3">
+<h3 class="anchored" data-anchor-id="view-available-r-versions">View available R versions</h3>
+<p>List all R versions installed on your machine:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ex">rig</span> list</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Example output:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ex">*</span> name   version  aliases</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="ex">------------------------------------------</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="ex">3.6.0</span>           </span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="ex">4.2.2</span>           </span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="ex">4.3.1</span>           </span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  <span class="ex">4.4.1</span>           </span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  <span class="ex">4.5.0</span>  </span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="add-a-new-r-version" class="level3">
+<h3 class="anchored" data-anchor-id="add-a-new-r-version">Add a new R version</h3>
+<p>To install a specific R version:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="ex">rig</span> add 4.1.2</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Or simply add the latest version:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="ex">rig</span> add</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="set-the-active-r-version" class="level3">
+<h3 class="anchored" data-anchor-id="set-the-active-r-version">Set the active R version</h3>
+<p>Choose which R version should be active (for example, when you open RStudio):</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="ex">rig</span> default 4.1.2</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>This makes the selected version the default for new R sessions. (<strong>Note:</strong> If you later change versions manually or with other tools, you may need to reset this.)</p>
+</section>
+</div>
+</section>
+<section id="packages" class="level2">
+<h2 class="anchored" data-anchor-id="packages">Packages</h2>
+<p>The processing of tracking and controlling the packages your project uses, including their versions, is called <strong>dependency management</strong>.</p>
+<section id="using-condamamba" class="level3 python-content">
+<h3 class="anchored" data-anchor-id="using-condamamba">Using <code>conda</code>/<code>mamba</code></h3>
+<div class="h4-tight">
+
+</div>
+<section id="setup-environment" class="level4">
+<h4 class="anchored" data-anchor-id="setup-environment">Setup environment</h4>
+<p>This book and its examples use <code>conda</code>/<code>mamba</code>. If you haven’t already, follow the instructions in <strong>🔄 Version</strong> to set-up an environment with just your chosen version of python.</p>
+</section>
+<section id="adding-packages-to-the-environment" class="level4">
+<h4 class="anchored" data-anchor-id="adding-packages-to-the-environment">Adding packages to the environment</h4>
+<p>Add packages to the environment by modifying the <code>environment.yaml</code> file. For example, to add <code>simpy</code>:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="ex">name:</span> envname</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="ex">channels:</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="ex">-</span> conda-forge</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="ex">dependencies:</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  <span class="ex">-</span> python=3.13</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>  <span class="ex">-</span> simpy</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>With the environment active (i.e.&nbsp;after running <code>conda activate envname</code>), you can then run the following command to update it. Activating the environment before updating ensures that the changes are applied to the correct environment, rather than unintentionally modifying the <code>base</code> environment.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="ex">conda</span> env update <span class="at">--file</span> environment.yaml <span class="at">--prune</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>You should <strong>specify the exact package versions</strong> in you <code>environment.yaml</code>. If you’re starting from scratch, you may not know which versions you need, so you can leave them out initially, as we did above. However, now that we have built our environment (which used the latest versions as none were specified), it is important to then record your versions in the <code>environment.yaml</code>. These are the versions you can see by running <code>conda list</code>.</p>
+<p>Example <code>environment.yaml</code> file:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="ex">name:</span> envname</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="ex">channels:</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="ex">-</span> conda-forge</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="ex">dependencies:</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>  <span class="ex">-</span> python=3.13.3</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>  <span class="ex">-</span> simpy=4.1.1</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>When working on a project from scratch, you will often build up your environment organically and iteratively as you find more packages you want to use.</p>
+<p>To set-up an environment that will work for running the examples in this book, see the “<strong>Test yourself</strong>” section.</p>
+</section>
+</section>
+<div class="r-content">
+<p>In R, the most popular tool for managing dependencies is <a href="https://github.com/rstudio/renv"><code>renv</code></a>.</p>
+<section id="creating-an-renv-environment" class="level3">
+<h3 class="anchored" data-anchor-id="creating-an-renv-environment">Creating an <code>renv</code> environment</h3>
+<div class="h4-tight">
+
+</div>
+<section id="install-renv" class="level4">
+<h4 class="anchored" data-anchor-id="install-renv">1. Install renv</h4>
+<p>If you haven’t already, install <code>renv</code> from CRAN:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="st">"renv"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="create-an-r-project" class="level4">
+<h4 class="anchored" data-anchor-id="create-an-r-project">2. Create an R project</h4>
+<p>It’s best to use <code>renv</code> within an R project. R projects are commonly created and managed by RStudio.</p>
+<p>In RStudio, select “File &gt; New Project…” and choose “Existing Directory”.</p>
+<p><a href="environment_resources/rproject1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-4"><img src="environment_resources/rproject1.png" class="img-fluid"></a></p>
+<p>Navigate to your project directory, then select “Create Project”.</p>
+<p><a href="environment_resources/rproject2.png" class="lightbox" data-gallery="quarto-lightbox-gallery-5"><img src="environment_resources/rproject2.png" class="img-fluid"></a></p>
+<p>This will create :</p>
+<ul>
+<li><code>.Rproj</code>: project file (contains some settings for the project).</li>
+<li><code>.Rproject.user/</code>: hidden folder with temporary project files (e.g.&nbsp;auto-saved source documents).</li>
+</ul>
+<p>If you are not using RStudio, R projects can be difficult to set-up, as they have to be created manually. It is possible to use <code>renv</code> <em>without</em> an R project though, as discussed in <a href="https://github.com/rstudio/renv/issues/460">this GitHub issue</a>. This can be done using <code>setwd()</code> to set your repository as the current working directory, and then continuing with the steps below.</p>
+</section>
+<section id="initialise-renv" class="level4">
+<h4 class="anchored" data-anchor-id="initialise-renv">3. Initialise <code>renv</code></h4>
+<p>In your R console, run:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>renv<span class="sc">::</span><span class="fu">init</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>This creates:</p>
+<ul>
+<li><code>renv/</code>: stores packages for the project.</li>
+<li><code>renv.lock</code>: records packages and the exact versions used.</li>
+<li><code>.Rprofile</code>: ensures <code>renv</code> activates when the project opens.</li>
+</ul>
+<p>Example <code>renv.lock</code> containing only <code>renv</code>:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>{</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">"R"</span><span class="sc">:</span> {</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Version"</span><span class="sc">:</span> <span class="st">"4.4.1"</span>,</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Repositories"</span><span class="sc">:</span> [</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>      {</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>        <span class="st">"Name"</span><span class="sc">:</span> <span class="st">"CRAN"</span>,</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>        <span class="st">"URL"</span><span class="sc">:</span> <span class="st">"https://packagemanager.posit.co/cran/latest"</span></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>    ]</span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>  },</span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Packages"</span><span class="sc">:</span> {</span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>    <span class="st">"renv"</span><span class="sc">:</span> {</span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Package"</span><span class="sc">:</span> <span class="st">"renv"</span>,</span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Version"</span><span class="sc">:</span> <span class="st">"1.0.7"</span>,</span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Source"</span><span class="sc">:</span> <span class="st">"Repository"</span>,</span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Repository"</span><span class="sc">:</span> <span class="st">"CRAN"</span>,</span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Requirements"</span><span class="sc">:</span> [</span>
+<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a>        <span class="st">"utils"</span></span>
+<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a>      ],</span>
+<span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Hash"</span><span class="sc">:</span> <span class="st">"397b7b2a265bc5a7a06852524dabae20"</span></span>
+<span id="cb17-21"><a href="#cb17-21" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb17-22"><a href="#cb17-22" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb17-23"><a href="#cb17-23" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>When you initialise <code>renv</code>, you project gets its own <strong>project library</strong> - a private folder (<code>renv/library/</code>) where packages are installed just for this project. This means package versions are isolated and recorded for each project, so updating a package in one project won’t break others. This makes collaboration and reproducibility much easier.</p>
+<p>This is different from the <strong>user library</strong>, which is the default shared location where R installs packages used by all your R projects. See the “Packages” section on RStudio, which will show your project v.s. user library:</p>
+<p><a href="environment_resources/renv_init.png" class="lightbox" data-gallery="quarto-lightbox-gallery-6"><img src="environment_resources/renv_init.png" class="img-fluid"></a></p>
+<p>Some further information relevant when initialising <code>renv</code>:</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Implicit or explicit mode">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Implicit or explicit mode
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-3" class="callout-3-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>If a <code>DESCRIPTION</code> file is present, <code>renv</code> will prompt you to choose how dependencies are discovered:</p>
+<ul>
+<li><strong>Implicit mode:</strong> <code>renv</code> will scan you project files for any packages used in your code.</li>
+<li><strong>Explicit mode:</strong> <code>renv</code> will use only the packages listed in your <code>DESCRIPTION</code> file (under “Imports”).</li>
+</ul>
+<p>We recommend choosing implicit mode for most projects, as it ensures that all packages actually used in your code are detected and managed, even if you forget to list them in <code>DESCRIPTION</code>.</p>
+<p><em>We’ll explain more about <code>DESCRIPTION</code> files and these modes in the section on adding packages to the environment.</em></p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled" title="Initialising a bare environment">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Initialising a bare environment
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-4" class="callout-4-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>By default, <code>renv::init()</code> will scan and install packages into your project library. If your directory is empty or contains no code using packages, only <code>renv</code> itself will be installed.</p>
+<p>If you want to initialise <code>renv</code> without installing any packages, you can use:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>renv<span class="sc">::</span><span class="fu">init</span>(<span class="at">bare =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>This will create <code>renv/</code> and <code>.Rprofile</code> but not <code>renv.lock</code> or a project library.</p>
+<p>However, when you later run <code>renv::snapshot()</code>, <code>renv</code> will scan and install packages at that point. If you use implicit mode, it will detect and install all packages used in your code - even if you started with a bare environment.</p>
+<p><em>We’ll explain more about snapshots and implicit mode in the section on adding packages to the environment.</em></p>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="adding-packages-to-the-renv-environment" class="level3">
+<h3 class="anchored" data-anchor-id="adding-packages-to-the-renv-environment">Adding packages to the <code>renv</code> environment</h3>
+<p>It is possible to simply install packages directly using commands like:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>renv<span class="sc">::</span><span class="fu">install</span>(<span class="st">"packagename"</span>)</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="st">"packagename"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>However, we recommend using a <code>DESCRIPTION</code> file. This is a file listing only the <strong>main packages</strong> your project directly depends on - i.e.&nbsp;those you might have add using <code>renv::install()</code>.</p>
+<p>This differs from <code>renv.lock</code> which records <strong>all packages</strong> needed to recreate your environment, including every main package and all their dependencies, plus the exact versions used.</p>
+<p><a href="environment_resources/description_vs_lock.png" class="lightbox" data-gallery="quarto-lightbox-gallery-7"><img src="environment_resources/description_vs_lock.png" class="img-fluid"></a></p>
+<p>The benefit of using a <code>DESCRIPTION</code> file when adding packages is:</p>
+<ul>
+<li><p>📝 <strong>Clear requirements.</strong> The <code>DESCRIPTION</code> file gives a simple, readable summary of your project’s main packages. It’s much easier to read than <code>renv.lock</code>.</p></li>
+<li><p>📦 <strong>Consistency with package development</strong>. If your project is (or might become) an R package, the <code>DESCRIPTION</code> file is the standard way to declare dependencies.</p></li>
+<li><p>🔄 <strong>Alternative for environment recreation</strong>. While <code>renv.lock</code> is the primary tool for restoring an <code>renv</code> environment, having a <code>DESCRIPTION</code> file is a valuable backup. If you encounter issues with <code>renv.lock</code>, you can use <code>DESCRIPTION</code> to reinstall the main dependencies.</p></li>
+<li><p>🎯 <strong>Explicit snapshots</strong>. If you want precise control over what’s included in <code>renv.lock</code>, you can use an “explicit” snapshot. This means only the packages listed in <code>DESCRIPTION</code> (and their dependencies) are recorded.</p></li>
+</ul>
+<section id="create-a-description-file" class="level4">
+<h4 class="anchored" data-anchor-id="create-a-description-file">1. Create a <code>DESCRIPTION</code> file</h4>
+<p>Create a blank file named <code>DESCRIPTION</code> and copy in the template below. You can customise some of the meta-data (e.g.&nbsp;package, title, authors, description).</p>
+<p>This is a standard template. You can create an identical file with <code>usethis</code> by running <code>usethis::use_description()</code>. However, we can just create it from scratch, which helps to minimise our dependencies.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>Package<span class="sc">:</span> packagename</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>Title<span class="sc">:</span> What the Package <span class="fu">Does</span> (One Line, Title Case)</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>Version<span class="sc">:</span> <span class="dv">0</span>.<span class="dv">0</span>.<span class="fl">0.9000</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>Authors<span class="sc">@</span>R<span class="sc">:</span> </span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">person</span>(<span class="st">"First"</span>, <span class="st">"Last"</span>, , <span class="st">"first.last@example.com"</span>, <span class="at">role =</span> <span class="fu">c</span>(<span class="st">"aut"</span>, <span class="st">"cre"</span>))</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>Description<span class="sc">:</span> What the package <span class="fu">does</span> (one paragraph).</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>License<span class="sc">:</span> <span class="st">`</span><span class="at">use_mit_license()</span><span class="st">`</span>, <span class="st">`</span><span class="at">use_gpl3_license()</span><span class="st">`</span> or friends to pick a</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>    license</span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>Encoding<span class="sc">:</span> UTF<span class="dv">-8</span></span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>Roxygen<span class="sc">:</span> <span class="fu">list</span>(<span class="at">markdown =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>RoxygenNote<span class="sc">:</span> <span class="dv">7</span>.<span class="fl">0.0</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="list-dependencies" class="level4">
+<h4 class="anchored" data-anchor-id="list-dependencies">2. List dependencies</h4>
+<p>Dependencies can be listed as:</p>
+<ul>
+<li><code>Imports</code> (required packages).</li>
+<li><code>Suggests</code> (optional/development packages).</li>
+</ul>
+<p>For non-package projects, it’s simplest to list all dependencies under <code>Imports</code>, which will be identified by <code>renv</code> (whilst those under <code>Suggests</code> may not unless used in scripts).</p>
+<p><code>Suggests</code> is more relevant when constructing a package, as it distinguishes packages necessary only for optional features, vignettes or testing, from those required within the package itself.</p>
+<p><strong>Note:</strong> In the <a href="https://r-pkgs.org/description.html">R Packages</a> book, they recommend that - in <code>DESCRIPTION</code> - no versions are specified, or a minimum version is specified if you know that an older version of specific package/s would break the code. This is why it is important to also create an <code>renv.lock</code> file (as below), so you do have a record of the exact versions used.</p>
+<p>Example <code>DESCRIPTION</code> with packages <code>dplyr</code> and <code>future</code>:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>Package<span class="sc">:</span> example</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>Title<span class="sc">:</span> Example DESCRIPTION</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>Version<span class="sc">:</span> <span class="dv">0</span>.<span class="dv">0</span>.<span class="fl">0.9000</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>Authors<span class="sc">@</span>R<span class="sc">:</span> </span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">person</span>(<span class="st">"Amy"</span>, <span class="st">"Heather"</span>, , <span class="st">"a.heather2@exeter.ac.uk"</span>, <span class="at">role =</span> <span class="fu">c</span>(<span class="st">"aut"</span>, <span class="st">"cre"</span>))</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>Description<span class="sc">:</span> This is an example DESCRIPTION, used <span class="cf">for</span> environment management.</span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>License<span class="sc">:</span> MIT <span class="sc">+</span> file LICENSE</span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>Encoding<span class="sc">:</span> UTF<span class="dv">-8</span></span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>Roxygen<span class="sc">:</span> <span class="fu">list</span>(<span class="at">markdown =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>RoxygenNote<span class="sc">:</span> <span class="dv">7</span>.<span class="fl">0.0</span></span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>Imports<span class="sc">:</span></span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>    dplyr</span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>    future</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>At the very beginning of your project, your <code>DESCRIPTION</code> file might only include a few packages. As your project develops and you find yourself using additional packages, simply <strong>add each new dependency to the <code>Imports</code> section</strong> of your <code>DESCRIPTION</code> file.</p>
+<p>To set-up an environment that will work for running the examples in this book, see the “<strong>Test yourself</strong>” section.</p>
+</section>
+<section id="install-packages-from-description" class="level4">
+<h4 class="anchored" data-anchor-id="install-packages-from-description">3. Install packages from <code>DESCRIPTION</code></h4>
+<p>Install packages listed in <code>DESCRIPTION</code> (and their dependencies) with:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>renv<span class="sc">::</span><span class="fu">install</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>This will only install packages listed under “Imports” - those under “Suggests” have to be installed manually.</p>
+</section>
+<section id="update-renv.lock" class="level4">
+<h4 class="anchored" data-anchor-id="update-renv.lock">4. Update <code>renv.lock</code></h4>
+<p>Take a snapshot of your environment and update <code>renv.lock</code>:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>renv<span class="sc">::</span><span class="fu">snapshot</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>This will update the lock file with a full list of the exact packages and dependencies, including the <strong>versions</strong> you have installed.</p>
+<p>There are three snapshot types:</p>
+<ul>
+<li><strong>Implicit</strong> (default): Records packages in <code>DESCRIPTION</code> Imports section (not the Suggests section) <em>and</em> those used in your code.</li>
+<li><strong>Explicit</strong>: Only records packages listed in <code>DESCRIPTION</code> Imports section (not the Suggests section).</li>
+<li><strong>All</strong>: Records all packages in your environment.</li>
+</ul>
+<p>We recommend using the default (implicit) to ensure all used packages are captured, even if not listed in <code>DESCRIPTION</code>. However, you should remove unused scripts to avoid capturing unnecessary packages.</p>
+<p>If you are using a <code>DESCRIPTION</code> file with “Imports” and “Suggests”, you may wish to use the “all” snapshot, as otherwise renv will only include packages in imports or used in the code in the lockfile.</p>
+<p>To check your current snapshot type:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>renv<span class="sc">::</span>settings<span class="sc">$</span><span class="fu">snapshot.type</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>To change it if needed:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>renv<span class="sc">::</span>settings<span class="sc">$</span><span class="fu">snapshot.type</span>(<span class="st">"implicit"</span>)</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>renv<span class="sc">::</span>settings<span class="sc">$</span><span class="fu">snapshot.type</span>(<span class="st">"explicit"</span>)</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>renv<span class="sc">::</span>settings<span class="sc">$</span><span class="fu">snapshot.type</span>(<span class="st">"all"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+</section>
+<section id="deleting-an-renv-environment" class="level3">
+<h3 class="anchored" data-anchor-id="deleting-an-renv-environment">Deleting an <code>renv</code> environment</h3>
+<p>To remove <code>renv</code> from a project, run:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>renv<span class="sc">::</span><span class="fu">deactivate</span>(<span class="at">clean =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>This will remove the renv auto-loaded, the <code>renv/</code> directory, and the <code>renv.lock</code> file in one step, and restart the R session.</p>
+</section>
+</div>
+</section>
+<section id="other" class="level2">
+<h2 class="anchored" data-anchor-id="other">Other</h2>
+<div class="python-content">
+<p>If you’re interested in using one of the other tools for dependency management, we’ve provided some brief information on each below, and direct you to other sources for a more detailed explanation of how to use them.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="`venv`">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-5-contents" aria-controls="callout-5" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span><code>venv</code>
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-5" class="callout-5-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p><strong>Installation</strong></p>
+<p>As <code>venv</code> is included with the standard Python library, you do not need to install it.</p>
+<p><br></p>
+<p><strong>Environment creation</strong></p>
+<p>To create a virtual environment, we use the <code>python -m venv &lt;name&gt;</code> command. Typically the environment is just named <code>venv</code> - and so, we just execute:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb27"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> <span class="at">-m</span> venv venv</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>You should execute this from within your project folder. It will create a new folder named <code>venv/</code> to store the environment within.</p>
+<pre><code>venv
+├── bin/
+├── include/
+├── lib/
+├── lib64/
+└── pyvenv.cfg</code></pre>
+<p>It is not recommend to add <code>venv</code> to GitHub. The <a href="https://github.com/github/gitignore/blob/main/Python.gitignore">default Python <code>.gitignore</code> file</a> includes <code>venv/</code> to ignore the entire folder.</p>
+<p>Activation of the virtual environment will differ depending on your operating system.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb29"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Linux or MacOS</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="bu">source</span> venv/bin/activate</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Windows (from cmd.exe)</span></span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a><span class="ex">venv\Scripts\activate</span></span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Windows (from PowerShell)</span></span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a><span class="ex">venv\Scripts\Activate.ps1</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Once activated, the shell prompt changes to indicate that the environment is active - for example:</p>
+<pre><code>(venv) (base) amy@xps:~/Documents/stars/venv_test$</code></pre>
+<p><br></p>
+<p><strong>Choosing python version</strong></p>
+<p><code>venv</code> cannot control which python version is used, it will just use one on system. You can check what this is by running:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb31"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="ex">venv/bin/python</span> <span class="at">--version</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><br></p>
+<p><strong>Adding packages</strong></p>
+<p>To add packages, create a <code>requirements.txt</code> file. Within this, list the required packages and their versions.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb32"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="va">nbqa</span><span class="op">=</span>=1.9.0</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="va">simpy</span><span class="op">=</span>=4.1.1</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>To install these, with our environment active, run:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb33"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install <span class="at">-r</span> requirements.txt</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><br></p>
+<p><strong>Further information</strong></p>
+<p>For more guidance on using <code>venv</code>, check out the <a href="https://docs.python.org/3/library/venv.html">venv documentation</a>.</p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled" title="`poetry`">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-6-contents" aria-controls="callout-6" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span><code>poetry</code>
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-6" class="callout-6-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p><strong>Installation</strong></p>
+<p>Install poetry following the <a href="https://python-poetry.org/docs/">instructions for your operating system</a>. For example, on Linux:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb34"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> <span class="at">-sSL</span> https://install.python-poetry.org <span class="kw">|</span> <span class="ex">python3</span> <span class="at">-</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>After installation, check that Poetry is available:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb35"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="ex">poetry</span> <span class="at">--version</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><br></p>
+<p><strong>Environment creation</strong></p>
+<p>From our project directory, we can create a new poetry project by running:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb36"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="ex">poetry</span> init</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>This will guide you through a series of prompts to create a <code>pyproject.toml</code> file. You can answer these or just press “Enter” to accept the default values. For example, accepting the defaults can produce something similar to:</p>
+<pre><code>[project]
+name = "poetry-test"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "amyheather",email = "a.heather2@exeter.ac.uk"}
+]
+readme = "README.md"
+requires-python = "&gt;=3.10"
+dependencies = [
+]
+
+
+[build-system]
+requires = ["poetry-core&gt;=2.0.0,&lt;3.0.0"]
+build-backend = "poetry.core.masonry.api"</code></pre>
+<p>When first add a package, the environment will be created.</p>
+<p><br></p>
+<p><strong>Choosing python version</strong></p>
+<p>To use a specific version of python:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb38"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="ex">poetry</span> env use 3.11</span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a><span class="ex">poetry</span> install</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>However, it cannot install specific versions for you - this is only choosing between versions already on your machine.</p>
+<p><br></p>
+<p><strong>Adding packages</strong></p>
+<p>To add dependencies, use the <code>poetry add</code> command (rather than editing <code>pyproject.toml</code> directly). This will install the package, update <code>pyproject.toml</code> and generate a <code>poetry.lock</code> file if one does not already exist.</p>
+<p>For example, to add SimPy:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb39"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="ex">poetry</span> add simpy</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>This updates <code>pyproject.toml</code>:</p>
+<pre><code>[project]
+name = "poetry-test"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "amyheather",email = "a.heather2@exeter.ac.uk"}
+]
+readme = "README.md"
+requires-python = "&gt;=3.10"
+dependencies = [
+    "simpy (&gt;=4.1.1,&lt;5.0.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core&gt;=2.0.0,&lt;3.0.0"]
+build-backend = "poetry.core.masonry.api"</code></pre>
+<p>And creates/updates <code>poetry.lock</code> to record the exact package version installed:</p>
+<pre><code># This file is automatically @generated by Poetry 2.1.3 and should not be changed by hand.
+
+[[package]]
+name = "simpy"
+version = "4.1.1"
+description = "Event discrete, process based simulation for Python."
+optional = false
+python-versions = "&gt;=3.8"
+groups = ["main"]
+files = [
+    {file = "simpy-4.1.1-py3-none-any.whl", hash = "sha256:7c5ae380240fd2238671160e4830956f8055830a8317edf5c05e495b3823cd88"},
+    {file = "simpy-4.1.1.tar.gz", hash = "sha256:06d0750a7884b11e0e8e20ce0bc7c6d4ed5f1743d456695340d13fdff95001a6"},
+]
+
+[metadata]
+lock-version = "2.1"
+python-versions = "&gt;=3.10"
+content-hash = "53e967cadef99331a7f895f64ccb1bd8680e6fe09253335b9d88bd4cb3d6d793"</code></pre>
+<p>To install a specific version of a package, specify it when adding:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb42"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="ex">poetry</span> add nbqa==1.9.0</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><br></p>
+<p><strong>Further information</strong></p>
+<p>For more guidance on using <code>poetry</code>, check out the <a href="https://python-poetry.org/docs/">poetry documentation</a>.</p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled" title="`uv`">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-7-contents" aria-controls="callout-7" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span><code>uv</code>
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-7" class="callout-7-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p><strong>Installation</strong></p>
+<p><a href="https://docs.astral.sh/uv/getting-started/installation/">Install</a> for your operating system - for example, on linux:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb43"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> <span class="at">-LsSf</span> https://astral.sh/uv/install.sh <span class="kw">|</span> <span class="fu">sh</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Can check it has installed by running:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb44"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> version</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><br></p>
+<p><strong>Environment creation</strong></p>
+<p>To set up your repository as a uv project, run:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb45"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> init</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>This creates:</p>
+<pre><code>.
+├── .python-version
+├── README.md
+├── main.py
+└── pyproject.toml</code></pre>
+<p>When you run the python file, it will create the environment:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb47"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> run main.py</span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;</span> Using <span class="ex">CPython</span> 3.10.14 interpreter at: /home/amy/mambaforge/bin/python3.10</span>
+<span id="cb47-4"><a href="#cb47-4" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;</span> Creating <span class="ex">virtual</span> environment at: .venv</span>
+<span id="cb47-5"><a href="#cb47-5" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;</span> Hello <span class="ex">from</span> uv-test!</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Whenever you execute <code>uv run</code>, it checks that everything is up-to-date: lockfile matches pyproject.toml, environment matches lockfile. To manually update though, can run:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb48"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> sync</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><br></p>
+<p><strong>Choosing python version</strong></p>
+<p>To change the python version, open the <code>.python-version</code> file (e.g.&nbsp;<code>nano .python-version</code>), then edit the listed version, save, and run <code>uv sync</code>. It will install the specified version of python.</p>
+<p><br></p>
+<p><strong>Adding packages</strong></p>
+<p>To add packages, run <code>uv add</code>, and can specify versions:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb49"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> add simpy</span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a><span class="ex">uv</span> add nbqa==1.9.0</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The config files are:</p>
+<ul>
+<li><code>pyproject.toml</code> - a simple list of the packages you add with <code>uv add</code>, including any specified versions.</li>
+<li><code>uv.lock</code> - full details on every package in the environment.</li>
+</ul>
+<p>Example <code>pyproject.toml</code>:</p>
+<pre><code>[project]
+name = "uv-test"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = "&gt;=3.10"
+dependencies = [
+    "nbqa==1.9.0",
+    "pytest&gt;=8.3.5",
+    "simpy&gt;=4.1.1",
+]</code></pre>
+<p>Example <code>uv.lock</code>:</p>
+<pre><code>version = 1
+revision = 2
+requires-python = "&gt;=3.10"
+resolution-markers = [
+    "python_full_version &gt;= '3.11'",
+    "python_full_version &lt; '3.11'",
+]
+
+[[package]]
+name = "asttokens"
+version = "3.0.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/4a/e7/82da0a03e7ba5141f05cce0d302e6eed121ae055e0456ca228bf693984bc/asttokens-3.0.0.tar.gz", hash = "sha256:0dcd8baa8d62b0c1d118b399b2ddba3c4aff271d0d7a9e0d4c1681c79035bbc7", size = 61978, upload-time = "2024-11-30T04:30:14.439Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/25/8a/c46dcc25341b5bce5472c718902eb3d38600a903b14fa6aeecef3f21a46f/asttokens-3.0.0-py3-none-any.whl", hash = "sha256:e3078351a059199dd5138cb1c706e6430c05eff2ff136af5eb4790f9d28932e2", size = 26918, upload-time = "2024-11-30T04:30:10.946Z" },
+]
+
+...</code></pre>
+<p><strong>Further information</strong></p>
+<p>For more guidance on using <code>uv</code>, check out the <a href="https://docs.astral.sh/uv/">uv documentation</a>.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="r-content">
+<div class="h3-tight">
+
+</div>
+<section id="other-tools-for-environment-management" class="level3">
+<h3 class="anchored" data-anchor-id="other-tools-for-environment-management">Other tools for environment management</h3>
+<p>If you’re interested in using one of the other tools for dependency management, we’ve provided some brief information on <code>rv</code> below, and direct you to other sources for a more detailed explanation of how to use it.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="`rv`">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-8-contents" aria-controls="callout-8" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span><code>rv</code>
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-8" class="callout-8-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>This section provides more information on <code>rv</code>.</p>
+<p>Using <code>rv</code>, you can declare an R version up-front and, whilst it will not automate installation or switching of R versions, it will warn/error if you try to use a different version.</p>
+<p>It requires all dependencies to be specified before installation, rather than taking snapshots as you go along like with <code>renv</code>. These dependencies are saved in an <code>rproject.toml file</code>.</p>
+<p><strong>Installation</strong></p>
+<p>Follow the <a href="https://github.com/A2-ai/rv/blob/main/docs/installation.md">installation instructions</a> for your operating system. For example, on linux:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb52"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> <span class="at">-sSL</span> https://raw.githubusercontent.com/A2-ai/rv/refs/heads/main/scripts/install.sh <span class="kw">|</span> <span class="fu">bash</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>We can then check it has installed by running:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb53"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a><span class="ex">rv</span> <span class="at">--version</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><strong>Setting up the project with a particular version of R</strong></p>
+<p>To set up rv project, execute from terminal <code>rv init</code>. However, if you wish to use a particular version of R, you should also specify this when setting up the project.</p>
+<p>Whilst rv will not install new versions of R for you, you can fix each project to a particular version of R, and it will then warn/error if the running version of R does not match this.</p>
+<p>For example, setting up a project fixed to R 4.5:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb54"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="ex">rv</span> init <span class="at">--r-version</span> 4.5</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>This will create:</p>
+<pre><code>.
+├── .Rprofile
+├── rproject.toml
+└── rv/
+    ├── .gitignore
+    └── scripts/
+        ├── activate.R
+        └── rvr.R</code></pre>
+<p>You can view a summary of the environment by running:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb56"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a><span class="ex">rv</span> summary</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>If you try to do this without that version of R installed, the project will initialise successfully, but running <code>rv summary</code> you will see an error message similar to:</p>
+<pre><code>Failed to get R version
+
+Caused by:
+    Specified R version (4.5) does not match any available versions found on the system (3.6.0, 4.2.2, 4.3.1, 4.4.1)</code></pre>
+<p><strong>Setting repositories</strong></p>
+<p>When we ran <code>rv init</code>, we got an error message:</p>
+<pre><code>WARNING: Could not set default repositories. Set with your company preferred package URL or public url (i.e. `https://packagemanager.posit.co/cran/latest`)</code></pre>
+<p>To resolve this, we opened <code>rproject.toml</code> and amended the repositories section to list CRAN:</p>
+<pre><code>repositories = [
+    {alias = "CRAN", url = "https://cran.r-project.org", force_source = true}
+]</code></pre>
+<p>Without this change, it was not possible to install packages (would “fail to resolve all dependencies”).</p>
+<p><strong>Adding packages</strong></p>
+<p>To add packages, simply run <code>rv add &lt;package&gt;</code>. This will install the specified package, and update the <code>rproject.toml</code> file to list it as a dependency, and add all installed packages to an <code>rv.lock</code> file. For example, if we run:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb60"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a><span class="ex">rv</span> add simmer</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The <code>rproject.toml</code> dependencies section updates to:</p>
+<pre><code>dependencies = [
+    "simmer",
+]</code></pre>
+<p>An <code>rv.lock</code> file is created:</p>
+<pre><code># This file is automatically @generated by rv.
+# It is not intended for manual editing.
+version = 2
+r_version = "4.5"
+
+[[packages]]
+name = "Rcpp"
+version = "1.0.14"
+source = { repository = "https://cran.r-project.org/" }
+force_source = true
+dependencies = []
+
+[[packages]]
+name = "codetools"
+version = "0.2-20"
+source = { builtin = true }
+force_source = false
+dependencies = []
+
+[[packages]]
+name = "magrittr"
+version = "2.0.3"
+source = { repository = "https://cran.r-project.org/" }
+force_source = true
+dependencies = []
+
+[[packages]]
+name = "simmer"
+version = "4.4.7"
+source = { repository = "https://cran.r-project.org/" }
+force_source = true
+dependencies = [
+    "Rcpp",
+    "magrittr",
+    "codetools",
+    { name = "Rcpp", requirement = "(&gt;= 0.12.9)" },
+]</code></pre>
+<p><strong>Adding specific versions of packages</strong></p>
+<p>Currently, <code>rv</code> requires this is done by editing the <code>rproject.toml</code> file and then running:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb63"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true" tabindex="-1"></a><span class="ex">rv</span> sync</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>I found this a bit hit-or-miss - several packages I tried failed to install due to issues fetching dependencies like <code>glue</code>. However, these two examples of using simmer 4.4.6.4 (instead of the latest 4.4.7) worked fine - either installing from CRAN or GitHub:</p>
+<pre><code>dependencies = [
+    {name = "simmer", url = "https://cran.r-project.org/src/contrib/Archive/simmer/simmer_4.4.6.4.tar.gz"},
+]</code></pre>
+<pre><code>dependencies = [
+    {name = "simmer", git = "https://github.com/r-simmer/simmer.git", tag = "v4.4.6.4"},
+]</code></pre>
+<p><strong>Further information</strong></p>
+<p>Check out the <a href="https://github.com/A2-ai/rv/tree/main">rv GitHub repository</a> for more advice on using this tool, and the latest instructions (as this package is still in active development).</p>
+</div>
+</div>
+</div>
+</section>
+<section id="system-libraries-and-project-specific-settings" class="level3">
+<h3 class="anchored" data-anchor-id="system-libraries-and-project-specific-settings">System libraries and project-specific settings</h3>
+<p>Besides the packages and R version used, your R environment will also include <strong>system libraries</strong> (external software required by some packages) and <strong>project-specific settings</strong> (e.g.&nbsp;<code>.Rproj</code>, <code>.Rprofile</code>).</p>
+<p>The exact system libraries required will depend on which packages you use, what operating system you have, and whether you have used R before. If system libraries are missing, package installation may fail, even if you have the correct R package versions. For example, working on Ubuntu, we found that we had to install the following system dependencies for <code>igraph</code>:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb66"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt install build-essential gfortran</span>
+<span id="cb66-2"><a href="#cb66-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> apt install libglpk-dev libxml2-dev</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Most researchers handle these components by:</p>
+<ul>
+<li>Documenting required system libraries in the project’s README or set-up instructions.</li>
+<li>Including project files (like <code>.Rproj</code> and <code>.Rprofile</code>) in version control (e.g., Git).</li>
+</ul>
+</section>
+</div>
+</section>
+<section id="recreate-troubleshoot" class="level2">
+<h2 class="anchored" data-anchor-id="recreate-troubleshoot">Recreate &amp; troubleshoot</h2>
+<div class="h3-tight">
+
+</div>
+<div class="python-content">
+<section id="identify-or-create-environment-file" class="level3">
+<h3 class="anchored" data-anchor-id="identify-or-create-environment-file">1. Identify or create environment file</h3>
+<p>Begin by identifying any existing files that list the necessary details: python version, required packages, and their versions. If these files fully specify the environment, use them directly to set-up the environment.</p>
+<p>If information is missing, fill in the gaps as follows, creating your own <code>environment.yml</code> (or similar) with the details gathered:</p>
+<ul>
+<li><strong>Python version:</strong> Look for explicit version info in documentation or project materials. If unavailable, estimate based on project dates or use the latest release.</li>
+<li><strong>Packages:</strong> Check documentation for a list of packages, or inspect code for import statements to determine what’s needed.</li>
+<li><strong>Package versions:</strong> Search for version details in documentation, or estimate based on project’s age; otherwise, consider installing the latest compatible versions.</li>
+</ul>
+</section>
+<section id="build-environment" class="level3">
+<h3 class="anchored" data-anchor-id="build-environment">2. Build environment</h3>
+<p>Install the environment using your chosen tool (ideally one that controls the python version, like <code>conda</code>). If you encounter <strong>installation errors</strong> (e.g.&nbsp;<code>could not find a version that satisified the requirement...</code>):</p>
+<ul>
+<li>Check if Python version is supported by the package.</li>
+<li>Try alternative sources (PyPI v.s. conda, different conda channels).</li>
+<li>Ensure package name has no typos, and that the version number is valid.</li>
+</ul>
+<p>After installation, test your code. If problems arise due to <strong>incompatible package versions</strong> (e.g.&nbsp;latest versions causing changes or errors):</p>
+<ul>
+<li>Downgrade affected packages, and update your environment file with the versions required.</li>
+</ul>
+</section>
+</div>
+<div class="r-content">
+<section id="identify-r-version-packages-and-their-required-versions" class="level3">
+<h3 class="anchored" data-anchor-id="identify-r-version-packages-and-their-required-versions">1. Identify R version, packages and their required versions</h3>
+<p>Start by looking for files that define the environment, like <code>renv.lock</code> or <code>DESCRIPTION</code>. If such files are missing or don’t specify versions:</p>
+<ul>
+<li><strong>R version:</strong> Look for explicit version info in documentation or project materials. If unavailable, estimate based on project dates or use the latest release.</li>
+<li><strong>Packages:</strong> Check documentation for a list of packages, or inspect code for import statements (<code>library()</code>, <code>require()</code>) to determine what’s needed.</li>
+<li><strong>Package versions:</strong> Search for version details in documentation, or estimate based on project’s age; otherwise, consider installing the latest compatible versions.</li>
+</ul>
+</section>
+<section id="build-r-environment" class="level3">
+<h3 class="anchored" data-anchor-id="build-r-environment">2. Build R environment</h3>
+<p>The required R version can be switched to using <code>rig</code>.</p>
+<p>If an <code>renv.lock</code> file exists, use <code>renv::restore()</code> to create the exact previous environment. This will match package versions exactly, and prompt you to use the appropriate R version. However, if you encounter problems, you may wish to switch to a <code>DESCRIPTION</code> file.</p>
+<p>If you are working from a provided <code>DESCRIPTION</code> file, or have deduced the required packages, then <code>renv::install()</code> can be used.</p>
+<ul>
+<li>For the latest versions, just list the packages in <code>DESCRIPTION</code> (with no pinned dependencies) and run <code>renv::install()</code>.</li>
+<li>For specific versions, the simplest method can be to individually install these using <code>renv::install("pkg@version")</code>, record the package in <code>DESCRIPTION</code>, and then ensure the version is recorded by runing <code>renv::snapshot()</code>.</li>
+</ul>
+<p><br></p>
+<div class="callout callout-style-default callout-note callout-titled" title="Backwards compatability in R">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Backwards compatability in R
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>In theory, the R ecosystem aspires to maintain backwards compatibility, meaning that code written for older package versions should continue to work with newer ones. However, in practice, there is no strict guarantee of backward compatibility in R, either for the core language or for contributed packages.</p>
+<p>As discussed in the <a href="https://r-pkgs.org/lifecycle.html">R packages</a> book:</p>
+<blockquote class="blockquote">
+<p>“If we’re being honest, most R users don’t manage package versions in a very intentional way. Given the way <code>update.packages()</code> and <code>install.packages()</code> work, it’s quite easy to upgrade a package to a new major version without really meaning to, especially for dependencies of the target package. This, in turn, can lead to unexpected exposure to breaking changes in code that previously worked. This unpleasantness has implications both for users and for maintainers.”</p>
+</blockquote>
+<p>Hence, using a lockfile like <code>renv.lock</code> is the only reliable way to ensure that your environment is recreated exactly as it was - but <code>DESCRIPTION</code> can serve as a valuable back-up when this doesn’t work, and otherwise just as a handy summary of the main packages.</p>
+</div>
+</div>
+<p><br></p>
+<div class="callout callout-style-default callout-note callout-titled" title="Alternative approach: time-based snapshots">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Alternative approach: time-based snapshots
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A <strong>time-based snapshot</strong> is a copy of all the packages from a repository (like CRAN) exactly as they were on a certain date. This provides an alternative approach to environment recreation, as you can point R at a particular snapshot, ensuring package versions match what was originally available for your project at that time.</p>
+<p><strong>MRAN</strong> (Microsoft R Application Network) was a free service provided by Microsoft that acted as a copy (“mirror”) of CRAN, the main R package repository. It had a “CRAN time machine” - a daily archive of packages as they appeared on each date since 2014. This let users recreate the exact package environment for a specific date in the past, helping with reproducibility and avoiding problems from changes in newer package versions. However, in July 2023, MRAN was retired and is no longer available</p>
+<p>After MRAN closed, <a href="https://packagemanager.posit.co/client/#/"><strong>Posit Public Package Manager (P3M)</strong></a> became the main free source for R package snapshots. P3M creates daily snapshots of CRAN, Bioconductor and Python’s PyPI, which you can use the same way: to get the exact package set for a chosen date. It’s limitation however is that it does not archive packages from GitHub and r-universe. For more on P3M, check out this video from <a href="https://www.youtube.com/@PositPBC">Posit PBC</a>:</p>
+<div class="quarto-video ratio ratio-16x9"><iframe data-external="1" src="https://www.youtube.com/embed/NwZ4sVjNKlI?si=hb4KG7MT9HMa07ky" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe></div>
+</div>
+</div>
+<p><br></p>
+<div class="callout callout-style-default callout-note callout-titled" title="GitHub and r-universe package considerations">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>GitHub and r-universe package considerations
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>For packages installed from GitHub, you can choose a specific version by pinning to a specific commit. Each commit has a unique ID (known as a SHA or hash), so you can follow this syntax when installing with renv:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb67"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb67-1"><a href="#cb67-1" aria-hidden="true" tabindex="-1"></a>renv<span class="sc">::</span><span class="fu">install</span>(<span class="st">"owner/repo@commit-sha"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>As <a href="https://ropensci.org/blog/2022/01/06/runiverse-renv/">explained in this ROpenSci article</a>, r-universe does not maintain historical archives of all package versions; instead, it relies on the upstream git repositories to provide historical sources. This means that while r-universe can serve packages, long-term reproducibility depends on the stability of the original GitHub repositories. For critical projects, consider pinning to specific GitHub commits rather than relying on r-universe alone.</p>
+</div>
+</div>
+</section>
+<section id="troubleshooting" class="level3">
+<h3 class="anchored" data-anchor-id="troubleshooting">3. Troubleshooting</h3>
+<p>Restoring an R environment can often run into issues, especially with older projects or system differences. Below are common problems and solutions.</p>
+<section id="unavailable-packages" class="level4">
+<h4 class="anchored" data-anchor-id="unavailable-packages">Unavailable packages</h4>
+<p>When recreating environments with older R versions or package versions, you may encounter errors if those packages are no longer available for your chosen R version. CRAN often archives older packages, and support for very old R versions is limited.</p>
+<p><strong>Symptoms:</strong></p>
+<ul>
+<li>Errors stating that a package or a specific version cannot be found or installed.</li>
+<li>Installation fails even though the package exists for newer R versions.</li>
+</ul>
+<p><strong>Solutions:</strong></p>
+<ul>
+<li>If exact reproducibility is not required, consider updating to a more recent R version and/or newer package versions.</li>
+<li>If a package is available in the CRAN archive (<code>http://cran.r-project.org/src/contrib/Archive/PackageName/</code>), you may be able to install it using renv (as it will search the main CRAN repository first but then look in the CRAN archives). You just need to specify a version like:</li>
+</ul>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb68"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a>renv<span class="sc">::</span><span class="fu">install</span>(<span class="st">"package@version"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<ul>
+<li>Consider using P3M snapshots from around the time the package was last available, which may provide compatible versions.</li>
+</ul>
+<p><br></p>
+</section>
+<section id="backdating" class="level4">
+<h4 class="anchored" data-anchor-id="backdating">Backdating</h4>
+<p>If you set up your environment with the latest R and package versions (for example, when no specific versions are listed), you may find your code requires older package versions to work as expected.</p>
+<p><strong>Symptoms:</strong></p>
+<ul>
+<li>Code relies on functions or behaviors from earlier package versions.</li>
+<li>Latest package versions introduce breaking changes.</li>
+</ul>
+<p><strong>Solutions:</strong></p>
+<ul>
+<li>Specify minimum or exact versions in your <code>DESCRIPTION</code> file.</li>
+<li>Be aware that not all old versions are available for every R version; you may need to adjust your R version or accept a newer package.</li>
+</ul>
+<p>To specify a minimum version in <code>DESCRIPTION</code>:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb69"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb69-1"><a href="#cb69-1" aria-hidden="true" tabindex="-1"></a>Imports<span class="sc">:</span></span>
+<span id="cb69-2"><a href="#cb69-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">dplyr</span> (<span class="sc">&gt;=</span> <span class="dv">1</span>.<span class="fl">0.0</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>To install a particular version using <code>renv</code> (which will be recorded in <code>renv.lock</code> after you call <code>renv::snapshot()</code>):</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb70"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a>renv<span class="sc">::</span><span class="fu">install</span>(<span class="st">"dplyr@1.1.2"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><br></p>
+</section>
+<section id="missing-system-dependencies" class="level4">
+<h4 class="anchored" data-anchor-id="missing-system-dependencies">Missing system dependencies</h4>
+<p>Some R packages require external system libraries (e.g., C libraries, database clients) not installed by default.</p>
+<p><strong>Symptoms:</strong></p>
+<ul>
+<li>Package installation fails with errors about missing libraries (e.g., “cannot find -lssl”, “libcurl not found”, missing <code>.so</code> files).</li>
+</ul>
+<p><strong>Solutions:</strong></p>
+<ul>
+<li>Check the CRAN page for each package for any system requirements (listed beside <code>SystemRequirements</code>). The <a href="https://cran.r-project.org/web/packages/openssl/index.html"><code>openssl</code></a> and <a href="https://cran.r-project.org/web/packages/curl/index.html"><code>curl</code></a> packages are a common source of these issues.</li>
+<li>Install the required system dependencies and document them in your <code>README</code> for others. For example:
+<ul>
+<li>Ubuntu/Debian: <code>sudo apt-get install libssl-dev libcurl4-openssl-dev</code>.</li>
+<li>Fedora/RHEL: <code>sudo dnf install openssl-devel libcurl-devel</code>.</li>
+<li>MacOS: <code>brew install openssl curl</code>.</li>
+<li>Windows: Follow package documentation or use precompiled binaries.</li>
+</ul></li>
+</ul>
+<p><br></p>
+</section>
+<section id="legacy-user-libraries" class="level4">
+<h4 class="anchored" data-anchor-id="legacy-user-libraries">Legacy user libraries</h4>
+<p>If R has been installed for a long time, your user library (the default location for installed packages) may contain outdated or conflicting packages. This can interfere with <code>renv</code>, sometimes causing silent failures or unpredictable behaviour.</p>
+<p><strong>Symptoms:</strong></p>
+<ul>
+<li><code>renv</code> commands have no effect or fail with unclear messages.</li>
+<li>Packages are loaded from the user library instead of the project library.</li>
+</ul>
+<p><strong>Solutions:</strong></p>
+<ul>
+<li>Check <code>.libPaths()</code> to confirm the project library is listed first when <code>renv</code> is active.</li>
+<li>Temporarily move or rename your user library directory and restart R to see if <code>renv</code> works correctly.</li>
+<li>If issues persist, consider reinstalling R or resetting your user library.</li>
+<li>As a last resort, a clean operating system install can resolve deep or persistent conflicts.</li>
+</ul>
+</section>
+</section>
+</div>
+</section>
+<section id="further-ideas" class="level2">
+<h2 class="anchored" data-anchor-id="further-ideas">Further ideas</h2>
+<p>If you are interested in exploring more advanced or alternative approaches to managing reproducible environments - especially when dealing with complex external dependencies - consider the following tools and resources:</p>
+<div class="python-content">
+<section id="docker" class="level3">
+<h3 class="anchored" data-anchor-id="docker">Docker</h3>
+<p>Using Docker allows you to encapsulate your entire python environment - including system dependencies, specific Python interpreters, and all packages - inside a container. This approach can solve issues related to external dependencies and ensures that your analysis runs identically across different machines, as it will ensure use of the same operating system.</p>
+<ul>
+<li>There are many different ways you can set up a docker image, depending on your purpose. The first step is to create a <code>Dockerfile</code>. Some tutorials include:
+<ul>
+<li><a href="https://code.visualstudio.com/docs/containers/quickstart-python">VSCode’s docker for python tutorial</a></li>
+<li><a href="https://www.docker.com/blog/how-to-dockerize-your-python-applications/">Docker’s python tutorial</a></li>
+</ul></li>
+<li>Popular starter images include <code>python:&lt;version&gt;</code> (<a href="https://hub.docker.com/_/python" class="uri">https://hub.docker.com/_/python</a>), and <code>continuumio/miniconda3</code> for conda-based workflows (<a href="https://hub.docker.com/r/continuumio/miniconda3" class="uri">https://hub.docker.com/r/continuumio/miniconda3</a>).</li>
+</ul>
+</section>
+<section id="other-package-managers" class="level3">
+<h3 class="anchored" data-anchor-id="other-package-managers">Other package managers</h3>
+<p>In this page, we covered some of the popular package managers - <code>conda</code>, <code>mamba</code>, <code>venv</code>, <code>poetry</code> and <code>uv</code> - but there are many other package managers available! Examples include:</p>
+<ul>
+<li><code>Nix</code> (<a href="https://nixos.org/" class="uri">https://nixos.org/</a>) - Unlike <code>conda</code> or <code>pip</code>, <code>Nix</code> environments can strictly pin every dependency (including low-level libraries). You declare every package used - and with <code>NixOS</code>, you also can configure your whole operating system (similar to Docker).</li>
+<li><code>Hatch</code> (<a href="https://hatch.pypa.io/latest/" class="uri">https://hatch.pypa.io/latest/</a>) - A modern, all-in-one Python project manager handling virtual environments, dependency management, and packaging within a unified workflow.</li>
+<li><code>Rye</code> (<a href="https://rye.astral.sh/" class="uri">https://rye.astral.sh/</a>) - A new Python tool seeking to unify virtual environment management, dependency resolution, and packaging with simple commands.</li>
+<li><code>PDM</code> (<a href="https://pdm-project.org/en/latest/" class="uri">https://pdm-project.org/en/latest/</a>) - A package and project manager following the latest Python packaging standards, with strong support for <code>pyproject.toml</code>.</li>
+</ul>
+</section>
+<section id="further-reading" class="level3">
+<h3 class="anchored" data-anchor-id="further-reading">Further reading</h3>
+<p>These are some nice resources generally covering topics related to python environment management:</p>
+<ul>
+<li><a href="https://alpopkes.com/posts/python/packaging_tools/">“An unbiased evaluation of environment management and packaging tools”</a> from Anna-Lena Popkes 2024.</li>
+<li><a href="https://nielscautaerts.xyz/python-dependency-management-is-a-dumpster-fire.html">“Python dependency management is a dumpster fire”</a> from Niels Cautaerts 2024.</li>
+<li><a href="https://www.anaconda.com/blog/is-conda-free">“Is conda free”</a> from Dave Clements 2023.</li>
+</ul>
+</section>
+</div>
+<div class="r-content">
+<section id="docker-1" class="level3">
+<h3 class="anchored" data-anchor-id="docker-1">Docker</h3>
+<p>Using Docker allows you to encapsulate your entire R environment - including system libraries, R versions, and packages - inside a container. This approach can solve issues related to external dependencies and ensures that your analysis runs identically across different machines, as it will ensure use of the same operating system.</p>
+<ul>
+<li><a href="https://github.com/colinfay/dockerfiler"><code>dockerfiler</code></a>: An R package for programmatically creating Dockerfiles, making it easier to build reproducible R environments with custom dependencies.</li>
+<li><a href="https://www.rocker-project.org/"><code>rocker</code></a>: A collection of Docker images for R, maintained by the R community, which you can use as a base for your own projects.</li>
+</ul>
+</section>
+<section id="r-universe" class="level3">
+<h3 class="anchored" data-anchor-id="r-universe">R-universe</h3>
+<p><a href="https://r-universe.dev/">R-universe</a> is an online platform for building, hosting, and distributing R packages—including those not available on CRAN. It can help you:</p>
+<ul>
+<li>Access packages from multiple sources, not just CRAN.</li>
+<li>Set up custom repositories (collections of R packages) for your team or organisation.</li>
+<li>Centralise package management (as repositories can include public, private and experimental).</li>
+</ul>
+</section>
+<section id="further-reading-1" class="level3">
+<h3 class="anchored" data-anchor-id="further-reading-1">Further reading</h3>
+<p>These are some nice resources generally covering topics related to R environment management:</p>
+<ul>
+<li><a href="https://r-pkgs.org/description.html">“9. DESCRIPTION” from R Packages</a> by Hadley Wickham and Jennifer Bryan.</li>
+<li><a href="https://r-pkgs.org/lifecycle.html">“21. Lifecycle” from R Packages</a> by Hadley Wickham and Jennifer Bryan.</li>
+</ul>
+</section>
+</div>
+</section>
+<section id="test-yourself" class="level2">
+<h2 class="anchored" data-anchor-id="test-yourself">Test yourself</h2>
+<p>Let’s get started! If you haven’t already tried the basic setup by following the instructions above, give it a try now. In this section, we’ll set up a dedicated environment for working through this book. Using the complete environment provided below will help ensure everything works as expected.</p>
+<div class="python-content">
+<p><strong>Task:</strong> Set-up the following environment on your machine.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb71"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb71-1"><a href="#cb71-1" aria-hidden="true" tabindex="-1"></a><span class="ex">name:</span> des-rap-book</span>
+<span id="cb71-2"><a href="#cb71-2" aria-hidden="true" tabindex="-1"></a><span class="ex">channels:</span></span>
+<span id="cb71-3"><a href="#cb71-3" aria-hidden="true" tabindex="-1"></a>  <span class="ex">-</span> conda-forge</span>
+<span id="cb71-4"><a href="#cb71-4" aria-hidden="true" tabindex="-1"></a><span class="ex">dependencies:</span></span>
+<span id="cb71-5"><a href="#cb71-5" aria-hidden="true" tabindex="-1"></a>  <span class="ex">-</span> black=25.1.0</span>
+<span id="cb71-6"><a href="#cb71-6" aria-hidden="true" tabindex="-1"></a>  <span class="ex">-</span> flake8=7.3.0</span>
+<span id="cb71-7"><a href="#cb71-7" aria-hidden="true" tabindex="-1"></a>  <span class="ex">-</span> itables=2.5.2</span>
+<span id="cb71-8"><a href="#cb71-8" aria-hidden="true" tabindex="-1"></a>  <span class="ex">-</span> jupyter=1.1.1</span>
+<span id="cb71-9"><a href="#cb71-9" aria-hidden="true" tabindex="-1"></a>  <span class="ex">-</span> openssl=3.3.0</span>
+<span id="cb71-10"><a href="#cb71-10" aria-hidden="true" tabindex="-1"></a>  <span class="ex">-</span> pandas=2.3.1</span>
+<span id="cb71-11"><a href="#cb71-11" aria-hidden="true" tabindex="-1"></a>  <span class="ex">-</span> plotly=6.3.0</span>
+<span id="cb71-12"><a href="#cb71-12" aria-hidden="true" tabindex="-1"></a>  <span class="ex">-</span> pip</span>
+<span id="cb71-13"><a href="#cb71-13" aria-hidden="true" tabindex="-1"></a>  <span class="ex">-</span> pre-commit=4.3.0</span>
+<span id="cb71-14"><a href="#cb71-14" aria-hidden="true" tabindex="-1"></a>  <span class="ex">-</span> pylint=3.3.7</span>
+<span id="cb71-15"><a href="#cb71-15" aria-hidden="true" tabindex="-1"></a>  <span class="ex">-</span> pytest=8.4.1</span>
+<span id="cb71-16"><a href="#cb71-16" aria-hidden="true" tabindex="-1"></a>  <span class="ex">-</span> python=3.11</span>
+<span id="cb71-17"><a href="#cb71-17" aria-hidden="true" tabindex="-1"></a>  <span class="ex">-</span> ruff=0.12.7</span>
+<span id="cb71-18"><a href="#cb71-18" aria-hidden="true" tabindex="-1"></a>  <span class="ex">-</span> simpy=4.1.1</span>
+<span id="cb71-19"><a href="#cb71-19" aria-hidden="true" tabindex="-1"></a>  <span class="ex">-</span> pip:</span>
+<span id="cb71-20"><a href="#cb71-20" aria-hidden="true" tabindex="-1"></a>    <span class="ex">-</span> ansi2html==1.9.2</span>
+<span id="cb71-21"><a href="#cb71-21" aria-hidden="true" tabindex="-1"></a>    <span class="ex">-</span> distfit==1.8.8</span>
+<span id="cb71-22"><a href="#cb71-22" aria-hidden="true" tabindex="-1"></a>    <span class="ex">-</span> jupytext==1.17.2</span>
+<span id="cb71-23"><a href="#cb71-23" aria-hidden="true" tabindex="-1"></a>    <span class="ex">-</span> kaleido==1.1.0</span>
+<span id="cb71-24"><a href="#cb71-24" aria-hidden="true" tabindex="-1"></a>    <span class="ex">-</span> lintquarto==0.5.0</span>
+<span id="cb71-25"><a href="#cb71-25" aria-hidden="true" tabindex="-1"></a>    <span class="ex">-</span> sim-tools==1.0.0</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="callout callout-style-default callout-tip callout-titled" title="Hints">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-12-contents" aria-controls="callout-12" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Hints
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-12" class="callout-12-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<ol type="1">
+<li>In your <code>des-rap-python/</code> folder, create an <code>environment.yaml</code> file and copy in the above text.</li>
+<li>Build the environment by running <code>conda env create --file environment.yaml</code>.</li>
+<li>Check it by running <code>conda activate des-rap-book</code> and <code>conda list</code>.</li>
+</ol>
+</div>
+</div>
+</div>
+</div>
+<div class="r-content">
+<p><strong>Task:</strong> Set-up the following environment on your machine.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb72"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a><span class="ex">Title:</span> DES Rap Book</span>
+<span id="cb72-2"><a href="#cb72-2" aria-hidden="true" tabindex="-1"></a><span class="ex">Imports:</span></span>
+<span id="cb72-3"><a href="#cb72-3" aria-hidden="true" tabindex="-1"></a>    <span class="ex">cyclocomp,</span></span>
+<span id="cb72-4"><a href="#cb72-4" aria-hidden="true" tabindex="-1"></a>    <span class="ex">diffobj,</span></span>
+<span id="cb72-5"><a href="#cb72-5" aria-hidden="true" tabindex="-1"></a>    <span class="ex">dplyr,</span></span>
+<span id="cb72-6"><a href="#cb72-6" aria-hidden="true" tabindex="-1"></a>    <span class="ex">fitdistrplus,</span></span>
+<span id="cb72-7"><a href="#cb72-7" aria-hidden="true" tabindex="-1"></a>    <span class="ex">future,</span></span>
+<span id="cb72-8"><a href="#cb72-8" aria-hidden="true" tabindex="-1"></a>    <span class="ex">future.apply,</span></span>
+<span id="cb72-9"><a href="#cb72-9" aria-hidden="true" tabindex="-1"></a>    <span class="ex">ggplot2,</span></span>
+<span id="cb72-10"><a href="#cb72-10" aria-hidden="true" tabindex="-1"></a>    <span class="ex">gridExtra,</span></span>
+<span id="cb72-11"><a href="#cb72-11" aria-hidden="true" tabindex="-1"></a>    <span class="ex">jsonlite,</span></span>
+<span id="cb72-12"><a href="#cb72-12" aria-hidden="true" tabindex="-1"></a>    <span class="ex">kableExtra,</span></span>
+<span id="cb72-13"><a href="#cb72-13" aria-hidden="true" tabindex="-1"></a>    <span class="ex">lintr,</span></span>
+<span id="cb72-14"><a href="#cb72-14" aria-hidden="true" tabindex="-1"></a>    <span class="ex">lubridate,</span></span>
+<span id="cb72-15"><a href="#cb72-15" aria-hidden="true" tabindex="-1"></a>    <span class="ex">patrick,</span></span>
+<span id="cb72-16"><a href="#cb72-16" aria-hidden="true" tabindex="-1"></a>    <span class="ex">plotly,</span></span>
+<span id="cb72-17"><a href="#cb72-17" aria-hidden="true" tabindex="-1"></a>    <span class="ex">prettycode,</span></span>
+<span id="cb72-18"><a href="#cb72-18" aria-hidden="true" tabindex="-1"></a>    <span class="ex">queueing,</span></span>
+<span id="cb72-19"><a href="#cb72-19" aria-hidden="true" tabindex="-1"></a>    <span class="ex">readr,</span></span>
+<span id="cb72-20"><a href="#cb72-20" aria-hidden="true" tabindex="-1"></a>    <span class="ex">reticulate,</span></span>
+<span id="cb72-21"><a href="#cb72-21" aria-hidden="true" tabindex="-1"></a>    <span class="ex">rmarkdown,</span></span>
+<span id="cb72-22"><a href="#cb72-22" aria-hidden="true" tabindex="-1"></a>    <span class="ex">R6,</span></span>
+<span id="cb72-23"><a href="#cb72-23" aria-hidden="true" tabindex="-1"></a>    <span class="ex">rstudioapi,</span></span>
+<span id="cb72-24"><a href="#cb72-24" aria-hidden="true" tabindex="-1"></a>    <span class="ex">simEd,</span></span>
+<span id="cb72-25"><a href="#cb72-25" aria-hidden="true" tabindex="-1"></a>    <span class="ex">simmer,</span></span>
+<span id="cb72-26"><a href="#cb72-26" aria-hidden="true" tabindex="-1"></a>    <span class="ex">styler,</span></span>
+<span id="cb72-27"><a href="#cb72-27" aria-hidden="true" tabindex="-1"></a>    <span class="ex">testthat,</span></span>
+<span id="cb72-28"><a href="#cb72-28" aria-hidden="true" tabindex="-1"></a>    <span class="ex">webexercises</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="callout callout-style-default callout-tip callout-titled" title="Hints">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-13-contents" aria-controls="callout-13" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Hints
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-13" class="callout-13-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<ol type="1">
+<li>In your <code>des-rap-r/</code> folder, set-up an R project.</li>
+<li>Initialise <code>renv</code> by running <code>renv::init()</code>.</li>
+<li>Create a <code>DESCRIPTION</code> file and copy in the above text.</li>
+<li>Install those packages by running <code>renv::install()</code>.</li>
+<li>Create/update <code>renv.lock</code> by running <code>renv::snapshot()</code>.</li>
+</ol>
+<p>If you want to know the exact versions used, see the <a href="https://github.com/pythonhealthdatascience/des_rap_book/blob/main/renv.lock">renv.lock</a> file in the <code>des_rap_book</code> GitHub repository.</p>
+</div>
+</div>
+</div>
+</div>
+<p><br><br></p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script>
+
+/*
+Acknowledgments. This file is from webexercises:
+  Barr D, DeBruine L (2023). webexercises: Create Interactive Web Exercises in
+  'R Markdown' (Formerly 'webex'). R package version 1.1.0.9000,
+  https://github.com/psyteachr/webexercises.
+*/
+
+/* update total correct if #webex-total_correct exists */
+update_total_correct = function() {
+  console.log("webex: update total_correct");
+
+  var t = document.getElementsByClassName("webex-total_correct");
+  for (var i = 0; i < t.length; i++) {
+    p = t[i].parentElement;
+    var correct = p.getElementsByClassName("webex-correct").length;
+    var solvemes = p.getElementsByClassName("webex-solveme").length;
+    var radiogroups = p.getElementsByClassName("webex-radiogroup").length;
+    var selects = p.getElementsByClassName("webex-select").length;
+
+    t[i].innerHTML = correct + " of " + (solvemes + radiogroups + selects) + " correct";
+  }
+}
+
+/* webex-solution button toggling function */
+b_func = function() {
+  console.log("webex: toggle hide");
+
+  var cl = this.parentElement.classList;
+  if (cl.contains('open')) {
+    cl.remove("open");
+  } else {
+    cl.add("open");
+  }
+}
+
+/* check answers */
+check_func = function() {
+  console.log("webex: check answers");
+
+  var cl = this.parentElement.classList;
+  if (cl.contains('unchecked')) {
+    cl.remove("unchecked");
+    this.innerHTML = "Hide Answers";
+  } else {
+    cl.add("unchecked");
+    this.innerHTML = "Show Answers";
+  }
+}
+
+/* function for checking solveme answers */
+solveme_func = function(e) {
+  console.log("webex: check solveme");
+
+  var real_answers = JSON.parse(this.dataset.answer);
+  var my_answer = this.value;
+  var cl = this.classList;
+  if (cl.contains("ignorecase")) {
+    my_answer = my_answer.toLowerCase();
+  }
+  if (cl.contains("nospaces")) {
+    my_answer = my_answer.replace(/ /g, "")
+  }
+
+  if (my_answer == "") {
+    cl.remove("webex-correct");
+    cl.remove("webex-incorrect");
+  } else if (real_answers.includes(my_answer)) {
+    cl.add("webex-correct");
+    cl.remove("webex-incorrect");
+  } else {
+    cl.add("webex-incorrect");
+    cl.remove("webex-correct");
+  }
+
+  // match numeric answers within a specified tolerance
+  if(this.dataset.tol > 0){
+    var tol = JSON.parse(this.dataset.tol);
+    var matches = real_answers.map(x => Math.abs(x - my_answer) < tol)
+    if (matches.reduce((a, b) => a + b, 0) > 0) {
+      cl.add("webex-correct");
+    } else {
+      cl.remove("webex-correct");
+    }
+  }
+
+  // added regex bit
+  if (cl.contains("regex")){
+    answer_regex = RegExp(real_answers.join("|"))
+    if (answer_regex.test(my_answer)) {
+      cl.add("webex-correct");
+    }
+  }
+
+  update_total_correct();
+}
+
+/* function for checking select answers */
+select_func = function(e) {
+  console.log("webex: check select");
+
+  var cl = this.classList
+
+  /* add style */
+  cl.remove("webex-incorrect");
+  cl.remove("webex-correct");
+  if (this.value == "answer") {
+    cl.add("webex-correct");
+  } else if (this.value != "blank") {
+    cl.add("webex-incorrect");
+  }
+
+  update_total_correct();
+}
+
+/* function for checking radiogroups answers */
+radiogroups_func = function(e) {
+  console.log("webex: check radiogroups");
+
+  var checked_button = document.querySelector('input[name=' + this.id + ']:checked');
+  var cl = checked_button.parentElement.classList;
+  var labels = checked_button.parentElement.parentElement.children;
+
+  /* get rid of styles */
+  for (i = 0; i < labels.length; i++) {
+    labels[i].classList.remove("webex-incorrect");
+    labels[i].classList.remove("webex-correct");
+  }
+
+  /* add style */
+  if (checked_button.value == "answer") {
+    cl.add("webex-correct");
+  } else {
+    cl.add("webex-incorrect");
+  }
+
+  update_total_correct();
+}
+
+window.onload = function() {
+  console.log("webex onload");
+  /* set up solution buttons */
+  var buttons = document.getElementsByTagName("button");
+
+  for (var i = 0; i < buttons.length; i++) {
+    if (buttons[i].parentElement.classList.contains('webex-solution')) {
+      buttons[i].onclick = b_func;
+    }
+  }
+
+  var check_sections = document.getElementsByClassName("webex-check");
+  console.log("check:", check_sections.length);
+  for (var i = 0; i < check_sections.length; i++) {
+    check_sections[i].classList.add("unchecked");
+
+    let btn = document.createElement("button");
+    btn.innerHTML = "Show Answers";
+    btn.classList.add("webex-check-button");
+    btn.onclick = check_func;
+    check_sections[i].appendChild(btn);
+
+    let spn = document.createElement("span");
+    spn.classList.add("webex-total_correct");
+    check_sections[i].appendChild(spn);
+  }
+
+  /* set up webex-solveme inputs */
+  var solveme = document.getElementsByClassName("webex-solveme");
+
+  for (var i = 0; i < solveme.length; i++) {
+    /* make sure input boxes don't auto-anything */
+    solveme[i].setAttribute("autocomplete","off");
+    solveme[i].setAttribute("autocorrect", "off");
+    solveme[i].setAttribute("autocapitalize", "off");
+    solveme[i].setAttribute("spellcheck", "false");
+    solveme[i].value = "";
+
+    /* adjust answer for ignorecase or nospaces */
+    var cl = solveme[i].classList;
+    var real_answer = solveme[i].dataset.answer;
+    if (cl.contains("ignorecase")) {
+      real_answer = real_answer.toLowerCase();
+    }
+    if (cl.contains("nospaces")) {
+      real_answer = real_answer.replace(/ /g, "");
+    }
+    solveme[i].dataset.answer = real_answer;
+
+    /* attach checking function */
+    solveme[i].onkeyup = solveme_func;
+    solveme[i].onchange = solveme_func;
+
+    solveme[i].insertAdjacentHTML("afterend", " <span class='webex-icon'></span>")
+  }
+
+  /* set up radiogroups */
+  var radiogroups = document.getElementsByClassName("webex-radiogroup");
+  for (var i = 0; i < radiogroups.length; i++) {
+    radiogroups[i].onchange = radiogroups_func;
+  }
+
+  /* set up selects */
+  var selects = document.getElementsByClassName("webex-select");
+  for (var i = 0; i < selects.length; i++) {
+    selects[i].onchange = select_func;
+    selects[i].insertAdjacentHTML("afterend", " <span class='webex-icon'></span>")
+  }
+
+  update_total_correct();
+}
+
+</script>
+<script>
+
+function setLanguage(lang) {
+  // Store the selected language in localStorage
+  localStorage.setItem('preferredLanguage', lang);
+
+  // Update button active state
+  document.querySelectorAll('.language-button').forEach(btn => {
+      btn.classList.remove('active');
+      if (btn.textContent.toLowerCase() === lang || (lang === 'both' && btn.textContent.toLowerCase() === 'both')) {
+          btn.classList.add('active');
+      }
+  });
+  // Show/hide the appropriate content
+  if (lang === 'python') {
+      document.querySelectorAll('.python-content').forEach(el => el.style.display = 'block');
+      document.querySelectorAll('.r-content').forEach(el => el.style.display = 'none');
+  } else if (lang === 'r') {
+      document.querySelectorAll('.python-content').forEach(el => el.style.display = 'none');
+      document.querySelectorAll('.r-content').forEach(el => el.style.display = 'block');
+  }
+}
+
+// On page load, set the language based on localStorage or default to Python
+document.addEventListener('DOMContentLoaded', function() {
+  const lang = localStorage.getItem('preferredLanguage') || 'python';
+  setLanguage(lang);
+});
+
+</script>
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/pythonhealthdatascience\.github\.io\/des_rap_book\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<input type="hidden" id="giscus-base-theme" value="light">
+<input type="hidden" id="giscus-alt-theme" value="light">
+<script>
+  function loadGiscus() {
+    // Function to get the theme based on body class
+    const getTheme = () => {
+      let baseTheme = document.getElementById('giscus-base-theme').value;
+      let altTheme = document.getElementById('giscus-alt-theme').value;
+      return document.body.classList.contains('quarto-dark') ? altTheme : baseTheme;
+    };
+    const script = document.createElement("script");
+    script.src = "https://giscus.app/client.js";
+    script.async = true;
+    script.dataset.repo = "pythonhealthdatascience/des_rap_book";
+    script.dataset.repoId = "R_kgDOOXKhOA";
+    script.dataset.category = "Announcements";
+    script.dataset.categoryId = "DIC_kwDOOXKhOM4CuWAj";
+    script.dataset.mapping = "pathname";
+    script.dataset.reactionsEnabled = "1";
+    script.dataset.emitMetadata = "0";
+    script.dataset.inputPosition = "bottom";
+    script.dataset.theme = getTheme();
+    script.dataset.lang = "en";
+    script.crossOrigin = "anonymous";
+    // Append the script to the desired div instead of at the end of the body
+    document.getElementById("quarto-content").appendChild(script);
+  }
+  loadGiscus();
+</script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../../../pages/guide/setup/version.html" class="pagination-link" aria-label="Version control">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Version control</span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../../../pages/guide/setup/package.html" class="pagination-link" aria-label="Structuring as a package">
+        <span class="nav-page-text">Structuring as a package</span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      <ul class="footer-items list-unstyled">
+    <li class="nav-item">
+ The STARS project is supported by the Medical Research Council [grant number MR/Z503915/1].
+  </li>  
+</ul>
+    </div>   
+    <div class="nav-footer-center">
+      <ul class="footer-items list-unstyled">
+    <li class="nav-item">
+ Part of the STARS research project.<br>
+Code licence: <a href="https://opensource.org/license/mit" target="_blank" rel="noopener">MIT</a>.  
+Text licence: <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC-BY-SA 4.0</a>.
+  </li>  
+</ul>
+    <div class="cookie-consent-footer"><a href="#" id="open_preferences_center">Cookie Preferences</a></div></div>
+    <div class="nav-footer-right">
+      <ul class="footer-items list-unstyled">
+    <li class="nav-item">
+ Heather, A., Monks, T., Mustafee, N., &amp; Harper, A. (2025). DES RAP Book: Reproducible Discrete-Event Simulation in Python and R. https://github.com/pythonhealthdatascience/des_rap_book. https://doi.org/10.5281/zenodo.17094155.
+  </li>  
+</ul>
+    </div>
+  </div>
+</footer>
+<script>var lightboxQuarto = GLightbox({"closeEffect":"zoom","descPosition":"bottom","loop":false,"openEffect":"zoom","selector":".lightbox"});
+(function() {
+  let previousOnload = window.onload;
+  window.onload = () => {
+    if (previousOnload) {
+      previousOnload();
+    }
+    lightboxQuarto.on('slide_before_load', (data) => {
+      const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+      const href = trigger.getAttribute('href');
+      if (href !== null) {
+        const imgEl = window.document.querySelector(`a[href="${href}"] img`);
+        if (imgEl !== null) {
+          const srcAttr = imgEl.getAttribute("src");
+          if (srcAttr && srcAttr.startsWith("data:")) {
+            slideConfig.href = srcAttr;
+          }
+        }
+      } 
+    });
+  
+    lightboxQuarto.on('slide_after_load', (data) => {
+      const { slideIndex, slideNode, slideConfig, player, trigger } = data;
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(slideNode);
+      }
+    });
+  
+  };
+  
+})();
+          </script>
+
+
+
+
+</body></html>
