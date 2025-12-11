@@ -912,7 +912,7 @@ model <- function(param, run_number) {
 
   # Calculate wait time for each patient #<<
   result[["arrivals"]] <- mutate( #<<
-    result[["arrivals"]],#<<
+    result[["arrivals"]], #<<
     wait_time = .data[["serve_start"]] - .data[["start_time"]]#<<
   )#<<
 
@@ -2103,8 +2103,8 @@ model <- function(param, run_number) {
   env <- simmer("simulation", verbose = param[["verbose"]])
 
   # Calculate full run length#<<
-  full_run_length <- (param[["warm_up_period"]] +#<<
-                      param[["data_collection_period"]])#<<
+  full_run_length <- (param[["warm_up_period"]] + #<<
+                        param[["data_collection_period"]])#<<
 
   # Define the patient trajectory
   patient <- trajectory("consultation") |>
@@ -2165,7 +2165,7 @@ util_df <- calc_utilisation(
   resources = result[["resources"]],
   summarise = FALSE,
   simulation_end_time = (param[["warm_up_period"]] +
-                         param[["data_collection_period"]])
+                           param[["data_collection_period"]])
 )
 kable(util_df)
 ```
@@ -2505,8 +2505,8 @@ model <- function(param, run_number) {
   env <- simmer("simulation", verbose = param[["verbose"]])
 
   # Calculate full run length#<<
-  full_run_length <- (param[["warm_up_period"]] +#<<
-                      param[["data_collection_period"]])#<<
+  full_run_length <- (param[["warm_up_period"]] + #<<
+                        param[["data_collection_period"]])#<<
 
   # Define the patient trajectory
   patient <- trajectory("consultation") |>
@@ -2957,7 +2957,8 @@ model <- function(param, run_number) {
 
   # Add time in system (unfinished patients will set to NaN) #<<
   result[["arrivals"]][["time_in_system"]] <- ( #<<
-    result[["arrivals"]][["end_time"]] - result[["arrivals"]][["start_time"]] #<<
+    result[["arrivals"]][["end_time"]] - #<<
+      result[["arrivals"]][["start_time"]] #<<
   ) #<<
 
   # Filter to remove results from the warm-up period
@@ -3355,7 +3356,7 @@ In `get_run_results()`, the table `results[["patients_in_system"]]` is passed to
 
 get_run_results <- function(results, run_number, simulation_end_time) {#<<
   metrics <- list(
-    calc_mean_patients_in_system(results[["patients_in_system"]],#<<
+    calc_mean_patients_in_system(results[["patients_in_system"]], #<<
                                  simulation_end_time)#<<
   )
   dplyr::bind_cols(tibble(replication = run_number), metrics)
@@ -3400,8 +3401,8 @@ model <- function(param, run_number) {
   env <- simmer("simulation", verbose = param[["verbose"]])
 
   # Calculate full run length#<<
-  full_run_length <- (param[["warm_up_period"]] +#<<
-                      param[["data_collection_period"]])#<<
+  full_run_length <- (param[["warm_up_period"]] + #<<
+                        param[["data_collection_period"]])#<<
 
   # Define the patient trajectory
   patient <- trajectory("consultation") |>

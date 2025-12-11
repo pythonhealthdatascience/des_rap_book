@@ -151,7 +151,8 @@ It uses the `summary_stats()` function introduced on the [Replications](../outpu
 ::: {.callout-note title="View `summary_stats()`" collapse="true"}
 
 ```{python}
-{{< include /pages/guide/output_analysis/replications_resources/summary_stats.py >}}
+#| echo: false
+#| file: ../output_analysis/replications_resources/summary_stats.py
 ```
 
 :::
@@ -743,21 +744,52 @@ plot_metrics <- function(
     # Create plot, with or without grouping colour variable
     if (!is.null(colour_var)) {
       summary_table[[colour_var]] <- as.factor(summary_table[[colour_var]])
-      p <- ggplot(summary_table,
-                  aes_string(x = x_var, y = "mean", group = colour_var,
-                  color = colour_var, fill = colour_var)) +
+      p <- ggplot(
+        summary_table,
+        aes_string(
+          x = x_var,
+          y = "mean",
+          group = colour_var,
+          color = colour_var,
+          fill = colour_var
+        )
+      ) +
         geom_line() +
-        geom_ribbon(aes_string(ymin = "ci_lower", ymax = "ci_upper"),
-                    alpha = 0.1) +
-        labs(x = xaxis_title, y = yaxis_title, color = legend_title,
-             fill = legend_title) +
+        geom_ribbon(
+          aes_string(
+            ymin = "ci_lower",
+            ymax = "ci_upper"
+          ),
+          alpha = 0.1
+        ) +
+        labs(
+          x = xaxis_title,
+          y = yaxis_title,
+          color = legend_title,
+          fill = legend_title
+        ) +
         theme_minimal()
     } else {
-      p <- ggplot(summary_table, aes_string(x = x_var, y = "mean")) +
+      p <- ggplot(
+        summary_table,
+        aes_string(
+          x = x_var,
+          y = "mean"
+        )
+      ) +
         geom_line() +
-        geom_ribbon(aes_string(ymin = "ci_lower", ymax = "ci_upper"),
-                    alpha = 0.1, show.legend = FALSE) +
-        labs(x = xaxis_title, y = yaxis_title) +
+        geom_ribbon(
+          aes_string(
+            ymin = "ci_lower",
+            ymax = "ci_upper"
+          ),
+          alpha = 0.1,
+          show.legend = FALSE
+        ) +
+        labs(
+          x = xaxis_title,
+          y = yaxis_title
+        ) +
         theme_minimal()
     }
 

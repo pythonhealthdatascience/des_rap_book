@@ -24,7 +24,7 @@ model <- function(param, run_number) {
 
   # Calculate full run length
   full_run_length <- (param[["warm_up_period"]] +
-                      param[["data_collection_period"]])
+                        param[["data_collection_period"]])
 
   # Define the patient trajectory
   patient <- trajectory("consultation") |>
