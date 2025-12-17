@@ -157,6 +157,8 @@ We repeat this for the arrivals and service (nurse consultation) time, so have c
 
 <br>
 
+### Importing and processing the data
+
 ::: {.python-content}
 
 First, we import the data. Specifying `dtype` ensures the time columns are read as strings so the original formatting and any leading zeros are preserved (instead of being lost if read as numbers).
@@ -290,9 +292,7 @@ data %>% select(service_datetime, departure_datetime, service_mins) %>% head()
 
 :::
 
-<br>
-
-**Time series**. For this data, we observe no trends, seasonality or outliers.
+### Time series plots
 
 ::: {.python-content}
 
@@ -331,6 +331,12 @@ p = inspect_time_series(
 p.show()
 ```
 
+<br>
+
+We see no trends, seasonality or outliers in the time series plot for number of arrivals per day.
+
+<br>
+
 ```{python}
 # Calculate mean service length per day, dropping last day (incomplete)
 daily_service = data.groupby("SERVICE_DATE")["service_mins"].mean()
@@ -341,6 +347,12 @@ p = inspect_time_series(time_series=daily_service,
                         y_lab="Mean consultation length (min)")
 p.show()
 ```
+
+<br>
+
+We see no trends, seasonality or outliers in the time series plot for mean service length per day.
+
+<br>
 
 :::
 
@@ -406,6 +418,12 @@ inspect_time_series(
 )
 ```
 
+<br>
+
+We see no trends, seasonality or outliers in the time series plot for number of arrivals per day.
+
+<br>
+
 ```{r}
 # Calculate mean service length per day, dropping last day (incomplete)
 daily_service <- data %>%
@@ -421,11 +439,25 @@ inspect_time_series(
 )
 ```
 
-:::
+<br>
+
+We see no trends, seasonality or outliers in the time series plot for mean service length per day.
 
 <br>
 
-**Histogram**. For both inter-arrival times and service times, we observe a right skewed distribution. Hence, it would be good to try exponential, gamma and Weibull distributions.
+:::
+
+::: {.callout-note title="What would if look like if there were trends, seasonality or outliers?"}
+
+**Trends** are increases or decreases in the data over time. For example, if the mean length of consultations was getting longer and longer over time.
+
+**Seasonality** are regular patterns in the data depending on time or day - like higher arrivals every weekend, or peaks over each winter.
+
+**Outliers** are unusual observations (e.g., very very high or low number of arrivals that differ from the rest).
+
+:::
+
+### Histogram plots
 
 ::: {.python-content}
 
@@ -477,12 +509,24 @@ p = inspect_histogram(series=data["iat_mins"],
 p.show()
 ```
 
+<br>
+
+The inter-arrival times are right skewed distribution. Hence, it would be good to try exponential, gamma and Weibull distributions.
+
+<br>
+
 ```{python}
 # Plot histogram of service times
 p = inspect_histogram(series=data["service_mins"],
                       x_lab="Consultation length (min)")
 p.show()
 ```
+
+<br>
+
+The service times are right skewed distribution. Hence, it would be good to try exponential, gamma and Weibull distributions.
+
+<br>
 
 :::
 
@@ -549,13 +593,26 @@ inspect_histogram(
   data = data, var = "iat_mins", x_lab = "Inter-arrival time (min)",
   interactive = TRUE
 )
+```
 
+<br>
+
+The inter-arrival times are right skewed distribution. Hence, it would be good to try exponential, gamma and Weibull distributions.
+
+<br>
+
+```{r}
+#| warning: false
 # Plot histogram of service times
 inspect_histogram(
   data = data, var = "service_mins", x_lab = "Consultation length (min)",
   interactive = TRUE
 )
 ```
+
+<br>
+
+The service times are right skewed distribution. Hence, it would be good to try exponential, gamma and Weibull distributions.
 
 <br>
 
@@ -900,24 +957,28 @@ The `distfit` package has some nice visualisation functions. For example, using 
 ```{python}
 # PDF with all the distributions overlaid
 p, _ = dfit_iat.plot(n_top=11, figsize=(7, 4))
+p.tight_layout()
 p.show()
 ```
 
 ```{python}
 # CDF with all the distributions overlaid
 p, _ = dfit_iat.plot(chart="cdf", n_top=11, figsize=(7, 4))
+p.tight_layout()
 p.show()
 ```
 
 ```{python}
 # QQ plot with all distributions overlaid
 p, _ = dfit_iat.qqplot(data["iat_mins"].dropna(), n_top=11, figsize=(7, 4))
+p.tight_layout()
 p.show()
 ```
 
 ```{python}
 # Summary plot using the RSS
-p, _ = dfit_iat.plot_summary(figsize=(7, 4))
+p, _ = dfit_iat.plot_summary(figsize=(7, 5))
+p.tight_layout()
 p.show()
 ```
 
@@ -928,6 +989,7 @@ We can also use it to create a plot with a specific distribution overlaid, like 
 dfit = distfit(distr="expon")
 _ = dfit.fit_transform(data["iat_mins"].dropna())
 p, _ = dfit.plot(figsize=(7, 4))
+p.tight_layout()
 p.show()
 ```
 
