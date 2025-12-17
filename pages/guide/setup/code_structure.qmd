@@ -404,47 +404,35 @@ In this book, you'll see both **functions and classes** used, depending on what 
 
 ## Test yourself
 
-**Task:** Refactor the script into a function or class and put it on GitHub.
-
-**Steps:**
+**Task: Refactor the provided script into a function or class and put it on GitHub**. To do this, you should:
 
 ::: {.python-content}
-* Copy the script into a version controlled folder (e.g. `des-rap-python/` created on the [Version control](../setup/version.qmd) page) and push to GitHub.
-
-  * This will mean you can easily compare your refactored version against the old version!
+* **Copy the script into a version controlled folder** (e.g. `des-rap-python/` created on the [Version control](../setup/version.qmd) page) and push to GitHub. This means you keep a record of the original version, and can easily compare it against changes you make.
+* **Turn the code into either a function or class** - see below if you want some hints on how to do this.
+* **Push the new version** of the script to GitHub.
 :::
 ::: {.r-content}
-* **Copy the script into a version controlled folder** (e.g. `des-rap-r/` created on the [Version control](../setup/version.qmd) page) and push to GitHub.
-
-  * This will mean you can easily compare your refactored version against the old version!
+* **Copy the script into a version controlled folder** (e.g. `des-rap-r/` created on the [Version control](../setup/version.qmd) page) and push to GitHub. This means you keep a record of the original version, and can easily compare it against changes you make.
+* **Turn the code into either a function or class** - see below if you want some hints on how to do this.
+* **Push the new version** of the script to GitHub.
 :::
 
-* **Turn the code into either**:
-
-  * A **function** e.g. `simulate_queue(arrivals, service_times)` that returns the results table.
-
-  * A **class** e.g. a `Patient` class and/or a `Clinic` class that runs the simulation.
-
-
-* **Push the new version** of the script to GitHub.
+If you get completely stuck, a solution is provided below - but have a go yourself first!
 
 ::: {.python-content}
 
 ```{python}
-# Set seed for reproducibility
-np.random.seed(123)
-
 # Input data
 patient_arrivals = [1, 3, 4, 10, 12]  # in minutes
 service_times = [5, 7, 3, 4, 6]       # in minutes
 arrival_ids = list(range(1, len(patient_arrivals) + 1))
 
-# Initialize tracking variables
+# Initialise tracking variables
 start_times = [0] * len(patient_arrivals)
 end_times = [0] * len(patient_arrivals)
 waiting_times = [0] * len(patient_arrivals)
 
-# Simulate service
+# Simulate each patient's start and end time
 for i, arrival in enumerate(patient_arrivals):
     if i == 0:
         start_times[i] = arrival
@@ -472,14 +460,12 @@ print(results)
 ::: {.r-content}
 
 ```{r}
-set.seed(123L)
-
 # Input parameters
 patient_arrivals <- c(1L, 3L, 4L, 10L, 12L)  # in minutes
 service_times <- c(5L, 7L, 3L, 4L, 6L)       # in minutes
 arrival_ids <- seq_along(patient_arrivals)
 
-# Simulation tracking variables
+# Initialise tracking variables
 start_times <- numeric(length(patient_arrivals))
 end_times <- numeric(length(patient_arrivals))
 waiting_times <- numeric(length(patient_arrivals))
@@ -489,8 +475,7 @@ for (i in seq_along(patient_arrivals)) {
   if (i == 1L) {
     start_times[i] <- patient_arrivals[i]
   } else {
-    # Next patient starts after previous is done — or when they arrive,
-    # whichever is later
+    # Next patient starts when they arrive or when previous is done
     start_times[i] <- max(patient_arrivals[i], end_times[i - 1L])
   }
   end_times[i] <- start_times[i] + service_times[i]
@@ -510,5 +495,281 @@ print(results)
 ```
 
 :::
+
+::: {.callout-tip title="Hints"}
+
+**Function:**
+
+* You could name the function `simulate_queue` (or similar).
+* The inputs to the function are `patient_arrivals` and `service_times`.
+* Your function should return the dataframe.
+* You can otherwise just copy in the code for simulating the queue as provided - no changes needed!
+* You can try running your function with the provided list of arrival and service times, and see if results are consistent.
+
+::: {.python-content}
+
+**Class:**
+
+* You could name the class `Queue` (or similar).
+* You can create an `__init__` method which accepts two arguments: `patient_arrivals` and `service_times`. These can be stored as attributes.
+* You could then create a `run()` method containing the code for simulating the queue. It should return the dataframe. Don't forget to use `self.` when referring to `patient_arrivals` or `service_times`.
+* You can try running your class with the provided list of arrival and service times, and see if results are consistent.
+* Don't forget to include `self` when defining the methods (e.g. `def __init__(self, ...)`, `def run(self)...`).
+:::
+
+::: {.r-content}
+
+**R6 Class:**
+
+* You could name the class `Queue` (or similar).
+* You can create an `initialize` method which accepts two arguments: `patient_arrivals` and `service_times`.
+* You could also have a `run()` method containing the code for simulating the queue. It should return the dataframe. Don't forget to use `self$` when referring to `patient_arrivals` or `service_times`.
+* You can try running your class with the provided list of arrival and service times, and see if results are consistent.
+
+:::
+
+::::
+
+:::: {.callout-tip title="Solutions" collapse="true"}
+
+::: {.python-content}
+
+**Function:**
+
+```{python}
+def simulate_queue(patient_arrivals, service_times):
+    """
+    Simulate a single-server queue with deterministic arrivals and service.
+
+    Parameters
+    ----------
+    patient_arrivals : list
+        Arrival times in minutes.
+    service_times : list
+        Service times in minutes.
+
+    Returns
+    -------
+    pandas.DataFrame
+        Table with id, arrival, start, end, and waiting time.
+    """
+    # Generate list of arrival IDs
+    arrival_ids = list(range(1, len(patient_arrivals) + 1))
+
+    # Initialise tracking variables
+    start_times = [0] * len(patient_arrivals)
+    end_times = [0] * len(patient_arrivals)
+    waiting_times = [0] * len(patient_arrivals)
+
+    # Simulate each patient's start and end time
+    for i, arrival in enumerate(patient_arrivals):
+        if i == 0:
+            start_times[i] = arrival
+        else:
+            # Next patient starts when they arrive or when previous is done
+            start_times[i] = max(arrival, end_times[i - 1])
+
+        end_times[i] = start_times[i] + service_times[i]
+        waiting_times[i] = start_times[i] - arrival
+
+    # Combine into a DataFrame
+    return pd.DataFrame({
+        'id': arrival_ids,
+        'arrival': patient_arrivals,
+        'start': start_times,
+        'end': end_times,
+        'waiting': waiting_times
+    })
+
+
+simulate_queue(patient_arrivals=[1, 3, 4, 10, 12],
+               service_times=[5, 7, 3, 4, 6])
+```
+
+**Class:**
+
+```{python}
+class Queue:
+    """
+    Simulate a single-server queue with deterministic arrivals and service.
+
+    Attributes
+    ----------
+    patient_arrivals : list
+        Arrival times in minutes.
+    service_times : list
+        Service times in minutes.
+    """
+    def __init__(self, patient_arrivals, service_times):
+        """
+        Initialise a new Queue instance.
+
+        Parameters
+        ----------
+        patient_arrivals : list
+            Arrival times in minutes.
+        service_times : list
+            Service times in minutes.
+        """
+        self.patient_arrivals = patient_arrivals
+        self.service_times = service_times
+
+    def run(self):
+        """
+        Run the queue simulation.
+
+        Returns
+        -------
+        pandas.DataFrame
+            Table with id, arrival, start, end, and waiting time.
+        """
+        # Generate list of arrival IDs
+        arrival_ids = list(range(1, len(self.patient_arrivals) + 1))
+
+        # Initialise tracking variables
+        start_times = [0] * len(self.patient_arrivals)
+        end_times = [0] * len(self.patient_arrivals)
+        waiting_times = [0] * len(self.patient_arrivals)
+
+        # Simulate each patient's start and end time
+        for i, arrival in enumerate(self.patient_arrivals):
+            if i == 0:
+                start_times[i] = arrival
+            else:
+                # Next patient starts when they arrive or when previous is done
+                start_times[i] = max(arrival, end_times[i - 1])
+
+            end_times[i] = start_times[i] + self.service_times[i]
+            waiting_times[i] = start_times[i] - arrival
+
+        # Combine into a DataFrame
+        return pd.DataFrame({
+            'id': arrival_ids,
+            'arrival': self.patient_arrivals,
+            'start': start_times,
+            'end': end_times,
+            'waiting': waiting_times
+        })
+
+
+queue = Queue(patient_arrivals=[1, 3, 4, 10, 12],
+              service_times=[5, 7, 3, 4, 6])
+queue.run()
+```
+
+:::
+
+::: {.r-content}
+
+**Function:**
+
+```{r}
+#' Simulate a single-server queue with deterministic arrivals and service.
+#'
+#' @param patient_arrivals List. Arrival times in minutes.
+#' @param service_times List. Service times in minutes.
+#'
+#' @return Data frame with id, arrival, start, end and waiting time.
+#' @export
+
+simulate_queue <- function(patient_arrivals, service_times) {
+  arrival_ids <- seq_along(patient_arrivals)
+
+  # Initialise tracking variables
+  start_times <- numeric(length(patient_arrivals))
+  end_times <- numeric(length(patient_arrivals))
+  waiting_times <- numeric(length(patient_arrivals))
+
+  # Simulate each patient's start and end time
+  for (i in seq_along(patient_arrivals)) {
+    if (i == 1L) {
+      start_times[i] <- patient_arrivals[i]
+    } else {
+      # Next patient starts when they arrive or when previous is done
+      start_times[i] <- max(patient_arrivals[i], end_times[i - 1L])
+    }
+    end_times[i] <- start_times[i] + service_times[i]
+    waiting_times[i] <- start_times[i] - patient_arrivals[i]
+  }
+
+  # Combine into a data frame
+  data.frame(
+    id = arrival_ids,
+    arrival = patient_arrivals,
+    start = start_times,
+    end = end_times,
+    waiting = waiting_times
+  )
+}
+
+
+simulate_queue(patient_arrivals = c(1L, 3L, 4L, 10L, 12L),
+               service_times = c(5L, 7L, 3L, 4L, 6L))
+```
+
+**R6 Class:**
+
+```{r}
+#' @title Queue class
+#'
+#' Simulates a single-server queue with deterministic arrivals and service.
+#'
+#' @field patient_arrivals List. Arrival times in minutes.
+#' @field service_times List. Service times in minutes.
+
+Queue <- R6Class("Queue",  
+  public = list(
+    patient_arrivals = NULL,
+    service_times = NULL,
+
+    initialize = function(patient_arrivals, service_times) {
+      self$patient_arrivals <- patient_arrivals
+      self$service_times <- service_times
+    },
+
+    #' @description
+    #' Run the simulation.
+    #' @return Data frame with id, arrival, start, end and waiting time.
+    run = function() {
+      arrival_ids <- seq_along(self$patient_arrivals)
+
+      # Initialise tracking variables
+      start_times <- numeric(length(self$patient_arrivals))
+      end_times <- numeric(length(self$patient_arrivals))
+      waiting_times <- numeric(length(self$patient_arrivals))
+
+      # Simulate each patient's start and end time
+      for (i in seq_along(self$patient_arrivals)) {
+        if (i == 1L) {
+          start_times[i] <- self$patient_arrivals[i]
+        } else {
+          # Next patient starts when they arrive or when previous is done
+          start_times[i] <- max(self$patient_arrivals[i], end_times[i - 1L])
+        }
+        end_times[i] <- start_times[i] + self$service_times[i]
+        waiting_times[i] <- start_times[i] - self$patient_arrivals[i]
+      }
+
+      # Combine into a data frame
+      data.frame(
+        id = arrival_ids,
+        arrival = self$patient_arrivals,
+        start = start_times,
+        end = end_times,
+        waiting = waiting_times
+      )
+    }
+  )
+)
+
+
+queue <- Queue$new(patient_arrivals = c(1L, 3L, 4L, 10L, 12L),
+                   service_times = c(5L, 7L, 3L, 4L, 6L))
+queue$run()
+```
+
+:::
+
+::::
 
 <br><br>
