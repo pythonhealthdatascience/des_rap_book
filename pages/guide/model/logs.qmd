@@ -372,7 +372,7 @@ The `log()` method is used to record messages as the simulation runs. If `verbos
 
 ### Model class
 
-In `Model`, a new attribute `logger` stores as instance of `SimLogger`.
+In `Model`, a new attribute `logger` stores an instance of the `SimLogger` class.
 
 Where previously we had statements "if verbose print...", these are replaced with `self.logger.log()`. As such, you will need to **remove** the following sections:
 
@@ -931,6 +931,10 @@ class Model:
             # Sample consultation duration and pass time spent with doctor
             time_with_doctor = self.consult_dist.sample()
             yield self.env.timeout(time_with_doctor)
+
+            # Log end time
+            self.logger.log(msg=f"Patient {patient.patient_id} leaves.",
+                            sim_time=self.env.now)
 
     def run(self):
         """
