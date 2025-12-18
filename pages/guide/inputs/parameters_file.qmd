@@ -53,70 +53,6 @@ library(R6)
 
 ::::
 
-:::: {.python-content}
-
-::: {.callout-note title="Utility function" collapse="true"}
-
-The `print_dict` function is just a small helper used on this page to make dictionary outputs easier to read.
-
-```{python}
-import json
-import itertools
-
-
-def print_dict(dictionary, max_items_per_level):
-    """
-    Pretty print the first n items of a dictionary in JSON format.
-
-    Parameters
-    ----------
-    dictionary : dict
-        Dictionary to print.
-    max_items_per_level: int or list of int.
-        If int, applies limit to all levels. If list, limit for
-        [level1, level2, ...]. If the nesting is deeper, the last value is
-        used for deeper levels.
-    """
-    # Ensure max_items_per_level is a list of limits per level
-    if isinstance(max_items_per_level, int):
-        levels = [max_items_per_level]
-    else:
-        levels = list(max_items_per_level)
-
-    def _truncate(obj, level=0):
-        """
-        Recursively copy the dictionary, trimming to the allowed number
-        of items at each level.
-
-        Parameters
-        ----------
-        obj : dict or other
-            The object (dict or non-dict) to be truncated.
-        level : int
-            Current depth in nested structure (0 = top/root).
-        """
-        # Choose the current level's limit, or last limit if deeper
-        max_items = levels[min(level, len(levels)-1)]
-
-        # If obj is a dict, slice its items to the limit
-        if isinstance(obj, dict):
-            # Use islice for efficiency; only take max_items items
-            return {
-                k: _truncate(v, level + 1)
-                for k, v in itertools.islice(obj.items(), max_items)
-            }
-        # If obj is not a dict, return as is
-        return obj
-
-    # Create a truncated copy and print as pretty JSON
-    trimmed_dict = _truncate(dictionary)
-    print(json.dumps(trimmed_dict, indent=4, sort_keys=True))
-```
-
-:::
-
-::::
-
 ## Why use external parameter files?
 
 External parameter files can offer some advantages over storing parameters directly in scripts:
@@ -176,8 +112,9 @@ json_file = "parameters_file_resources/example_parameters.json"
 with open(json_file, "r", encoding="utf-8") as f:
     json_content = json.load(f)
 
-# Preview the dictionary
-print_dict(json_content, [1, 3])
+# View the dictionary
+# (Use json.dumps() as makes dict easier to read when print)
+print(json.dumps(json_content, indent=3))
 ```
 
 :::
@@ -406,7 +343,7 @@ def create_parameters(json_file, number_of_runs=10):
 
 
 param = create_parameters("parameters_file_resources/example_parameters.json")
-print_dict(param, 4)
+print(json.dumps(param, indent=3))
 ```
 :::
 
@@ -468,7 +405,7 @@ def create_parameters(csv_file, number_of_runs=10):
 
 
 param = create_parameters("parameters_file_resources/example_parameters.csv")
-print_dict(param, 4)
+print(json.dumps(param, indent=3))
 ```
 :::
 
@@ -530,7 +467,7 @@ def create_parameters(csv_file, number_of_runs=10):
 
 
 param = create_parameters("parameters_file_resources/example_parameters.csv")
-print_dict(param, 4)
+print(json.dumps(param, indent=3))
 ```
 :::
 
@@ -602,7 +539,7 @@ class CreateParameters:
 
 
 param = CreateParameters("parameters_file_resources/example_parameters.json")
-print_dict(param.__dict__, 4)
+print(json.dumps(param.__dict__, indent=3))
 ```
 
 #### CSV example (flat)
@@ -635,7 +572,7 @@ class CreateParameters:
 
 
 param = CreateParameters("parameters_file_resources/example_parameters.csv")
-print_dict(param.__dict__, 4)
+print(json.dumps(param.__dict__, indent=3))
 ```
 
 #### CSV example (nested)
@@ -671,7 +608,7 @@ class CreateParameters:
 
 
 param = CreateParameters("parameters_file_resources/example_parameters.csv")
-print_dict(param.__dict__, 4)
+print(json.dumps(param.__dict__, indent=3))
 ```
 
 #### Alternative set-up: class with explicit attributes
@@ -767,7 +704,7 @@ params = setup_param_from_csv(
 )
 
 # View object
-print_dict(params.__dict__, 4)
+print(json.dumps(params.__dict__, indent=3))
 ```
 
 :::
