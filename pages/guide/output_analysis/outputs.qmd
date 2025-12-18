@@ -74,9 +74,20 @@ library(plotly)
 
 <br>
 
-Where relevant, we have included **corresponding terms from queueing theory** for each measure.
+This page shows **how to calculate common performance measures** from your discrete‑event simulation model, such as total arrivals, mean waiting time and resource utilisation. These measures help you understand how busy your system is, how long entities wait, and how effectively resources are used during the data collection period.
 
-> **What is queueing theory?** Queueing theory is a field of mathematics that analyses queues under strict assumptions, and is suitable for simple well-characterised systems. Discrete event simulation (DES) can be applied in similar ways (e.g., replicating classic queueing models like M/M/s), but more often extends beyond simple theory to handle a wider range of arrival and service patterns and more complex resource constraints.
+Where relevant, we have included corresponding terms from **queueing theory** for each measure, so that readers familiar with analytic queueing models can see how the simulation outputs line up with classic results.
+
+::: {.callout-note title="What is queueing theory?" collapse="true"}
+
+Queueing theory is a field of mathematics that analyses queues under strict assumptions, and is suitable for simple well-characterised systems. Discrete event simulation (DES) can be applied in similar ways (e.g., replicating classic queueing models like M/M/s), but more often extends beyond simple theory to handle a wider range of arrival and service patterns and more complex resource constraints.
+
+For a more comprehensive explanation of queueing theory, check out this video from 
+[Bikey Bonn Kleiford Seranilla](https://www.youtube.com/@2334463) on YouTube:
+
+{{< video https://youtu.be/SqSUJ0UYWMQ?si=Lgqws6sAhGLmRIcY >}}
+
+:::
 
 ## Preparation for results collection
 
@@ -504,7 +515,9 @@ For this measure, we need to record the **time each patient spent waiting** for 
 
 ### Patient class
 
-A new attribute `wait_time` is add to the `Patient` class.
+A new attribute `wait_time` is added to the `Patient` class.
+
+As it is an attribute, we have to give `wait_time` an initial value. A value like 0 would wrongly look like "no wait", so `np.nan` is used instead to clearly mean "we don't know this patient's wait time yet". Patients who still have `wait_time = np.nan` at the end of the simulation are those who were never seen, and this is used below when calculating metrics for unseen (backlogged) patients.
 
 ```{python}
 class Patient:
@@ -2597,6 +2610,8 @@ kable(result[["run_results"]])
 
 We create a new attribute for recording the `end_time` of each patient.
 
+As it is an attribute, we have to give `end_time` an initial value. A value like 0 would wrongly look like "departure at time 0", so `np.nan` is used instead to clearly mean "we don't yet know when this patient will depart".
+
 ```{python}
 class Patient:
     """
@@ -3589,6 +3604,8 @@ In `result["patient"]` we can see one person had NaN for `time_with_doctor`. Cor
 #### Patient class
 
 As done in mean time in consultation and unseen patient count, we add a new attribute `time_with_doctor`.
+
+As it is an attribute, we have to give `time_with_doctor` an initial value. A value like 0 would wrongly look like "patient spent 0 minutes with the doctor", so `np.nan` is used instead to clearly mean "we don't yet know how long this patient will spend with the doctor".
 
 ```{python}
 class Patient:
