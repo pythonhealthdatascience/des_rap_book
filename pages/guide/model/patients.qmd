@@ -81,11 +81,23 @@ The examples below can be run in a script, notebook, or as part of a package. Se
 
 ::::
 
+## Preparation: conceptual modelling
+
+Before writing any code, it's important that you have defined a conceptual model of the process, as this will guide the design of your simulation. You also need to have defined all the necessary parameters. With these essentials in place, the process of building the simulation can start.
+
+We will not describe how to design conceptual models in this book, but there are lots of resources available online, such as:
+
+> Chwif, L., Banks, J., de Moura Filho, J. P., & Santini, B. (2013). A framework for specifying a discrete-event simulation conceptual model. Journal of Simulation, 7(1), 50–60. <https://doi.org/10.1057/jos.2012.18>.
+
+In this book, we will building a simple model where patients arrive, wait to see a doctor, and then leave.
+
+![](patients_resources/book_des.drawio.png)
+
+This is similar to the [nurse visit simulation model](/pages/example_models/example_models.qmd#nurse-visit-simulation) (just with some differing parameters), whilst the [stroke pathway simulation](/pages/example_models/example_models.qmd#stroke-pathway-simulation) has a more complex conceptual model.
+
 ## Creating a simple simulation model with arrivals
 
-Before writing any code, it's important that you have defined a conceptual model of the process to guide design of your simulation, and that the necessary parameters are defined. With these essentials in place, the process of building the simulation can start.
-
-The best approach is to build the model **step by step**, testing and understanding each component before adding more complexity. Typically, the first step is to write code that **generates arrivals into the system**.
+The best approach is to building your model is to go carefully **step by step**, testing and understanding each component before adding more complexity. Typically, the first step is to write code that **generates arrivals into the system**.
 
 ::: {.python-content}
 
@@ -554,6 +566,18 @@ The `DistributionRegistry` class from `sim-tools` provides a structured way to o
 
 This will feel excessive for our basic example, but having a distribution registry can make things easier for larger models.
 
+::: {.callout-note title="Modifying code"}
+
+When you hover over the code below, any changes will be highlighted in **bold**.
+
+This example shows how you can adapt the code from above to use a *distribution registry* approach.
+
+In later sections, we'll use similar annotations when demonstrating other modifications.
+
+We recommend following along and adapting your code as shown. However, in subsequent chapters, we'll return to the simpler method rather than the distribution registry, so you may prefer to leave your code unchanged and simply read through this example.
+
+:::
+
 ### Parameter class
 
 In the `Parameters` class, distributions are now specified in a nested dictionary called `dist_config`. Each entry describes the distribution type and its parameters.
@@ -924,6 +948,18 @@ DistributionRegistry <- R6Class("DistributionRegistry", list( # nolint: object_n
 In the `create_params` function, distributions are now specified in a nested list called `dist_config`. Each entry describes the distribution type and its parameters.
 
 Here, the distribution type is hard-coded whilst the mean can be changed. This is fine in our simple example, but for more complex or flexible models, these settings would usually be read from an [external configuration file](../inputs/parameters_file.qmd), which allows for easier adjustment without hard coding.
+
+::: {.callout-note title="Modifying code"}
+
+When you hover over the code below, any changes will be highlighted in **bold**.
+
+This example shows how you can adapt the code from above to use a *distribution registry* approach.
+
+In later sections, we'll use similar annotations when demonstrating other modifications.
+
+We recommend following along and adapting your code as shown. However, in subsequent chapters, we'll return to the simpler method rather than the distribution registry, so you may prefer to leave your code unchanged and simply read through this example.
+
+:::
 
 ```{r}
 #' Generate parameter list.
