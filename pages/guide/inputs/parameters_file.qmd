@@ -35,6 +35,7 @@ This should be available from environment setup in the "Test yourself" section o
 ::: {.python-content}
 
 ```{python}
+import os
 import pandas as pd
 import json
 from collections import defaultdict
@@ -72,6 +73,38 @@ There are several file types you can use to store parameters, with **CSV** and *
 * **Supported** by many tools: spreadsheets, text editors, programming languages.
 * **Easier to import** and parse programmatically than Excel.
 
+::: {.python-content}
+
+We will make a folder called `inputs` to store our parameter files within.
+
+```{python}
+data_path = "inputs"
+```
+
+:::
+
+::: {.r-content}
+
+As per the standard structure for R packages, we create a folder `inst/extdata/` to store our parameter files within.
+
+```{r}
+data_path <- file.path("inst", "extdata")
+```
+
+:::
+
+<!-- Following consistent storage patterns for this book, these are actually within the 'parameters_file_resources' folder, but we will hide this fact from the reader to avoid confusion, as want them to use inputs/ or inst/extdata/ -->
+
+```{python}
+#| echo: false
+data_path = "parameters_file_resources"
+```
+
+```{r}
+#| echo: false
+data_path <- "parameters_file_resources"
+```
+
 ### CSV example
 
 For CSV files, use a simple tabular structure and follow tidy data principles - each row is an observation, each column a variable. Avoid merged cells or stacked headers, as these make data processing difficult.
@@ -82,7 +115,7 @@ For CSV files, use a simple tabular structure and follow tidy data principles - 
 
 ```{python}
 # Import and preview parameter file
-csv_content = pd.read_csv("parameters_file_resources/example_parameters.csv")
+csv_content = pd.read_csv(os.path.join(data_path, "example_parameters.csv"))
 csv_content.head()
 ```
 
@@ -92,7 +125,7 @@ csv_content.head()
 
 ```{r}
 # Import and view the parameter table
-read.csv(file.path("parameters_file_resources", "example_parameters.csv"))
+read.csv(file.path(data_path, "example_parameters.csv"))
 ```
 
 :::
@@ -108,7 +141,7 @@ For JSON files, data are stored in hierachical / nested structures. Keep the str
 ```{python}
 # Import parameters
 # pylint:disable=invalid-name
-json_file = "parameters_file_resources/example_parameters.json"
+json_file = os.path.join(data_path, "example_parameters.json")
 with open(json_file, "r", encoding="utf-8") as f:
     json_content = json.load(f)
 
@@ -122,9 +155,7 @@ print(json.dumps(json_content, indent=3))
 ::: {.r-content}
 
 ```{r}
-json_file <- fromJSON(
-  file.path("parameters_file_resources", "example_parameters.json")
-)
+json_file <- fromJSON(file.path(data_path, "example_parameters.json"))
 str(json_file)
 ```
 
@@ -150,8 +181,8 @@ As mentioned in the [checklist for managing parameter data](input_data.qmd#check
 
 The examples below were created using markdown (converted to PDF using `pandoc`), but you can use any suitable format (e.g. CSV, YAML, etc.) - as long as it is clear, consistent and accessible.
 
-```{.python}
-#| echo: false
+<!--
+```{python}
 import subprocess
 
 subprocess.run([
@@ -165,6 +196,7 @@ subprocess.run([
     "-o", "parameters_file_resources/_json_data_dictionary.pdf"
 ], check=False)
 ```
+-->
 
 ### CSV data dictionary example
 
@@ -342,7 +374,7 @@ def create_parameters(json_file, number_of_runs=10):
     return param_dict
 
 
-param = create_parameters("parameters_file_resources/example_parameters.json")
+param = create_parameters(os.path.join(data_path, "example_parameters.json"))
 print(json.dumps(param, indent=3))
 ```
 :::
@@ -367,9 +399,7 @@ create_parameters <- function(json_file, number_of_runs = 10L) {
 }
 
 # Example usage:
-param <- create_parameters(
-  file.path("parameters_file_resources", "example_parameters.json")
-)
+param <- create_parameters(file.path(data_path, "example_parameters.json"))
 print(param[1L:4L])
 ```
 :::
@@ -404,7 +434,7 @@ def create_parameters(csv_file, number_of_runs=10):
     return param_dict
 
 
-param = create_parameters("parameters_file_resources/example_parameters.csv")
+param = create_parameters(os.path.join(data_path, "example_parameters.csv"))
 print(json.dumps(param, indent=3))
 ```
 :::
@@ -430,9 +460,7 @@ create_parameters <- function(csv_file, number_of_runs = 10L) {
 }
 
 # Example usage:
-param <- create_parameters(
-  file.path("parameters_file_resources", "example_parameters.csv")
-)
+param <- create_parameters(file.path(data_path, "example_parameters.csv"))
 print(param[1L:4L])
 ```
 :::
@@ -466,7 +494,7 @@ def create_parameters(csv_file, number_of_runs=10):
     return dict(param_dict)
 
 
-param = create_parameters("parameters_file_resources/example_parameters.csv")
+param = create_parameters(os.path.join(data_path, "example_parameters.csv"))
 print(json.dumps(param, indent=3))
 ```
 :::
@@ -493,9 +521,7 @@ create_parameters <- function(csv_file, number_of_runs = 10L) {
 }
 
 # Example usage:
-param <- create_parameters(
-  file.path("parameters_file_resources", "example_parameters.csv")
-)
+param <- create_parameters(file.path(data_path, "example_parameters.csv"))
 print(param[1L:4L])
 ```
 :::
@@ -538,7 +564,7 @@ class CreateParameters:
         self.number_of_runs = number_of_runs
 
 
-param = CreateParameters("parameters_file_resources/example_parameters.json")
+param = CreateParameters(os.path.join(data_path, "example_parameters.json"))
 print(json.dumps(param.__dict__, indent=3))
 ```
 
@@ -571,7 +597,7 @@ class CreateParameters:
         self.number_of_runs = number_of_runs
 
 
-param = CreateParameters("parameters_file_resources/example_parameters.csv")
+param = CreateParameters(os.path.join(data_path, "example_parameters.csv"))
 print(json.dumps(param.__dict__, indent=3))
 ```
 
@@ -607,7 +633,7 @@ class CreateParameters:
         self.number_of_runs = number_of_runs
 
 
-param = CreateParameters("parameters_file_resources/example_parameters.csv")
+param = CreateParameters(os.path.join(data_path, "example_parameters.csv"))
 print(json.dumps(param.__dict__, indent=3))
 ```
 
@@ -700,7 +726,7 @@ def setup_param_from_csv(csv_path):
 
 # Import parameters
 params = setup_param_from_csv(
-    "parameters_file_resources/example_parameters.csv"
+    os.path.join(data_path, "example_parameters.csv")
 )
 
 # View object
@@ -827,9 +853,7 @@ setup_param_from_csv <- function(csv_path) {
 
 
 # Import parameters
-params <- setup_param_from_csv(
-  file.path("parameters_file_resources", "example_parameters.csv")
-)
+params <- setup_param_from_csv(file.path(data_path, "example_parameters.csv"))
 
 # View object
 params$get_params()
@@ -863,7 +887,7 @@ setup_param_from_json <- function(json_path) {
 
 # Import parameters
 params <- setup_param_from_json(
-  file.path("parameters_file_resources", "example_parameters.json")
+  file.path(data_path, "example_parameters.json")
 )
 
 # View object
@@ -878,7 +902,7 @@ params$get_params()
 
 ### Nurse visit simulation
 
-The nurse visit model doesn't import them from a file. It instead stores them within a script, as covered on the [parameters from script](parameters_script.qmd) page.
+The nurse visit model doesn't import parameters from a file. It instead stores them within a script, as covered on the [parameters from script](parameters_script.qmd) page.
 
 ### Stroke pathway simulation
 
