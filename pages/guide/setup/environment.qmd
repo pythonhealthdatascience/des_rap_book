@@ -391,7 +391,7 @@ With the environment active (i.e. after running `conda activate envname`), you c
 conda env update --file environment.yaml --prune
 ```
 
-You should **specify the exact package versions** in you `environment.yaml`. If you're starting from scratch, you may not know which versions you need, so you can leave them out initially, as we did above. However, now that we have built our environment (which used the latest versions as none were specified), it is important to then record your versions in the `environment.yaml`. These are the versions you can see by running `conda list`.
+You should **specify the exact package versions** in your `environment.yaml`. If you're starting from scratch, you may not know which versions you need, so you can leave them out initially, as we did above. However, now that we have built our environment (which used the latest versions as none were specified), it is important to then record your versions in the `environment.yaml`. These are the versions you can see by running `conda list`.
 
 Example `environment.yaml` file:
 
@@ -405,8 +405,6 @@ dependencies:
 ```
 
 When working on a project from scratch, you will often build up your environment organically and iteratively as you find more packages you want to use.
-
-To set-up an environment that will work for running the examples in this book, see the "**Test yourself**" section.
 
 ::::
 
@@ -662,6 +660,50 @@ renv::deactivate(clean = TRUE)
 This will remove the renv auto-loaded, the `renv/` directory, and the `renv.lock` file in one step, and restart the R session.
 
 ::::
+
+## Environment for this book
+
+::: {.python-content}
+
+Now that you have seen how to set up a simple example environment, the next step is to create the environment used throughout this book. This environment is called `des-rap-book` and contains all the packages required to run the code in this book. You can remove any earlier practice environments and instead work only with `des-rap-book` from this point on.
+
+It does not yet include your simulation model code itself; you will create that as a separate package and then add it to this environment as a local install on the [Structuring as a package](package.qmd) page.
+
+To install the environment:
+
+1. In your `des-rap-python/` folder, create an `environment.yaml` file and copy in the text below.
+2. Build the environment by running `conda env create --file environment.yaml`.
+3. Check it by running `conda activate des-rap-book` and `conda list`.
+
+```{.bash}
+{{< include /environment.yaml >}}
+```
+
+:::
+
+::: {.r-content}
+
+Now that you have seen how to set up a simple example environment, the next step is to create the environment used throughout this book. It contains all the packages required to run the code in this book.
+
+If you have earlier practice environments in `des-rap-r/`, you can delete these and start from scratch (for example, you can delete the `DESCRIPTION`, `renv` files/folders and `.Rproj`).
+
+The environment below does not yet include your simulation model code itself; you will create that as a separate package and then add it to this environment as a local install on the [Structuring as a package](package.qmd) page.
+
+To install the environment:
+
+1. In your `des-rap-r/` folder, set-up an R project.
+2. Initialise `renv` by running `renv::init()`. 
+3. Create a `DESCRIPTION` file and copy in the above text.
+4. Install those packages by running `renv::install()`.
+5. Create/update `renv.lock` by running `renv::snapshot()`.
+
+If you want to know the exact versions used, see the [renv.lock](https://github.com/pythonhealthdatascience/des_rap_book/blob/main/renv.lock) file in the `des_rap_book` GitHub repository.
+
+```{.bash}
+{{< include /DESCRIPTION >}}
+```
+
+:::
 
 ## Other
 
@@ -1438,50 +1480,6 @@ These are some nice resources generally covering topics related to R environment
 
 * ["9. DESCRIPTION" from R Packages](https://r-pkgs.org/description.html) by Hadley Wickham and Jennifer Bryan.
 * ["21. Lifecycle" from R Packages](https://r-pkgs.org/lifecycle.html) by Hadley Wickham and Jennifer Bryan.
-
-::::
-
-## Test yourself
-
-Let's get started! If you haven't already tried the basic setup by following the instructions above, give it a try now. In this section, we'll set up a dedicated environment for working through this book. Using the complete environment provided below will help ensure everything works as expected.
-
-:::: {.python-content}
-
-**Task:** Set-up the following environment on your machine.
-
-```{.bash}
-{{< include /environment.yaml >}}
-```
-
-::: {.callout-tip title="Hints" collapse="true"}
-
-1. In your `des-rap-python/` folder, create an `environment.yaml` file and copy in the above text.
-2. Build the environment by running `conda env create --file environment.yaml`.
-3. Check it by running `conda activate des-rap-book` and `conda list`.
-
-:::
-
-::::
-
-:::: {.r-content}
-
-**Task:** Set-up the following environment on your machine.
-
-```{.bash}
-{{< include /DESCRIPTION >}}
-```
-
-::: {.callout-tip title="Hints" collapse="true"}
-
-1. In your `des-rap-r/` folder, set-up an R project.
-2. Initialise `renv` by running `renv::init()`. 
-3. Create a `DESCRIPTION` file and copy in the above text.
-4. Install those packages by running `renv::install()`.
-5. Create/update `renv.lock` by running `renv::snapshot()`.
-
-If you want to know the exact versions used, see the [renv.lock](https://github.com/pythonhealthdatascience/des_rap_book/blob/main/renv.lock) file in the `des_rap_book` GitHub repository.
-
-:::
 
 ::::
 
