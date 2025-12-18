@@ -452,6 +452,14 @@ Suggests:
     ...
 ```
 
+If you're following along with this book, you'll instead want to copy in this example, as it contains the packages required to run the code in this book.
+
+You can then add and fill in the other sections (e.g., `Package:`, `Type:`, `Version:`... and so on - everything listed above and below!).
+
+```{.bash}
+{{< include /DESCRIPTION >}}
+```
+
 :::
 
 We will then fill in the template with relevant information for our project. You don't need to change `Type`, `Encoding`, or `Roxygen`. For the other arguments:
@@ -490,52 +498,11 @@ We will then fill in the template with relevant information for our project. You
 
 * **Suggests**: These are any other packages needed. For example, you might include those for development (`devtools`), testing (`testthat`), linting (`lintr`) - or packages used in your analysis (i.e. any code *not* in `R/`).
 
-As an example:
+You can check out the `DESCRIPTION` files in our two R example models as demonstrations of what this can look like:
 
-```{.bash}
-Package: simulation
-Type: Package
-Title: Simulation
-Version: 0.1.0
-Authors@R: c(
-    person(
-      "Amy", "Heather",
-      email = "a.heather2@exeter.ac.uk",
-      role = c("aut", "cre"),
-      comment = c(ORCID = "0000-0002-6983-2759")
-    )
-  )
-URL: https://github.com/pythonhealthdatascience/rdesrap_mms
-Description: Template reproducible analytical pipeline (RAP) for simple R
-    discrete-event simulation (DES) model.
-License: MIT + file LICENSE
-Encoding: UTF-8
-LazyData: true
-RoxygenNote: 7.3.2
-Imports:
-    simmer,
-    magrittr,
-    dplyr,
-    purrr,
-    rlang,
-    tidyr,
-    tidyselect,
-    future,
-    future.apply,
-    ggplot2,
-    tibble,
-    gridExtra,
-    R6
-Suggests:
-    testthat (>= 3.0.0),
-    patrick,
-    lintr,
-    devtools,
-    xtable,
-    data.table,
-    mockery
-Config/testthat/edition: 3
-```
+{{< include /html/rdesrapmms.html >}}
+
+{{< include /html/rdesrapstroke.html >}}
 
 ### 4. Add/edit `.Rbuildignore`
 
@@ -567,14 +534,14 @@ This is to avoid warnings when we run `devtools::check()` in the following secti
 
 ::: {.python-content}
 
-We now want to install our package into our environment.
+We now want to install our package into our environment. We will work with the `des-rap-book` environment, which is a conda environment containing all the packages needed to run the code in this book.
 
 ### Option A: Pre-existing environment
 
-If you already have a conda environment (e.g. from following instructions in the [environments](environment.qmd) page), then you should first activate it:
+If you already have the conda environment for this book from the [environments](environment.qmd) page, then you should first activate it:
 
 ```{.bash}
-conda activate envname
+conda activate des-rap-book
 ```
 
 Then edit the `environment.yaml` to add your local package using `-e .` within the `pip:` installation section. The syntax `-e .` installs the package from the current directory (`.`) in "editable" mode (`-e`) so that it will update with any changes to the source code in `simulation/`.
@@ -582,6 +549,12 @@ Then edit the `environment.yaml` to add your local package using `-e .` within t
 ```{.bash}
   - pip:
     - -e .
+```
+
+Your full environment file will now look like:
+
+```{.bash}
+{{< include /pages/guide/environment-full.yaml >}}
 ```
 
 To update the installed environment based on the file, run:
@@ -599,30 +572,10 @@ simulation                0.1.0                    pypi_0    pypi
 
 ### Option B: New environment
 
-If you do not have an environment yet, create one using the [environments](environment.qmd) page instructions.
-
-A simple `environment.yaml` with your local package (`-e .`, as explained above) might look like:
+If you do not have an environment yet, you should create one using the following `environment.yaml` file. It contains all the packages needed for this book, as well as the local package (`-e .`, as explained above). If you are unsure how to set-up a conda environment, refer back to the [environments](environment.qmd) page for instructions.
 
 ```{.bash}
-name: envname
-channels:
-  - conda-forge
-dependencies:
-  - ipykernel
-  - pip
-  - python=3.13
-  - pip:
-    - -e .
-```
-
-We've included `ipykernel` as this is needed to run Jupyter notebooks - which we will create in the next section to test our package works.
-
-As explained on [environments](environment.qmd), you can then create, activate and check your environment by running:
-
-```{.bash}
-conda env create --file environment.yaml
-conda activate envname
-conda list
+{{< include /pages/guide/environment-full.yaml >}}
 ```
 
 ### Option C: Other environment managers
@@ -1046,36 +999,7 @@ Click the &nbsp;[Code]{style="background: #597341; color: #fff; border-radius:4p
 
 ![](package_resources/download_zip.png){fig-align="center" width=50%}
 
-## Test yourself
-
-If you haven't already followed along, **now's the time to put everything from this page into practice!**
-
-You have two options:
-
-**1. Set up manually**. Follow the steps above to create the folder structure, configuration files, and test code from scratch. Before getting started, make sure to set-up your repository with [version control](version.qmd) and an [environment](environment.qmd).
-
-::: {.python-content}
-
-**2. Use the template.** [Use the template repository](https://github.com/pythonhealthdatascience/pydesrap_template) to create a pre-configured repository. You could then customise it - for example, if you are following along with this book, you could change the environment to that provided on the [environment](environment.qmd) page.
-
-:::
-
-::: {.r-content}
-
-**2. Use the template.** [Use the template repository](https://github.com/pythonhealthdatascience/rdesrap_template) to create a pre-configured repository.
-
-* You could then customise it - for example, if you are following along with this book, you could change the environment to that provided on the [environment](environment.qmd) page.
-* You should also edit the `DESCRIPTION` file - follow the detailed instructions above to do so! If you change the name of the package, you will need to change your `library(simulation)` call in `simulation_test.Rmd` to refer to the new name.
-
-:::
-
-::: {.callout-tip title="Hints"}
-
-* Use the folder, file and code templates already given above.
-* Tweak names and descriptions for your own project.
-* If you hit any errors, check your files are in the right place, and look back at earlier steps for solutions.
-
-:::
+If are following along with this book and using this template, you'll want to update it with the provided environment, so you have all the packages needed.
 
 ## Further information
 
