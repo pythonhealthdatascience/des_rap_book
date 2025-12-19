@@ -1780,11 +1780,9 @@ In `Model`, we make three changes:
 
 ### Runner class
 
-Mean utilisation can now be calculated as:
+We've tracked the number of busy doctors over time by summing `busy doctors x duration` across all intervals - referred to as the "area under the curve". We now divide this by `number of doctors x data collection length` to give the average fraction of doctor time that was used.
 
-$$
-\text{mean utilisation} = \frac{\text{area\_under\_the\_curve}}{\text{number of doctors} \times \text{data collection period}}
-$$
+For a clear visual explanation of what we mean by "area under the curve" and how this calculation works, see the [Time-weighted averages](#time-weighted-averages) section at the end of this page.
 
 ```{python}
 class Runner:
@@ -1866,6 +1864,8 @@ Mean utilisation measures the proportion of available doctor time that is actual
 ### Utilisation function
 
 Our function for utilisation is a **time-weighted calculation**: it computes a weighted mean, multiplying each interval's utilisation by its interval duration.
+
+For a clear visual explanation of how these calculations work, refer to the [Time-weighted averages](#time-weighted-averages) section below.
 
 As described in the docstring, the calculation is adapted from the `plot.resources.utilization()` function in simmer.plot 0.1.18, which is shared under an MIT Licence (Ucar I, Smeets B (2023). simmer.plot: Plotting Methods for 'simmer'. <https://r-simmer.org> <https://github.com/r-simmer/simmer.plot>).
 
@@ -2335,11 +2335,9 @@ Same changes as made for time-weighted utilisation.
 
 ### Runner class
 
-Mean queue length is calculated as:
+We've tracked the number of patients in the queue over time by summing `queue length x duration` across all intervals - this is the total "area under the curve" for the queue. We now divide this by the `data collection length` to obtain the average queue length experienced over the period.
 
-$$
-\text{mean queue length} = \frac{\text{area\_under\_the\_curve}}{\text{data collection period}}
-$$
+For a clear visual explanation of what we mean by "area under the curve" and how this calculation works, see the [Time-weighted averages](#time-weighted-averages) section at the end of this page.
 
 ```{python}
 class Runner:
@@ -2419,6 +2417,8 @@ A new function `calc_mean_queue_length()` finds the **time-weighted** mean queue
 * Multiplying each observed queue length by its corresponding interval duration ("time weighting").
 
 The sum of these products is then divided by the total observed time to find the average queue length. This approach ensures that, for example, intervals where the queue was longer and persisted for more time have a greater effect on the mean than short-lived fluctuations.
+
+For a clear visual explanation of how these calculations work, refer to the [Time-weighted averages](#time-weighted-averages) section below.
 
 ```{r}
 #' Calculate the time-weighted mean queue length.
@@ -3242,11 +3242,9 @@ class Model:
 
 ### Runner class
 
-Mean number of patients in the system is calculated as:
+We've tracked how many patients are in the system (waiting or in consultation) by summing `patients in system x duration` across all intervals - the "area under the curve" for system size. Dividing this by the `data collection length` gives the average number of patients in the system over time.
 
-$$
-\text{mean patients in system} = \frac{\text{area\_under\_the\_curve}}{\text{data collection period}}
-$$
+For a clear visual explanation of what we mean by "area under the curve" and how this calculation works, see the [Time-weighted averages](#time-weighted-averages) section at the end of this page.
 
 ```{python}
 class Runner:
@@ -3322,6 +3320,8 @@ class Runner:
 The function `calc_mean_patients_in_system()` does not use the arrivals or resources dataframes - instead, it uses a new dataframe which contains patient counts over time.
 
 It is a **time-weighted calculation** which multiplies the patient count in each time interval by the interval duration. The sum of these is then divided by the total simulation time to find the average system occupancy.
+
+For a clear visual explanation of how these calculations work, refer to the [Time-weighted averages](#time-weighted-averages) section below.
 
 ```{r}
 #' Calculate the time-weighted mean number of patients in the system.
