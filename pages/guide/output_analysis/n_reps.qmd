@@ -565,7 +565,7 @@ plot_replication_ci(
 
 ### Description of the algorithm
 
-Using the automated method, an algorithm will tell us the number of runs needed. We will use the `ReplicationsAlgorithm` class from [sim-tools](https://github.com/TomMonks/sim-tools).
+As an alternative to manually determining the number of runs required, we can use a more automated method. In this automated method, an algorithm will tell us the number of runs needed. We will use the `ReplicationsAlgorithm` class from [sim-tools](https://github.com/TomMonks/sim-tools).
 
 Here's how it works:
 
@@ -575,9 +575,11 @@ Here's how it works:
 
 ### Model adapter
 
-The `ReplicationsAlgorithm` can be used on a variety of model structures - it just requires a standardised interface, as defined by the `ReplicationsAlgorithmModelAdapter` class in `sim-tools` 
+The `ReplicationsAlgorithm` work with many different simulation models, as long as they all present the same interface for running a single replication. This common interface is defined by the defined by the `ReplicationsAlgorithmModelAdapter` protocol in `sim-tools`.
 
-What this essentially tells us is that the model needs to provide a `single_run(replication_number)` method, returning results in dictionary form.
+A `Protocol` describes the expected methods and attributes an object must provide. In this case, the protocol states that a compatible model must implement a `single_run(replication_number)` method returning a dictionary of metric values.
+
+It is tagged `@runtime_checkable` so that, in addition to helping static type checkers, the code can also perform runtime checks (for example using `isinstance`) to verify that an object really satisfies the protocol's interface.
 
 ```{python}
 @runtime_checkable
@@ -605,9 +607,11 @@ class ReplicationsAlgorithmModelAdapter(Protocol):
         """
 ```
 
-<br>
+### Creating an adapter for our model
 
-To achieve this, we wrap our model's own execution logic inside an adapter class. The `SimulationAdapter` encapsulates simulation parameters, a runner, and the list of metrics you want to extract. Each call to `single_run` executes one replication and returns results in the correct dictionary format. 
+We can reuse our existing `Runner` and `Parameters` classes, wrapping them in a small adapter class (`SimulationAdapter`) so that they match the `ReplicationsAlgorithmModelAdapter` interface.
+
+The `SimulationAdapter` stores the parameter object, constructs a `Runner` instance, and lists the metrics to extract. It's `single_run` method then calls `Runner.run_single` and returns the results as a dictionary.
 
 ```{python}
 class SimulationAdapter:
@@ -658,7 +662,7 @@ adapter.single_run(replication_number=0)
 
 ### Run algorithm
 
-We can then use this adapter to run `ReplicationsAlgorithm`.
+An instance of `SimulationAdapter` can now be passed directly to `ReplicationsAlgorithm`, while still using the same `Runner` and `Parameters` classes introduced earlier.
 
 ```{python}
 # Set up model with adapter
@@ -757,6 +761,8 @@ p.update_layout(autosize=True, width=None, height=390)
 ::::
 
 :::: {.r-content}
+
+As an alternative to manually determining the number of runs required, we can use a more automated method, creating an algorithm which recommends the required number of runs. 
 
 For this analysis, we have created three R6 classes: `WelfordStats`, `ReplicationTabuliser`, and `ReplicationsAlgorithm`.
 
