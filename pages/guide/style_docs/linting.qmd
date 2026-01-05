@@ -351,7 +351,10 @@ nbqa pylint file.ipynb
 The [**`lintquarto`**](https://github.com/lintquarto/lintquarto) package can be used to run linters on quarto files.
 
 ```{.bash}
-# Install lintquarto from PyPI
+conda install lintquarto
+```
+
+```{.bash}
 pip install lintquarto
 ```
 
@@ -372,9 +375,34 @@ So, for example, to run `pylint` in the current directory (and sub-directories):
 lintquarto -l pylint -p .
 ```
 
+<br>
+
+#### Troubleshooting conda installation
+
+You may come across an error when trying to fetch a package using `conda install` like this:
+
+```
+PackagesNotFoundError: The following packages are not available from current channels:
+
+  - nbqa
+
+Current channels:
+
+  - defaults
+```
+
+This error means your environment being configured to only use the `defaults` channel - but the package (e.g., `nbqa`) is available only from `conda-forge`. 
+
+You can resolve this by running:
+
+```{.bash}
+conda config --append channels conda-forge
+```
+
 :::
 
 ::: {.r-content}
+
 First, make sure `lintr` is [installed into your environment](../setup/environment.qmd). It can be installed from CRAN:
 
 ```{.r}
