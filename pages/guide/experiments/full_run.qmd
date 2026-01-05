@@ -23,7 +23,7 @@ date: "2025-10-03T15:54:56+01:00"
 
 As introduced at the start of this book, a **reproducible analytical pipeline (RAP)** is a systematic approach to data analysis and modelling in which every step of the process (end-to-end) is transparent, automated, and repeatable.
 
-![](../intro/rap_resources/rap.png)
+![](/pages/intros/rap_resources/rap.png)
 
 A key aspect RAPs is being able to **run your entire analysis from start to finish with a single command**. For example, one command that can run a simulation model, evaluate the base case, explore scenarios, conduct sensitivity analyses, and produce all tables and figures.
 
@@ -58,6 +58,30 @@ In this example, we'll **focus on a bash script**, since it's often the simplest
 ## Bash script
 
 <div class="h3-tight"></div>
+
+### Where to put the script
+
+Save the script below as `run_notebooks.sh` in the root of your project, alongside the `notebooks/` folder.
+
+::: {.python-content}
+
+This allows the script to loop over `rmarkdown/*.Rmd` without extra path adjustments.
+
+:::
+
+::: {.r-content}
+
+This allows the script to loop over `notebooks/*.ipynb` without extra path adjustments.
+
+:::
+
+### Which terminal to use
+
+This script is written for Bash.
+
+**Linux** or **macOS** users can just use their normal terminal (which runs Bash or a compatible shell).
+
+On Windows, you'll need to run it from a bash-compatible terminal like **Git Bash**. PowerShell and Command Prompt use different syntax and cannot run `.sh` bash scripts directly.
 
 ### Example script
 
@@ -243,7 +267,19 @@ If a notebook name is given as a command-line argument, it only runs that notebo
 
 ### Running the bash script
 
-Make sure you are in the same directory as the script, then run from the terminal:
+Make sure your terminal is in the project folder (i.e., the place where `run_notebooks.sh` is).
+
+```{.bash}
+# Check where you are
+pwd
+
+# List files; you should see run_notebooks.sh and notebooks/
+ls
+```
+
+If you are not in the correct folder, use `cd path/to/your/project`.
+
+To run the script without making it executable:
 
 ```{.bash}
 bash run_notebooks.sh
@@ -255,7 +291,7 @@ To run a specific notebook:
 bash run_notebooks.sh notebooks/notebook_name.ipynb
 ```
 
-You can make it executable using `chmod +x`. You can then run it directly (without typing `bash` first) from anywhere in your project folder tree (i.e., don't need to be in same directly).
+You can make it executable using `chmod +x`. This means you can then run it directly (without typing `bash` first) from anywhere in your project folder tree (i.e., don't need to be in same directly).
 
 ```{.bash}
 chmod +x run_notebooks.sh
