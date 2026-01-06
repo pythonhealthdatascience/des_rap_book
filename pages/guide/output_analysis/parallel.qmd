@@ -99,7 +99,7 @@ On this page, we are making changes to the simulation code from the [Replication
 
 ::: {.callout-warning title="Parallel runs from notebooks"}
 
-Joblib's parallel execution only works reliably with code that lives in importable Python modules. If you define your `Parameters`, `Model`, `Runner` (and related functions) inside a notebook cell instead of a `.py `file, parallel runs (`cores > 1`) can fail with errors such as "Could not pickle the task to send it to the workers" or "Can't pickle class sim_tools.distributions.Exponential...". This happens because worker processes cannot re-import notebook-defined classes and functions, even though external packages like sim_tools are installed correctly.
+Joblib's parallel execution only works reliably on Windows and MacOS with code that lives in importable Python modules. If you define your `Parameters`, `Model`, `Runner` (and related functions) inside a notebook cell instead of a `.py `file, parallel runs (`cores > 1`) can fail with errors such as "Could not pickle the task to send it to the workers" or "Can't pickle class sim_tools.distributions.Exponential...". This happens because worker processes cannot re-import notebook-defined classes and functions, even though external packages like sim_tools are installed correctly.
 ​
 To avoid this, put your simulation code in a module and import it into the notebook (as explained on the [Structuring as a package](/pages/guide/setup/package.qmd) page). If you prefer to keep everything in the notebook, set `cores = 1` to run sequentially and bypass parallel pickling altogether.
 ​
