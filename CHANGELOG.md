@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Dates formatted as YYYY-MM-DD as per [ISO standard](https://www.iso.org/iso-8601-date-and-time-format.html).
 
+## v0.4.0 - 2026-01-06
+
+### Added
+
+* Quality assurance page.
+* Date each page was last updated (based on commits to main, generated using bash script in GitHub action).
+
+### Changed
+
+* Addressed peer review feedback from Nav Mustafee ([#130](https://github.com/pythonhealthdatascience/des_rap_book/issues/130)).
+* Addressed peer review feedback from Fatemeh Alidoost ([#134](https://github.com/pythonhealthdatascience/des_rap_book/issues/134), [#144](https://github.com/pythonhealthdatascience/des_rap_book/issues/144) and [#146](https://github.com/pythonhealthdatascience/des_rap_book/issues/146)).
+* Restructured the website so it has a homepage, a dedicated section with step-by-step tutorial, but then separate sections with background information. Now has top navbar with banner, for hopefully more professional appearance and easier navigation.
+
 ## v0.3.0 - 2025-11-06
 
 This release adds new pages on the mathematical proof of correctness, discrete-event simulation, and conclusions/feedback, as well as template repositories for structuring work as a package. It fixes the calculation of R time-weighted measures, updates the Python approach to determining warm-up length, and extends all pages to cover all performance metrics. Numerous smaller improvements are also included.
