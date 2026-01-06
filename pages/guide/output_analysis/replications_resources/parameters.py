@@ -14,15 +14,15 @@ class Parameters:
         Duration of the warm-up period (minutes).
     data_collection_period : int
         Duration of the data collection period (minutes).
-    number_of_runs : int#<<
-        The number of runs (i.e., replications).#<<
+    number_of_runs : int
+        The number of runs (i.e., replications).
     verbose : bool
         Whether to print messages as simulation runs.
     """
     def __init__(
         self, interarrival_time=5, consultation_time=10,
         number_of_doctors=3, warm_up_period=30, data_collection_period=40,
-        number_of_runs=5, verbose=False#<<
+        number_of_runs=5, verbose=False
     ):
         """
         Initialise Parameters instance.
@@ -39,8 +39,8 @@ class Parameters:
             Duration of the warm-up period (minutes).
         data_collection_period : int
             Duration of the data collection period (minutes).
-        number_of_runs : int#<<
-            The number of runs (i.e., replications).#<<
+        number_of_runs : int
+            The number of runs (i.e., replications).
         verbose : bool
             Whether to print messages as simulation runs.
         """
@@ -49,5 +49,5 @@ class Parameters:
         self.number_of_doctors = number_of_doctors
         self.warm_up_period = warm_up_period
         self.data_collection_period = data_collection_period
-        self.number_of_runs = number_of_runs#<<
+        self.number_of_runs = number_of_runs
         self.verbose = verbose

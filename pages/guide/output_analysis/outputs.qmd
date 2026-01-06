@@ -37,7 +37,7 @@ This page continues on from: [Initialisation bias](warmup.qmd).
 
 **Required packages:**
 
-These should be available from environment setup in the "Test yourself" section of [Environments](../setup/environment.qmd). 
+These should be available from environment setup on the [Structuring as a package](/pages/guide/setup/package.qmd) page.
 
 ::: {.python-content}
 
@@ -74,9 +74,24 @@ library(plotly)
 
 <br>
 
-Where relevant, we have included **corresponding terms from queueing theory** for each measure.
+This page shows **how to calculate common performance measures** from your discrete‑event simulation model, such as total arrivals, mean waiting time and resource utilisation. These measures help you understand how busy your system is, how long entities wait, and how effectively resources are used during the data collection period.
 
-> **What is queueing theory?** Queueing theory is a field of mathematics that analyses queues under strict assumptions, and is suitable for simple well-characterised systems. Discrete event simulation (DES) can be applied in similar ways (e.g., replicating classic queueing models like M/M/s), but more often extends beyond simple theory to handle a wider range of arrival and service patterns and more complex resource constraints.
+Where relevant, we have included corresponding terms from **queueing theory** for each measure, so that readers familiar with analytic queueing models can see how the simulation outputs line up with classic results.
+
+::: {.callout-note title="What is queueing theory?" collapse="true"}
+
+Queueing theory is a field of mathematics that analyses queues under strict assumptions, and is suitable for simple well-characterised systems. Discrete event simulation (DES) can be applied in similar ways (e.g., replicating classic queueing models like M/M/s), but more often extends beyond simple theory to handle a wider range of arrival and service patterns and more complex resource constraints.
+
+For a more comprehensive explanation of queueing theory, check out this video from 
+[Bikey Bonn Kleiford Seranilla](https://www.youtube.com/@2334463) on YouTube:
+
+{{< video https://youtu.be/SqSUJ0UYWMQ?si=Lgqws6sAhGLmRIcY >}}
+
+:::
+
+On this page, we introduce each performance measure in turn and demonstrate how to adapt the code from the [initialisation bias](warmup.qmd) page to include the new measure.
+
+If you'd like to see code that incorporates **all** performance measures at once (rather than adding them individually), visit the [replications](replications.qmd) page next. There, we work with a model that includes all metrics, with utilisation implemented using the time-weighted approach.
 
 ## Preparation for results collection
 
@@ -87,6 +102,8 @@ Before we start calculating any simulation performance measures, some set-up is 
 ### Parameter class
 
 Set `verbose` to `False` in the `Parameters` class. This lets the workflow focus on the calculated results rather than individual patient activities.
+
+*Bold lines show where the code has changed since the previous version. The highlight may correspond to a change anywhere on that line, not necessarily to the entire line.*
 
 ```{python}
 class Parameters:
@@ -502,7 +519,9 @@ For this measure, we need to record the **time each patient spent waiting** for 
 
 ### Patient class
 
-A new attribute `wait_time` is add to the `Patient` class.
+A new attribute `wait_time` is added to the `Patient` class.
+
+As it is an attribute, we have to give `wait_time` an initial value. A value like 0 would wrongly look like "no wait", so `np.nan` is used instead to clearly mean "we don't know this patient's wait time yet". Patients who still have `wait_time = np.nan` at the end of the simulation are those who were never seen, and this is used below when calculating metrics for unseen (backlogged) patients.
 
 ```{python}
 class Patient:
@@ -762,6 +781,8 @@ We can see each patient's wait time in `result["patient"]`, and the mean wait ti
 {{< include outputs_resources/run.py >}}
 ```
 
+*The mean wait time is returned as `np.float64()` because NumPy's `mean()` function returns a NumPy float type instead of a built-in Python `float`. You can just treat it like a regular `float`, or convert it with `float()` if you want it to print without `np.float64()`.*
+
 :::
 
 ::: {.r-content}
@@ -804,6 +825,8 @@ calc_mean_wait <- function(arrivals) {
 ### Run results function
 
 In `get_run_results()`, the table `results[["arrivals"]]` is passed to `calc_mean_wait()`.
+
+*Bold lines show where the code has changed since the previous version. The highlight may correspond to a change anywhere on that line, not necessarily to the entire line.*
 
 ```{r}
 #' Get average results for the provided single run.
@@ -1029,6 +1052,8 @@ We can see each patient's consultation length in `result["patient"]`, and the me
 ```{python}
 {{< include outputs_resources/run.py >}}
 ```
+
+*The mean consultation length is returned as `np.float64()` because NumPy's `mean()` function returns a NumPy float type instead of a built-in Python `float`. You can just treat it like a regular `float`, or convert it with `float()` if you want it to print without `np.float64()`.*
 
 :::
 
@@ -1759,11 +1784,9 @@ In `Model`, we make three changes:
 
 ### Runner class
 
-Mean utilisation can now be calculated as:
+We've tracked the number of busy doctors over time by summing `busy doctors x duration` across all intervals - referred to as the "area under the curve". We now divide this by `number of doctors x data collection length` to give the average fraction of doctor time that was used.
 
-$$
-\text{mean utilisation} = \frac{\text{area\_under\_the\_curve}}{\text{number of doctors} \times \text{data collection period}}
-$$
+For a clear visual explanation of what we mean by "area under the curve" and how this calculation works, see the [Time-weighted averages](#time-weighted-averages) section at the end of this page.
 
 ```{python}
 class Runner:
@@ -1845,6 +1868,8 @@ Mean utilisation measures the proportion of available doctor time that is actual
 ### Utilisation function
 
 Our function for utilisation is a **time-weighted calculation**: it computes a weighted mean, multiplying each interval's utilisation by its interval duration.
+
+For a clear visual explanation of how these calculations work, refer to the [Time-weighted averages](#time-weighted-averages) section below.
 
 As described in the docstring, the calculation is adapted from the `plot.resources.utilization()` function in simmer.plot 0.1.18, which is shared under an MIT Licence (Ucar I, Smeets B (2023). simmer.plot: Plotting Methods for 'simmer'. <https://r-simmer.org> <https://github.com/r-simmer/simmer.plot>).
 
@@ -2314,11 +2339,9 @@ Same changes as made for time-weighted utilisation.
 
 ### Runner class
 
-Mean queue length is calculated as:
+We've tracked the number of patients in the queue over time by summing `queue length x duration` across all intervals - this is the total "area under the curve" for the queue. We now divide this by the `data collection length` to obtain the average queue length experienced over the period.
 
-$$
-\text{mean queue length} = \frac{\text{area\_under\_the\_curve}}{\text{data collection period}}
-$$
+For a clear visual explanation of what we mean by "area under the curve" and how this calculation works, see the [Time-weighted averages](#time-weighted-averages) section at the end of this page.
 
 ```{python}
 class Runner:
@@ -2398,6 +2421,8 @@ A new function `calc_mean_queue_length()` finds the **time-weighted** mean queue
 * Multiplying each observed queue length by its corresponding interval duration ("time weighting").
 
 The sum of these products is then divided by the total observed time to find the average queue length. This approach ensures that, for example, intervals where the queue was longer and persisted for more time have a greater effect on the mean than short-lived fluctuations.
+
+For a clear visual explanation of how these calculations work, refer to the [Time-weighted averages](#time-weighted-averages) section below.
 
 ```{r}
 #' Calculate the time-weighted mean queue length.
@@ -2592,6 +2617,8 @@ kable(result[["run_results"]])
 ### Patient class
 
 We create a new attribute for recording the `end_time` of each patient.
+
+As it is an attribute, we have to give `end_time` an initial value. A value like 0 would wrongly look like "departure at time 0", so `np.nan` is used instead to clearly mean "we don't yet know when this patient will depart".
 
 ```{python}
 class Patient:
@@ -2848,6 +2875,8 @@ class Runner:
 ```{python}
 {{< include outputs_resources/run.py >}}
 ```
+
+*The mean time in system is returned as `np.float64()` because NumPy's `mean()` function returns a NumPy float type instead of a built-in Python `float`. You can just treat it like a regular `float`, or convert it with `float()` if you want it to print without `np.float64()`.*
 
 :::
 
@@ -3217,11 +3246,9 @@ class Model:
 
 ### Runner class
 
-Mean number of patients in the system is calculated as:
+We've tracked how many patients are in the system (waiting or in consultation) by summing `patients in system x duration` across all intervals - the "area under the curve" for system size. Dividing this by the `data collection length` gives the average number of patients in the system over time.
 
-$$
-\text{mean patients in system} = \frac{\text{area\_under\_the\_curve}}{\text{data collection period}}
-$$
+For a clear visual explanation of what we mean by "area under the curve" and how this calculation works, see the [Time-weighted averages](#time-weighted-averages) section at the end of this page.
 
 ```{python}
 class Runner:
@@ -3297,6 +3324,8 @@ class Runner:
 The function `calc_mean_patients_in_system()` does not use the arrivals or resources dataframes - instead, it uses a new dataframe which contains patient counts over time.
 
 It is a **time-weighted calculation** which multiplies the patient count in each time interval by the interval duration. The sum of these is then divided by the total simulation time to find the average system occupancy.
+
+For a clear visual explanation of how these calculations work, refer to the [Time-weighted averages](#time-weighted-averages) section below.
 
 ```{r}
 #' Calculate the time-weighted mean number of patients in the system.
@@ -3576,6 +3605,8 @@ In `result["patient"]` we can see one person had NaN for `time_with_doctor`. Cor
 {{< include outputs_resources/run.py >}}
 ```
 
+*The count is returned as `np.int64()` because NumPy's `.isna().sum()` functions return a NumPy int type instead of a built-in Python `int`. You can just treat it like a regular `int`, or convert it with `int()` if you want it to print without `np.int64()`.*
+
 :::
 
 ### Backlogged patient mean wait time
@@ -3585,6 +3616,8 @@ In `result["patient"]` we can see one person had NaN for `time_with_doctor`. Cor
 #### Patient class
 
 As done in mean time in consultation and unseen patient count, we add a new attribute `time_with_doctor`.
+
+As it is an attribute, we have to give `time_with_doctor` an initial value. A value like 0 would wrongly look like "patient spent 0 minutes with the doctor", so `np.nan` is used instead to clearly mean "we don't yet know how long this patient will spend with the doctor".
 
 ```{python}
 class Patient:
@@ -3849,6 +3882,8 @@ class Runner:
 ```{python}
 {{< include outputs_resources/run.py >}}
 ```
+
+*The unseen mean wait time is returned as `np.float64()` because NumPy's `mean()` function returns a NumPy float type instead of a built-in Python `float`. You can just treat it like a regular `float`, or convert it with `float()` if you want it to print without `np.float64()`.*
 
 :::
 

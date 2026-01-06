@@ -36,7 +36,7 @@ This page continues on from: [Entity processing](../model/process.qmd).
 
 **Required packages:**
 
-These should be available from environment setup in the "Test yourself" section of [Environments](../setup/environment.qmd). 
+These should be available from environment setup on the [Structuring as a package](/pages/guide/setup/package.qmd) page.
 
 ::: {.python-content}
 
@@ -372,7 +372,7 @@ The `log()` method is used to record messages as the simulation runs. If `verbos
 
 ### Model class
 
-In `Model`, a new attribute `logger` stores as instance of `SimLogger`.
+In `Model`, a new attribute `logger` stores an instance of the `SimLogger` class.
 
 Where previously we had statements "if verbose print...", these are replaced with `self.logger.log()`. As such, you will need to **remove** the following sections:
 
@@ -396,7 +396,9 @@ if self.param.verbose:
             f"leaves at: {self.env.now:.3f}")
 ```
 
-These are then replaced as below:
+These are then replaced as below.
+
+*Bold lines show where the code has changed since the previous version. The highlight may correspond to a change anywhere on that line, not necessarily to the entire line.*
 
 ```{python}
 class Model:
@@ -581,7 +583,9 @@ create_params <- function(
 
 ### Model function
 
-The required changes are explained line-by-line below:
+The required changes are explained line-by-line below.
+
+*Bold lines show where the code has changed since the previous version. The highlight may correspond to a change anywhere on that line, not necessarily to the entire line.*
 
 ```{r}
 #' Run simulation.
@@ -931,6 +935,10 @@ class Model:
             # Sample consultation duration and pass time spent with doctor
             time_with_doctor = self.consult_dist.sample()
             yield self.env.timeout(time_with_doctor)
+
+            # Log end time
+            self.logger.log(msg=f"Patient {patient.patient_id} leaves.",
+                            sim_time=self.env.now)
 
     def run(self):
         """

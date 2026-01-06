@@ -35,7 +35,7 @@ This page continues on from: [Replications](replications.qmd).
 
 **Required packages:**
 
-These should be available from environment setup in the "Test yourself" section of [Environments](../setup/environment.qmd). 
+These should be available from environment setup on the [Structuring as a package](/pages/guide/setup/package.qmd) page.
 
 ::: {.python-content}
 
@@ -95,7 +95,15 @@ Normally, when you run a program, it only uses one core, so only one worker is d
 
 :::: {.python-content}
 
-On this page, we are making changes to the simulation code from the [Replications](replications.qmd) page - but the `Parameters` class has been updated based on the determined [length of warm-up](length_warmup.qmd), a data collection period of 2 weeks (20,160 minutes), and the determined [number of replications](n_reps.qmd). <!--TODO: check length of warm-up here in python v.s. R v.s. result from warm-up page-->
+On this page, we are making changes to the simulation code from the [Replications](replications.qmd) page - but the `Parameters` class has been updated based on the determined [length of warm-up](length_warmup.qmd), a data collection period of 2 weeks (20,160 minutes), and the determined [number of replications](n_reps.qmd).
+
+::: {.callout-warning title="Parallel runs from notebooks"}
+
+Joblib's parallel execution only works reliably on Windows and MacOS with code that lives in importable Python modules. If you define your `Parameters`, `Model`, `Runner` (and related functions) inside a notebook cell instead of a `.py `file, parallel runs (`cores > 1`) can fail with errors such as "Could not pickle the task to send it to the workers" or "Can't pickle class sim_tools.distributions.Exponential...". This happens because worker processes cannot re-import notebook-defined classes and functions, even though external packages like sim_tools are installed correctly.
+​
+To avoid this, put your simulation code in a module and import it into the notebook (as explained on the [Structuring as a package](/pages/guide/setup/package.qmd) page). If you prefer to keep everything in the notebook, set `cores = 1` to run sequentially and bypass parallel pickling altogether.
+​
+:::
 
 ### Parameter class
 
@@ -172,6 +180,8 @@ For parallel execution, the code first checks if the requested number of cores i
 ### Parameter function
 
 A new attribute `cores` is used to record the number of CPU cores to use for parallel execution. If set to `-1`, it will use all available cores. If set to `1`, it will run sequentially.
+
+*Bold lines show where the code has changed since the previous version. The highlight may correspond to a change anywhere on that line, not necessarily to the entire line.*
 
 ```{r}
 #' Generate parameter list.
