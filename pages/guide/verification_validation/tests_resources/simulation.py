@@ -459,6 +459,7 @@ def summary_stats(data):
                 df=count-1,
                 loc=mean,
                 scale=st.sem(data))
+
     return mean, std_dev, ci_lower, ci_upper
 
 
