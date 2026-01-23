@@ -28,7 +28,12 @@ RUN set -eux; \
         libcurl4-openssl-dev \
         libssl-dev \
         libfontconfig1-dev \
-        libfreetype6-dev && \
+        libfreetype6-dev \
+        libharfbuzz-dev \
+        libfribidi-dev \
+        libpng-dev \
+        libtiff5-dev \
+        libjpeg-dev && \
     locale-gen en_GB.UTF-8 && \
     rm -rf /var/lib/apt/lists/*
 
