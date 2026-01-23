@@ -26,41 +26,22 @@ quarto render
 
 ### Common `reticulate` error and solution
 
-When rendering a Quarto document containing executable python code with `reticulate`, you might encounter:
+When rendering a Quarto document containing executable Python code with `reticulate`, configuration errors can occur if R is not using the same Python as your conda/mamba environment.
 
-```
-Error in `use_condaenv()`:
-! Unable to locate conda environment 'des-rap-book'.
-Backtrace:
-    ▆
- 1. └─reticulate::use_condaenv("des-rap-book", required = TRUE)
-```
+Whilst you can use `reticulate::use_condaenv()` on each page, this caused errors for our GitHub action - and anyway, a more robust approach is to configure which Python interpreter reticulate should use.
 
-This can occur when multiple Conda or Mamba installations exist (e.g. `mambgaforge`, `miniconda3`), or if R is using a different search path than the shell. By default, `reticulate` only looks in one location for environments, which can cause problems when environments are not where `reticulate` expects.
-
-To fix this, **set the `RETICULATE_CONDA` environment variable** to the correct Conda or Mamba executable. To find the path to your executable, run:
+1. Identify the Python binary for your environment:
 
 ```
 conda env list
 ```
 
-Look for your environment in the list. For example, if your environment is at `/home/amy/mambaforge/envs/des-rap-book`, then your Conda executable is likely at `/home/amy/mambaforge/bin/conda`.
+For example, if you environment is at `/home/amy/mambaforge/envs/des-rap-book`, the Python binary will typically be `/home/amy/mambaforge/envs/des-rap-book/bin/python`.
 
-Set the environment variable like so:
-
-```
-export RETICULATE_CONDA=/home/amy/mambaforge/bin/conda
-```
-
-Now render your book:
+2. Create a `.Renviron` file. This is not tracked by Git and is user-specific. In it, specify your Python binary and conda/mamba executable. For example:
 
 ```
-quarto render
-```
-
-To avoid needing to set `RETICULATE_CONDA` every time you open a new terminal, add the export command to an `.Renviron` file in your project directory. This file is not tracked by Git, and is specific to you. Create the file and add:
-
-```
+RETICULATE_PYTHON=/home/amy/mambaforge/envs/des-rap-book/bin/python
 RETICULATE_CONDA=/home/amy/mambaforge/bin/conda
 ```
 
