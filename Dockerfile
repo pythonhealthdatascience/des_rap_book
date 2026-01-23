@@ -39,6 +39,7 @@ RUN wget -qO- https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc |
     gpg --dearmor -o /usr/share/keyrings/r-project.gpg && \
     echo "deb [signed-by=/usr/share/keyrings/r-project.gpg] https://cloud.r-project.org/bin/linux/ubuntu noble-cran40/" \
         > /etc/apt/sources.list.d/r-project.list && \
+    apt-get update && \
     apt-get install -y --no-install-recommends r-base r-base-dev && \
     rm -rf /var/lib/apt/lists/*
 
@@ -46,6 +47,7 @@ RUN wget -qO- https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc |
 # STAGE 3: Install Quarto
 # ============================================================
 RUN wget -qO /tmp/quarto.deb https://quarto.org/download/latest/quarto-linux-amd64.deb && \
+    apt-get update && \
     apt-get install -y /tmp/quarto.deb && \
     rm /tmp/quarto.deb && \
     rm -rf /var/lib/apt/lists/*
