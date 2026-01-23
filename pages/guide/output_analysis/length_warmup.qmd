@@ -6,8 +6,6 @@ bibliography: length_warmup_resources/references.bib
 date: "2025-11-05T11:21:31+00:00"
 ---
 
-{{< include /scripts/_reticulate-setup.md >}}
-
 ```{python}
 #| echo: false
 # pylint: disable=undefined-variable,unused-import
@@ -665,27 +663,35 @@ We have a new `time_series_inspection` function for this analysis, which is expl
 #' Find the cumulative mean results and plot over time (overall and per run).
 #'
 #' @param result Named list with `arrivals` containing output from
-#' `get_mon_arrivals()` and `resources` containing output from
-#' `get_mon_resources()` (`per_resource = TRUE` and `ongoing = TRUE`).
+#' `get_mon_arrivals()`, `resources` containing output from
+#' `get_mon_resources()` (`per_resource = TRUE` and `ongoing = TRUE`), and
+#' `patients_in_system` containing counts of patients in system over time.
 #' @param simulation_end_time Time at end of simulation run.
 #' @param file_path Path to save figure to.
+#' @param interval Time interval in minutes for calculating cumulative means.
 #' @param warm_up Location on X axis to plot vertical red line indicating the
 #' chosen warm-up period. Defaults to NULL, which will not plot a line.
 #'
-#' @importFrom dplyr rename
-#' @importFrom ggplot2 ggplot geom_line aes_string labs theme_minimal
-#' @importFrom ggplot2 geom_vline annotate ggsave
+#' @importFrom dplyr arrange group_by mutate rename select ungroup
+#' @importFrom ggplot2 aes_string annotate geom_line geom_vline ggsave labs
+#' @importFrom ggplot2 theme_minimal ggplot
 #' @importFrom gridExtra marrangeGrob
 #' @importFrom rlang .data
+#' @importFrom tidyselect all_of
 #'
 #' @export
 
 time_series_inspection <- function(
-  result, simulation_end_time, file_path, warm_up = NULL
+  result, simulation_end_time, file_path, interval = 120L, warm_up = NULL
 ) {
 
   # Set up lists
   plot_list <- list()
+
+  # Collect dataframes with metrics at each timepoint (relabelled "time" for
+  # all). If you have multiple resources, would need to run time series
+  # inspection on each resource. As this is not the case here, have just
+  # selected replication, time and the metric.
   metrics <- list()
 
   # Wait time of each patient at each timepoint
@@ -714,34 +720,57 @@ time_series_inspection <- function(
   metrics[[5L]] <- rename(result[["patients_in_system"]],
                           patients_in_system = .data[["count"]])
 
+  # Create sequence of time intervals
+  time_breaks <- seq(0L, simulation_end_time + interval, by = interval)
+
   # Loop through all the dataframes in df_list
   for (i in seq_along(metrics)) {
 
     # Get name of the metric
     metric <- setdiff(names(metrics[[i]]), c("time", "replication"))
 
-    # Calculate cumulative mean for the current metric
-    cumulative <- metrics[[i]] |>
+    # Aggregate data to time intervals (calculate mean within each interval)
+    aggregated <- metrics[[i]] |>
+      mutate(time_bin = as.numeric(as.character(
+        cut(time, breaks = time_breaks, labels = time_breaks[-1L])
+      ))) |>
+      group_by(.data[["replication"]], .data[["time_bin"]]) |>
+      summarise(metric_mean = mean(.data[[metric]])) |>
+      ungroup() |>
+      rename(time = .data[["time_bin"]])
+
+    # Calculate cumulative mean for the current metric per replication
+    cumulative <- aggregated |>
       arrange(.data[["replication"]], .data[["time"]]) |>
       group_by(.data[["replication"]]) |>
-      mutate(cumulative_mean = cumsum(.data[[metric]]) /
-               seq_along(.data[[metric]])) |>
+      mutate(cumulative_mean = (cumsum(.data[["metric_mean"]]) /
+                                  seq_along(.data[["metric_mean"]]))) |>
       ungroup()
 
     # Repeat calculation, but including all replications in one
-    overall_cumulative <- metrics[[i]] |>
+    overall_aggregated <- metrics[[i]] |>
+      mutate(time_bin = as.numeric(as.character(
+        cut(time, breaks = time_breaks, labels = time_breaks[-1L])
+      ))) |>
+      group_by(.data[["time_bin"]]) |>
+      summarise(metric_mean = mean(.data[[metric]])) |>
+      ungroup() |>
+      rename(time = .data[["time_bin"]])
+
+    overall_cumulative <- overall_aggregated |>
       arrange(.data[["time"]]) |>
-      mutate(cumulative_mean = cumsum(.data[[metric]]) /
-               seq_along(.data[[metric]])) |>
+      mutate(cumulative_mean = cumsum(.data[["metric_mean"]]) /
+               seq_along(.data[["metric_mean"]])) |>
       ungroup()
 
     # Create plot
     p <- ggplot() +
       geom_line(data = cumulative,
-                aes(x = time, y = cumulative_mean, group = replication), # nolint
+                aes_string(x = "time", y = "cumulative_mean",
+                           group = "replication"),
                 color = "lightblue", alpha = 0.8) +
       geom_line(data = overall_cumulative,
-                aes(x = time, y = cumulative_mean),
+                aes_string(x = "time", y = "cumulative_mean"),
                 color = "darkblue") +
       labs(x = "Run time (minutes)", y = paste("Cumulative mean", metric)) +
       theme_minimal()
@@ -758,9 +787,11 @@ time_series_inspection <- function(
     plot_list[[i]] <- p
   }
 
-  # Arrange plots in a single column and save to file
+  # Arrange plots in a single column
   combined_plot <- marrangeGrob(plot_list, ncol = 1L, nrow = length(plot_list),
                                 top = NULL)
+
+  # Save to file
   ggsave(file_path, combined_plot, width = 8L, height = 4L * length(plot_list))
 
   # Return plot list
@@ -776,31 +807,35 @@ time_series_inspection <- function(
 #' Find the cumulative mean results and plot over time (overall and per run).
 #'
 #' @param result Named list with `arrivals` containing output from
-#' `get_mon_arrivals()` and `resources` containing output from
-#' `get_mon_resources()` (`per_resource = TRUE` and `ongoing = TRUE`).
+#' `get_mon_arrivals()`, `resources` containing output from
+#' `get_mon_resources()` (`per_resource = TRUE` and `ongoing = TRUE`), and
+#' `patients_in_system` containing counts of patients in system over time.
 #' @param simulation_end_time Time at end of simulation run.
 #' @param file_path Path to save figure to.
+#' @param interval Time interval in minutes for calculating cumulative means.
 #' @param warm_up Location on X axis to plot vertical red line indicating the
 #' chosen warm-up period. Defaults to NULL, which will not plot a line.
 #'
-#' @importFrom dplyr rename
-#' @importFrom ggplot2 ggplot geom_line aes_string labs theme_minimal
-#' @importFrom ggplot2 geom_vline annotate ggsave
+#' @importFrom dplyr arrange group_by mutate rename select ungroup
+#' @importFrom ggplot2 aes_string annotate geom_line geom_vline ggsave labs
+#' @importFrom ggplot2 theme_minimal ggplot
 #' @importFrom gridExtra marrangeGrob
 #' @importFrom rlang .data
+#' @importFrom tidyselect all_of
 #'
 #' @export
 
 time_series_inspection <- function(
-  result, simulation_end_time, file_path, warm_up = NULL
+  result, simulation_end_time, file_path, interval = 120L, warm_up = NULL
 ) {
 ```
 
-The function has four inputs:
+The function has five inputs:
 
 * **result** - the output from `runner()`.
 * **simulation_end_time** - the time at the end of the simulation run.
 * **file_path** - a path to save the figure to.
+* **interval** - the length of time intervals (i.e. how frequently to aggregate and calculate cumulative means).
 * **warm_up** - chosen warm-up period - initially run set to `NULL`, then can amend with decision of warm-up length so this is add to the plot.
 
 <br>
@@ -808,29 +843,34 @@ The function has four inputs:
 ```{.r}
   # Set up lists
   plot_list <- list()
+
+  # Collect dataframes with metrics at each timepoint (relabelled "time" for
+  # all). If you have multiple resources, would need to run time series
+  # inspection on each resource. As this is not the case here, have just
+  # selected replication, time and the metric.
   metrics <- list()
 
   # Wait time of each patient at each timepoint
   metrics[[1L]] <- result[["arrivals"]] |>
     rename(time = .data[["serve_start"]]) |>
-    select(all_of(c("replication", "time", "wait_time")))
+    dplyr::select(all_of(c("replication", "time", "wait_time")))
 
   # Utilisation at each timepoint
   metrics[[2L]] <- calc_utilisation(result[["resources"]],
-                                    simulation_end_time = simulation-end_time,
+                                    simulation_end_time = simulation_end_time,
                                     groups = c("resource", "replication"),
                                     summarise = FALSE) |>
-    select(all_of(c("replication", "time", "utilisation")))
+    dplyr::select(all_of(c("replication", "time", "utilisation")))
 
   # Queue length at each timepoint
   metrics[[3L]] <- result[["arrivals"]] |>
     rename(time = .data[["start_time"]]) |>
-    select(all_of(c("replication", "time", "queue_on_arrival")))
+    dplyr::select(all_of(c("replication", "time", "queue_on_arrival")))
 
   # Time in system at each timepoint
   metrics[[4L]] <- result[["arrivals"]] |>
     rename(time = .data[["start_time"]]) |>
-    select(all_of(c("replication", "time", "time_in_system")))
+    dplyr::select(all_of(c("replication", "time", "time_in_system")))
 
   # Patients in system at each timepoint
   metrics[[5L]] <- rename(result[["patients_in_system"]],
@@ -846,32 +886,54 @@ Utilisation is slightly different, as we need to remake the dataframe of utilisa
 <br>
 
 ```{.r}
+  # Create sequence of time intervals
+  time_breaks <- seq(0L, simulation_end_time + interval, by = interval)
+
   # Loop through all the dataframes in df_list
   for (i in seq_along(metrics)) {
 
     # Get name of the metric
     metric <- setdiff(names(metrics[[i]]), c("time", "replication"))
 
-    # Calculate cumulative mean for the current metric
-    cumulative <- metrics[[i]] |>
+    # Aggregate data to time intervals (calculate mean within each interval)
+    aggregated <- metrics[[i]] |>
+      mutate(time_bin = as.numeric(as.character(
+        cut(time, breaks = time_breaks, labels = time_breaks[-1L])
+      ))) |>
+      group_by(.data[["replication"]], .data[["time_bin"]]) |>
+      summarise(metric_mean = mean(.data[[metric]])) |>
+      ungroup() |>
+      rename(time = .data[["time_bin"]])
+
+    # Calculate cumulative mean for the current metric per replication
+    cumulative <- aggregated |>
       arrange(.data[["replication"]], .data[["time"]]) |>
       group_by(.data[["replication"]]) |>
-      mutate(cumulative_mean = cumsum(.data[[metric]]) /
-                seq_along(.data[[metric]])) |>
+      mutate(cumulative_mean = (cumsum(.data[["metric_mean"]]) /
+                                  seq_along(.data[["metric_mean"]]))) |>
       ungroup()
 
     # Repeat calculation, but including all replications in one
-    overall_cumulative <- metrics[[i]] |>
+    overall_aggregated <- metrics[[i]] |>
+      mutate(time_bin = as.numeric(as.character(
+        cut(time, breaks = time_breaks, labels = time_breaks[-1L])
+      ))) |>
+      group_by(.data[["time_bin"]]) |>
+      summarise(metric_mean = mean(.data[[metric]])) |>
+      ungroup() |>
+      rename(time = .data[["time_bin"]])
+
+    overall_cumulative <- overall_aggregated |>
       arrange(.data[["time"]]) |>
-      mutate(cumulative_mean = cumsum(.data[[metric]]) /
-                seq_along(.data[[metric]])) |>
+      mutate(cumulative_mean = cumsum(.data[["metric_mean"]]) /
+               seq_along(.data[["metric_mean"]])) |>
       ungroup()
 ```
 
-Next, the functions loops over the metrics (currently just one) and calculates:
+Next, the functions loops over all metrics in the `metrics` list. It aggregates values into fixed-width time intervals then calculates:
 
-* **Cumulative mean per replication**
-* **Overall cumulative mean**
+* **Cumulative mean per replication**, based on the sequence of interval means within each replication.
+* **Overall cumulative mean**, based on interval means pooled across all replications.
 
 <br>
 
@@ -879,10 +941,11 @@ Next, the functions loops over the metrics (currently just one) and calculates:
     # Create plot
     p <- ggplot() +
       geom_line(data = cumulative,
-                aes(x = time, y = cumulative_mean, group = replication), # nolint
+                aes_string(x = "time", y = "cumulative_mean",
+                           group = "replication"),
                 color = "lightblue", alpha = 0.8) +
       geom_line(data = overall_cumulative,
-                aes(x = time, y = cumulative_mean),
+                aes_string(x = "time", y = "cumulative_mean"),
                 color = "darkblue") +
       labs(x = "Run time (minutes)", y = paste("Cumulative mean", metric)) +
       theme_minimal()
@@ -892,8 +955,8 @@ Next, the functions loops over the metrics (currently just one) and calculates:
       p <- p +
         geom_vline(xintercept = warm_up, linetype = "dashed", color = "red") +
         annotate("text", x = warm_up, y = Inf,
-                  label = "Suggested warm-up length",
-                  color = "red", hjust = -0.1, vjust = 1L)
+                 label = "Suggested warm-up length",
+                 color = "red", hjust = -0.1, vjust = 1L)
     }
     # Store the plot
     plot_list[[i]] <- p
@@ -905,9 +968,11 @@ This section creates the plot, which overlays the cumulative mean lines per repl
 <br>
 
 ```{.r}
-  # Arrange plots in a single column and save to file
+  # Arrange plots in a single column
   combined_plot <- marrangeGrob(plot_list, ncol = 1L, nrow = length(plot_list),
                                 top = NULL)
+
+  # Save to file
   ggsave(file_path, combined_plot, width = 8L, height = 4L * length(plot_list))
 
   # Return plot list
@@ -921,7 +986,7 @@ The plots are then arranged vertically in a single figure using `marrangeGrob()`
 
 If you've already built warm-up logic into your model (as we have done), make sure the **warm-up period is set to 0** for this assessment (`warm_up_period = 0`).
 
-As mentioned above, we have used multiple replications and a long run length. This run length is based on the assumption that our desired simulation run length is 1 day (1440 minutes).
+As mentioned above, we have used multiple replications and a long run length. This run length is based on the assumption that our desired simulation run length is 10 days (14400 minutes).
 
 > So far, the model we have been constructing in this book has intentionally had a short duration. This is handy when developing - for example, for looking over the log messages. However, this is unrealistic of an actual simulation of a healthcare system, and will produce great variability (requiring very long warm-up / large number of replications for stable results). From this point onwards, we increase the run time as mentioned.
 
@@ -937,6 +1002,7 @@ results <- runner(param = param)
 plots <- time_series_inspection(
   result = results,
   simulation_end_time = param[["data_collection_period"]],
+  interval = 10L,
   file_path = file.path("length_warmup_resources", "r_length_warmup.png"),
   warm_up = 6400L
 )
@@ -982,7 +1048,7 @@ The selection of a warm-up period is **subjective**. The dotted red line shows o
 
 ::: {.callout-note}
 
-In this example, we assumed a total run length of one day (1440 minutes) to illustrate how to determine an appropriate warm-up period. However, for the remainder of this book, we will return to using shorter parameters (i.e., 30 minute warm-up, 40 minute data collection period, 5 replications) to keep examples simple, quick to run, and easy to follow.
+In this example, we assumed a total run length of 10 days (14400 minutes) to illustrate how to determine an appropriate warm-up period. However, for the remainder of this book, we will return to using shorter parameters (i.e., 30 minute warm-up, 40 minute data collection period, 5 replications) to keep examples simple, quick to run, and easy to follow.
 
 :::
 
@@ -1000,7 +1066,7 @@ In this example, we assumed a total run length of one day (1440 minutes) to illu
 | | |
 | - | - |
 | **Key files** | `simulation/param.py`<br>`simulation/model.py`<br>`simulation/runner.py`<br>`notebooks/choosing_warmup.ipynb` |
-| **What to look for?** | This model also uses an audit approach, but this is currently a method within Model itself, and only runs on a few performance measures (but this will be updated, as above, to use `WarmupAuditor`). |
+| **What to look for?** | Uses `WarmupAuditor` as above. |
 : {tbl-colwidths="[20,80]"}
 :::
 
@@ -1014,7 +1080,7 @@ In this example, we assumed a total run length of one day (1440 minutes) to illu
 | | |
 | - | - |
 | **Key files** | `rmarkdown/choosing_warmup.md`<br>`R/choose_warmup.R`<br>`R/get_run_results.R` |
-| **What to look for?** | Uses time series inspection approach as above, but currently just uses a few performance measures (but this will be updated to include more). |
+| **What to look for?** | Uses time series inspection approach as above. |
 : {tbl-colwidths="[20,80]"}
 :::
 
