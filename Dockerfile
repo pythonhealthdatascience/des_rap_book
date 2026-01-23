@@ -1,26 +1,42 @@
-# Start from a base R image
-FROM rocker/r-ver:4.4.1
+FROM ubuntu:24.04
 
-# Install system dependencies for R and Python packages
-RUN apt-get update && \
+ENV DEBIAN_FRONTEND=noninteractive
+
+# ============================================================
+# STAGE 1: Install ALL system dependencies FIRST
+# ============================================================
+# This must happen before Conda to ensure R compiles against
+# system libraries, not conda libraries
+RUN set -eux; \
+    # retry apt-get update a few times in case mirrors are mid-sync
+    for i in 1 2 3; do \
+      apt-get update && break; \
+      echo "apt-get update failed, retrying ($i/3)..."; \
+      sleep 5; \
+    done; \
     apt-get install -y --no-install-recommends \
+        # Basic utilities
+        wget ca-certificates gnupg software-properties-common \
+        dirmngr locales git \
+        # R compilation dependencies
+        build-essential gfortran \
+        libxml2-dev \
+        libglpk-dev \
+        libgmp-dev \
+        libblas-dev \
+        liblapack-dev \
+        libcurl4-openssl-dev \
+        libssl-dev \
+        libfontconfig1-dev \
+        libfreetype6-dev \
         libharfbuzz-dev \
         libfribidi-dev \
-        libfontconfig1-dev \
-        wget \
-        curl \
-        git \
         libpng-dev \
-        libxml2-dev \
-        libssl-dev \
-        libcurl4-openssl-dev \
-        python3-pip \
-        python3-venv \
-        build-essential \
-        pandoc \
-        # Required for chrome
+        libtiff5-dev \
+        libjpeg-dev \
+        # Chrome dependencies (for Kaleido/plotly)
         fonts-liberation \
-        libasound2 \
+        libasound2t64 \
         libatk-bridge2.0-0 \
         libatk1.0-0 \
         libatspi2.0-0 \
@@ -35,47 +51,87 @@ RUN apt-get update && \
         libxdamage1 \
         libxkbcommon0 \
         libxrandr2 \
-        xdg-utils \
-    && rm -rf /var/lib/apt/lists/*
+        xdg-utils && \
+    locale-gen en_GB.UTF-8 && \
+    rm -rf /var/lib/apt/lists/*
 
-# Install chrome (required by kaleido, which is used for plotly write_image)
+# Set locale environment variables for Python and other tools
+ENV LANG=en_GB.UTF-8
+ENV LC_ALL=en_GB.UTF-8
+ENV PYTHONIOENCODING=utf-8
+
+# ============================================================
+# STAGE 2: Install R from CRAN
+# ============================================================
+RUN wget -qO- https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc | \
+    gpg --dearmor -o /usr/share/keyrings/r-project.gpg && \
+    echo "deb [signed-by=/usr/share/keyrings/r-project.gpg] https://cloud.r-project.org/bin/linux/ubuntu noble-cran40/" \
+        > /etc/apt/sources.list.d/r-project.list && \
+    apt-get update && \
+    apt-get install -y --no-install-recommends r-base r-base-dev && \
+    rm -rf /var/lib/apt/lists/*
+
+# ============================================================
+# STAGE 3: Install Quarto
+# ============================================================
+RUN wget -qO /tmp/quarto.deb https://quarto.org/download/latest/quarto-linux-amd64.deb && \
+    apt-get update && \
+    apt-get install -y /tmp/quarto.deb && \
+    rm /tmp/quarto.deb && \
+    rm -rf /var/lib/apt/lists/*
+
+# ============================================================
+# STAGE 4: Install Google Chrome (required by Kaleido for plotly)
+# ============================================================
 RUN wget -O /tmp/chrome.deb https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb && \
-    apt-get install -y --no-install-recommends /tmp/chrome.deb && \
-    rm /tmp/chrome.deb
+apt-get update && \
+apt-get install -y --no-install-recommends /tmp/chrome.deb && \
+rm /tmp/chrome.deb && \
+rm -rf /var/lib/apt/lists/*
 
-# Install Quarto CLI
-RUN wget -qO- https://quarto.org/download/latest/quarto-linux-amd64.deb > /tmp/quarto.deb && \
-    dpkg -i /tmp/quarto.deb && \
-    rm /tmp/quarto.deb
-
-# Install Miniconda (for Python/Conda envs)
+# ============================================================
+# STAGE 5: Install Miniconda (use explicit paths, not PATH)
+# ============================================================
 ENV CONDA_DIR=/opt/conda
-RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O /tmp/miniconda.sh && \
-    bash /tmp/miniconda.sh -b -p $CONDA_DIR && \
+RUN wget -qO /tmp/miniconda.sh https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh && \
+    bash /tmp/miniconda.sh -b -p "$CONDA_DIR" && \
     rm /tmp/miniconda.sh
-ENV PATH=$CONDA_DIR/bin:$PATH
 
-# Copy environment files and source code
+RUN $CONDA_DIR/bin/conda config --system --set always_yes yes && \
+    $CONDA_DIR/bin/conda config --system --set changeps1 no
+
+# ============================================================
+# STAGE 6: Set up project and create conda environment
+# ============================================================
 WORKDIR /workspace
 COPY . /workspace
+RUN rm -f /workspace/.Renviron
 
-# Accept Anaconda ToS for required channels in non-interactive builds
-RUN conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/main && \
-    conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/r
+# Accept Anaconda ToS for required channels (non-interactive)
+RUN $CONDA_DIR/bin/conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/main && \
+    $CONDA_DIR/bin/conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/r
 
-# Create the conda environment
-RUN conda env create -f environment.yaml
+# Create conda environment using explicit path (NOT in PATH yet)
+RUN $CONDA_DIR/bin/conda env create -f environment.yaml
 
-# Activate the conda environment and set as the Python path
-RUN echo "conda activate des-rap-book" >> ~/.bashrc
-ENV PATH=/opt/conda/envs/des-rap-book/bin:$PATH
+# ============================================================
+# STAGE 7: Install R packages WITHOUT conda in PATH
+# ============================================================
+# CRITICAL: R package compilation must happen with system
+# libraries, NOT conda libraries in PATH
+ENV RENV_PATHS_LIBRARY=/workspace/renv/library
 
-# Install renv and restore R packages
-RUN Rscript -e "install.packages('renv', repos='https://cloud.r-project.org')" \
-    && Rscript -e "renv::restore()"
+RUN Rscript -e "install.packages('renv', repos = 'https://cloud.r-project.org')" && \
+    Rscript -e "renv::restore()"
 
-# Set conda environment as default for reticulate
+# ============================================================
+# STAGE 8: Activate conda environment for RUNTIME only
+# ============================================================
+# Now that R packages are installed, it's safe to add conda to PATH
+ENV CONDA_DEFAULT_ENV=des-rap-book
+ENV PATH="/opt/conda/envs/des-rap-book/bin:${PATH}"
 ENV RETICULATE_PYTHON=/opt/conda/envs/des-rap-book/bin/python
 
-# Default command: render the book
-CMD ["/bin/bash", "-c", "source activate des-rap-book && quarto render"]
+RUN echo "conda activate des-rap-book" >> /root/.bashrc
+
+CMD ["/bin/bash"]
