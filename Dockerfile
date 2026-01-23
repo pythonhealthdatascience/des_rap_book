@@ -55,6 +55,11 @@ RUN set -eux; \
     locale-gen en_GB.UTF-8 && \
     rm -rf /var/lib/apt/lists/*
 
+# Set locale environment variables for Python and other tools
+ENV LANG=en_GB.UTF-8
+ENV LC_ALL=en_GB.UTF-8
+ENV PYTHONIOENCODING=utf-8
+
 # ============================================================
 # STAGE 2: Install R from CRAN
 # ============================================================
