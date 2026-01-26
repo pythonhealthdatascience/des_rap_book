@@ -552,9 +552,22 @@ The benefit of using a `DESCRIPTION` file when adding packages is:
 
 #### 1. Create a `DESCRIPTION` file
 
-Create a blank file named `DESCRIPTION` and copy in the template below. You can customise some of the meta-data (e.g. package, title, authors, description).
+Before creating the file, you may want to install `usethis`, which provides helper functions for working with `DESCRIPTION`:
 
-This is a standard template. You can create an identical file with `usethis` by running `usethis::use_description()`. However, we can just create it from scratch, which helps to minimise our dependencies.
+```{.r}
+install.packages("usethis")
+```
+
+You can then either:
+
+* Create `DESCRIPTION` manually (using the template below), or
+* Let `usethis` write the standard template for you with:
+
+```{.r}
+usethis::use_description()
+```
+
+This will create a `DESCRIPTION` file in the current project. If you prefer to create it by hand, create a blank file named `DESCRIPTION` and copy in the template below:
 
 ```{.r}
 Package: packagename
@@ -572,7 +585,7 @@ RoxygenNote: 7.0.0
 
 #### 2. List dependencies
 
-Dependencies can be listed as:
+After you have a `DESCRIPTION` file, you need to list your dependencies under
 
 * `Imports` (required packages).
 * `Suggests` (optional/development packages).
@@ -580,6 +593,13 @@ Dependencies can be listed as:
 For non-package projects, it's simplest to list all dependencies under `Imports`, which will be identified by `renv` (whilst those under `Suggests` may not unless used in scripts).
 
 `Suggests` is more relevant when constructing a package, as it distinguishes packages necessary only for optional features, vignettes or testing, from those required within the package itself.
+
+You can edit the `Imports` section manually or use `usethis::use_package()` - for example:
+
+```{.r}
+usethis::use_package("dplyr", type = "Imports")
+usethis::use_package("future", type = "Imports")
+```
 
 **Note:** In the [R Packages](https://r-pkgs.org/description.html) book, they recommend that - in `DESCRIPTION` - no versions are specified, or a minimum version is specified if you know that an older version of specific package/s would break the code. This is why it is important to also create an `renv.lock` file (as below), so you do have a record of the exact versions used.
 
