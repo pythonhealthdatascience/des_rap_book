@@ -352,7 +352,6 @@ estimate_wait_time <- function(queue_length, avg_service_time) {
 #' Represents a patient in a healthcare facility.
 #'
 #' @docType class
-#' @importFrom R6 R6Class
 #' @export
 
 Patient <- R6Class("Patient", list(  # nolint: object_name_linter
@@ -391,6 +390,51 @@ Patient <- R6Class("Patient", list(  # nolint: object_name_linter
     self$status <- "discharged"
   }
 ))
+```
+
+### Imports
+
+If you want to use functions from external package, you should declare them using `@importFrom` tags. We cover the three ways you can use these tags on the [packages](/pages/guide/setup/package.qmd) page. If you are structuring your research as a package, we recommend putting these in a single package-level documentation file, created with:
+
+```{.r}
+usethis::use_package_doc()
+```
+
+This adds a template `.R` file:
+
+```{.r}
+#' @keywords internal
+"_PACKAGE"
+
+## usethis namespace: start
+## usethis namespace: end
+
+NULL
+```
+
+You should then add roxygen `@importFrom` tags between the `usethis namespace` markers. For example, if you use `dplyr::select()`:
+
+```{.r}
+#' @keywords internal
+"_PACKAGE"
+
+## usethis namespace: start
+#' @importFrom dplyr select
+## usethis namespace: end
+
+NULL
+```
+
+After you edit this file, run:
+
+```{.r}
+devtools::document()
+```
+
+This will update `NAMESPACE` with the required imports. Alternatively, you can ask `usethis` to add the tag for you and update `NAMESPACE`:
+
+```{.r}
+usethis::use_import_from("dplyr", "select")
 ```
 
 :::
