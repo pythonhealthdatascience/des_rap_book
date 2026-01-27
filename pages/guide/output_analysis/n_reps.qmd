@@ -66,6 +66,7 @@ pio.renderers.default = "plotly_mimetype"
 library(dplyr)
 library(kableExtra)
 library(knitr)
+library(R6)
 library(simmer)
 library(tidyr)
 ```
@@ -761,291 +762,201 @@ p.update_layout(autosize=True, width=None, height=390)
 
 As an alternative to manually determining the number of runs required, we can use a more automated method, creating an algorithm which recommends the required number of runs. 
 
-For this analysis, we have created three functions: `create_welford_stats`, `create_replication_tabuliser`, and `create_replications_algorithm`.
+For this analysis, we have created three R6 classes: `WelfordStats`, `ReplicationTabuliser`, and `ReplicationsAlgorithm`.
 
-::: {.callout-note collapse="true" title="View functions"}
+::: {.callout-note collapse="true" title="View classes"}
 
 ```{r}
-# nolint start: cyclocomp_linter
-
-#' Create a Welford Statistics Tracker
+#' Computes running sample mean and variance using Welford's algorithm.
 #'
 #' @description
-#' Computes running sample mean and variance using Welford's algorithm.
 #' They are computed via updates to a stored value, rather than storing lots of
 #' data and repeatedly taking the mean after new values have been added.
 #'
 #' Implements Welford's algorithm for updating mean and variance.
 #' See Knuth. D `The Art of Computer Programming` Vol 2. 2nd ed. Page 216.
 #'
-#' This function is based on the Python class `OnlineStatistics` from Tom Monks
+#' This class is based on the Python class `OnlineStatistics` from Tom Monks
 #' (2021) sim-tools: fundamental tools to support the simulation process in
 #' python (https://github.com/sim-tools/sim-tools) (MIT Licence).
 #'
-#' @param data Initial data sample (optional).
-#' @param alpha Significance level for confidence interval calculations.
-#'   For example, if alpha is 0.05, then the confidence level is 95%.
-#' @param observer Observer function to notify on updates (optional).
-#'   If provided, will be called with the state list after each update.
+#' @docType class
+#' @importFrom R6 R6Class
 #'
-#' @return A list of functions with the following methods:
-#'   - `welford_update(x)`: Add a new data point
-#'   - `get_n()`: Get number of observations
-#'   - `get_mean()`: Get running mean
-#'   - `get_latest_data()`: Get most recent data point
-#'   - `get_sum_sq()`: Get sum of squared differences
-#'   - `variance()`: Compute variance
-#'   - `std()`: Compute standard deviation
-#'   - `std_error()`: Compute standard error of the mean
-#'   - `half_width()`: Compute half-width of confidence interval
-#'   - `lci()`: Compute lower confidence interval bound
-#'   - `uci()`: Compute upper confidence interval bound
-#'   - `deviation()`: Compute precision as percentage deviation
-#'
+#' @return Object of `R6Class` with methods for running mean and variance
+#' calculation.
 #' @export
 
-create_welford_stats <- function(data = NULL, alpha = 0.05, observer = NULL) {
+WelfordStats <- R6Class("WelfordStats", list( # nolint: object_name_linter
 
-  # Use an environment to store mutable state
-  # This avoids <<- while allowing proper state mutation
-  state_env <- new.env()
+  #' @field n Number of observations.
+  n = 0L,
 
-  state_env$n <- 0L
-  state_env$latest_data <- NA
-  state_env$mean <- NA
-  state_env$sq <- NA
-  state_env$alpha <- alpha
-  state_env$observer <- observer
+  #' @field latest_data Latest data point.
+  latest_data = NA,
 
-  # Notify observer if present
-  notify_observer <- function() {
-    if (is.null(state_env$observer)) return(invisible(NULL))
-    observer_state <- list(
-      n = state_env$n,
-      latest_data = state_env$latest_data,
-      mean = state_env$mean,
-      sq = state_env$sq
-    )
-    state_env$observer(observer_state)
-    invisible(NULL)
-  }
+  #' @field mean Running mean.
+  mean = NA,
 
-  # Update running statistics with a new data point
-  welford_update <- function(x) {
-    state_env$n <- state_env$n + 1L
-    state_env$latest_data <- x
+  #' @field sq Running sum of squares of differences.
+  sq = NA,
 
-    # Calculate the mean and sq using Welford's algorithm and notify observer
-    if (state_env$n == 1L) {
-      state_env$mean <- x
-      state_env$sq <- 0L
-      notify_observer()
-      return(invisible(NULL))
+  #' @field alpha Significance level for confidence interval calculations.
+  #' For example, if alpha is 0.05, then the confidence level is 95\%.
+  alpha = NA,
+
+  #' @field observer Observer to notify on updates.
+  observer = NULL,
+
+  #' @description Initialise the WelfordStats object.
+  #' @param data Initial data sample.
+  #' @param alpha Significance level for confidence interval calculations.
+  #' @param observer Observer to notify on updates.
+  #' @return A new `WelfordStats` object.
+  initialize = function(data = NULL, alpha = 0.05, observer = NULL) {
+    # Set alpha and observer using the provided values/objects
+    self$alpha <- alpha
+    self$observer <- observer
+    # If an initial data sample is supplied, then run update()
+    if (!is.null(data)) {
+      for (x in as.matrix(data)) {
+        self$update(x)
+      }
     }
+  },
 
-    updated_mean <- state_env$mean + ((x - state_env$mean) / state_env$n)
-    state_env$sq <- state_env$sq + ((x - state_env$mean) * (x - updated_mean))
-    state_env$mean <- updated_mean
+  #' @description Update running statistics with a new data point.
+  #' @param x A new data point.
+  update = function(x) {
+    # Increment counter and save the latest data point
+    self$n <- self$n + 1L
+    self$latest_data <- x
+    # Calculate the mean and sq
+    if (self$n == 1L) {
+      self$mean <- x
+      self$sq <- 0L
+    } else {
+      updated_mean <- self$mean + ((x - self$mean) / self$n)
+      self$sq <- self$sq + ((x - self$mean) * (x - updated_mean))
+      self$mean <- updated_mean
+    }
+    # Update observer if present
+    if (!is.null(self$observer)) {
+      self$observer$update(self)
+    }
+  },
 
-    notify_observer()
-    invisible(NULL)
-  }
+  #' @description Computes the variance of the data points.
+  variance = function() {
+    self$sq / (self$n - 1L)
+  },
 
-  # Compute variance
-  variance <- function() {
-    if (state_env$n < 2L) return(NA_real_)
-    state_env$sq / (state_env$n - 1L)
-  }
+  #' @description Computes the standard deviation.
+  std = function() {
+    if (self$n < 3L) return(NA_real_)
+    sqrt(self$variance())
+  },
 
-  # Compute standard deviation
-  std <- function() {
-    if (state_env$n < 3L) return(NA_real_)
-    sqrt(variance())
-  }
+  #' @description Computes the standard error of the mean.
+  std_error = function() {
+    self$std() / sqrt(self$n)
+  },
 
-  # Compute standard error of the mean
-  std_error <- function() {
-    s <- std()
-    if (is.na(s)) return(NA_real_)
-    s / sqrt(state_env$n)
-  }
+  #' @description Computes the half-width of the confidence interval.
+  half_width = function() {
+    if (self$n < 3L) return(NA_real_)
+    dof <- self$n - 1L
+    t_value <- qt(1L - (self$alpha / 2L), df = dof)
+    t_value * self$std_error()
+  },
 
-  # Compute half-width of confidence interval
-  half_width <- function() {
-    if (state_env$n < 3L) return(NA_real_)
-    dof <- state_env$n - 1L
-    t_value <- qt(1L - (state_env$alpha / 2L), df = dof)
-    t_value * std_error()
-  }
+  #' @description Computes the lower confidence interval bound.
+  lci = function() {
+    self$mean - self$half_width()
+  },
 
-  # Compute lower confidence interval bound
-  lci <- function() {
-    hw <- half_width()
-    if (is.na(hw)) return(NA_real_)
-    state_env$mean - hw
-  }
+  #' @description Computes the upper confidence interval bound.
+  uci = function() {
+    self$mean + self$half_width()
+  },
 
-  # Compute upper confidence interval bound
-  uci <- function() {
-    hw <- half_width()
-    if (is.na(hw)) return(NA_real_)
-    state_env$mean + hw
-  }
-
-  # Compute precision of confidence interval (percentage deviation)
-  deviation <- function() {
-    mw <- state_env$mean
+  #' @description Computes the precision of the confidence interval expressed
+  #' as the percentage deviation of the half width from the mean.
+  deviation = function() {
+    mw <- self$mean
     if (is.na(mw) || mw == 0L) return(NA_real_)
-    hw <- half_width()
-    if (is.na(hw)) return(NA_real_)
-    hw / mw
+    self$half_width() / mw
   }
+))
+```
 
-  # If initial data supplied, process it
-  if (!is.null(data)) {
-    for (x in as.vector(data)) {
-      welford_update(x)
-    }
-  }
-
-  # Return public API
-  list(
-    welford_update = welford_update,
-    get_n = function() state_env$n,
-    get_mean = function() state_env$mean,
-    get_latest_data = function() state_env$latest_data,
-    get_sum_sq = function() state_env$sq,
-    get_alpha = function() state_env$alpha,
-    variance = variance,
-    std = std,
-    std_error = std_error,
-    half_width = half_width,
-    lci = lci,
-    uci = uci,
-    deviation = deviation
-  )
-}
-
-
-#' Create a Replication Tabuliser
+```{r}
+#' Observes and records results from WelfordStats.
 #'
 #' @description
-#' Observes and records results from Welford statistics tracker.
 #' Updates each time new data is processed. Can generate a results dataframe.
 #'
-#' This function is based on the Python class `ReplicationTabulizer` from Tom
+#' This class is based on the Python class `ReplicationTabulizer` from Tom
 #' Monks (2021) sim-tools: fundamental tools to support the simulation process
 #' in python (https://github.com/sim-tools/sim-tools) (MIT Licence).
 #'
-#' @return A list of functions with the following methods:
-#'   - `tab_update(state)`: Record results from Welford tracker state
-#'   - `summary_table()`: Get accumulated results as a dataframe
-#'   - `get_data_points()`: Get raw data points
-#'   - `get_cumulative_means()`: Get running means
-#'   - `get_std_devs()`: Get standard deviations
-#'   - `get_lcis()`: Get lower confidence bounds
-#'   - `get_ucis()`: Get upper confidence bounds
-#'   - `get_deviations()`: Get precision deviations
+#' @docType class
+#' @importFrom R6 R6Class
 #'
+#' @return Object of `R6Class` with methods for storing and tabulising results.
 #' @export
 
-create_replication_tabuliser <- function() {
+ReplicationTabuliser <- R6Class("ReplicationTabuliser", list( # nolint: object_name_linter
 
-  # Use an environment to store mutable state
-  state_env <- new.env()
+  #' @field data_points List containing each data point.
+  data_points = NULL,
 
-  state_env$data_points <- NULL
-  state_env$cumulative_mean <- NULL
-  state_env$std <- NULL
-  state_env$lci <- NULL
-  state_env$uci <- NULL
-  state_env$deviation <- NULL
+  #' @field cumulative_mean List of the running mean.
+  cumulative_mean = NULL,
 
-  # Add new results from Welford stats
-  tab_update <- function(stats) {
-    # stats is a list with n, latest_data, mean, sq
-    # We need to compute std, lci, uci, deviation
+  #' @field std List of the standard deviation.
+  std = NULL,
 
-    # Get values from state
-    n <- stats$n
-    latest_data <- stats$latest_data
-    mean_val <- stats$mean
-    sq <- stats$sq
+  #' @field lci List of the lower confidence interval bound.
+  lci = NULL,
 
-    # Compute derived values (same as Welford methods)
-    variance <- if (n < 2L) NA_real_ else sq / (n - 1L)
-    std_val <- if (n < 3L) NA_real_ else sqrt(variance)
+  #' @field uci List of the upper confidence interval bound.
+  uci = NULL,
 
-    std_error_val <- if (is.na(std_val)) {
-      NA_real_
-    } else {
-      std_val / sqrt(n)
-    }
+  #' @field deviation List of the percentage deviation of the confidence
+  #' interval half width from the mean.
+  deviation = NULL,
 
-    half_width_val <- if (n < 3L) {
-      NA_real_
-    } else {
-      dof <- n - 1L
-      t_value <- qt(0.975, df = dof)  # 95% CI, so 0.975 quantile
-      t_value * std_error_val
-    }
+  #' @description Add new results from WelfordStats to the appropriate lists.
+  #' @param stats An instance of WelfordStats containing updated statistical
+  #' measures like the mean, standard deviation and confidence intervals.
+  update = function(stats) {
+    self$data_points <- c(self$data_points, stats$latest_data)
+    self$cumulative_mean <- c(self$cumulative_mean, stats$mean)
+    self$std <- c(self$std, stats$std())
+    self$lci <- c(self$lci, stats$lci())
+    self$uci <- c(self$uci, stats$uci())
+    self$deviation <- c(self$deviation, stats$deviation())
+  },
 
-    lci_val <- if (is.na(half_width_val)) {
-      NA_real_
-    } else {
-      mean_val - half_width_val
-    }
-
-    uci_val <- if (is.na(half_width_val)) {
-      NA_real_
-    } else {
-      mean_val + half_width_val
-    }
-
-    deviation_val <- if (is.na(mean_val) || mean_val == 0L ||
-                           is.na(half_width_val)) {
-      NA_real_
-    } else {
-      half_width_val / mean_val
-    }
-
-    # Append to state
-    state_env$data_points <- c(state_env$data_points, latest_data)
-    state_env$cumulative_mean <- c(state_env$cumulative_mean, mean_val)
-    state_env$std <- c(state_env$std, std_val)
-    state_env$lci <- c(state_env$lci, lci_val)
-    state_env$uci <- c(state_env$uci, uci_val)
-    state_env$deviation <- c(state_env$deviation, deviation_val)
-  }
-
-  # Create results table from stored lists
-  summary_table <- function() {
+  #' @description Creates a results table from the stored lists.
+  #' @return Stored results compiled into a dataframe.
+  summary_table = function() {
     data.frame(
-      replications = seq_len(length(state_env$data_points)),
-      data = state_env$data_points,
-      cumulative_mean = state_env$cumulative_mean,
-      stdev = state_env$std,
-      lower_ci = state_env$lci,
-      upper_ci = state_env$uci,
-      deviation = state_env$deviation
+      replications = seq_len(length(self$data_points)),
+      data = self$data_points,
+      cumulative_mean = self$cumulative_mean,
+      stdev = self$std,
+      lower_ci = self$lci,
+      upper_ci = self$uci,
+      deviation = self$deviation
     )
   }
+))
+```
 
-  # Return public API
-  list(
-    tab_update = tab_update,
-    summary_table = summary_table,
-    get_data_points = function() state_env$data_points,
-    get_cumulative_means = function() state_env$cumulative_mean,
-    get_std_devs = function() state_env$std,
-    get_lcis = function() state_env$lci,
-    get_ucis = function() state_env$uci,
-    get_deviations = function() state_env$deviation
-  )
-}
-
-
-#' Replication Algorithm for Automatic Selection
+```{r}
+#' Replication algorithm to automatically select number of replications.
 #'
 #' @description
 #' Implements an adaptive replication algorithm for selecting the
@@ -1058,98 +969,137 @@ create_replication_tabuliser <- function() {
 #' https://www.jstor.org/stable/40926090.
 #'
 #' Given a model's performance measure and a user-set confidence interval
-#' half width precision, automatically select the number of replications.
+#' half width prevision, automatically select the number of replications.
 #' Combines the "confidence intervals" method with a sequential look-ahead
 #' procedure to determine if a desired precision in the confidence interval
 #' is maintained.
 #'
-#' This function is based on the Python class `ReplicationsAlgorithm` from Tom
+#' This class is based on the Python class `ReplicationsAlgorithm` from Tom
 #' Monks (2021) sim-tools: fundamental tools to support the simulation process
 #' in python (https://github.com/sim-tools/sim-tools) (MIT Licence).
 #'
-#' @param param Model parameters (list).
-#' @param metrics List of performance measure names to track (should correspond
-#'   to column names from the run results dataframe).
-#' @param desired_precision Target half width precision for the algorithm
-#'   (i.e. percentage deviation of the confidence interval from the mean,
-#'   expressed as a proportion, e.g. 0.1 = 10%). Choice is fairly arbitrary.
-#' @param initial_replications Number of initial replications to perform
-#'   (default: 3).
-#' @param look_ahead Minimum additional replications to look ahead to assess
-#'   stability of precision. When replications are <= 100, the value of
-#'   look_ahead is used. When > 100, then look_ahead / 100 * max(n, 100)
-#'   is used (default: 5).
-#' @param replication_budget Maximum allowed replications. Use for larger
-#'   models where replication runtime is a constraint (default: 1000).
-#' @param verbose Boolean, whether to print messages about parameters
-#'   (default: TRUE).
+#' @docType class
+#' @importFrom R6 R6Class
 #'
-#' @return A list of functions with the following methods:
-#'   - `select()`: Execute the replication algorithm
-#'   - `get_nreps()`: Get minimum replications required for each metric
-#'   - `get_summary_table()`: Get full results table with cumulative
-#'     statistics for each replication
-#'   - `get_reps()`: Get number of replications performed
-#'
+#' @return Object of `ReplicationsAlgorithm` with methods for determining the
+#' appropriate number of replications to use.
 #' @export
 
-create_replications_algorithm <- function(
+ReplicationsAlgorithm <- R6Class("ReplicationsAlgorithm", list( # nolint: object_name_linter
+
+  #' @field param Model parameters.
+  param = NA,
+
+  #' @field metrics List of performance measure to track (should correspond to
+  #' column names from the run results dataframe).
+  metrics  = NA,
+
+  #' @field desired_precision The target half width precision for the algorithm
+  #' (i.e. percentage deviation of the confidence interval from the mean,
+  #' expressed as a proportion, e.g. 0.1 = 10\%). Choice is fairly arbitrary.
+  desired_precision = NA,
+
+  #' @field initial_replications Number of initial replications to perform.
+  initial_replications = NA,
+
+  #' @field look_ahead Minimum additional replications to look ahead to assess
+  #' stability of precision. When the number of replications is <= 100, the
+  #' value of look_ahead is used. When they are > 100, then
+  #' look_ahead / 100 * max(n, 100) is used.
+  look_ahead = NA,
+
+  #' @field replication_budget Maximum allowed replications. Use for larger
+  #' models where replication runtime is a constraint.
+  replication_budget = NA,
+
+  #' @field reps Number of replications performed.
+  reps = NA,
+
+  #' @field nreps The minimum number of replicatons required to achieve
+  #' desired precision for each metric.
+  nreps = NA,
+
+  #' @field summary_table Dataframe containing cumulative statistics for each
+  #' replication for each metric
+  summary_table = NA,
+
+  #' @description Initialise the ReplicationsAlgorithm object.
+  #' @param param Model parameters.
+  #' @param metrics List of performance measure to track.
+  #' @param desired_precision Target half width precision for the algorithm.
+  #' @param initial_replications Number of initial replications to perform.
+  #' @param look_ahead Minimum additional replications to look ahead.
+  #' @param replication_budget Maximum allowed replications.
+  #' @param verbose Boolean, whether to print messages about parameters.
+  initialize = function(
     param,
     metrics,
     desired_precision = 0.1,
     initial_replications = 3L,
     look_ahead = 5L,
     replication_budget = 1000L,
-    verbose = TRUE) {
+    verbose = TRUE
+  ) {
+    self$param <- param
+    self$metrics <- metrics
+    self$desired_precision <- desired_precision
+    self$initial_replications <- initial_replications
+    self$look_ahead <- look_ahead
+    self$replication_budget <- replication_budget
 
-  # Use an environment to store mutable state
-  state_env <- new.env()
+    # Initially set reps to the number of initial replications
+    self$reps <- initial_replications
 
-  state_env$param <- param
-  state_env$metrics <- metrics
-  state_env$desired_precision <- desired_precision
-  state_env$initial_replications <- initial_replications
-  state_env$look_ahead <- look_ahead
-  state_env$replication_budget <- replication_budget
-  state_env$reps <- initial_replications
-  state_env$nreps <- NA
-  state_env$summary_table <- NA
+    # Print the parameters
+    if (isTRUE(verbose)) {
+      print("Model parameters:")  # nolint: print_linter
+      print(self$param)
+    }
 
-  # Validate inputs
-  validate_inputs <- function() {
+    # Check validity of provided parameters
+    self$valid_inputs()
+  },
+
+  #' @description
+  #' Checks validity of provided parameters.
+  valid_inputs = function() {
     for (p in c("initial_replications", "look_ahead")) {
-      if (state_env[[p]] %% 1L != 0L || state_env[[p]] < 0L) {
-        stop(
-          p, " must be a non-negative integer, but provided ",
-          state_env[[p]], ".",
-          call. = FALSE
-        )
+      if (self[[p]] %% 1L != 0L || self[[p]] < 0L) {
+        stop(p, " must be a non-negative integer, but provided ", self[[p]],
+             ".", call. = FALSE)
       }
     }
-    if (state_env$desired_precision <= 0L) {
+    if (self$desired_precision <= 0L) {
       stop("desired_precision must be greater than 0.", call. = FALSE)
     }
-    if (state_env$replication_budget < state_env$initial_replications) {
-      stop(
-        "replication_budget must be greater than initial_replications.",
-        call. = FALSE
-      )
+    if (self$replication_budget < self$initial_replications) {
+      stop("replication_budget must be less than initial_replications.",
+           call. = FALSE)
     }
-  }
+  },
 
-  # Calculate the klimit (lookahead window)
-  klimit <- function() {
-    as.integer((state_env$look_ahead / 100L) * max(state_env$reps, 100L))
-  }
+  #' @description
+  #' Calculate the klimit. Determines the number of additional replications to
+  #' check after precision is reached, scaling with total replications if they
+  #' are greater than 100. Rounded down to nearest integer.
+  #' @return Number of additional replications to verify stability (integer).
+  klimit = function() {
+    as.integer((self$look_ahead / 100L) * max(self$reps, 100L))
+  },
 
-  # Find first position where element is below deviation and maintained
-  find_position <- function(lst) {
-    # Ensure input is a list
+  #' @description
+  #' Find the first position where element is below deviation, and this is
+  #' maintained through the lookahead period.
+  #' This is used to correct the ReplicationsAlgorithm, which cannot return
+  #' a solution below the initial_replications.
+  #' @param lst List of numbers to compare against desired deviation.
+  #' @return Integer, minimum replications required to meet and maintain
+  #' precision.
+  find_position = function(lst) {
+    # Ensure that the input is a list
     if (!is.list(lst)) {
-      stop(
-        "find_position requires a list but was supplied: ", typeof(lst),
-        call. = FALSE
-      )
+      stop("find_position requires a list but was supplied: ", typeof(lst),
+           call. = FALSE)
     }
 
     # Check if list is empty or no values below threshold
@@ -1157,161 +1107,153 @@ create_replications_algorithm <- function(
       return(NULL)
     }
 
-    # Find first non-NA value in list
-    start_index <- which(
-      !vapply(lst, is.na, logical(1L))
-    )[1L]
+    # Find the first non-null value in the list
+    start_index <- which(!vapply(lst, is.na, logical(1L)))[1L]
 
-    # Iterate through list, stopping when at last point where we still
+    # Iterate through the list, stopping when at last point where we still
     # have enough elements to look ahead
-    max_index <- length(lst) - state_env$look_ahead
+    max_index <- length(lst) - self$look_ahead
     if (start_index > max_index) {
       return(NULL)
     }
-
     for (i in start_index:max_index) {
       # Trim to list with current value + lookahead
-      # Check if all fall below desired deviation
-      segment <- lst[i:(i + state_env$look_ahead)]
-      if (all(vapply(
-        segment,
-        function(x) x < state_env$desired_precision,
-        logical(1L)
-      ))) {
+      # Check if all fall below the desired deviation
+      segment <- lst[i:(i + self$look_ahead)]
+      if (all(vapply(segment,
+                     function(x) x < self$desired_precision, logical(1L)))) {
         return(i)
       }
     }
-    NULL
-  }
+    return(NULL) # nolint: return_linter
+  },
 
-  # Execute the replication algorithm
-  select <- function() {
+  #' @description
+  #' Executes the replication algorithm, determining the necessary number
+  #' of replications to achieve and maintain the desired precision.
+  select = function() {
+
     # Create instances of observers for each metric
     observers <- setNames(
-      lapply(state_env$metrics, function(x) create_replication_tabuliser()),
-      state_env$metrics
+      lapply(self$metrics, function(x) ReplicationTabuliser$new()), self$metrics
     )
 
-    # Create nested list to store record for each metric
+    # Create nested named list to store record for each metric of:
+    # - nreps (the solution - replications required for precision)
+    # - target_met (record of how many times in a row the target has been meet,
+    # used to check if lookahead period has passed)
+    # - solved (whether it has maintained precision for lookahead)
     solutions <- setNames(
-      lapply(state_env$metrics, function(x) {
+      lapply(self$metrics, function(x) {
         list(nreps = NA, target_met = 0L, solved = FALSE)
-      }),
-      state_env$metrics
+      }), self$metrics
     )
 
-    # If no initial replications, create empty Welford instances
-    if (state_env$initial_replications == 0L) {
+    # If there are no initial replications, create empty instances of
+    # WelfordStats for each metric...
+    if (self$initial_replications == 0L) {
       stats <- setNames(
         lapply(
-          state_env$metrics,
-          function(x) {
-            create_welford_stats(
-              observer = function(s) observers[[x]]$tab_update(s)
-            )
-          }
-        ),
-        state_env$metrics
+          self$metrics, function(x) WelfordStats$new(observer = observers[[x]])
+        ), self$metrics
       )
     } else {
-      # Run initial replications
-      state_env$param[["number_of_runs"]] <- state_env$initial_replications
-      result <- runner(state_env$param)[["run_results"]]
-
-      # Create Welford instances pre-loaded with initial data
+      # If there are, run the replications, then create instances of
+      # WelfordStats pre-loaded with data from the initial replications... we
+      # use runner so allows for parallel processing if desired...
+      self$param[["number_of_runs"]] <- self$initial_replications
+      result <- runner(self$param)[["run_results"]]
       stats <- setNames(
-        lapply(state_env$metrics, function(x) {
-          create_welford_stats(
-            data = result[[x]],
-            observer = function(s) observers[[x]]$tab_update(s)
-          )
-        }),
-        state_env$metrics
+        lapply(self$metrics, function(x) {
+          WelfordStats$new(data = result[[x]], observer = observers[[x]])
+        }), self$metrics
       )
-
-      # Check if any have met precision after initial replications
-      for (metric in state_env$metrics) {
-        if (isTRUE(stats[[metric]]$deviation() <
-                     state_env$desired_precision)) {
-          solutions[[metric]]$nreps <- state_env$reps
+      # After completing any replications, check if any have met precision, add
+      # solution and update count
+      for (metric in self$metrics) {
+        if (isTRUE(stats[[metric]]$deviation() < self$desired_precision)) {
+          solutions[[metric]]$nreps <- self$reps
           solutions[[metric]]$target_met <- 1L
-          if (klimit() == 0L) {
+          # If there is no lookahead, mark as solved
+          if (self$klimit() == 0L) {
             solutions[[metric]]$solved <- TRUE
           }
         }
       }
     }
 
-    # Check if all metrics are solved
-    is_all_solved <- function() {
-      statuses <- unlist(lapply(solutions, function(x) x$solved))
+    # Whilst have not yet got all metrics marked as solved = TRUE, and still
+    # under replication budget + lookahead...
+    is_all_solved <- function(solutions_list) {
+      statuses <- unlist(lapply(solutions_list, function(x) x$solved))
+      # If any are NA or FALSE, treat as not solved
       all(statuses)
     }
 
-    # Main algorithm loop
-    while (!is_all_solved() &&
-             state_env$reps < state_env$replication_budget + klimit()) {
+    while (!is_all_solved(solutions) &&
+             self$reps < self$replication_budget + self$klimit()) {
 
       # Increment counter
-      state_env$reps <- state_env$reps + 1L
+      self$reps <- self$reps + 1L
 
       # Run another replication
-      result <- model(
-        run_number = state_env$reps,
-        param = state_env$param
-      )[["run_results"]]
+      result <- model(run_number = self$reps,
+                      param = self$param)[["run_results"]]
 
-      # Loop through metrics
-      for (metric in state_env$metrics) {
-        # If not yet solved
+      # Loop through the metrics...
+      for (metric in self$metrics) {
+
+        # If it is not yet solved...
         if (!solutions[[metric]]$solved) {
-          # Update running statistics
-          stats[[metric]]$welford_update(result[[metric]])
 
-          # If precision achieved
-          if (isTRUE(stats[[metric]]$deviation() <
-                       state_env$desired_precision)) {
-            # Record solution if not previously met
+          # Update the running statistics for that metric
+          stats[[metric]]$update(result[[metric]])
+
+          # If precision has been achieved...
+          if (isTRUE(stats[[metric]]$deviation() < self$desired_precision)) {
+
+            # Check if target met the time prior - if not, record the solution
             if (solutions[[metric]]$target_met == 0L) {
-              solutions[[metric]]$nreps <- state_env$reps
+              solutions[[metric]]$nreps <- self$reps
             }
 
-            # Update how many times precision met in row
-            solutions[[metric]]$target_met <-
+            # Update how many times precision has been met in a row
+            solutions[[metric]]$target_met <- (
               solutions[[metric]]$target_met + 1L
+            )
 
-            # Mark solved if lookahead period passed
-            if (solutions[[metric]]$target_met > klimit()) {
+            # Mark as solved if have finished lookahead period
+            if (solutions[[metric]]$target_met > self$klimit()) {
               solutions[[metric]]$solved <- TRUE
             }
+
           } else {
-            # If precision not achieved, reset
+            # If precision was not achieved, ensure nreps is None (e.g. in cases
+            # where precision is lost after a success)
             solutions[[metric]]$nreps <- NA
             solutions[[metric]]$target_met <- 0L
           }
+
         }
       }
     }
 
-    # Correction using find_position
-    for (metric in names(solutions)) {
-      adj_nreps <- find_position(
-        as.list(observers[[metric]]$get_deviations())
-      )
-      # If maintained solution found, replace in solutions
+    # Correction to result...
+    for (metric in names(solutions)){
+      # Use find_position() to check for solution in initial replications
+      adj_nreps <- self$find_position(as.list(observers[[metric]]$deviation))
+      # If there was a maintained solution, replace in solutions
       if (!is.null(adj_nreps) && !is.na(solutions[[metric]]$nreps)) {
         solutions[[metric]]$nreps <- adj_nreps
       }
     }
 
     # Extract minimum replications for each metric
-    state_env$nreps <- lapply(solutions, function(x) x$nreps)
+    self$nreps <- lapply(solutions, function(x) x$nreps)
 
-    # Extract metrics that were not solved and return warning
-    if (anyNA(state_env$nreps)) {
-      unsolved <- names(state_env$nreps)[
-        vapply(state_env$nreps, is.na, logical(1L))
-      ]
+    # Extract any metrics that were not solved and return warning
+    if (anyNA(self$nreps)) {
+      unsolved <- names(self$nreps)[vapply(self$nreps, is.na, logical(1L))]
       warning(
         "The replications did not reach the desired precision ",
         "for the following metrics - ", toString(unsolved),
@@ -1319,50 +1261,24 @@ create_replications_algorithm <- function(
       )
     }
 
-    # Combine observer summary frames into single table
+    # Combine observer summary frames into a single table
     summary_tables <- lapply(names(observers), function(name) {
       tab <- observers[[name]]$summary_table()
       tab$metric <- name
       tab
     })
-    state_env$summary_table <- do.call(rbind, summary_tables)
-
-    invisible(NULL)
+    self$summary_table <- do.call(rbind, summary_tables)
   }
-
-  # Initialize validation
-  validate_inputs()
-
-  # Print parameters if verbose
-  if (isTRUE(verbose)) {
-    cat("Model parameters:\n")
-    print(state_env$param)
-  }
-
-  # Return public API
-  list(
-    select = select,
-    get_nreps = function() state_env$nreps,
-    get_summary_table = function() state_env$summary_table,
-    get_reps = function() state_env$reps,
-    get_param = function() state_env$param,
-    get_metrics = function() state_env$metrics,
-    get_desired_precision = function() state_env$desired_precision
-  )
-}
-
-# nolint end
+))
 ```
 
 :::
 
 ```{r}
 # Set up algorithm
-alg <- create_replications_algorithm(
-  param = create_params(
-    warm_up_period = 10000L,
-    data_collection_period = 10000L
-  ),
+alg <- ReplicationsAlgorithm$new(
+  param = create_params(warm_up_period = 10000L,
+                        data_collection_period = 10000L),
   metrics = metrics
 )
 
@@ -1370,10 +1286,10 @@ alg <- create_replications_algorithm(
 alg$select()
 
 # View recommended number of replications
-alg$get_nreps()
+alg$nreps
 
 # View full results table
-alg$get_summary_table() |>
+alg$summary_table |>
   kable() |>
   scroll_box(height = "400px")
 ```
@@ -1388,12 +1304,9 @@ We can use the function `plot_replication_ci` from above again to create the plo
 
 ```{r}
 plot_replication_ci(
-  conf_ints = dplyr::filter(
-    alg$get_summary_table(),
-    metric == "mean_wait_time_doctor"
-  ),
+  conf_ints = filter(alg$summary_table, metric == "mean_wait_time_doctor"),
   yaxis_title = "Mean wait time",
-  min_rep = alg$get_nreps()[["mean_wait_time_doctor"]]
+  min_rep = alg$nreps[["mean_wait_time_doctor"]]
 )
 ```
 
@@ -1401,12 +1314,9 @@ plot_replication_ci(
 
 ```{r}
 plot_replication_ci(
-  conf_ints = dplyr::filter(
-    alg$get_summary_table(),
-    metric == "utilisation_doctor"
-  ),
+  conf_ints = filter(alg$summary_table, metric == "utilisation_doctor"),
   yaxis_title = "Mean utilisation",
-  min_rep = alg$get_nreps()[["utilisation_doctor"]]
+  min_rep = alg$nreps[["utilisation_doctor"]]
 )
 ```
 
@@ -1414,12 +1324,9 @@ plot_replication_ci(
 
 ```{r}
 plot_replication_ci(
-  conf_ints = dplyr::filter(
-    alg$get_summary_table(),
-    metric == "mean_queue_length_doctor"
-  ),
+  conf_ints = filter(alg$summary_table, metric == "mean_queue_length_doctor"),
   yaxis_title = "Mean queue length",
-  min_rep = alg$get_nreps()[["mean_queue_length_doctor"]]
+  min_rep = alg$nreps[["mean_queue_length_doctor"]]
 )
 ```
 
@@ -1427,12 +1334,9 @@ plot_replication_ci(
 
 ```{r}
 plot_replication_ci(
-  conf_ints = dplyr::filter(
-    alg$get_summary_table(),
-    metric == "mean_time_in_system"
-  ),
+  conf_ints = filter(alg$summary_table, metric == "mean_time_in_system"),
   yaxis_title = "Mean time in system",
-  min_rep = alg$get_nreps()[["mean_time_in_system"]]
+  min_rep = alg$nreps[["mean_time_in_system"]]
 )
 ```
 
@@ -1440,12 +1344,9 @@ plot_replication_ci(
 
 ```{r}
 plot_replication_ci(
-  conf_ints = dplyr::filter(
-    alg$get_summary_table(),
-    metric == "mean_patients_in_system"
-  ),
+  conf_ints = filter(alg$summary_table, metric == "mean_patients_in_system"),
   yaxis_title = "Mean patients in system",
-  min_rep = alg$get_nreps()[["mean_patients_in_system"]]
+  min_rep = alg$nreps[["mean_patients_in_system"]]
 )
 ```
 
