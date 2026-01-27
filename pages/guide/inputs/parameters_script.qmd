@@ -17,22 +17,6 @@ date: "2025-10-06T09:31:01+01:00"
 
 ::::
 
-:::: {.r-content}
-
-::: {.very-pale-blue}
-
-**Required packages:**
-
-These should be available from environment setup on the [Structuring as a package](/pages/guide/setup/package.qmd) page.
-
-```{r}
-library(R6)
-```
-
-:::
-
-::::
-
 <br>
 
 Discrete-event simulations (DES) require many parameters - like arrival rates, resource times, and probabilities - which often need to be changed for different scenarios and analyses. Managing these parameters well makes your simulations easier to update, track, and reuse.
@@ -175,7 +159,7 @@ Why?
 
 * ✅ **Clear parameter sets**. Every scenario has its own object with all the parameters needed. This can be easily viewed, and comes in handy in [logs](../model/logs.qmd) to easily print a copy of all parameters used for a scenario.
 * ✅ **No global variables**. By explicitly passing our parameters, we avoid accidental parameter reuse between scenarios (which is a possibility with global variables!).
-* ✅ **Fewer inputs**. If all parameters are in one object, then we can just pass that as a single input to our model function/class, reducing the number of arguments we need to pass.
+* ✅ **Fewer inputs**. If all parameters are in one object, then we can just pass that as a single input to our model, reducing the number of arguments we need to pass.
 
 <br>
 
@@ -227,9 +211,9 @@ simulate <- function(interarrival_time, consultation_time, transfer_prob, ...) {
 ```
 :::
 
-### Three implementation options
-
 ::: {.python-content}
+
+### Three implementation options
 
 There are three implementation options: **dictionary**, **function** or **class**.
 
@@ -326,7 +310,10 @@ print(scenario1.__dict__)
 :::
 
 ::: {.r-content}
-There are three implementation options: **list**, **function** or **R6 class**.
+
+### Two implementation options
+
+There are two implementation options: **list** or **function**.
 
 #### Using a list
 
@@ -376,78 +363,30 @@ scenario1 <- create_params(interarrival_time = 6L)
 scenario1
 ```
 
-#### Using a R6 class
-
-Include a `get_params` method to easily return a list of parameters.
-
-```{r}
-#' @title Parameter class.
-#'
-#' @field interarrival_time Numeric. Time between arrivals (minutes).
-#' @field consultation_time Numeric. Length of consultation (minutes).
-#' @field transfer_prob Numeric. Transfer probability (0-1).
-
-Parameters <- R6Class( # nolint: object_name_linter
-  classname = "Parameters",
-  public = list(
-    interarrival_time = NULL,
-    consultation_time = NULL,
-    transfer_prob = NULL,
-    initialize = function(
-      interarrival_time = 5L,
-      consultation_time = 20L,
-      transfer_prob = 0.3
-    ) {
-      self$interarrival_time <- interarrival_time
-      self$consultation_time <- consultation_time
-      self$transfer_prob <- transfer_prob
-    },
-
-    #' @description
-    #' Returns parameters as a named list.
-
-    get_params = function() {
-      # Get all non-function fields
-      all_names <- ls(self)
-      is_not_function <- vapply(
-        all_names,
-        function(x) !is.function(self[[x]]),
-        FUN.VALUE = logical(1L)
-      )
-      param_names <- all_names[is_not_function]
-      mget(param_names, envir = self)
-    }
-  )
-)
-
-# Base case
-base_params <- Parameters$new()
-base_params$get_params()
-
-# Create a scenario with altered inter-arrival time
-scenario1 <- Parameters$new(interarrival_time = 6L)
-scenario1$get_params()
-```
-
 :::
 
 ### Which option is best?
+
+:::{.python-content}
 
 The **most robust** approach is to use a **function or class** to manage your parameters.
 
 * ✅ **Functions and classes** make it easy to create variations for different scenarios, since you simply change the inputs when you define a new scenario. For example, you can create a new scenario by only specifying the parameter you want to change, while all other parameters remain at their default values.
 
-:::{.python-content}
 * ❌ With a **dictionary**, you have to make a copy of the base dictionary and then manually change individual values for each scenario. This can become cumbersome as the number of parameters or scenarios grows - and is just a bit more clunky!
-:::
-::: {.r-content}
-* ❌ With a **list**, you have to make a copy of the base list and then manually change individual values for each scenario. This can become cumbersome as the number of parameters or scenarios grows - and is just a bit more clunky!
-:::
 
 Your choice may be further informed by options for parameter validation, where classes can be superior as you can incorporate validation within the class - although it is ultimately possible to perform similar validation regardless of whether you use dictionaries, functions and classes - as discussed on the [parameter validation](parameters_validation.qmd) page.
 
-:::{.r-content}
-It's worth noting though that, while R does support object-oriented programming (i.e. using classes), these are less commonly used in typical R code.
+:::
+
+::: {.r-content}
+
+The **most robust** approach is to use a **function** to manage your parameters.
+
+* ✅ **Functions** make it easy to create variations for different scenarios, since you simply change the inputs when you define a new scenario. For example, you can create a new scenario by only specifying the parameter you want to change, while all other parameters remain at their default values.
+
+* ❌ With a **list**, you have to make a copy of the base list and then manually change individual values for each scenario. This can become cumbersome as the number of parameters or scenarios grows - and is just a bit more clunky!
+
 :::
 
 ## Handling a large number of parameters
@@ -456,11 +395,11 @@ You may need to manage many parameters - for example, if you have several patien
 
 We have suggested a few strategies you could use...
 
+::: {.python-content}
+
 ### Using a single function or class for all parameters
 
 This can be convenient for smaller models, though can get unwieldly as the number of parameters grow, including potentially quite long parameter names! Although you could return a nested object to address this.
-
-::: {.python-content}
 
 #### Function example (with nested dictionaries)
 
@@ -582,7 +521,9 @@ print(base_params.__dict__)
 
 :::{.r-content}
 
-#### Function example (with nested lists)
+### Using a single function for all parameters
+
+This can be convenient for smaller models, though can get unwieldly as the number of parameters grow, including potentially quite long parameter names! Although you could return a nested object to address this.
 
 ```{r}
 #' Generate parameter list.
@@ -638,105 +579,15 @@ base_params <- create_params()
 base_params
 ```
 
-#### R6 class example
-
-```{r}
-#' @title Parameter class.
-#'
-#' @field adult_interarrival Numeric. Time between adult patient arrivals
-#' (minutes).
-#' @field adult_consultation Numeric. Length of adult patient consultation
-#' (minutes).
-#' @field adult_transfer Numeric. Adult patient transfer probability (0-1).
-#' @field child_interarrival Numeric. Time between child patient arrivals
-#' (minutes).
-#' @field child_consultation Numeric. Length of child patient consultation
-#' (minutes).
-#' @field child_transfer Numeric. Child patient transfer probability (0-1).
-#' @field elderly_interarrival Numeric. Time between elderly patient arrivals
-#' (minutes).
-#' @field elderly_consultation Numeric. Length of elderly patient consultation
-#' (minutes).
-#' @field elderly_transfer Numeric. Elderly patient transfer probability (0-1).
-
-Parameters <- R6Class( # nolint: object_name_linter
-  classname = "Parameters",
-  public = list(
-    # Adult parameters
-    adult_interarrival = NULL,
-    adult_consultation = NULL,
-    adult_transfer = NULL,
-
-    # Child parameters
-    child_interarrival = NULL,
-    child_consultation = NULL,
-    child_transfer = NULL,
-
-    # Elderly parameters
-    elderly_interarrival = NULL,
-    elderly_consultation = NULL,
-    elderly_transfer = NULL,
-
-    #' @description
-    #' Initialise Parameters instance.
-
-    initialize = function(
-      adult_interarrival = 5L, adult_consultation = 20L,
-      adult_transfer = 0.3, child_interarrival = 7L,
-      child_consultation = 15L, child_transfer = 0.2,
-      elderly_interarrival = 10L, elderly_consultation = 30L,
-      elderly_transfer = 0.5
-    ) {
-      # Adult parameters
-      self$adult_interarrival <- adult_interarrival
-      self$adult_consultation <- adult_consultation
-      self$adult_transfer <- adult_transfer
-
-      # Child parameters
-      self$child_interarrival <- child_interarrival
-      self$child_consultation <- child_consultation
-      self$child_transfer <- child_transfer
-
-      # Elderly parameters
-      self$elderly_interarrival <- elderly_interarrival
-      self$elderly_consultation <- elderly_consultation
-      self$elderly_transfer <- elderly_transfer
-    },
-
-    #' @description
-    #' Returns parameters as a named list.
-    #'
-    #' @return A named list containing all parameter values.
-
-    get_params = function() {
-      # Get all non-function fields
-      all_names <- ls(self)
-      is_not_function <- vapply(
-        all_names,
-        function(x) !is.function(self[[x]]),
-        FUN.VALUE = logical(1L)
-      )
-      param_names <- all_names[is_not_function]
-      mget(param_names, envir = self)
-    }
-  )
-)
-
-
-# Example usage
-base_params <- Parameters$new()
-base_params$get_params()
-```
-
 :::
+
+::: {.python-content}
 
 ### Using multiple functions or classes
 
 Alternatively, parameters can be split into logical groups (e.g., patient type, parameter type), with each group having its own function or class. These groups are then combined into a single parameter set.
 
 For simulations with a large number of parameters, this approach simplifies input management. It also enables validation to be performed for each individual function/class.
-
-::: {.python-content}
 
 #### Function example
 
@@ -966,7 +817,11 @@ print(base_params.transfers.__dict__)
 
 :::{.r-content}
 
-#### Function example
+### Using multiple functions
+
+Alternatively, parameters can be split into logical groups (e.g., patient type, parameter type), with each group having its own function. These groups are then combined into a single parameter set.
+
+For simulations with a large number of parameters, this approach simplifies input management. It also enables validation to be performed for each individual function.
 
 ```{r}
 #' Generate list of inter-arrival times (minutes).
@@ -1049,161 +904,6 @@ create_parameters <- function(
 # Example usage
 base_params <- create_parameters()
 base_params
-```
-
-#### R6 class example
-
-With modified `get_params()` method to extract fields from each component class.
-
-```{r}
-#' @title Arrivals class.
-#' @description Inter-arrival times (minutes).
-#'
-#' @field adult Numeric. Time between adult patient arrivals (minutes).
-#' @field child Numeric. Time between child patient arrivals (minutes).
-#' @field elderly Numeric. Time between elderly patient arrivals (minutes).
-
-Arrivals <- R6Class( # nolint: object_name_linter
-  classname = "Arrivals",
-  public = list(
-    adult = NULL,
-    child = NULL,
-    elderly = NULL,
-
-    #' @description
-    #' Initialise Arrivals instance.
-
-    initialize = function(adult = 5L, child = 7L, elderly = 10L) {
-      self$adult <- adult
-      self$child <- child
-      self$elderly <- elderly
-    }
-  )
-)
-
-#' @title Consultations class.
-#' @description Consultation times (minutes).
-#'
-#' @field adult Numeric. Length of adult patient consultation (minutes).
-#' @field child Numeric. Length of child patient consultation (minutes).
-#' @field elderly Numeric. Length of elderly patient consultation (minutes).
-
-Consultations <- R6Class( # nolint: object_name_linter
-  classname = "Consultations",
-  public = list(
-    adult = NULL,
-    child = NULL,
-    elderly = NULL,
-
-    #' @description
-    #' Initialise Consultations instance.
-
-    initialize = function(adult = 20L, child = 15L, elderly = 30L) {
-      self$adult <- adult
-      self$child <- child
-      self$elderly <- elderly
-    }
-  )
-)
-
-#' @title Transfers class.
-#' @description Transfer probabilities (0-1).
-#'
-#' @field adult Numeric. Adult patient transfer probability (0-1).
-#' @field child Numeric. Child patient transfer probability (0-1).
-#' @field elderly Numeric. Elderly patient transfer probability (0-1).
-
-Transfers <- R6Class( # nolint: object_name_linter
-  classname = "Transfers",
-  public = list(
-    adult = NULL,
-    child = NULL,
-    elderly = NULL,
-
-    #' @description
-    #' Initialise Transfers instance.
-
-    initialize = function(adult = 0.3, child = 0.2, elderly = 0.5) {
-      self$adult <- adult
-      self$child <- child
-      self$elderly <- elderly
-    }
-  )
-)
-
-#' @title Parameters class.
-#' @description Complete parameter class for simulation.
-#'
-#' @field arrivals Arrivals. Instance with inter-arrival times for each patient
-#' type.
-#' @field consultations Consultations. Instance with consultation durations for
-#' each patient type.
-#' @field transfers Transfers. Instance with transfer probabilities for each
-#' patient type.
-
-Parameters <- R6Class( # nolint: object_name_linter
-  classname = "Parameters",
-  public = list(
-    arrivals = NULL,
-    consultations = NULL,
-    transfers = NULL,
-
-    #' @description
-    #' Initialise Parameters instance.
-
-    initialize = function(
-      arrivals = Arrivals$new(),
-      consultations = Consultations$new(),
-      transfers = Transfers$new()
-    ) {
-      self$arrivals <- arrivals
-      self$consultations <- consultations
-      self$transfers <- transfers
-    },
-
-    #' @description
-    #' Returns parameters as a named list.
-    #'
-    #' @return A named list containing all parameter values organised by type.
-
-    get_params = function() {
-      # Get all non-function fields from self
-      all_names <- ls(self)
-      is_not_function <- vapply(
-        all_names,
-        function(x) !is.function(self[[x]]),
-        FUN.VALUE = logical(1L)
-      )
-      instance_names <- all_names[is_not_function]
-
-      # Get the instances
-      instances <- mget(instance_names, envir = self)
-
-      # Apply parameter extraction to each instance using lapply
-      lapply(instances, function(instance) {
-        if (inherits(instance, "R6")) {
-          # Extract non-function fields from R6 instance
-          all_fields <- ls(instance)
-          is_not_function <- vapply(
-            all_fields,
-            function(x) !is.function(instance[[x]]),
-            FUN.VALUE = logical(1L)
-          )
-          field_names <- all_fields[is_not_function]
-          mget(field_names, envir = instance)
-        } else {
-          # Return non-R6 objects as-is
-          instance
-        }
-      })
-    }
-  )
-)
-
-
-# Example usage
-base_params <- Parameters$new()
-base_params$get_params()
 ```
 
 :::
@@ -1306,10 +1006,10 @@ If you haven't already, let's have a go at **managing parameters inside scripts*
 
 * Create a new **Rmarkdown file** in your project (e.g. in a `rmarkdown/` directory).
 
-* **Try out at least two different ways** of grouping and passing parameters, using examples from above (e.g. list, function, or R6 class).
+* **Try out grouping and passing parameters**, using examples from above.
 
 :::
 
-* For each option, create at least **one variant scenario** by overriding one or more parameters.
+* Create at least **one variant scenario** by overriding one or more parameters.
 
 <br><br>
