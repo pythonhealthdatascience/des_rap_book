@@ -19,12 +19,6 @@ date: "2025-10-13T15:40:55+01:00"
 
 :::
 
-::: {.r-content}
-```{r}
-library(R6)
-```
-:::
-
 ## Docstrings: what and why
 
 ::: {.python-content}
@@ -61,7 +55,7 @@ def add_positive_numbers(a, b):
 
 ::: {.r-content}
 
-**Docstrings** ("documentation strings") are used to describe what each object in your code does. They should be added to functions and classes.
+**Docstrings** ("documentation strings") are used to describe what each object in your code does. They should be added to all functions.
 
 Docstrings begin with `#'` and can have roxygen2 tags (e.g., `@param`, `@return`). In the example below, we have highlighted the docstring so that it is bold when you hover over the code.
 
@@ -86,7 +80,7 @@ add_positive_numbers <- function(a, b) {
 
 ### How do they differ from in-line comments?
 
-**Docstrings** explain the overall purpose of a code object (like a function or class), while **in-line comments** clarify individual lines or sections of code when the logic isn't obvious.
+**Docstrings** explain the overall purpose of a code object, while **in-line comments** clarify individual lines or sections of code when the logic isn't obvious.
 
 For example, we could add an in-line comment to the function above to explain the if statement:
 
@@ -344,52 +338,6 @@ The `@export` tag is included in each docstring to tell Roxygen to add the objec
 estimate_wait_time <- function(queue_length, avg_service_time) {
   queue_length * avg_service_time
 }
-```
-
-### Class
-
-```{r}
-#' Represents a patient in a healthcare facility.
-#'
-#' @docType class
-#' @export
-
-Patient <- R6Class("Patient", list(  # nolint: object_name_linter
-
-  #' @field patient_id integer or character. Unique identifier for the
-  #' patient.
-  patient_id = NULL,
-
-  #' @field arrival_time character or Date/POSIXt. The time when the patient
-  #' arrived.
-  arrival_time = NULL,
-
-  #' @field status character. Current status of the patient: one of
-  #' "waiting", "admitted", or "discharged".
-  status = NULL,
-
-  #' Initialise a new patient record.
-  #'
-  #' @param patient_id integer or character. Unique identifier for the
-  #' patient.
-  #' @param arrival_time character or Date/POSIXt. The time when the patient
-  #' arrived.
-  initialize = function(patient_id, arrival_time) {
-    self$patient_id <- patient_id
-    self$arrival_time <- arrival_time
-    self$status <- "waiting"
-  },
-
-  #' Admit the patient.
-  admit = function() {
-    self$status <- "admitted"
-  },
-
-  #' Discharge the patient.
-  discharge = function() {
-    self$status <- "discharged"
-  }
-))
 ```
 
 ### Imports
