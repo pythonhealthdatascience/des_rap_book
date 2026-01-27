@@ -498,30 +498,35 @@ You can also disable multiple warnings at once by listing them, separated by com
 
 ::: {.r-content}
 
-Linters will sometimes flag things that you don't want to change. For example, for an R6 class, though the convention is to use CamelCase, the linter will return an error:
+Linters will sometimes flag things that you don't want to change. For example, if you explicitly use `return()` at the end of a function, the linter can complain that terminal returns should be implicit.
 
 ```
-style: [object_name_linter] Variable and function names should be all lowercase and use snake_case.
+[return_linter] Use implicit return behavior; explicit return() is not needed.
 ```
 
 If you want to ignore warnings, you can disable them in your code **using comments**. For example:
 
 ```{.r}
-MyClass <- R6::R6Class("MyClass") # nolint: object_name_linter
+add_one <- function(x) {
+  result <- x + 1L
+  return(result) # nolint: return_linter
+}
 ```
 
 You can disable the warning across several lines by using `nolint start` and `nolint end`:
 
 ```{.r}
-# nolint start: object_name_linter
+# nolint start: return_linter
 
-MyClass <- R6::R6Class("MyClass",
-  public = list(
-    MyMethod = function(x) {
-      x + 1
-    }
-  )
-)
+add_one <- function(x) {
+  result <- x + 1L
+  return(result)
+}
+
+multiply_two <- function(y) {
+  out <- y * 2L
+  return(out)
+}
 
 # nolint end
 ```
