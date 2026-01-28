@@ -410,6 +410,28 @@ model.run()
 
 ::: {.r-content}
 
+### Imports
+
+Added new imports from `dplyr` and `rlang`, along with two additional `simmer` functions: `get_mon_arrivals` and `get_mon_resources`.
+
+*Bold lines show where the code has changed since the previous version. The highlight may correspond to a change anywhere on that line, not necessarily to the entire line.*
+
+```{.r}
+#' @keywords internal
+"_PACKAGE"
+
+## usethis namespace: start
+#' @importFrom dplyr arrange filter group_by mutate n slice ungroup #<<
+#' @importFrom rlang .data #<<
+#' @importFrom simmer add_generator add_resource get_mon_arrivals #<<
+#' @importFrom simmer get_mon_resources release run seize simmer #<<
+#' @importFrom simmer timeout trajectory
+## usethis namespace: end
+
+NULL
+
+```
+
 ### Parameter function
 
 The `run_length` parameter has been replaced by two new parameters:
@@ -417,9 +439,7 @@ The `run_length` parameter has been replaced by two new parameters:
 * `warm_up_period`
 * `data_collection_period`
 
-Also, `verbose` is now set as `FALSE` as warmup we don't do on those we do on results so focusing on that
-
-*Bold lines show where the code has changed since the previous version. The highlight may correspond to a change anywhere on that line, not necessarily to the entire line.*
+Also, `verbose` is now set as `FALSE`.
 
 ```{r}
 #' Generate parameter list.
@@ -464,10 +484,6 @@ Add `get_mon_arrivals()` and `get_mon_resources()`.
 #'
 #' @param param List. Model parameters.
 #' @param run_number Numeric. Run number for random seed generation.
-#'
-#' @importFrom simmer add_generator add_resource get_mon_arrivals #<<
-#' @importFrom simmer get_mon_resources release run seize simmer timeout #<<
-#' @importFrom simmer trajectory
 #'
 #' @return Named list with tables `arrivals` and `resources`. #<<
 #' @export
@@ -531,9 +547,6 @@ To implement a warm-up period in `simmer`, we need to modify these output datafr
 #' @param result Named list with two tables: monitored arrivals & resources.
 #' @param warm_up_period Length of warm-up period.
 #'
-#' @importFrom dplyr arrange filter group_by mutate n slice ungroup
-#' @importFrom rlang .data
-#'
 #' @return The named list `result`, but with the tables (`arrivals` and
 #' `resources`) filtered to remove warm-up results.
 #' @export
@@ -585,9 +598,6 @@ filter_warmup <- function(result, warm_up_period) {
 #'
 #' @param result Named list with two tables: monitored arrivals & resources.
 #' @param warm_up_period Length of warm-up period.
-#'
-#' @importFrom dplyr arrange filter group_by mutate n slice ungroup
-#' @importFrom rlang .data
 #'
 #' @return The named list `result`, but with the tables (`arrivals` and
 #' `resources`) filtered to remove warm-up patients.

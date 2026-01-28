@@ -195,6 +195,29 @@ Now we're ready to record some performance measures. 😎
 
 Before we start calculating any simulation performance measures, some set-up is required. This includes making a new function `get_run_results()`, and calling that and `filter_warmup()` from within `model()`.
 
+### Imports
+
+We need to add `dplyr::bind_cols()` and `tibble::tibble()`.
+
+*Bold lines show where the code has changed since the previous version. The highlight may correspond to a change anywhere on that line, not necessarily to the entire line.*
+
+```{.r}
+#' @keywords internal
+"_PACKAGE"
+
+## usethis namespace: start
+#' @importFrom dplyr arrange bind_cols filter group_by mutate n slice ungroup #<<
+#' @importFrom rlang .data
+#' @importFrom simmer add_generator add_resource get_mon_arrivals
+#' @importFrom simmer get_mon_resources release run seize simmer
+#' @importFrom simmer timeout trajectory
+#' @importFrom tibble tibble #<<
+## usethis namespace: end
+
+NULL
+
+```
+
 ### Parameter function
 
 No changes required.
@@ -244,9 +267,6 @@ No changes required.
 #'
 #' @param result Named list with two tables: monitored arrivals & resources.
 #' @param warm_up_period Length of warm-up period.
-#'
-#' @importFrom dplyr arrange filter group_by n slice ungroup
-#' @importFrom rlang .data
 #'
 #' @return The named list `result`, but with the tables (`arrivals` and
 #' `resources`) filtered to remove warm-up results.
@@ -303,9 +323,6 @@ Let's create a new function `get_run_results()`. This will be used to combine th
 #'   `resources` from `get_mon_resources()`
 #'   (`per_resource = TRUE` and `ongoing = TRUE`).
 #' @param run_number Integer index of current simulation run.
-#'
-#' @importFrom dplyr bind_cols
-#' @importFrom tibble tibble
 #'
 #' @return Tibble with processed results from replication.
 #' @export
@@ -434,6 +451,28 @@ class Runner:
 
 <div class="h3-tight"></div>
 
+### Imports
+
+We add `dplyr::n_distinct()` and `dplyr::summarise()`.
+
+```{.r}
+#' @keywords internal
+"_PACKAGE"
+
+## usethis namespace: start
+#' @importFrom dplyr arrange bind_cols filter group_by mutate n n_distinct #<<
+#' @importFrom dplyr slice summarise ungroup #<<
+#' @importFrom rlang .data
+#' @importFrom simmer add_generator add_resource get_mon_arrivals
+#' @importFrom simmer get_mon_resources release run seize simmer
+#' @importFrom simmer timeout trajectory
+#' @importFrom tibble tibble
+## usethis namespace: end
+
+NULL
+
+```
+
 ### Arrivals function
 
 We introduce a new function `calc_arrivals()`. This determines the number of arrivals by counting the number of unique patient names in the arrival records.
@@ -442,8 +481,6 @@ We introduce a new function `calc_arrivals()`. This determines the number of arr
 #' Calculate the number of arrivals
 #'
 #' @param arrivals Dataframe with times for each patient with each resource.
-#'
-#' @importFrom dplyr n_distinct summarise ungroup
 #'
 #' @return Tibble with column containing total number of arrivals.
 #' @export
@@ -466,9 +503,6 @@ In `get_run_results()`, the table `results[["arrivals"]]` is passed to `calc_arr
 #'   `resources` from `get_mon_resources()`
 #'   (`per_resource = TRUE` and `ongoing = TRUE`).
 #' @param run_number Integer index of current simulation run.
-#'
-#' @importFrom dplyr bind_cols
-#' @importFrom tibble tibble
 #'
 #' @return Tibble with processed results from replication.
 #' @export
@@ -787,6 +821,33 @@ We can see each patient's wait time in `result["patient"]`, and the mean wait ti
 
 <div class="h3-tight"></div>
 
+### Imports
+
+We add:
+
+* Functions from `dplyr`: `left_join` and `summarise`.
+* Functions from `simmer`: `now` and `set_attribute`.
+* Imports from two new packages: `tidyr` and `tidyselect`.
+
+```{.r}
+#' @keywords internal
+"_PACKAGE"
+
+## usethis namespace: start
+#' @importFrom dplyr arrange bind_cols filter group_by left_join mutate n #<<
+#' @importFrom dplyr slice summarise ungroup #<<
+#' @importFrom rlang .data
+#' @importFrom simmer add_generator add_resource get_mon_arrivals
+#' @importFrom simmer get_mon_resources now release run seize set_attribute #<<
+#' @importFrom simmer simmer timeout trajectory
+#' @importFrom tibble tibble
+#' @importFrom tidyr drop_na pivot_wider #<<
+#' @importFrom tidyselect any_of #<<
+## usethis namespace: end
+
+NULL
+```
+
 ### Wait time function
 
 A new `calc_mean_wait()` function removes patients still waiting (since their wait times are censored and including them would underestimate the mean), then calculates the mean wait time for each resource.
@@ -795,11 +856,6 @@ A new `calc_mean_wait()` function removes patients still waiting (since their wa
 #' Calculate the mean wait time for each resource
 #'
 #' @param arrivals Dataframe with times for each patient with each resource.
-#'
-#' @importFrom dplyr group_by summarise ungroup
-#' @importFrom rlang .data
-#' @importFrom tidyr drop_na pivot_wider
-#' @importFrom tidyselect any_of
 #'
 #' @return Tibble with columns containing result for each resource.
 #' @export
@@ -824,8 +880,6 @@ calc_mean_wait <- function(arrivals) {
 
 In `get_run_results()`, the table `results[["arrivals"]]` is passed to `calc_mean_wait()`.
 
-*Bold lines show where the code has changed since the previous version. The highlight may correspond to a change anywhere on that line, not necessarily to the entire line.*
-
 ```{r}
 #' Get average results for the provided single run.
 #'
@@ -833,9 +887,6 @@ In `get_run_results()`, the table `results[["arrivals"]]` is passed to `calc_mea
 #'   `resources` from `get_mon_resources()`
 #'   (`per_resource = TRUE` and `ongoing = TRUE`).
 #' @param run_number Integer index of current simulation run.
-#'
-#' @importFrom dplyr bind_cols
-#' @importFrom tibble tibble
 #'
 #' @return Tibble with processed results from replication.
 #' @export
@@ -863,13 +914,6 @@ We can calculate the wait time for each patient by subtracting their arrival tim
 #'
 #' @param param List. Model parameters.
 #' @param run_number Numeric. Run number for random seed generation.
-#'
-#' @importFrom dplyr left_join mutate #<<
-#' @importFrom rlang .data #<<
-#' @importFrom simmer add_generator add_resource get_mon_arrivals
-#' @importFrom simmer get_mon_resources now release run seize set_attribute #<<
-#' @importFrom simmer simmer timeout trajectory
-#' @importFrom tidyr pivot_wider #<<
 #'
 #' @return Named list with tables `arrivals`, `resources` and `run_results`.
 #' @export
@@ -1059,6 +1103,33 @@ We can see each patient's consultation length in `result["patient"]`, and the me
 
 <div class="h3-tight"></div>
 
+### Imports
+
+We add:
+
+* Functions from `dplyr`: `left_join` and `summarise`.
+* Functions from `simmer`: `get_attribute` and `set_attribute`.
+* Imports from two new packages: `tidyr` and `tidyselect`.
+
+```{.r}
+#' @keywords internal
+"_PACKAGE"
+
+## usethis namespace: start
+#' @importFrom dplyr arrange bind_cols filter group_by left_join mutate n slice #<<
+#' @importFrom dplyr summarise ungroup #<<
+#' @importFrom rlang .data
+#' @importFrom simmer add_generator add_resource get_attribute get_mon_arrivals #<<
+#' @importFrom simmer get_mon_resources release run seize set_attribute simmer #<<
+#' @importFrom simmer timeout trajectory
+#' @importFrom tibble tibble
+#' @importFrom tidyr drop_na pivot_wider #<<
+#' @importFrom tidyselect any_of #<<
+## usethis namespace: end
+
+NULL
+```
+
 ### Service length function
 
 A new function `calc_mean_serve_length()` finds the mean length of time patients spent with each resource using a new column we'll introduce in `model()` called `serve_length`.
@@ -1069,11 +1140,6 @@ A new function `calc_mean_serve_length()` finds the mean length of time patients
 #' @param arrivals Dataframe with times for each patient with each resource.
 #' @param resources Dataframe with times patients use or queue for resources.
 #' @param groups Optional list of columns to group by for the calculation.
-#'
-#' @importFrom dplyr group_by summarise ungroup
-#' @importFrom rlang .data
-#' @importFrom tidyr drop_na pivot_wider
-#' @importFrom tidyselect any_of
 #'
 #' @return Tibble with columns containing result for each resource.
 #' @export
@@ -1106,9 +1172,6 @@ In `get_run_results()`, the table `results[["arrivals"]]` is passed to `calc_mea
 #'   (`per_resource = TRUE` and `ongoing = TRUE`).
 #' @param run_number Integer index of current simulation run.
 #'
-#' @importFrom dplyr bind_cols
-#' @importFrom tibble tibble
-#'
 #' @return Tibble with processed results from replication.
 #' @export
 
@@ -1131,13 +1194,6 @@ Next, we repeat the steps we did for calculating mean wait time: setting `mon = 
 #'
 #' @param param List. Model parameters.
 #' @param run_number Numeric. Run number for random seed generation.
-#'
-#' @importFrom dplyr left_join mutate #<<
-#' @importFrom rlang .data #<<
-#' @importFrom simmer add_generator add_resource get_mon_arrivals
-#' @importFrom simmer get_attribute get_mon_resources release run seize #<<
-#' @importFrom simmer set_attribute simmer timeout trajectory #<<
-#' @importFrom tidyr pivot_wider #<<
 #'
 #' @return Named list with tables `arrivals`, `resources` and `run_results`.
 #' @export
@@ -1863,6 +1919,28 @@ Mean utilisation measures the proportion of available doctor time that is actual
 
 <div class="h3-tight"></div>
 
+### Imports
+
+We add `dplyr::row_number()`, `dplyr::summarise()` and `tidyr::pivot_wider()`.
+
+```{.r}
+#' @keywords internal
+"_PACKAGE"
+
+## usethis namespace: start
+#' @importFrom dplyr arrange bind_cols filter group_by mutate n row_number #<<
+#' @importFrom dplyr slice summarise ungroup #<<
+#' @importFrom rlang .data
+#' @importFrom simmer add_generator add_resource get_mon_arrivals
+#' @importFrom simmer get_mon_resources release run seize simmer
+#' @importFrom simmer timeout trajectory
+#' @importFrom tibble tibble
+#' @importFrom tidyr pivot_wider #<<
+## usethis namespace: end
+
+NULL
+```
+
 ### Utilisation function
 
 Our function for utilisation is a **time-weighted calculation**: it computes a weighted mean, multiplying each interval's utilisation by its interval duration.
@@ -1890,10 +1968,6 @@ The function is explained line-by-line below...
 #' @param summarise If TRUE, return overall utilisation. If FALSE, just return
 #' the resource dataframe with the additional columns interval_duration,
 #' effective_capacity and utilisation.
-#'
-#' @importFrom dplyr group_by mutate n row_number summarise ungroup
-#' @importFrom rlang .data
-#' @importFrom tidyr pivot_wider
 #'
 #' @return Tibble with columns containing result for each resource.
 #' @export
@@ -1964,10 +2038,6 @@ calc_utilisation <- function(
 #' @param summarise If TRUE, return overall utilisation. If FALSE, just return
 #' the resource dataframe with the additional columns interval_duration,
 #' effective_capacity and utilisation.
-#'
-#' @importFrom dplyr group_by mutate ungroup
-#' @importFrom rlang .data
-#' @importFrom tidyr pivot_wider
 #'
 #' @return Tibble with columns containing result for each resource.
 #' @export
@@ -2085,9 +2155,6 @@ We also add a new parameter `simulation_end_time`.
 #' @param run_number Integer index of current simulation run.
 #' @param simulation_end_time Time at end of simulation run.#<<
 #'
-#' @importFrom dplyr bind_cols
-#' @importFrom tibble tibble
-#'
 #' @return Tibble with processed results from replication.
 #' @export
 
@@ -2108,11 +2175,6 @@ We need to pass the full simulation run time (i.e. warm-up period + data collect
 #'
 #' @param param List. Model parameters.
 #' @param run_number Numeric. Run number for random seed generation.
-#'
-#' @importFrom dplyr mutate
-#' @importFrom simmer add_generator add_resource get_mon_arrivals
-#' @importFrom simmer get_mon_resources release run seize simmer timeout
-#' @importFrom simmer trajectory
 #'
 #' @return Named list with tables `arrivals`, `resources` and `run_results`.
 #' @export
@@ -2410,6 +2472,32 @@ class Runner:
 
 <div class="h3-tight"></div>
 
+### Imports
+
+We add:
+
+* Functions from `dplyr`: `lead`, `left_join`, `row_number` and `summarise`.
+* Functions from `simmer`: `get_queue_count` and `set_attribute`.
+* Functions from `tidyr`: `pivot_wider`.
+
+```{.r}
+#' @keywords internal
+"_PACKAGE"
+
+## usethis namespace: start
+#' @importFrom dplyr arrange bind_cols filter group_by lead left_join mutate n #<<
+#' @importFrom dplyr row_number slice summarise ungroup #<<
+#' @importFrom rlang .data
+#' @importFrom simmer add_generator add_resource get_mon_arrivals
+#' @importFrom simmer get_mon_resources get_queue_count release run seize #<<
+#' @importFrom simmer set_attribute simmer timeout trajectory #<<
+#' @importFrom tibble tibble
+#' @importFrom tidyr pivot_wider #<<
+## usethis namespace: end
+
+NULL
+```
+
 ### Queue length function
 
 A new function `calc_mean_queue_length()` finds the **time-weighted** mean queue length for each resource. It does this by:
@@ -2427,10 +2515,6 @@ For a clear visual explanation of how these calculations work, refer to the [Tim
 #'
 #' @param arrivals Dataframe with times for each patient with each resource.
 #' @param simulation_end_time Time at end of simulation run.
-#'
-#' @importFrom dplyr arrange group_by lead mutate n row_number summarise
-#' @importFrom dplyr ungroup
-#' @importFrom tidyr pivot_wider
 #'
 #' @return Tibble with column containing mean queue length.
 #' @export
@@ -2479,9 +2563,6 @@ In `get_run_results()`, the table `results[["arrivals"]]` is passed to `calc_mea
 #' @param run_number Integer index of current simulation run.
 #' @param simulation_end_time Time at end of simulation run.#<<
 #'
-#' @importFrom dplyr bind_cols
-#' @importFrom tibble tibble
-#'
 #' @return Tibble with processed results from replication.
 #' @export
 
@@ -2508,13 +2589,6 @@ We also need to pass the full run time to `get_run_results()`, so calculate `ful
 #'
 #' @param param List. Model parameters.
 #' @param run_number Numeric. Run number for random seed generation.
-#'
-#' @importFrom dplyr left_join mutate #<<
-#' @importFrom rlang .data #<<
-#' @importFrom simmer add_generator add_resource get_mon_arrivals
-#' @importFrom simmer get_queue_count get_mon_resources release run seize #<<
-#' @importFrom simmer set_attribute simmer timeout trajectory #<<
-#' @importFrom tidyr pivot_wider #<<
 #'
 #' @return Named list with tables `arrivals`, `resources` and `run_results`.
 #' @export
@@ -2882,6 +2956,27 @@ class Runner:
 
 <div class="h3-tight"></div>
 
+### Imports
+
+We only need to add `dplyr::summarise()`.
+
+```{.r}
+#' @keywords internal
+"_PACKAGE"
+
+## usethis namespace: start
+#' @importFrom dplyr arrange bind_cols filter group_by mutate n slice summarise #<<
+#' @importFrom dplyr ungroup
+#' @importFrom rlang .data
+#' @importFrom simmer add_generator add_resource get_mon_arrivals
+#' @importFrom simmer get_mon_resources release run seize simmer
+#' @importFrom simmer timeout trajectory
+#' @importFrom tibble tibble
+## usethis namespace: end
+
+NULL
+```
+
 ### Time in system function
 
 The `calc_mean_time_in_system()` function finds the mean of a new column `time_in_system`.
@@ -2890,8 +2985,6 @@ The `calc_mean_time_in_system()` function finds the mean of a new column `time_i
 #' Calculate the mean time in the system for finished patients.
 #'
 #' @param arrivals Dataframe with times for each patient with each resource.
-#'
-#' @importFrom dplyr summarise ungroup
 #'
 #' @return Tibble with column containing the mean time in the system.
 #' @export
@@ -2917,9 +3010,6 @@ In `get_run_results()`, the table `results[["arrivals"]]` is passed to `calc_mea
 #'   (`per_resource = TRUE` and `ongoing = TRUE`).
 #' @param run_number Integer index of current simulation run.
 #'
-#' @importFrom dplyr bind_cols
-#' @importFrom tibble tibble
-#'
 #' @return Tibble with processed results from replication.
 #' @export
 
@@ -2940,11 +3030,6 @@ In `model()` we create the new `time_in_system` column by finding the difference
 #'
 #' @param param List. Model parameters.
 #' @param run_number Numeric. Run number for random seed generation.
-#'
-#' @importFrom dplyr mutate
-#' @importFrom simmer add_generator add_resource get_mon_arrivals
-#' @importFrom simmer get_mon_resources release run seize simmer timeout
-#' @importFrom simmer trajectory
 #'
 #' @return Named list with tables `arrivals`, `resources` and `run_results`.
 #' @export
@@ -3317,6 +3402,32 @@ class Runner:
 
 <div class="h3-tight"></div>
 
+### Imports
+
+We add:
+
+* Functions from `dplyr`: `bind_rows`, `desc`, `lead`, `row_number`, `summarise` and `transmute`.
+* Imports from new packages: `tidyr` and `tidyselect`.
+
+```{.r}
+#' @keywords internal
+"_PACKAGE"
+
+## usethis namespace: start
+#' @importFrom dplyr arrange bind_cols bind_rows desc filter group_by lead #<<
+#' @importFrom dplyr mutate n row_number slice summarise transmute ungroup #<<
+#' @importFrom rlang .data
+#' @importFrom simmer add_generator add_resource get_mon_arrivals
+#' @importFrom simmer get_mon_resources release run seize simmer
+#' @importFrom simmer timeout trajectory
+#' @importFrom tibble tibble
+#' @importFrom tidyr drop_na #<<
+#' @importFrom tidyselect all_of #<<
+## usethis namespace: end
+
+NULL
+```
+
 ### Patients in system function
 
 The function `calc_mean_patients_in_system()` does not use the arrivals or resources dataframes - instead, it uses a new dataframe which contains patient counts over time.
@@ -3330,8 +3441,6 @@ For a clear visual explanation of how these calculations work, refer to the [Tim
 #'
 #' @param patient_count Dataframe with patient counts over time.
 #' @param simulation_end_time Time at end of simulation run.
-#'
-#' @importFrom dplyr arrange lead mutate n row_number summarise ungroup
 #'
 #' @return Tibble with column containing mean number of patients in the system.
 #' @export
@@ -3375,9 +3484,6 @@ In `get_run_results()`, the table `results[["patients_in_system"]]` is passed to
 #' @param run_number Integer index of current simulation run.
 #' @param simulation_end_time Time at end of simulation run.#<<
 #'
-#' @importFrom dplyr bind_cols
-#' @importFrom tibble tibble
-#'
 #' @return Tibble with processed results from replication.
 #' @export
 
@@ -3407,14 +3513,6 @@ We also need to pass the full run time to `get_run_results()`, so calculate `ful
 #'
 #' @param param List. Model parameters.
 #' @param run_number Numeric. Run number for random seed generation.
-#'
-#' @importFrom dplyr arrange bind_rows desc mutate transmute #<<
-#' @importFrom rlang .data #<<
-#' @importFrom simmer add_generator add_resource get_mon_arrivals
-#' @importFrom simmer get_mon_resources release run seize simmer timeout
-#' @importFrom simmer trajectory
-#' @importFrom tidyr drop_na #<<
-#' @importFrom tidyselect all_of #<<
 #'
 #' @return Named list with tables `arrivals`, `resources` and `run_results`.
 #' @export
@@ -3893,6 +3991,32 @@ class Runner:
 
 We will record two performance measures here: the **count** of unseen patients and their **mean wait time** (ie., time between arrival and end of simulation).
 
+### Imports
+
+We add:
+
+* Functions from `dplyr`: `lead`, `left_join` and `summarise`.
+* Functions from `simmer`: `now` and `set_attribute`.
+* New import `tidyr::pivot_wider()`.
+
+```{.r}
+#' @keywords internal
+"_PACKAGE"
+
+## usethis namespace: start
+#' @importFrom dplyr arrange bind_cols filter group_by lead left_join mutate n #<<
+#' @importFrom dplyr slice summarise ungroup #<<
+#' @importFrom rlang .data
+#' @importFrom simmer add_generator add_resource get_mon_arrivals
+#' @importFrom simmer get_mon_resources now release run seize set_attribute #<<
+#' @importFrom simmer simmer timeout trajectory
+#' @importFrom tibble tibble
+#' @importFrom tidyr pivot_wider #<<
+## usethis namespace: end
+
+NULL
+```
+
 ### Unseen patient count function
 
 The `calc_unseen_n` function finds the count of patients who have a result in the new `wait_time_unseen` column.
@@ -3901,9 +4025,6 @@ The `calc_unseen_n` function finds the count of patients who have a result in th
 #' Calculate the number of patients still waiting for resource at end
 #'
 #' @param arrivals Dataframe with times for each patient with each resource.
-#'
-#' @importFrom dplyr arrange lead mutate summarise ungroup
-#' @importFrom rlang .data
 #'
 #' @return Tibble with columns containing result for each resource.
 #' @export
@@ -3928,10 +4049,6 @@ The `calc_unseen_mean` function finds the mean of a new column `wait_time_unseen
 #' resource at the end of the simulation
 #'
 #' @param arrivals Dataframe with times for each patient with each resource.
-#'
-#' @importFrom dplyr group_by summarise ungroup
-#' @importFrom rlang .data
-#' @importFrom tidyr pivot_wider
 #'
 #' @return Tibble with columns containing result for each resource.
 #' @export
@@ -3959,9 +4076,6 @@ In `get_run_results()`, the table `results[["arrivals"]]` is passed to `calc_uns
 #'   (`per_resource = TRUE` and `ongoing = TRUE`).
 #' @param run_number Integer index of current simulation run.
 #'
-#' @importFrom dplyr bind_cols
-#' @importFrom tibble tibble
-#'
 #' @return Tibble with processed results from replication.
 #' @export
 
@@ -3987,13 +4101,6 @@ The earlier changes to add `serve_start` to the arrivals dataframe are the same 
 #'
 #' @param param List. Model parameters.
 #' @param run_number Numeric. Run number for random seed generation.
-#'
-#' @importFrom dplyr left_join mutate #<<
-#' @importFrom rlang .data #<<
-#' @importFrom simmer add_generator add_resource get_mon_arrivals
-#' @importFrom simmer get_mon_resources now release run seize set_attribute #<<
-#' @importFrom simmer simmer timeout trajectory
-#' @importFrom tidyr pivot_wider #<<
 #'
 #' @return Named list with tables `arrivals`, `resources` and `run_results`.
 #' @export
