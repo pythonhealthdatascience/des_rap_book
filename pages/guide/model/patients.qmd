@@ -395,7 +395,42 @@ model.run()
 
 :::
 
-::: {.r-content}
+:::: {.r-content}
+
+### How to run the example code
+
+The examples below can be run in a script, notebook, or as part of a package. Setup and imports differ slightly depending on your method; see below for details.
+
+**Package structure** - recommended (see [Structuring as a package](../setup/package.qmd) page for more details)
+
+* Create a package‑level documentation file with `usethis::use_package_doc()`, and add `@importFrom` tags there to declare the functions you use across the package.
+* Run `devtools::document()` (to update imports in your `NAMESPACE`) and `devtools::load_all()` (to load your package and dependencies).
+* You do not need `library()` calls in your analysis scripts: loading your package makes its exported functions, and any imported functions, available automatically.
+
+**Script / Notebook**
+
+* Start with necessary imports (e.g., `library(simmer)`).
+* Use functions/class directly, or prefix with `simmer::`.
+* Roxygen `@importFrom` tags do **not** affect scripts - but are included in case you choose to use the package structure.
+
+
+### Imports
+
+As mentioned above and on our [packaging](/pages/guide/setup/package.qmd) page, we will be listing imports for our simulation functions using package-level documentation, initially created with `usethis::use_package_doc()`.
+
+For this page, we will add the following imports:
+
+```{.r}
+#' @keywords internal
+"_PACKAGE"
+
+## usethis namespace: start
+#' @importFrom simmer add_generator run simmer timeout trajectory
+## usethis namespace: end
+
+NULL
+
+```
 
 ### Parameter function
 
@@ -432,8 +467,6 @@ We'll then create a function for the model (explained line by line below).
 #' @param param List. Model parameters.
 #' @param run_number Numeric. Run number for random seed generation.
 #'
-#' @importFrom simmer add_generator run simmer timeout trajectory
-#'
 #' @export
 
 model <- function(param, run_number) {
@@ -466,8 +499,6 @@ model <- function(param, run_number) {
 #'
 #' @param param List. Model parameters.
 #' @param run_number Numeric. Run number for random seed generation.
-#' 
-#' @importFrom simmer add_generator run simmer timeout trajectory
 #' 
 #' @export
 
@@ -537,7 +568,7 @@ param <- create_params()
 model(param = param, run_number = 1L)
 ```
 
-:::
+::::
 
 ## Distribution registry
 
