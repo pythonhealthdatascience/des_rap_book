@@ -2,9 +2,6 @@
 #'
 #' @param arrivals Dataframe with times for each patient with each resource.
 #'
-#' @importFrom dplyr n_distinct summarise ungroup
-#' @importFrom rlang .data
-#'
 #' @return Tibble with column containing total number of arrivals.
 #' @export
 
@@ -18,11 +15,6 @@ calc_arrivals <- function(arrivals) {
 #' Calculate the mean wait time for each resource
 #'
 #' @param arrivals Dataframe with times for each patient with each resource.
-#'
-#' @importFrom dplyr group_by summarise ungroup
-#' @importFrom rlang .data
-#' @importFrom tidyr drop_na pivot_wider
-#' @importFrom tidyselect any_of
 #'
 #' @return Tibble with columns containing result for each resource.
 #' @export
@@ -47,11 +39,6 @@ calc_mean_wait <- function(arrivals) {
 #'
 #' @param arrivals Dataframe with times for each patient with each resource.
 #' @param resources Dataframe with times patients use or queue for resources.
-#'
-#' @importFrom dplyr group_by summarise ungroup
-#' @importFrom rlang .data
-#' @importFrom tidyr drop_na pivot_wider
-#' @importFrom tidyselect any_of
 #'
 #' @return Tibble with columns containing result for each resource.
 #' @export
@@ -88,10 +75,6 @@ calc_mean_serve_length <- function(arrivals, resources) {
 #' @param summarise If TRUE, return overall utilisation. If FALSE, just return
 #' the resource dataframe with the additional columns interval_duration,
 #' effective_capacity and utilisation.
-#'
-#' @importFrom dplyr group_by mutate n row_number summarise ungroup
-#' @importFrom rlang .data
-#' @importFrom tidyr pivot_wider
 #'
 #' @return Tibble with columns containing result for each resource.
 #' @export
@@ -148,10 +131,6 @@ calc_utilisation <- function(
 #' @param arrivals Dataframe with times for each patient with each resource.
 #' @param simulation_end_time Time at end of simulation run.
 #'
-#' @importFrom dplyr arrange group_by lead mutate n row_number summarise
-#' @importFrom dplyr ungroup
-#' @importFrom tidyr pivot_wider
-#'
 #' @return Tibble with column containing mean queue length.
 #' @export
 
@@ -190,8 +169,6 @@ calc_mean_queue_length <- function(arrivals, simulation_end_time) {
 #'
 #' @param arrivals Dataframe with times for each patient with each resource.
 #'
-#' @importFrom dplyr summarise ungroup
-#'
 #' @return Tibble with column containing the mean time in the system.
 #' @export
 
@@ -208,8 +185,6 @@ calc_mean_time_in_system <- function(arrivals) {
 #'
 #' @param patient_count Dataframe with patient counts over time.
 #' @param simulation_end_time Time at end of simulation run.
-#'
-#' @importFrom dplyr arrange lead mutate n row_number summarise ungroup
 #'
 #' @return Tibble with column containing mean number of patients in the system.
 #' @export

@@ -173,11 +173,37 @@ For parallel execution, the code first checks if the requested number of cores i
 
 :::: {.r-content}
 
+### Imports
+
+We've add imports from two new pacakages: `future` and `future.apply`.
+
+*Bold lines show where the code has changed since the previous version. The highlight may correspond to a change anywhere on that line, not necessarily to the entire line.*
+
+```{.r}
+#' @keywords internal
+"_PACKAGE"
+
+## usethis namespace: start
+#' @importFrom dplyr arrange bind_cols bind_rows desc filter group_by lead
+#' @importFrom dplyr left_join mutate n n_distinct row_number slice summarise
+#' @importFrom dplyr transmute ungroup
+#' @importFrom future plan multisession sequential #<<
+#' @importFrom future.apply future_lapply #<<
+#' @importFrom rlang .data
+#' @importFrom simmer add_generator add_resource get_attribute get_mon_arrivals
+#' @importFrom simmer get_mon_resources get_queue_count now release run seize
+#' @importFrom simmer set_attribute simmer timeout trajectory
+#' @importFrom tibble tibble
+#' @importFrom tidyr drop_na pivot_wider
+#' @importFrom tidyselect any_of
+## usethis namespace: end
+
+NULL
+```
+
 ### Parameter function
 
 A new attribute `cores` is used to record the number of CPU cores to use for parallel execution. If set to `-1`, it will use all available cores. If set to `1`, it will run sequentially.
-
-*Bold lines show where the code has changed since the previous version. The highlight may correspond to a change anywhere on that line, not necessarily to the entire line.*
 
 ```{r}
 #' Generate parameter list.
@@ -265,14 +291,6 @@ A new option (`set_seed`) controls whether to set a random seed based on the `ru
 #' @param param List. Model parameters.
 #' @param run_number Numeric. Run number for random seed generation.
 #' @param set_seed Boolean. Whether to set seed within the model function.#<<
-#'
-#' @importFrom dplyr arrange bind_rows desc left_join mutate transmute
-#' @importFrom rlang .data
-#' @importFrom simmer add_generator add_resource get_mon_arrivals
-#' @importFrom simmer get_attribute get_mon_resources now release run seize
-#' @importFrom simmer set_attribute simmer timeout trajectory
-#' @importFrom tidyr drop_na pivot_wider
-#' @importFrom tidyselect all_of
 #'
 #' @return Named list with tables `arrivals`, `resources` and `run_results`.
 #' @export
@@ -403,10 +421,6 @@ For most cases, use the `runner` and set `number_of_runs = 1` for single runs. A
 #' seeding (`future.seed = seed`), though results will not match `model()`.
 #' If FALSE, seeds each run with its run number (like `model()`), though this
 #' is discourage by future_lapply documentation.
-#'
-#' @importFrom future plan multisession sequential
-#' @importFrom future.apply future_lapply
-#' @importFrom dplyr bind_rows
 #'
 #' @return List with three tables: arrivals, resources and run_results.
 #' @export
