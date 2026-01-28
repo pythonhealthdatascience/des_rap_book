@@ -71,9 +71,9 @@ A popular framework for testing in R is **testthat**.
 
 Each test uses the `test_that()` functions and is structured around expectations that check specific conditions (e.g., `expect_true()`, `expect_false()`, `expect_equal()`, `expect_error()` - see [package index](https://testthat.r-lib.org/reference/index.html) for more).
 
-Tests are typically stored in a folder called `tests/testthat`, and filenames start with the prefix `test_`. This naming convention allows `testthat` to automatically discover and run all tests in the folder.
+Tests are typically stored in a folder called `tests/testthat`, and filenames start with the prefix `test_`. This naming convention allows `testthat` to automatically discover and run all tests in the folder. You can create this structure with `usethis`, as explained below.
 
-Here's an example of a simple test using testthat:
+First, here's an example of a simple test using testthat:
 
 ```{r}
 #| output: false
@@ -86,6 +86,22 @@ test_that("Confirm that the number is positive", {
   expect_gt(number, 0L)
 })
 ```
+
+### Setting up a testing structure with testthat
+
+If you model is [structured as a package](/pages/guide/setup/package.qmd), the easiest way to get started with tests is to let `usethis` create the standard `testthat` layout for you:
+
+```{.r}
+usethis::use_testthat()
+```
+
+This creates the `tests/testthat/` directory, adds the necessary configuration files, and records `testthat` as a suggested dependency. You can then create individual test files with:
+
+```{.r}
+usethis::use_test("simulation")
+```
+
+...which will open a new file such as `tests/testthat/test-simulation.R` ready for you to add `test_that()` blocks.
 
 :::
 

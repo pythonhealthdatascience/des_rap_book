@@ -102,7 +102,7 @@ We will continue working with the model developed on the previous pages. This mo
 
 ::: {.r-content}
 
-> **Note:** The results will look different to the previous page for several of the metrics. This is due to mean time in consultation. As mentioned on the [Performance measures](outputs.qmd) page, mean time in consultation requires saving sampled times using `set_attribute()` ahead of resource use. This changes the order in which random numbers are drawn from the simulation’s global random number generator. As a result, even with the same seed and parameters, the results will differ from previous runs before we added the metric.
+> **Note:** The results will look different to the previous page for several of the metrics. This is due to mean time in consultation. As mentioned on the [Performance measures](outputs.qmd) page, mean time in consultation requires saving sampled times using `set_attribute()` ahead of resource use. This changes the order in which random numbers are drawn from the simulation's global random number generator. As a result, even with the same seed and parameters, the results will differ from previous runs before we added the metric.
 
 :::
 
@@ -111,6 +111,8 @@ We will continue working with the model developed on the previous pages. This mo
 ### Parameter class
 
 Let's add a new attribute `number_of_runs`. We've arbitrarily set this to five, but the [Number of replications](n_reps.qmd) page shows how to choose a suitable number to run.
+
+*Bold lines show where the code has changed since the previous version. The highlight may correspond to a change anywhere on that line, not necessarily to the entire line.*
 
 ```{python}
 #| source-line-numbers: "17-18,25,42-43,52"
@@ -260,9 +262,39 @@ HTML(to_html_datatable(result["overall"]))
 
 :::: {.r-content}
 
+### Imports
+
+No changes required.
+
+::: {.callout title="▶&nbsp;&nbsp;Imports" collapse="true" style="minimal"}
+
+```{.r}
+#' @keywords internal
+"_PACKAGE"
+
+## usethis namespace: start
+#' @importFrom dplyr arrange bind_cols bind_rows desc filter group_by lead
+#' @importFrom dplyr left_join mutate n n_distinct row_number slice summarise
+#' @importFrom dplyr transmute ungroup
+#' @importFrom rlang .data
+#' @importFrom simmer add_generator add_resource get_attribute get_mon_arrivals
+#' @importFrom simmer get_mon_resources get_queue_count now release run seize
+#' @importFrom simmer set_attribute simmer timeout trajectory
+#' @importFrom tibble tibble
+#' @importFrom tidyr drop_na pivot_wider
+#' @importFrom tidyselect any_of
+## usethis namespace: end
+
+NULL
+```
+
+:::
+
 ### Parameter function
 
 Let's add a new attribute `number_of_runs`. We've arbitrarily set this to five, but the [Number of replications](n_reps.qmd) page shows how to choose a suitable number to run.
+
+*Bold lines show where the code has changed since the previous version. The highlight may correspond to a change anywhere on that line, not necessarily to the entire line.*
 
 ```{r}
 #| source-line-numbers: "10,22,31"

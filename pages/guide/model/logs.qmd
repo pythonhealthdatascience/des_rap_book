@@ -92,6 +92,18 @@ The default simmer logs are useful but can be quite confusing to use. Instead, w
 
 Logging should be **optional**. It's best to use them while developing and testing the model with short runs and no replications. They will be excessive and slow down the simulation if used for long runs or multiple replications.
 
+:::: {.r-content}
+
+<br>
+
+::: {.callout-note}
+
+For the rest of the book, we will use simmer's default activity log output for simplicity. This page is just to show you how you could set up custom logs if you want them.
+
+:::
+
+::::
+
 ## Setting up alternative logs for the model
 
 <div class="h3-tight"></div>
@@ -541,6 +553,25 @@ model.run()
 
 ::: {.r-content}
 
+### Imports
+
+We need to add the following functions from `simmer`: `get_attribute`, `log_` and `set_attribute`.
+
+*Bold lines show where the code has changed since the previous version. The highlight may correspond to a change anywhere on that line, not necessarily to the entire line.*
+
+```{.r}
+#' @keywords internal
+"_PACKAGE"
+
+## usethis namespace: start
+#' @importFrom simmer add_generator add_resource get_attribute log_ release run #<<
+#' @importFrom simmer seize set_attribute simmer timeout trajectory #<<
+## usethis namespace: end
+
+NULL
+
+```
+
 ### Parameter function
 
 No changes required.
@@ -583,16 +614,11 @@ create_params <- function(
 
 The required changes are explained line-by-line below.
 
-*Bold lines show where the code has changed since the previous version. The highlight may correspond to a change anywhere on that line, not necessarily to the entire line.*
-
 ```{r}
 #' Run simulation.
 #'
 #' @param param List. Model parameters.
 #' @param run_number Numeric. Run number for random seed generation.
-#'
-#' @importFrom simmer add_generator add_resource get_attribute log_ release run
-#' @importFrom simmer seize set_attribute simmer timeout trajectory
 #'
 #' @export
 
@@ -961,6 +987,10 @@ model.run()
 
 ::: {.r-content}
 
+### Imports
+
+No changes required.
+
 ### Parameter function
 
 No changes required.
@@ -976,9 +1006,6 @@ This is add to the simulation environment using `add_generator()` with `at(0)` e
 #'
 #' @param param List. Model parameters.
 #' @param run_number Numeric. Run number for random seed generation.
-#'
-#' @importFrom simmer add_generator add_resource get_attribute log_ release run
-#' @importFrom simmer seize set_attribute simmer timeout trajectory
 #'
 #' @export
 
@@ -1437,6 +1464,10 @@ for line in log_contents:
 
 ::: {.r-content}
 
+### Imports
+
+No changes required.
+
 ### Parameter function
 
 Our argument `verbose` has been replace by three new arguments: `log_to_console`, `log_to_file` and `file_path`...
@@ -1488,9 +1519,6 @@ So that we are able to save the log messages, we use `capture.output` to store t
 #'
 #' @param param List. Model parameters.
 #' @param run_number Numeric. Run number for random seed generation.
-#'
-#' @importFrom simmer add_generator add_resource get_attribute log_ release run
-#' @importFrom simmer seize set_attribute simmer timeout trajectory
 #'
 #' @export
 

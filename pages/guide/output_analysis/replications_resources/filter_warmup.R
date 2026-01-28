@@ -3,9 +3,6 @@
 #' @param result Named list with two tables: monitored arrivals & resources.
 #' @param warm_up_period Length of warm-up period.
 #'
-#' @importFrom dplyr arrange filter group_by mutate n slice ungroup
-#' @importFrom rlang .data
-#'
 #' @return The named list `result`, but with the tables (`arrivals` and
 #' `resources`) filtered to remove warm-up results.
 #' @export

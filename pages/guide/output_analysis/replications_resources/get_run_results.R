@@ -6,9 +6,6 @@
 #' @param run_number Integer index of current simulation run.
 #' @param simulation_end_time Time at end of simulation run.
 #'
-#' @importFrom dplyr bind_cols
-#' @importFrom tibble tibble
-#'
 #' @return Tibble with processed results from replication.
 #' @export
 

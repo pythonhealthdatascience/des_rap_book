@@ -66,7 +66,6 @@ library(ggplot2)
 library(gridExtra)
 library(knitr)
 library(plotly)
-library(R6)
 library(simmer)
 library(tidyr)
 ```
@@ -77,7 +76,7 @@ library(tidyr)
 
 ## Determining a suitable length of warm-up
 
-A **warm-up period** helps address initialisation bias, which occurs when a simulation begins in an "empty" state that doesn’t reflect how the real system usually operates. In this early phase, performance measures can be unusually high or low because the system hasn't yet settled into typical conditions. Running the model for a warm-up period before collecting results allows it to reach **steady-state behaviour** - a stage where performance measures are stable and represent typical, ongoing behaviour.
+A **warm-up period** helps address initialisation bias, which occurs when a simulation begins in an "empty" state that doesn't reflect how the real system usually operates. In this early phase, performance measures can be unusually high or low because the system hasn't yet settled into typical conditions. Running the model for a warm-up period before collecting results allows it to reach **steady-state behaviour** - a stage where performance measures are stable and represent typical, ongoing behaviour.
 
 Many different methods have been proposed for **determining a suitable length of warm-up** - the simplest is the **time series inspection approach**. This involves **looking at performance measures over time** to identify when the system is exhibiting steady state behaviour *(even though the system will never truly reach a "steady state")*.
 
@@ -514,7 +513,9 @@ plot_time_series(audit_results, "patients_in_system", 3000)
 
 The simulation being used and edited on this page is that from the [Replications](replications.qmd) page.
 
-The parameter, warm-up, run results, model and runner functions are unchanged. However, we do need to make a change to the function used to calculate utilisation.
+The parameter, warm-up, run results, model and runner functions are unchanged. However, we do need to make a changes to the imports and to the function used to calculate utilisation.
+
+<br>
 
 As a reminder, these are the functions from the [Replications](replications.qmd) page:
 
@@ -568,13 +569,44 @@ And these are the metrics functions from the [Replications](replications.qmd) pa
 
 :::
 
+#### Imports
+
+We need to add:
+
+* Functions from `dplyr`: `across`, `rename` and `select`.
+* Functions from `tidyselect`: `all_of`.
+* Imports from new packages `ggplot2` and `gridExtra`.
+
+*Bold lines show where the code has changed since the previous version. The highlight may correspond to a change anywhere on that line, not necessarily to the entire line.*
+
+```{.r}
+#' @keywords internal
+"_PACKAGE"
+
+## usethis namespace: start
+#' @importFrom dplyr across arrange bind_cols bind_rows desc filter group_by #<<
+#' @importFrom dplyr lead left_join mutate n n_distinct rename row_number #<<
+#' @importFrom dplyr select slice summarise transmute ungroup #<<
+#' @importFrom ggplot2 aes_string annotate geom_line geom_vline ggsave labs #<<
+#' @importFrom ggplot2 theme_minimal ggplot #<<
+#' @importFrom gridExtra marrangeGrob #<<
+#' @importFrom rlang .data
+#' @importFrom simmer add_generator add_resource get_attribute get_mon_arrivals
+#' @importFrom simmer get_mon_resources get_queue_count now release run seize
+#' @importFrom simmer set_attribute simmer timeout trajectory
+#' @importFrom tibble tibble
+#' @importFrom tidyr drop_na pivot_wider
+#' @importFrom tidyselect all_of any_of #<<
+## usethis namespace: end
+
+NULL
+```
+
 #### Functions to calculate different metrics
 
 We will re-use the `calc_utilisation` function to calculate utilisation at each timepoint. To enable this, we need to add a new argument: `groups`.
 
 Previously we just grouped by resource, but we now want to also group by replication (as we are processing a full results table containing multiple replications).
-
-*Bold lines show where the code has changed since the previous version. The highlight may correspond to a change anywhere on that line, not necessarily to the entire line.*
 
 ```{.r}
 #' Calculate the resource utilisation
@@ -594,11 +626,6 @@ Previously we just grouped by resource, but we now want to also group by replica
 #' @param summarise If TRUE, return overall utilisation. If FALSE, just return
 #' the resource dataframe with the additional columns interval_duration,
 #' effective_capacity and utilisation.
-#'
-#' @importFrom dplyr across group_by mutate n row_number summarise ungroup#<<
-#' @importFrom rlang .data
-#' @importFrom tidyr pivot_wider
-#' @importFrom tidyselect all_of#<<
 #'
 #' @return Tibble with columns containing result for each resource.
 #' @export
@@ -671,13 +698,6 @@ We have a new `time_series_inspection` function for this analysis, which is expl
 #' @param interval Time interval in minutes for calculating cumulative means.
 #' @param warm_up Location on X axis to plot vertical red line indicating the
 #' chosen warm-up period. Defaults to NULL, which will not plot a line.
-#'
-#' @importFrom dplyr arrange group_by mutate rename select ungroup
-#' @importFrom ggplot2 aes_string annotate geom_line geom_vline ggsave labs
-#' @importFrom ggplot2 theme_minimal ggplot
-#' @importFrom gridExtra marrangeGrob
-#' @importFrom rlang .data
-#' @importFrom tidyselect all_of
 #'
 #' @export
 
@@ -815,13 +835,6 @@ time_series_inspection <- function(
 #' @param interval Time interval in minutes for calculating cumulative means.
 #' @param warm_up Location on X axis to plot vertical red line indicating the
 #' chosen warm-up period. Defaults to NULL, which will not plot a line.
-#'
-#' @importFrom dplyr arrange group_by mutate rename select ungroup
-#' @importFrom ggplot2 aes_string annotate geom_line geom_vline ggsave labs
-#' @importFrom ggplot2 theme_minimal ggplot
-#' @importFrom gridExtra marrangeGrob
-#' @importFrom rlang .data
-#' @importFrom tidyselect all_of
 #'
 #' @export
 

@@ -19,7 +19,17 @@ date: "2025-11-03T10:48:30+00:00"
 
 **Pre-reading:**
 
+::: {.python-content}
+
 This page describes how to validate functions/classes introduced on:
+
+:::
+
+::: {.r-content}
+
+This page describes how to validate functions introduced on:
+
+:::
 
 * [Parameters from script](parameters_script.qmd)
 * [Parameters from file](parameters_file.qmd)
@@ -47,7 +57,6 @@ These should be available from environment setup on the [Structuring as a packag
 
 ```{r}
 library(jsonlite)
-library(R6)
 ```
 
 :::
@@ -143,21 +152,6 @@ params
 
 Notice what happened: instead of updating the original value, R has add a **new item** (`transfer_probs`) and left the real parameter unchanged.
 
-**Note:** This issue **doesn't occur when using R6 classes**, as they prevent adding new fields by default. However, if you extract the parameter list from an R6 class and modify that list separately, you'll encounter the same silent error problem. For this reason, it's better to modify parameters through the class interface rather than extracting and modifying the underlying list.
-
-```{r}
-#| file: parameters_validation_resources/ParamClass.R
-``` 
-
-```{r}
-# Create instance of ParamClass
-params <- ParamClass$new()
-
-# Mistype transfer_prob
-try({
-  params$transfer_probs <- 0.4
-})
-```
 :::
 
 ### The solution
@@ -666,18 +660,7 @@ print(param_instance.param_dict)
 
 :::: {.r-content}
 
-There are two main approaches to prevent these silent failures **when using functions**:
-
-:::{.pale-blue}
-* Implement parameter validation within your model functions.
-* Switch to using R6 classes.
-:::
-
-Class-based validation is often preferable as it catches errors at the point when parameters are defined - but both approaches are effective!
-
-Functions are more commonly used in R than classes, so you may prefer to stick with the function-based approach for consistency with R conventions.
-
-### Parameter validation within the model function
+To prevent these silent failures, you should **implement parameter validation within your model functions**.
 
 Our parameter function returns a list. While you could validate arguments within the parameter function, this would not prevent accidental modification after the list is returned.
 
@@ -808,158 +791,13 @@ params$transfer_probs <- 0.4
 try(model(params, param_function))
 ```
 
-### Parameter validation within the class
-
-By default, **R6 classes prevent the addition of new fields**. However, there are ways you can override this behavior or set up your classes differently that would not have this protection for your parameters. These include:
-
-* Setting `lock_objects = FALSE`.
-* Setting parameters within a list.
-
-As a reminder, this is our default parameter class:
-
-```{r}
-#| file: parameters_validation_resources/ParamClass.R
-``` 
-
-```{r}
-# Create instance of ParamClass
-params <- ParamClass$new()
-
-# Mistype transfer_prob
-try({
-  params$transfer_probs <- 0.4
-})
-```
-
-#### Setting `lock_objects = FALSE`
-
-The prevention of new fields is thanks to the default `lock_objects = TRUE` setting. If we override this and set `lock_objects = FALSE`, it will not raise an error when new fields are added. Therefore, it's important not to override this default behavior.
-
-```{r}
-#' @title Returns transfer_prob for validation example.
-#'
-#' @field transfer_prob Numeric. Transfer probability (0-1).
-
-ParamClass <- R6Class( # nolint: object_name_linter
-  lock_objects = FALSE,
-  public = list(
-    transfer_prob = NULL,
-
-    #' @description
-    #' Initialises the R6 object.
-
-    initialize = function(transfer_prob = 0.3) {
-      self$transfer_prob <- transfer_prob
-    }
-  )
-)
-```
-
-```{r}
-# Create instance of ParamClass
-params <- ParamClass$new()
-
-# Mistype transfer_prob
-try({
-  params$transfer_probs <- 0.4
-})
-params
-```
-
-#### Setting parameters within a list
-
-If you set up your R6 class with each parameter as a class field, then by default, it will have validation to prevent the addition of new fields.
-
-You may choose to store parameters in a list instead, to make it easier to access them all at once - but, if you do this, the validation won't apply.
-
-```{r}
-#' @title Returns transfer_prob for validation example.
-#'
-#' @field transfer_prob Numeric. Transfer probability (0-1).
-
-ParamClass <- R6Class( # nolint: object_name_linter
-  public = list(
-    parameters = NULL,
-
-    #' @description
-    #' Initialises the R6 object.
-
-    initialize = function(transfer_prob = 0.3) {
-      self$parameters <- list(
-        transfer_prob = transfer_prob
-      )
-    }
-  )
-)
-```
-
-```{r}
-# Create instance of ParamClass
-params <- ParamClass$new()
-
-# Mistype transfer_prob
-try({
-  params$parameters$transfer_probs <- 0.4
-})
-params$parameters
-```
-
-<br>
-
-However, there is a clean solution that allows you to access parameters easily while maintaining individual fields with built-in validation. By adding a `get_params()` method, you can extract parameters without storing them in a list.
-
-```{r}
-#' @title Returns transfer_prob for validation example.
-#'
-#' @field transfer_prob Numeric. Transfer probability (0-1).
-
-ParamClass <- R6Class( # nolint: object_name_linter
-  public = list(
-    transfer_prob = NULL,
-
-    #' @description
-    #' Initialises the R6 object.
-
-    initialize = function(transfer_prob = 0.3) {
-      self$transfer_prob <- transfer_prob
-    },
-
-    #' @description
-    #' Returns parameters as a named list.
-
-    get_params = function() {
-      # Get all non-function fields
-      all_names <- ls(self)
-      is_not_function <- vapply(
-        all_names,
-        function(x) !is.function(self[[x]]),
-        FUN.VALUE = logical(1L)
-      )
-      param_names <- all_names[is_not_function]
-      mget(param_names, envir = self)
-    }
-  )
-)
-```
-
-```{r}
-# Create instance of ParamClass
-params <- ParamClass$new()
-
-# Mistype transfer_prob
-try({
-  params$transfer_probs <- 0.4
-})
-
-# Get all parameters
-params$get_params()
-```
-
 ::::
 
 ## Validating parameter values (e.g. range)
 
-You can check that the provided inputs are valid - expected format, range, etc. This can be part of your [assertion checking](../verification_validation/verification_validation.qmd#assertion-checking), which is when you add checks in the model which cause errors if something doesn’t look right, as part of model verification. 
+You can check that the provided inputs are valid - expected format, range, etc. This can be part of your [assertion checking](../verification_validation/verification_validation.qmd#assertion-checking), which is when you add checks in the model which cause errors if something doesn't look right, as part of model verification. 
+
+::: {.python-content}
 
 Parameter validation can either be:
 
@@ -972,7 +810,6 @@ Parameter validation can either be:
 
 As a reminder, this is our parameter function:
 
-::: {.python-content}
 ```{python}
 #| file: parameters_validation_resources/param_function.py
 ```
@@ -980,6 +817,9 @@ As a reminder, this is our parameter function:
 :::
 
 ::: {.r-content}
+
+As a reminder, this is our parameter function:
+
 ```{r}
 #| file: parameters_validation_resources/param_function.R
 ```
@@ -1105,11 +945,11 @@ model(params)
 ```
 :::
 
+::: {.python-content}
+
 ### Parameter validation within the class
 
 As a reminder, this is our parameter class:
-
-::: {.python-content}
 
 ```{python}
 #| file: parameters_validation_resources/ParamClass.py
@@ -1120,21 +960,6 @@ As a reminder, this is our parameter class:
 param = ParamClass(transfer_prob=1.4)
 ```
 
-:::
-
-::: {.r-content}
-
-```{r}
-#| file: parameters_validation_resources/ParamClass.R
-```
-
-```{r}
-# Create instance with invalid transfer_prob - no error raised
-param <- ParamClass$new(transfer_prob = 1.4)
-```
-
-:::
-
 As you'll see, no error was raised when using an invalid transfer probability.
 
 <br>
@@ -1142,8 +967,6 @@ As you'll see, no error was raised when using an invalid transfer probability.
 The new `validate_param()` method checks whether `transfer_prob` is between 0 and 1.
 
 Although this is defined within the class, it could also be called from within the model function, so that all parameters are checked before the simulation runs.
-
-::: {.python-content}
 
 *Bold lines show where the code has changed since the previous version. The highlight may correspond to a change anywhere on that line, not necessarily to the entire line.*
 
@@ -1179,48 +1002,6 @@ try:  # <<
     param.validate_param()  # <<
 except ValueError as e:  # <<
     print(f"Error: {e}")  # <<
-```
-
-:::
-
-::: {.r-content}
-
-```{r}
-#' @title Returns transfer_prob for validation example.
-#'
-#' @field transfer_prob Numeric. Transfer probability (0-1).
-
-ParamClass <- R6Class( # nolint: object_name_linter
-  public = list(
-    transfer_prob = NULL,
-
-    #' @description
-    #' Initialises the R6 object.
-
-    initialize = function(transfer_prob = 0.3) {
-      self$transfer_prob <- transfer_prob
-    },
-
-    #' @description
-    #' Check that transfer_prob is between 0 and 1.
-    #' @return No return value; throws an error if invalid.
-
-    validate_param = function() {
-      if (self$transfer_prob < 0L || self$transfer_prob > 1L) {
-        stop(
-          "transfer_prob must be between 0 and 1, but is: ",
-          self$transfer_prob, call. = FALSE
-        )
-      }
-    }
-  )
-)
-```
-
-```{r}
-# Create instance with invalid transfer_prob and run method
-param <- ParamClass$new(transfer_prob = 1.4)
-try(param$validate_param())
 ```
 
 :::
@@ -1299,7 +1080,7 @@ If you haven't already, now's the time to try out **parameter validation** in pr
 * Create a simple set of parameters for a simulation model using a function, dictionary, or class (you can use an example from above if you want to).
 :::
 ::: {.r-content}
-* Create a simple set of parameters for a simulation model using a function, list, or R6 class (you can use an example from above if you want to).
+* Create a simple set of parameters for a simulation model.
 :::
 
 * Try **mistyping** a parameter name. Observe what happens - does it raise an error, or does it quietly add a new unused parameter?

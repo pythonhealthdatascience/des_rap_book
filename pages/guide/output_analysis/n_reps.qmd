@@ -316,6 +316,33 @@ For this analysis, we have created two functions `confidence_interval_method` an
 
 ::: {.callout-note collapse="true" title="View functions"}
 
+**Imports:**
+
+*Bold lines show where the code has changed since the previous version. The highlight may correspond to a change anywhere on that line, not necessarily to the entire line.*
+
+```{.r}
+#' @keywords internal
+"_PACKAGE"
+
+## usethis namespace: start
+#' @importFrom dplyr arrange bind_cols bind_rows desc filter group_by lead
+#' @importFrom dplyr left_join mutate n n_distinct row_number slice summarise
+#' @importFrom dplyr transmute ungroup
+#' @importFrom rlang .data
+#' @importFrom simmer add_generator add_resource get_attribute get_mon_arrivals
+#' @importFrom simmer get_mon_resources get_queue_count now release run seize
+#' @importFrom simmer set_attribute simmer timeout trajectory
+#' @importFrom tibble tibble
+#' @importFrom tidyr drop_na pivot_wider
+#' @importFrom tidyselect any_of
+#' @importFrom utils tail #<<
+## usethis namespace: end
+
+NULL
+```
+
+**Functions:**
+
 ```{r}
 #' Use the confidence interval method to select the number of replications.
 #'
@@ -326,9 +353,6 @@ For this analysis, we have created two functions `confidence_interval_method` an
 #' @param desired_precision Desired mean deviation from confidence interval.
 #' @param metric Name of performance metric to assess.
 #' @param verbose Boolean, whether to print messages about parameters.
-#'
-#' @importFrom rlang .data
-#' @importFrom utils tail
 #'
 #' @return Dataframe with results from each replication.
 #' @export
@@ -762,9 +786,53 @@ p.update_layout(autosize=True, width=None, height=390)
 
 As an alternative to manually determining the number of runs required, we can use a more automated method, creating an algorithm which recommends the required number of runs. 
 
-For this analysis, we have created three R6 classes: `WelfordStats`, `ReplicationTabuliser`, and `ReplicationsAlgorithm`.
+For this analysis, we have a function `run_replications_algorithm()`.
 
-::: {.callout-note collapse="true" title="View classes"}
+::: {.callout-note collapse="true" title="View replication algorithm code"}
+
+You just need to use `run_replications_algorithm()`. You will find its code at the end of this callout, and the example in the text will show you how to use it.
+
+Behind this function sits a slightly more advanced R construct called an R6 class. R6 is just one way of organising stateful code in R; you can ignore the details if you have never seen it before. In the background, three R6 classes work together to implement the algorithm:
+
+* `WelfordStats` - keeps a running mean, variance and confidence interval using Welford's online algorithm.
+* `ReplicationTabuliser` - records the results from each replication so we can inspect how precision improves as we add runs.
+* `ReplicationsAlgorithm` - coordinates everything and decides how many replications are needed to reach the desired precision.
+
+The key point: you do not need to interact with these classes directly. In all the examples you will simply:
+
+1. Set up your model parameters.
+2. Call `run_replications_algorithm(param = ...)`.
+3. Work with the returned results (recommended number of replications and a summary table).
+
+If you are curious about how the object‑oriented machinery works, or you'd like a gentle introduction to R6 for your own projects, check out this video from Posit: <https://youtu.be/3GEFd8rZQgY>.
+
+Otherwise, feel free to treat `run_replications_algorithm()` as a black box and focus on the simulation ideas.
+
+**Imports:**
+
+```{.r}
+#' @keywords internal
+"_PACKAGE"
+
+## usethis namespace: start
+#' @importFrom dplyr arrange bind_cols bind_rows desc filter group_by lead
+#' @importFrom dplyr left_join mutate n n_distinct row_number slice summarise
+#' @importFrom dplyr transmute ungroup
+#' @importFrom R6 R6Class #<<
+#' @importFrom rlang .data
+#' @importFrom simmer add_generator add_resource get_attribute get_mon_arrivals
+#' @importFrom simmer get_mon_resources get_queue_count now release run seize
+#' @importFrom simmer set_attribute simmer timeout trajectory
+#' @importFrom stats qt #<<
+#' @importFrom tibble tibble
+#' @importFrom tidyr drop_na pivot_wider
+#' @importFrom tidyselect any_of
+## usethis namespace: end
+
+NULL
+```
+
+**Code:**
 
 ```{r}
 #' Computes running sample mean and variance using Welford's algorithm.
@@ -781,7 +849,6 @@ For this analysis, we have created three R6 classes: `WelfordStats`, `Replicatio
 #' python (https://github.com/sim-tools/sim-tools) (MIT Licence).
 #'
 #' @docType class
-#' @importFrom R6 R6Class
 #'
 #' @return Object of `R6Class` with methods for running mean and variance
 #' calculation.
@@ -888,9 +955,8 @@ WelfordStats <- R6Class("WelfordStats", list( # nolint: object_name_linter
     self$half_width() / mw
   }
 ))
-```
 
-```{r}
+
 #' Observes and records results from WelfordStats.
 #'
 #' @description
@@ -901,7 +967,6 @@ WelfordStats <- R6Class("WelfordStats", list( # nolint: object_name_linter
 #' in python (https://github.com/sim-tools/sim-tools) (MIT Licence).
 #'
 #' @docType class
-#' @importFrom R6 R6Class
 #'
 #' @return Object of `R6Class` with methods for storing and tabulising results.
 #' @export
@@ -953,9 +1018,8 @@ ReplicationTabuliser <- R6Class("ReplicationTabuliser", list( # nolint: object_n
     )
   }
 ))
-```
 
-```{r}
+
 #' Replication algorithm to automatically select number of replications.
 #'
 #' @description
@@ -979,7 +1043,6 @@ ReplicationTabuliser <- R6Class("ReplicationTabuliser", list( # nolint: object_n
 #' in python (https://github.com/sim-tools/sim-tools) (MIT Licence).
 #'
 #' @docType class
-#' @importFrom R6 R6Class
 #'
 #' @return Object of `ReplicationsAlgorithm` with methods for determining the
 #' appropriate number of replications to use.
@@ -987,7 +1050,7 @@ ReplicationTabuliser <- R6Class("ReplicationTabuliser", list( # nolint: object_n
 
 ReplicationsAlgorithm <- R6Class("ReplicationsAlgorithm", list( # nolint: object_name_linter
 
-  #' @field param Model parameters.
+  #' @field param Model parameters (from parameters()).
   param = NA,
 
   #' @field metrics List of performance measure to track (should correspond to
@@ -1033,7 +1096,9 @@ ReplicationsAlgorithm <- R6Class("ReplicationsAlgorithm", list( # nolint: object
   #' @param verbose Boolean, whether to print messages about parameters.
   initialize = function(
     param,
-    metrics,
+    metrics = c("mean_waiting_time_nurse",
+                "mean_serve_time_nurse",
+                "utilisation_nurse"),
     desired_precision = 0.1,
     initial_replications = 3L,
     look_ahead = 5L,
@@ -1073,7 +1138,7 @@ ReplicationsAlgorithm <- R6Class("ReplicationsAlgorithm", list( # nolint: object
       stop("desired_precision must be greater than 0.", call. = FALSE)
     }
     if (self$replication_budget < self$initial_replications) {
-      stop("replication_budget must be less than initial_replications.",
+      stop("replication_budget must be greater than initial_replications.",
            call. = FALSE)
     }
   },
@@ -1102,8 +1167,13 @@ ReplicationsAlgorithm <- R6Class("ReplicationsAlgorithm", list( # nolint: object
            call. = FALSE)
     }
 
-    # Check if list is empty or no values below threshold
-    if (length(lst) == 0L || all(is.na(lst)) || !any(unlist(lst) < 0.5)) {
+    # Check if list is empty or all NA
+    if (length(lst) == 0L || all(is.na(lst))) {
+      return(NULL)
+    }
+
+    # Check that there are no values below threshold
+    if (!any(unlist(lst) < self$desired_precision, na.rm = TRUE)) {
       return(NULL)
     }
 
@@ -1270,26 +1340,98 @@ ReplicationsAlgorithm <- R6Class("ReplicationsAlgorithm", list( # nolint: object
     self$summary_table <- do.call(rbind, summary_tables)
   }
 ))
+
+
+#' Automated replications selection using Welford‑based online statistics.
+#'
+#' @description
+#' A user‑friendly wrapper around the ReplicationsAlgorithm class that:
+#' - Runs the replications sequence
+#' - Returns minimum required replications for each metric
+#' - Returns summary tables for each metric (replication‑by‑replication)
+#'
+#' Based on Hoad, Robinson, & Davies (2010) "Automated selection of the number
+#' of replications for a discrete-event simulation".
+#' You just call this as a function, without exposing the R6 internals.
+#'
+#' @param param List, model configuration (passed to your `runner` or `model`).
+#' @param metrics Character vector of metric names (columns in `run_results`).
+#' @param desired_precision Target deviation of CI half‑width as proportion
+#'   of the mean, e.g. `0.1` for 10%.
+#' @param initial_replications Number of initial replications.
+#' @param look_ahead Minimum extra replications to “look ahead”.
+#' @param replication_budget Maximum allowed replications.
+#' @param verbose Logical; whether to print startup messages.
+#'
+#' @return A list with:
+#' \itemize{
+#'   \item `nreps` named list of min replications per metric (or `NA` if not
+#'   met).
+#'   \item `summary_table` dataframe with per‑replication statistics for all
+#'   metrics.
+#'   \item `status` character vector: metrics for which desired precision was
+#'   not reached.
+#' }
+#' @export
+run_replications_algorithm <- function(
+    param,
+    metrics = c("mean_waiting_time_nurse",
+                "mean_serve_time_nurse",
+                "utilisation_nurse"),
+    desired_precision = 0.1,
+    initial_replications = 3L,
+    look_ahead = 5L,
+    replication_budget = 1000L,
+    verbose = TRUE
+) {
+  # Construct the R6 algorithm object
+  alg <- ReplicationsAlgorithm$new(
+    param = param,
+    metrics = metrics,
+    desired_precision = desired_precision,
+    initial_replications = initial_replications,
+    look_ahead = look_ahead,
+    replication_budget = replication_budget,
+    verbose = verbose
+  )
+
+  # Run the algorithm
+  alg$select()
+
+  # Extract results in a plain‑list form
+  nreps <- as.list(alg$nreps)    # numeric/NA for each metric
+
+  # Identify which metrics didn't converge
+  unsolved <- names(nreps)[vapply(nreps, is.na, logical(1L))]
+  status <- if (length(unsolved) > 0) {
+    c("not_converged" = unsolved)
+  } else {
+    c("converged" = NA_character_)
+  }
+
+  list(
+    nreps = nreps,
+    summary_table = alg$summary_table,
+    status = status
+  )
+}
 ```
 
 :::
 
 ```{r}
-# Set up algorithm
-alg <- ReplicationsAlgorithm$new(
+# Run algorithm
+res <- run_replications_algorithm(
   param = create_params(warm_up_period = 10000L,
                         data_collection_period = 10000L),
   metrics = metrics
 )
 
-# Run algorithm
-alg$select()
-
 # View recommended number of replications
-alg$nreps
+res$nreps
 
 # View full results table
-alg$summary_table |>
+res$summary_table |>
   kable() |>
   scroll_box(height = "400px")
 ```
@@ -1304,9 +1446,9 @@ We can use the function `plot_replication_ci` from above again to create the plo
 
 ```{r}
 plot_replication_ci(
-  conf_ints = filter(alg$summary_table, metric == "mean_wait_time_doctor"),
+  conf_ints = filter(res$summary_table, metric == "mean_wait_time_doctor"),
   yaxis_title = "Mean wait time",
-  min_rep = alg$nreps[["mean_wait_time_doctor"]]
+  min_rep = res$nreps[["mean_wait_time_doctor"]]
 )
 ```
 
@@ -1314,9 +1456,9 @@ plot_replication_ci(
 
 ```{r}
 plot_replication_ci(
-  conf_ints = filter(alg$summary_table, metric == "utilisation_doctor"),
+  conf_ints = filter(res$summary_table, metric == "utilisation_doctor"),
   yaxis_title = "Mean utilisation",
-  min_rep = alg$nreps[["utilisation_doctor"]]
+  min_rep = res$nreps[["utilisation_doctor"]]
 )
 ```
 
@@ -1324,9 +1466,9 @@ plot_replication_ci(
 
 ```{r}
 plot_replication_ci(
-  conf_ints = filter(alg$summary_table, metric == "mean_queue_length_doctor"),
+  conf_ints = filter(res$summary_table, metric == "mean_queue_length_doctor"),
   yaxis_title = "Mean queue length",
-  min_rep = alg$nreps[["mean_queue_length_doctor"]]
+  min_rep = res$nreps[["mean_queue_length_doctor"]]
 )
 ```
 
@@ -1334,9 +1476,9 @@ plot_replication_ci(
 
 ```{r}
 plot_replication_ci(
-  conf_ints = filter(alg$summary_table, metric == "mean_time_in_system"),
+  conf_ints = filter(res$summary_table, metric == "mean_time_in_system"),
   yaxis_title = "Mean time in system",
-  min_rep = alg$nreps[["mean_time_in_system"]]
+  min_rep = res$nreps[["mean_time_in_system"]]
 )
 ```
 
@@ -1344,9 +1486,9 @@ plot_replication_ci(
 
 ```{r}
 plot_replication_ci(
-  conf_ints = filter(alg$summary_table, metric == "mean_patients_in_system"),
+  conf_ints = filter(res$summary_table, metric == "mean_patients_in_system"),
   yaxis_title = "Mean patients in system",
-  min_rep = alg$nreps[["mean_patients_in_system"]]
+  min_rep = res$nreps[["mean_patients_in_system"]]
 )
 ```
 

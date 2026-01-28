@@ -3,14 +3,6 @@
 #' @param param List. Model parameters.
 #' @param run_number Numeric. Run number for random seed generation.
 #'
-#' @importFrom dplyr arrange bind_rows desc left_join mutate transmute
-#' @importFrom rlang .data
-#' @importFrom simmer add_generator add_resource get_mon_arrivals
-#' @importFrom simmer get_attribute get_mon_resources now release run seize
-#' @importFrom simmer set_attribute simmer timeout trajectory
-#' @importFrom tidyr drop_na pivot_wider
-#' @importFrom tidyselect all_of
-#'
 #' @return Named list with tables `arrivals`, `resources` and `run_results`.
 #' @export
 
