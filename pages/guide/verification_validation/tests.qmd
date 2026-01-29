@@ -462,6 +462,83 @@ In that case, if we are **certain** that these changes are the reason for differ
 
 It is crucial to exercise caution when doing this, to avoid unintentionally overwriting correct expected results.
 
+## Other things you can do when testing code
+
+::: {.python-content}
+
+**pytest plugins** extend testing functionality - useful plugins include:
+
+* [pytest-xdist](https://github.com/pytest-dev/pytest-xdist) - parallel test execution to speed up test suites.
+* [pytest-sugar](https://github.com/Teemu/pytest-sugar) - enhanced progress bars and better output formatting.
+* [pytest-html](https://github.com/pytest-dev/pytest-html) - generate HTML test reports.
+
+:::
+
+::: {.r-content}
+
+Another popular way to test your code is using `@examples`. These are executable code examples that form part of your function docstrings (written in roxygen2 format). They serve a dual purpose: documenting how to use a function, and testing that it works correctly.
+
+If you build documentation for your package with pkgdown, the examples are executed and their rendered output is displayed on the function reference pages.
+
+### Structure of `@examples`
+
+`@examples` are written as part of your roxygen2 docstring, after the `@return` tag.
+
+They only work on exported functions (functions with `@export` tag). You cannot use them to test internal helper functions.
+
+Example:
+
+```{r}
+#' Estimate the total wait time for all customers in the queue
+#'
+#' @param queue_length numeric Number of customers currently in the queue.
+#' @param avg_service_time numeric Average time taken to serve one customer.
+#'
+#' @return numeric Estimated total wait time.
+#'
+#' @export
+#'
+#' @examples
+#' # Basic usage
+#' estimate_wait_time(queue_length = 10, avg_service_time = 2)
+#' # Returns 20
+#'
+#' # Different queue size
+#' estimate_wait_time(queue_length = 5, avg_service_time = 3)
+#' # Returns 15
+
+estimate_wait_time <- function(queue_length, avg_service_time) {
+  queue_length * avg_service_time
+}
+```
+
+### Running examples
+
+You can execute `@examples` in several ways:
+
+```{.r}
+# Run all examples in your package
+devtools::run_examples()
+
+# Run examples from a specific function
+devtools::run_examples(start = "estimate_wait_time")
+
+# Examples also run automatically during package checking
+devtools::check()
+```
+
+You can also run examples interactively from the RStudio editor. Place your cursor in the roxygen docstring (lines starting with `#'`) and press **Ctrl+Enter** (or Cmd+Enter on Mac). This can be useful for iterative testing whilst developing a function.
+
+### When to use `@examples` v.s. `testthat`?
+
+The purpose of `@examples` is to demonstrate how to use a function via basic use cases.
+
+`testthat` is a dedicated testing framework for systematically checking that your code works correctly across many scenarios, edge cases, and error conditions.
+
+While `@examples` will run your code and verify that basic use cases works, they're not a substitute for a full test suite. `@examples` shows "here's how you use this function", while `testthat` checks "does this function work correctly in all the ways it might be used"
+
+:::
+
 ## Test coverage
 
 **Coverage** refers to the percentage of your code that is executed when you run your tests. It can help you spot parts of your code that are not included in any tests.
@@ -495,6 +572,14 @@ If not structured as a package, you can use [covr](https://github.com/r-lib/covr
 ```{.r}
 file_coverage(source_files = c("param.R", "model.R"),
               test_files = c("test-unit.R", "test-back.R"))
+```
+
+<br>
+
+Your `@examples` will not count towards your overall code coverage, but you can track them separately using `covr`:
+
+```{.r}
+package_coverage(type = "examples")
 ```
 
 :::
