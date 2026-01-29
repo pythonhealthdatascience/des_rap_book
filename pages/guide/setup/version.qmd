@@ -266,43 +266,12 @@ From here you can view commit files, view diffs, change branches, and push/pull 
 
 :::
 
-## Creating a branch and pushing changes
+## Basic workflow: solo development
 
-It is best practice to work in branches. A **branch** is like a separate workspace where you can safely experiment with changes without affecting the main project.
+When learning Git or working alone, the simplest approach is to work directly 
+on the main branch. This workflow is simple:
 
-As in the diagram below, you can make several commits in this branch, and when you're ready, merge back into the main project (e.g. when new feature complete, or reached a stable point where everything is working properly).
-
-This is valuable even when you're the only person working on the repository - but with multiple collaborator, becomes essential! Every person should work on their own branch.
-
-![](version_resources/git_branch.drawio.png)
-
-To work in a branch and push changes...
-
-### 1. Create a branch
-
-Open your terminal or Git Bash (as explained above), and make sure your current working directory is your Git repository.
-
-To create a new branch (here, named `dev`), then run:
-
-```{.bash}
-git branch dev
-```
-
-To move into this branch:
-
-```{.bash}
-git checkout dev
-```
-
-You should see a message "Switched to branch 'dev'".
-
-We can add this branch to the remote GitHub repository by running:
-
-```{.bash}
-git push -u origin dev
-```
-
-### 2. Make some changes
+### 1. Make some changes
 
 This could be any changes to code, documentation or other artefacts in the repository. So we can test this out, let's make a simple change to our README -
 
@@ -342,7 +311,7 @@ Repository for working through examples from the des-rap-book:
 ```
 :::
 
-### 3. Commit the changes
+### 2. Commit and push the changes
 
 To save this new version of our file to Git, we need to commit the changes. We use `git add` to choose which files to commit. We then write a descriptive commit message using `git commit`. Finally, we push the changes using `git push`.
 
@@ -352,7 +321,49 @@ git commit -m "docs(README): add des-rap-book citation"
 git push
 ```
 
-### 4. Merge the changes
+## Collaborative workflow: using branches
+
+Above, you were working on the main branch. But what is a branch?
+
+A **branch** is a separate workspace where you can safely experiment with changes without affecting your main project. Think of it as a parallel copy of your repository that you can work on independently. You can name branches whatever you like - the default branch is called `main`.
+
+**When collaborating with others**, branches become essential. They allow you to work in parallel on different features, enable code review through pull requests, and prevent conflicts when multiple people edit the same files.
+
+**For solo development**, branches are also beneficial. They allow you to keep a stable version on main while experimenting with new features on separate branches. This is especially useful if you have GitHub Actions (or similar) running automated tests on pushes to main - you can test experimental code on branches before merging to main, ensuring your main branch always contains working code.
+
+![](version_resources/git_branch.drawio.png)
+
+To work in a branch and push changes...
+
+### 1. Create a branch
+
+Open your terminal or Git Bash (as explained above), and make sure your current working directory is your Git repository.
+
+To create a new branch (here, named `dev`), then run:
+
+```{.bash}
+git branch dev
+```
+
+To move into this branch:
+
+```{.bash}
+git checkout dev
+```
+
+You should see a message "Switched to branch 'dev'".
+
+We can add this branch to the remote GitHub repository by running:
+
+```{.bash}
+git push -u origin dev
+```
+
+### 2. Commit and push changes
+
+This is the same as for the solo workflow - `git commit` and `git push`!
+
+### 3. Merge the changes
 
 Once you've finished committing changes to your branch (e.g. `dev`), the next step is to merge those changes into the `main` branch. There are two main ways to do this:
 
