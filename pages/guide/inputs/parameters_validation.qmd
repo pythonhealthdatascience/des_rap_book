@@ -56,6 +56,7 @@ import inspect
 These should be available from environment setup on the [Structuring as a package](/pages/guide/setup/package.qmd) page.
 
 ```{r}
+library(checkmate)
 library(jsonlite)
 ```
 
@@ -674,7 +675,7 @@ As a reminder, this is our parameter function:
 
 We can write a validation function which checks that **all the required parameters are present**, and that **no extra parameters** are provided.
 
-This is based on the arguments of `param_function`:
+This is based on the arguments of `param_function`. We first use `checkmate::assert_list()` to ensure `param` is a properly formed list with uniquely named elements.
 
 ```{r}
 #' Validate parameter names.
@@ -689,6 +690,8 @@ This is based on the arguments of `param_function`:
 #' @export
 
 check_param_names <- function(param, param_function) {
+  # Ensure param is a list with unique named elements
+  assert_list(param, names = "unique", .var.name = "param")
 
   # Get valid argument names from the function
   valid_names <- names(formals(param_function))
@@ -848,6 +851,9 @@ def validate_param(parameters):
 :::
 
 :::{.r-content}
+
+We use `checkmate::assert_number()` to ensure the value is numeric and within the valid range.
+
 ```{r}
 #' Check that the transfer probability is between 0 and 1.
 #'
@@ -857,13 +863,15 @@ def validate_param(parameters):
 #' @export
 
 validate_param <- function(parameters) {
-  transfer_prob <- parameters$transfer_prob
-  if (transfer_prob < 0L || transfer_prob > 1L) {
-    stop(
-      "transfer_prob must be between 0 and 1, but is: ", transfer_prob,
-      call. = FALSE
-    )
-  }
+  # Ensure parameters is a list with unique named elements and at 1+ entries
+  assert_list(parameters, names = "unique", min.len = 1L, 
+              .var.name = "parameters")
+  # Ensure transfer_prob is a single numeric value between 0 and 1
+  assert_number(
+    parameters$transfer_prob,
+    lower = 0, upper = 1,
+    .var.name = "transfer_prob"
+  )
 }
 ```
 :::
