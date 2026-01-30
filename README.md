@@ -60,13 +60,13 @@ Check it out at: **https://pythonhealthdatascience.github.io/des_rap_book/**.
 
 This resource has been developed as part of the project **STARS: Sharing Tools and Artefacts for Reproducible Simulations in healthcare**.
 
-![](images/stars_banner.png)
+[![](images/stars_banner.png)](https://pythonhealthdatascience.github.io/stars/)
 
 The project tackles the challenges of sharing, reusing, and reproducing discrete event simulation (DES) models in healthcare. Our goal is to create open resources using the two most popular open-source languages for DES: Python and R.
 
 We have been developing tutorials, code examples, and tools to help researchers and practitioners develop, validate, and share DES models more effectively.
 
-For more information on this project, check out the [STARS page](https://pythonhealthdatascience.github.io/des_rap_book/pages/project/stars.html) in the DES RAP Book.
+For more information on this project, check out the [STARS project website](https://pythonhealthdatascience.github.io/stars/).
 
 <br>
 
