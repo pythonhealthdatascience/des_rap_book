@@ -110,4 +110,4 @@ If you're interested in contributing (or just viewing this website locally), che
 
 ## Funding
 
-This project is supported by the Medical Research Council [grant number [MR/Z503915/1](https://gtr.ukri.org/projects?ref=MR%2FZ503915%2F1)].
+This project is supported by the Medical Research Council [grant number [MR/Z503915/1](https://gtr.ukri.org/projects?ref=MR%2FZ503915%2F1)] from 1st May 2024 to 31st October 2026.
