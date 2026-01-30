@@ -6,7 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2025-12-10">
+<meta name="dcterms.date" content="2026-01-30">
 
 <title>Input data management – DES RAP</title>
 <style>
@@ -227,7 +227,7 @@ background-size: cover;
       <div>
       <div class="quarto-title-meta-heading">Page last modified</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">December 10, 2025</p>
+        <p class="date">January 30, 2026</p>
       </div>
     </div>
     
@@ -579,10 +579,10 @@ background-size: cover;
   <ul class="collapse">
   <li><a href="#input-data" id="toc-input-data" class="nav-link active" data-scroll-target="#input-data">Input data</a></li>
   <li><a href="#what-is-included-in-a-rap" id="toc-what-is-included-in-a-rap" class="nav-link" data-scroll-target="#what-is-included-in-a-rap">What is included in a RAP?</a></li>
+  <li><a href="#never-commit-secrets-or-sensitive-data-to-git" id="toc-never-commit-secrets-or-sensitive-data-to-git" class="nav-link" data-scroll-target="#never-commit-secrets-or-sensitive-data-to-git">Never commit secrets or sensitive data to Git</a></li>
   <li><a href="#raw-data" id="toc-raw-data" class="nav-link" data-scroll-target="#raw-data">Raw data</a></li>
   <li><a href="#input-modelling-code" id="toc-input-modelling-code" class="nav-link" data-scroll-target="#input-modelling-code">Input modelling code</a></li>
   <li><a href="#parameters" id="toc-parameters" class="nav-link" data-scroll-target="#parameters">Parameters</a></li>
-  <li><a href="#maintaining-a-private-and-public-version-of-your-model" id="toc-maintaining-a-private-and-public-version-of-your-model" class="nav-link" data-scroll-target="#maintaining-a-private-and-public-version-of-your-model">Maintaining a private and public version of your model</a></li>
   <li><a href="#test-yourself" id="toc-test-yourself" class="nav-link" data-scroll-target="#test-yourself">Test yourself</a></li>
   <li><a href="#further-information" id="toc-further-information" class="nav-link" data-scroll-target="#further-information">Further information</a></li>
   </ul>
@@ -606,6 +606,7 @@ background-size: cover;
 <ul>
 <li>Recognise where a <strong>reproducible analytical pipeline</strong> begins, and what data is included.</li>
 <li>Learn recommended practices for <strong>storing and sharing raw data, input modelling code, and parameters</strong>.</li>
+<li>Understand how to protect sensitive data and avoid committing secrets to version control.</li>
 <li>Understand how <strong>private and public versions</strong> of a model could be maintained when there is sensitive data.</li>
 </ul>
 </div>
@@ -632,9 +633,82 @@ background-size: cover;
 <p><strong>Why is this important?</strong> By starting at the source, you make your work transparent and easy to repeat. For instance, if new raw data becomes available, it’s important you have your input modelling code so that you can check your distributions are still appropriate, re-estimate your model parameters, and re-run your analysis.</p>
 </blockquote>
 </section>
+<section id="never-commit-secrets-or-sensitive-data-to-git" class="level2">
+<h2 class="anchored" data-anchor-id="never-commit-secrets-or-sensitive-data-to-git">Never commit secrets or sensitive data to Git</h2>
+<p>Never commit to Git:</p>
+<ul>
+<li>Raw identifiable data (patient records, personally identifiable information).</li>
+<li>Secrets (API keys, passwords, database connection strings, access tokens).</li>
+<li>Real sensitive parameter files that must remain private.</li>
+<li>Configuration files with embedded credentials (e.g.&nbsp;.env, secrets.yml).</li>
+</ul>
+<p><strong>Even if your repository is private, secrets in Git history are vulnerable</strong>: anyone with current or future repository access can see the full history, and if the repository ever becomes public, secrets are exposed to the internet. <strong>Removing secrets from Git history is painful and error-prone, so prevention is far easier than cure</strong>.</p>
+<section id="protect-your-repository" class="level3">
+<h3 class="anchored" data-anchor-id="protect-your-repository">Protect your repository</h3>
+<p>You need to <strong>store sensitive data outside your public Git repository</strong>. You have two main approaches:</p>
+<ol type="1">
+<li><p><strong>Completely outside any Git repository</strong>. Store raw data, secrets, and real sensitive parameters in a secure location entirely separate from version control, such as in a restricted database or institutional data source. This approach is safest when your data requires strict separation and storage rules. Reference these resources in your RAP via documented access paths (e.g.&nbsp;database connection details, file paths) rather than committing exports.</p></li>
+<li><p><strong>In a private Git repository</strong>. For less sensitive data, use a separate private repository (never mix public and private content in the same repository). The advantage is that your team maintains version control and change history for sensitive materials. However, a private repository is not foolproof - it is only as secure as your team’s access permissions, and if the repository’s access ever changes, sensitive data could be exposed.</p></li>
+</ol>
+<div class="callout callout-style-default callout-note callout-titled" title="Learn more about maintaining a private and public version of your model">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Learn more about maintaining a private and public version of your model
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-1" class="callout-1-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>The way you might set up private and public repositories depends on whether you are allowed to share the real simulation parameter files. This assumes your sensitive data is stored using one of the approaches above (either completely outside Git, or in a private repository if appropriate).</p>
+<section id="scenario-1-allowed-to-share-real-parameters" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-1-allowed-to-share-real-parameters">Scenario 1: Allowed to share real parameters</h3>
+<ul>
+<li><p><strong>Public repository:</strong> Contains everything needed to reproduce your model except sensitive raw data and input modelling scripts.</p></li>
+<li><p><strong>Private repository (or secure external storage):</strong> Contains the sensitive raw data, input modelling scripts, and anything else that cannot be publicly released.</p></li>
+<li><p><strong>Workflow:</strong></p>
+<ol type="1">
+<li>Do all input modelling (parameter estimation) on real data stored securely (either in a private repository or external to Git).</li>
+<li>Copy the resulting real parameter files to the public repository.</li>
+<li>Run your model and share code/results publicly - users can fully reproduce your analysis using the real parameters.</li>
+</ol></li>
+</ul>
+</section>
+<section id="scenario-2-only-sharing-fakesynthetic-parameters" class="level3">
+<h3 class="anchored" data-anchor-id="scenario-2-only-sharing-fakesynthetic-parameters">Scenario 2: Only sharing fake/synthetic parameters</h3>
+<ul>
+<li><p><strong>Public repository:</strong> Contains only synthetic/fake parameter files, synthetic/example data, analysis code, and documentation describing how these synthetic values were generated.</p></li>
+<li><p><strong>Private repository (or secure external storage):</strong> Contains the sensitive raw data and real parameter files, plus scripts for analysis with the real values.</p></li>
+<li><p><strong>Shared simulation package (in it’s own repository or part of the public repository):</strong> All analysis code is <a href="../../../pages/guide/setup/package.html">developed as a package</a> that can be installed and used by both the public and private repositories. This greatly reduces code duplication.</p></li>
+<li><p><strong>Workflow:</strong></p>
+<ol type="1">
+<li>Estimate parameters using real data stored securely (either in a private repository if appropriate, or completely outside Git for highly sensitive data).</li>
+<li>Generate synthetic parameter files for the public repository, documenting the generation process.</li>
+<li>Use the shared simulation package in both repositories.</li>
+<li>Run and share the full workflow in public with synthetic parameters; run the actual analysis in private with the real parameters.</li>
+</ol></li>
+</ul>
+</section>
+</div>
+</div>
+</div>
+<p>Some additional safeguards to protect your repository include to:</p>
+<ul>
+<li>Add sensitive files to <code>.gitignore</code>.</li>
+<li>Store secrets using environment variables or a secrets manager.</li>
+<li>Use pre-commit secret scanners (e.g., <code>git-secrets</code>, <code>detect-secrets</code>) to block commits with secrets.</li>
+</ul>
+</section>
+<section id="if-you-accidentally-commit-sensitive-data" class="level3">
+<h3 class="anchored" data-anchor-id="if-you-accidentally-commit-sensitive-data">If you accidentally commit sensitive data</h3>
+<p>See <a href="https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/removing-sensitive-data-from-a-repository">GitHub’s guide to removing sensitive data</a> for advice on what to do!</p>
+</section>
+</section>
 <section id="raw-data" class="level2">
 <h2 class="anchored" data-anchor-id="raw-data">Raw data</h2>
-<p>This is data which reflects system you will be simulating. It is used to estimate parameters and fit distributions for your simulation model. For example:</p>
+<p>This is data which reflects the system you will be simulating. It is used to estimate parameters and fit distributions for your simulation model. For example:</p>
 <div class="grey-table">
 <table class="caption-top table">
 <colgroup>
@@ -861,39 +935,6 @@ background-size: cover;
 </div>
 </section>
 </section>
-<section id="maintaining-a-private-and-public-version-of-your-model" class="level2">
-<h2 class="anchored" data-anchor-id="maintaining-a-private-and-public-version-of-your-model">Maintaining a private and public version of your model</h2>
-<p>It’s common to have data and/or code that cannot be shared publicly. <strong>Both your private and public components should be <a href="../../../pages/guide/setup/version.html">version controlled</a></strong>, but you cannot split a single GitHub repository into public and private sections. The suggested solution is to use two separate repositories: <strong>one public, one private</strong>.</p>
-<p>The way you might set these up depends on whether you are allowed to share the real simulation parameter files.</p>
-<section id="scenario-1-allowed-to-share-real-parameters" class="level3">
-<h3 class="anchored" data-anchor-id="scenario-1-allowed-to-share-real-parameters">Scenario 1: Allowed to share real parameters</h3>
-<ul>
-<li><p><strong>Public repository:</strong> Contains everything needed to reproduce your model except sensitive raw data and input modelling scripts.</p></li>
-<li><p><strong>Private repository:</strong> Contains the sensitive raw data, input modelling scripts, and anything else that cannot be publicly released.</p></li>
-<li><p><strong>Workflow:</strong></p>
-<ol type="1">
-<li>Do all input modelling (parameter estimation) on real data in your private repository.</li>
-<li>Copy the resulting real parameter files to the public repository.</li>
-<li>Run your model and share code/results publicly - users can fully reproduce your analysis using the real parameters.</li>
-</ol></li>
-</ul>
-</section>
-<section id="scenario-2-only-sharing-fakesynthetic-parameters" class="level3">
-<h3 class="anchored" data-anchor-id="scenario-2-only-sharing-fakesynthetic-parameters">Scenario 2: Only sharing fake/synthetic parameters</h3>
-<ul>
-<li><p><strong>Public repository:</strong> Contains only synthetic/fake parameter files, synthetic/example data, analysis code, and documentation describing how these synthetic values were generated.</p></li>
-<li><p><strong>Private repository:</strong> Contains the sensitive raw data and real parameter files, plus scripts for analysis with the real values.</p></li>
-<li><p><strong>Shared simulation package (in it’s own repository or part of the public repository):</strong> All analysis code is <a href="../../../pages/guide/setup/package.html">developed as a package</a> that can be installed and used by both the public and private repositories. This greatly reduces code duplication.</p></li>
-<li><p><strong>Workflow:</strong></p>
-<ol type="1">
-<li>Estimate parameters using real data in your private repository - store these securely.</li>
-<li>Generate synthetic parameter files for the public repository, documenting the generation process.</li>
-<li>Use the shared simulation package in both repositories.</li>
-<li>Run and share the full workflow in public with synthetic parameters; run the actual analysis in private with the real parameters.</li>
-</ol></li>
-</ul>
-</section>
-</section>
 <section id="test-yourself" class="level2">
 <h2 class="anchored" data-anchor-id="test-yourself">Test yourself</h2>
 <div class="callout callout-style-default callout-note callout-titled">
@@ -906,8 +947,8 @@ background-size: cover;
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<div id="radio_CWMBNYOKXO" class="webex-radiogroup">
-<label><input type="radio" autocomplete="off" name="radio_CWMBNYOKXO" value=""> <span>Do not share or describe anything.</span></label><label><input type="radio" autocomplete="off" name="radio_CWMBNYOKXO" value="answer"> <span>Describe the dataset, and if possible also share a data dictionary and a synthetic dataset.</span></label>
+<div id="radio_GDENFTQQQY" class="webex-radiogroup">
+<label><input type="radio" autocomplete="off" name="radio_GDENFTQQQY" value=""> <span>Do not share or describe anything.</span></label><label><input type="radio" autocomplete="off" name="radio_GDENFTQQQY" value="answer"> <span>Describe the dataset, and if possible also share a data dictionary and a synthetic dataset.</span></label>
 </div>
 </div>
 </div>
@@ -921,8 +962,8 @@ background-size: cover;
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<div id="radio_EHUYSRYHTR" class="webex-radiogroup">
-<label><input type="radio" autocomplete="off" name="radio_EHUYSRYHTR" value="answer"> <span>True</span></label><label><input type="radio" autocomplete="off" name="radio_EHUYSRYHTR" value=""> <span>False</span></label>
+<div id="radio_ETLZDJMANR" class="webex-radiogroup">
+<label><input type="radio" autocomplete="off" name="radio_ETLZDJMANR" value="answer"> <span>True</span></label><label><input type="radio" autocomplete="off" name="radio_ETLZDJMANR" value=""> <span>False</span></label>
 </div>
 </div>
 </div>
@@ -936,8 +977,8 @@ background-size: cover;
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<div id="radio_GEXYFRYUSV" class="webex-radiogroup">
-<label><input type="radio" autocomplete="off" name="radio_GEXYFRYUSV" value=""> <span>Duplicate all simulation code across both repositories.</span></label><label><input type="radio" autocomplete="off" name="radio_GEXYFRYUSV" value="answer"> <span>Develop the simulation code as a package so it can be shared across repositories without code duplication.</span></label>
+<div id="radio_LDVJOBZSLX" class="webex-radiogroup">
+<label><input type="radio" autocomplete="off" name="radio_LDVJOBZSLX" value=""> <span>Duplicate all simulation code across both repositories.</span></label><label><input type="radio" autocomplete="off" name="radio_LDVJOBZSLX" value="answer"> <span>Develop the simulation code as a package so it can be shared across repositories without code duplication.</span></label>
 </div>
 </div>
 </div>
@@ -1537,7 +1578,7 @@ document.addEventListener('DOMContentLoaded', function() {
     <div class="nav-footer-center">
       <ul class="footer-items list-unstyled">
     <li class="nav-item">
- Part of the STARS research project.<br>
+ Part of the <a href="https://pythonhealthdatascience.github.io/stars/" target="_blank" rel="noopener">STARS research project</a>.<br>
 Code licence: <a href="https://opensource.org/license/mit" target="_blank" rel="noopener">MIT</a>.  
 Text licence: <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC-BY-SA 4.0</a>.
   </li>  

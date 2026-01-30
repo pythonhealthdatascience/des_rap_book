@@ -6,7 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2026-01-27">
+<meta name="dcterms.date" content="2026-01-30">
 
 <title>Parameter validation – DES RAP</title>
 <style>
@@ -259,7 +259,7 @@ background-size: cover;
       <div>
       <div class="quarto-title-meta-heading">Page last modified</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">January 27, 2026</p>
+        <p class="date">January 30, 2026</p>
       </div>
     </div>
     
@@ -653,18 +653,19 @@ background-size: cover;
 <div class="r-content">
 <p>These should be available from environment setup on the <a href="../../../pages/guide/setup/package.html">Structuring as a package</a> page.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(jsonlite)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(checkmate)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(jsonlite)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
 </div>
 <section id="accidental-creation-of-new-parameters" class="level2">
 <h2 class="anchored" data-anchor-id="accidental-creation-of-new-parameters">Accidental creation of new parameters</h2>
+<div class="python-content">
 <div class="h3-tight">
 
 </div>
 <section id="the-problem" class="level3">
 <h3 class="anchored" data-anchor-id="the-problem">The problem</h3>
-<div class="python-content">
 <p>If you <strong>mistype</strong> a parameter name when defining parameters, no error is raised. Instead, a <strong>new (unused) parameter</strong> is created. This means your intended parameter remains unchanged, which can <strong>silently</strong> invalidate your results.</p>
 <section id="function-example" class="level4">
 <h4 class="anchored" data-anchor-id="function-example">Function example</h4>
@@ -743,8 +744,25 @@ background-size: cover;
 </div>
 <p>Again, no error was raised - we’ve simply created a new attribute (<code>transfer_probs</code>) while the intended one (<code>transfer_prob</code>) remains untouched.</p>
 </section>
+</section>
 </div>
 <div class="r-content">
+<div class="callout callout-style-default callout-note callout-titled" title="Direct import avoids this problem">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Direct import avoids this problem
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>If you use <strong>direct import to model functions</strong> (see <a href="../../../pages/guide/inputs/parameters_file.html#direct-import-to-model-functions">Parameters from file</a>), this problem does not occur. The function signature automatically prevents undefined parameters from being added. If you’re using that approach, you can skip this section.</p>
+<p>This section applies to approaches where parameters are stored in an intermediate object (list or function output) before being passed to your model.</p>
+</div>
+</div>
+<section id="the-problem-1" class="level3">
+<h3 class="anchored" data-anchor-id="the-problem-1">The problem</h3>
 <p>If you <strong>mistype</strong> a parameter name when defining parameters for a function, no error is raised. Instead, a <strong>new (unused) parameter</strong> is created. This means your intended parameter remains unchanged, which can <strong>silently</strong> invalidate your results.</p>
 <p>Let’s start with a function that returns a list of parameters:</p>
 <div class="cell">
@@ -782,14 +800,14 @@ $transfer_probs
 </div>
 </div>
 <p>Notice what happened: instead of updating the original value, R has add a <strong>new item</strong> (<code>transfer_probs</code>) and left the real parameter unchanged.</p>
-</div>
 </section>
+</div>
 <section id="the-solution" class="level3">
 <h3 class="anchored" data-anchor-id="the-solution">The solution</h3>
 <div class="python-content">
 <p>We’ve suggested four approaches to prevent these silent failures, depending on the object being used to store parameters:</p>
 <div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
@@ -798,7 +816,7 @@ $transfer_probs
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
-<div id="callout-1" class="callout-1-contents callout-collapse collapse">
+<div id="callout-2" class="callout-2-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
 <p>Our parameter function returns a dictionary. While you could validate arguments within the parameter function, this would not prevent accidental modification after the dictionary is returned.</p>
 <p>When calling the function, you are restricted to the defined arguments - so extra entries cannot be added at that stage. However, once the dictionary is generated, it can be altered by adding or removing entries. For this reason, we incorporate validation into the model function (rather than the parameter function).</p>
@@ -890,7 +908,7 @@ $transfer_probs
 </div>
 </div>
 <div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
@@ -899,7 +917,7 @@ $transfer_probs
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
-<div id="callout-2" class="callout-2-contents callout-collapse collapse">
+<div id="callout-3" class="callout-3-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
 <p>The simplest way to prevent accidental attribute creation in classes is by using <code>__slots__</code>.</p>
 <p><code>__slots__</code> tells Python to allocated fixed memory slots for the listed attributes instead of using a flexible dictionary (<code>__dict__</code>). This means you cannot add new attributes beyond those listed in <code>__slots__</code>.</p>
@@ -948,7 +966,7 @@ $transfer_probs
 </div>
 </div>
 <div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
@@ -957,7 +975,7 @@ $transfer_probs
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
-<div id="callout-3" class="callout-3-contents callout-collapse collapse">
+<div id="callout-4" class="callout-4-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
 <p>For more complex set-ups - for example, when you have multiple parameter classes or lots of individual parameters - writing some custom attribute validation provides more flexibility, as we can lock down to all attributes in class design without needing to list by name.</p>
 <p>We can implement this validation either:</p>
@@ -1149,7 +1167,7 @@ $transfer_probs
 </div>
 </div>
 <div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-5-contents" aria-controls="callout-5" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
@@ -1158,7 +1176,7 @@ $transfer_probs
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
-<div id="callout-4" class="callout-4-contents callout-collapse collapse">
+<div id="callout-5" class="callout-5-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
 <p><code>LockedDict</code> is a dictionary wrapper that locks its initial set of keys after creation. It ensures that existing keys can still be updated, but adding or deleting top-level keys is not possible, preventing bugs caused by typos or unintended modifications.</p>
 <div class="cell">
@@ -1283,7 +1301,7 @@ $transfer_probs
 <span id="cb31-12"><a href="#cb31-12" aria-hidden="true" tabindex="-1"></a><span class="cf">except</span> <span class="pp">KeyError</span> <span class="im">as</span> e:</span>
 <span id="cb31-13"><a href="#cb31-13" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"Error: </span><span class="sc">{</span>e<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Error: "Attempted to add or update key 'newattribute', which is not one of the original locked keys. This is likely due to a typo or unintended new parameter. Allowed top-level keys are: [{'param1', 'param2'}]"</code></pre>
+<pre><code>Error: "Attempted to add or update key 'newattribute', which is not one of the original locked keys. This is likely due to a typo or unintended new parameter. Allowed top-level keys are: [{'param2', 'param1'}]"</code></pre>
 </div>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(param)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
@@ -1317,7 +1335,7 @@ $transfer_probs
 <span id="cb35-23"><a href="#cb35-23" aria-hidden="true" tabindex="-1"></a><span class="cf">except</span> <span class="pp">KeyError</span> <span class="im">as</span> e:</span>
 <span id="cb35-24"><a href="#cb35-24" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"Error: </span><span class="sc">{</span>e<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Error: "Attempted to add or update key 'new_attribute', which is not one of the original locked keys. This is likely due to a typo or unintended new parameter. Allowed top-level keys are: [{'param1', 'param2'}]"</code></pre>
+<pre><code>Error: "Attempted to add or update key 'new_attribute', which is not one of the original locked keys. This is likely due to a typo or unintended new parameter. Allowed top-level keys are: [{'param2', 'param1'}]"</code></pre>
 </div>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb37"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(param_instance.param_dict)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
@@ -1346,7 +1364,7 @@ $transfer_probs
 <span id="cb39-10"><a href="#cb39-10" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>We can write a validation function which checks that <strong>all the required parameters are present</strong>, and that <strong>no extra parameters</strong> are provided.</p>
-<p>This is based on the arguments of <code>param_function</code>:</p>
+<p>This is based on the arguments of <code>param_function</code>. We first use <code>checkmate::assert_list()</code> to ensure <code>param</code> is a properly formed list with uniquely named elements.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="co">#' Validate parameter names.</span></span>
 <span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a><span class="co">#'</span></span>
@@ -1360,34 +1378,36 @@ $transfer_probs
 <span id="cb40-10"><a href="#cb40-10" aria-hidden="true" tabindex="-1"></a><span class="co">#' @export</span></span>
 <span id="cb40-11"><a href="#cb40-11" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb40-12"><a href="#cb40-12" aria-hidden="true" tabindex="-1"></a>check_param_names <span class="ot">&lt;-</span> <span class="cf">function</span>(param, param_function) {</span>
-<span id="cb40-13"><a href="#cb40-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb40-14"><a href="#cb40-14" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Get valid argument names from the function</span></span>
-<span id="cb40-15"><a href="#cb40-15" aria-hidden="true" tabindex="-1"></a>  valid_names <span class="ot">&lt;-</span> <span class="fu">names</span>(<span class="fu">formals</span>(param_function))</span>
-<span id="cb40-16"><a href="#cb40-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb40-17"><a href="#cb40-17" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Get names from input parameter list</span></span>
-<span id="cb40-18"><a href="#cb40-18" aria-hidden="true" tabindex="-1"></a>  input_names <span class="ot">&lt;-</span> <span class="fu">names</span>(param)</span>
-<span id="cb40-19"><a href="#cb40-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb40-20"><a href="#cb40-20" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Find missing keys (i.e. are there things in valid_names not in input)</span></span>
-<span id="cb40-21"><a href="#cb40-21" aria-hidden="true" tabindex="-1"></a>  <span class="co"># and extra keys (i.e. are there things in input not in valid_names)</span></span>
-<span id="cb40-22"><a href="#cb40-22" aria-hidden="true" tabindex="-1"></a>  missing_keys <span class="ot">&lt;-</span> <span class="fu">setdiff</span>(valid_names, input_names)</span>
-<span id="cb40-23"><a href="#cb40-23" aria-hidden="true" tabindex="-1"></a>  extra_keys <span class="ot">&lt;-</span> <span class="fu">setdiff</span>(input_names, valid_names)</span>
-<span id="cb40-24"><a href="#cb40-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb40-25"><a href="#cb40-25" aria-hidden="true" tabindex="-1"></a>  <span class="co"># If there are any missing or extra keys, throw an error</span></span>
-<span id="cb40-26"><a href="#cb40-26" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">length</span>(missing_keys) <span class="sc">&gt;</span> <span class="dv">0</span>L <span class="sc">||</span> <span class="fu">length</span>(extra_keys) <span class="sc">&gt;</span> <span class="dv">0</span>L) {</span>
-<span id="cb40-27"><a href="#cb40-27" aria-hidden="true" tabindex="-1"></a>    error_message <span class="ot">&lt;-</span> <span class="st">""</span></span>
-<span id="cb40-28"><a href="#cb40-28" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="fu">length</span>(missing_keys) <span class="sc">&gt;</span> <span class="dv">0</span>L) {</span>
-<span id="cb40-29"><a href="#cb40-29" aria-hidden="true" tabindex="-1"></a>      error_message <span class="ot">&lt;-</span> <span class="fu">paste0</span>(</span>
-<span id="cb40-30"><a href="#cb40-30" aria-hidden="true" tabindex="-1"></a>        error_message, <span class="st">"Missing keys: "</span>, <span class="fu">toString</span>(missing_keys), <span class="st">". "</span></span>
-<span id="cb40-31"><a href="#cb40-31" aria-hidden="true" tabindex="-1"></a>      )</span>
-<span id="cb40-32"><a href="#cb40-32" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb40-33"><a href="#cb40-33" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="fu">length</span>(extra_keys) <span class="sc">&gt;</span> <span class="dv">0</span>L) {</span>
-<span id="cb40-34"><a href="#cb40-34" aria-hidden="true" tabindex="-1"></a>      error_message <span class="ot">&lt;-</span> <span class="fu">paste0</span>(</span>
-<span id="cb40-35"><a href="#cb40-35" aria-hidden="true" tabindex="-1"></a>        error_message, <span class="st">"Extra keys: "</span>, <span class="fu">toString</span>(extra_keys), <span class="st">". "</span></span>
-<span id="cb40-36"><a href="#cb40-36" aria-hidden="true" tabindex="-1"></a>      )</span>
-<span id="cb40-37"><a href="#cb40-37" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb40-38"><a href="#cb40-38" aria-hidden="true" tabindex="-1"></a>    <span class="fu">stop</span>(error_message, <span class="at">call. =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb40-39"><a href="#cb40-39" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb40-40"><a href="#cb40-40" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb40-13"><a href="#cb40-13" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Ensure param is a list with unique named elements</span></span>
+<span id="cb40-14"><a href="#cb40-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">assert_list</span>(param, <span class="at">names =</span> <span class="st">"unique"</span>, <span class="at">.var.name =</span> <span class="st">"param"</span>)</span>
+<span id="cb40-15"><a href="#cb40-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-16"><a href="#cb40-16" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Get valid argument names from the function</span></span>
+<span id="cb40-17"><a href="#cb40-17" aria-hidden="true" tabindex="-1"></a>  valid_names <span class="ot">&lt;-</span> <span class="fu">names</span>(<span class="fu">formals</span>(param_function))</span>
+<span id="cb40-18"><a href="#cb40-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-19"><a href="#cb40-19" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Get names from input parameter list</span></span>
+<span id="cb40-20"><a href="#cb40-20" aria-hidden="true" tabindex="-1"></a>  input_names <span class="ot">&lt;-</span> <span class="fu">names</span>(param)</span>
+<span id="cb40-21"><a href="#cb40-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-22"><a href="#cb40-22" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Find missing keys (i.e. are there things in valid_names not in input)</span></span>
+<span id="cb40-23"><a href="#cb40-23" aria-hidden="true" tabindex="-1"></a>  <span class="co"># and extra keys (i.e. are there things in input not in valid_names)</span></span>
+<span id="cb40-24"><a href="#cb40-24" aria-hidden="true" tabindex="-1"></a>  missing_keys <span class="ot">&lt;-</span> <span class="fu">setdiff</span>(valid_names, input_names)</span>
+<span id="cb40-25"><a href="#cb40-25" aria-hidden="true" tabindex="-1"></a>  extra_keys <span class="ot">&lt;-</span> <span class="fu">setdiff</span>(input_names, valid_names)</span>
+<span id="cb40-26"><a href="#cb40-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-27"><a href="#cb40-27" aria-hidden="true" tabindex="-1"></a>  <span class="co"># If there are any missing or extra keys, throw an error</span></span>
+<span id="cb40-28"><a href="#cb40-28" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">length</span>(missing_keys) <span class="sc">&gt;</span> <span class="dv">0</span>L <span class="sc">||</span> <span class="fu">length</span>(extra_keys) <span class="sc">&gt;</span> <span class="dv">0</span>L) {</span>
+<span id="cb40-29"><a href="#cb40-29" aria-hidden="true" tabindex="-1"></a>    error_message <span class="ot">&lt;-</span> <span class="st">""</span></span>
+<span id="cb40-30"><a href="#cb40-30" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="fu">length</span>(missing_keys) <span class="sc">&gt;</span> <span class="dv">0</span>L) {</span>
+<span id="cb40-31"><a href="#cb40-31" aria-hidden="true" tabindex="-1"></a>      error_message <span class="ot">&lt;-</span> <span class="fu">paste0</span>(</span>
+<span id="cb40-32"><a href="#cb40-32" aria-hidden="true" tabindex="-1"></a>        error_message, <span class="st">"Missing keys: "</span>, <span class="fu">toString</span>(missing_keys), <span class="st">". "</span></span>
+<span id="cb40-33"><a href="#cb40-33" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb40-34"><a href="#cb40-34" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb40-35"><a href="#cb40-35" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="fu">length</span>(extra_keys) <span class="sc">&gt;</span> <span class="dv">0</span>L) {</span>
+<span id="cb40-36"><a href="#cb40-36" aria-hidden="true" tabindex="-1"></a>      error_message <span class="ot">&lt;-</span> <span class="fu">paste0</span>(</span>
+<span id="cb40-37"><a href="#cb40-37" aria-hidden="true" tabindex="-1"></a>        error_message, <span class="st">"Extra keys: "</span>, <span class="fu">toString</span>(extra_keys), <span class="st">". "</span></span>
+<span id="cb40-38"><a href="#cb40-38" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb40-39"><a href="#cb40-39" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb40-40"><a href="#cb40-40" aria-hidden="true" tabindex="-1"></a>    <span class="fu">stop</span>(error_message, <span class="at">call. =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb40-41"><a href="#cb40-41" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb40-42"><a href="#cb40-42" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>If parameters are imported from a file (e.g., using a function that saves them as a list), that file can be reused for validation when no function with explicit arguments exists. Whilst this won’t detect missing or misspelled parameters in the file itself, it will confirm that no parameters have been added or removed since import. This is useful when the list has been modified (e.g., to implement scenarios) before it was provided to the model function.</p>
 <p>In this example, we have a package <code>simulation</code> where the parameters are in <code>extdata/parameters.json</code>, and a function <code>parameters()</code> which returns a named list of parameters, one of which is a list itself (<code>dist_config</code>) and so is checked separately.</p>
@@ -1529,6 +1549,7 @@ $transfer_probs
 </div>
 </div>
 <div class="r-content">
+<p>We use <code>checkmate::assert_number()</code> to ensure the value is numeric and within the valid range.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="co">#' Check that the transfer probability is between 0 and 1.</span></span>
 <span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a><span class="co">#'</span></span>
@@ -1538,14 +1559,16 @@ $transfer_probs
 <span id="cb47-6"><a href="#cb47-6" aria-hidden="true" tabindex="-1"></a><span class="co">#' @export</span></span>
 <span id="cb47-7"><a href="#cb47-7" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb47-8"><a href="#cb47-8" aria-hidden="true" tabindex="-1"></a>validate_param <span class="ot">&lt;-</span> <span class="cf">function</span>(parameters) {</span>
-<span id="cb47-9"><a href="#cb47-9" aria-hidden="true" tabindex="-1"></a>  transfer_prob <span class="ot">&lt;-</span> parameters<span class="sc">$</span>transfer_prob</span>
-<span id="cb47-10"><a href="#cb47-10" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (transfer_prob <span class="sc">&lt;</span> <span class="dv">0</span>L <span class="sc">||</span> transfer_prob <span class="sc">&gt;</span> <span class="dv">1</span>L) {</span>
-<span id="cb47-11"><a href="#cb47-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">stop</span>(</span>
-<span id="cb47-12"><a href="#cb47-12" aria-hidden="true" tabindex="-1"></a>      <span class="st">"transfer_prob must be between 0 and 1, but is: "</span>, transfer_prob,</span>
-<span id="cb47-13"><a href="#cb47-13" aria-hidden="true" tabindex="-1"></a>      <span class="at">call. =</span> <span class="cn">FALSE</span></span>
-<span id="cb47-14"><a href="#cb47-14" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb47-15"><a href="#cb47-15" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb47-16"><a href="#cb47-16" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb47-9"><a href="#cb47-9" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Ensure parameters is a list with unique named elements and at 1+ entries</span></span>
+<span id="cb47-10"><a href="#cb47-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">assert_list</span>(parameters, <span class="at">names =</span> <span class="st">"unique"</span>, <span class="at">min.len =</span> <span class="dv">1</span>L, </span>
+<span id="cb47-11"><a href="#cb47-11" aria-hidden="true" tabindex="-1"></a>              <span class="at">.var.name =</span> <span class="st">"parameters"</span>)</span>
+<span id="cb47-12"><a href="#cb47-12" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Ensure transfer_prob is a single numeric value between 0 and 1</span></span>
+<span id="cb47-13"><a href="#cb47-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">assert_number</span>(</span>
+<span id="cb47-14"><a href="#cb47-14" aria-hidden="true" tabindex="-1"></a>    parameters<span class="sc">$</span>transfer_prob,</span>
+<span id="cb47-15"><a href="#cb47-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">lower =</span> <span class="dv">0</span>, <span class="at">upper =</span> <span class="dv">1</span>,</span>
+<span id="cb47-16"><a href="#cb47-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">.var.name =</span> <span class="st">"transfer_prob"</span></span>
+<span id="cb47-17"><a href="#cb47-17" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb47-18"><a href="#cb47-18" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
 <p>Then, in our <strong>model function</strong>, we call the validation function to check all inputs before proceeding with the simulation:</p>
@@ -1606,7 +1629,8 @@ $transfer_probs
 <span id="cb50-22"><a href="#cb50-22" aria-hidden="true" tabindex="-1"></a>})</span>
 <span id="cb50-23"><a href="#cb50-23" aria-hidden="true" tabindex="-1"></a><span class="fu">try</span>(<span class="fu">model</span>(params))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Error : transfer_prob must be between 0 and 1, but is: 1.4</code></pre>
+<pre><code>Error in validate_param(parameters = param) : 
+  Assertion on 'transfer_prob' failed: Element 1 is not &lt;= 1.</code></pre>
 </div>
 </div>
 </div>
@@ -2424,7 +2448,7 @@ document.addEventListener('DOMContentLoaded', function() {
     <div class="nav-footer-center">
       <ul class="footer-items list-unstyled">
     <li class="nav-item">
- Part of the STARS research project.<br>
+ Part of the <a href="https://pythonhealthdatascience.github.io/stars/" target="_blank" rel="noopener">STARS research project</a>.<br>
 Code licence: <a href="https://opensource.org/license/mit" target="_blank" rel="noopener">MIT</a>.  
 Text licence: <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC-BY-SA 4.0</a>.
   </li>  

@@ -6,7 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2026-01-26">
+<meta name="dcterms.date" content="2026-01-30">
 
 <title>Tests – DES RAP</title>
 <style>
@@ -259,7 +259,7 @@ background-size: cover;
       <div>
       <div class="quarto-title-meta-heading">Page last modified</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">January 26, 2026</p>
+        <p class="date">January 30, 2026</p>
       </div>
     </div>
     
@@ -611,6 +611,7 @@ background-size: cover;
   <ul class="collapse">
   <li><a href="#introduction-to-writing-and-running-tests" id="toc-introduction-to-writing-and-running-tests" class="nav-link active" data-scroll-target="#introduction-to-writing-and-running-tests">Introduction to writing and running tests</a></li>
   <li><a href="#testing-the-model" id="toc-testing-the-model" class="nav-link" data-scroll-target="#testing-the-model">Testing the model</a></li>
+  <li><a href="#other-things-you-can-do-when-testing-code" id="toc-other-things-you-can-do-when-testing-code" class="nav-link" data-scroll-target="#other-things-you-can-do-when-testing-code">Other things you can do when testing code</a></li>
   <li><a href="#test-coverage" id="toc-test-coverage" class="nav-link" data-scroll-target="#test-coverage">Test coverage</a></li>
   <li><a href="#explore-the-example-models" id="toc-explore-the-example-models" class="nav-link" data-scroll-target="#explore-the-example-models">Explore the example models</a></li>
   <li><a href="#test-yourself" id="toc-test-yourself" class="nav-link" data-scroll-target="#test-yourself">Test yourself</a></li>
@@ -682,7 +683,7 @@ background-size: cover;
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">expect_gt</span>(number, <span class="dv">0</span>L)</span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Test passed 😸</code></pre>
+<pre><code>Test passed with 1 success 🥇.</code></pre>
 </div>
 </div>
 <section id="setting-up-a-testing-structure-with-testthat" class="level3">
@@ -835,10 +836,12 @@ assert -1 &gt; 0
 [ FAIL 1 | WARN 0 | SKIP 0 | PASS 3 ]
 
 ── Failure ('test_example_param.R:5:3'): Confirm that the number is positive number=-1 ──
-`number` is not strictly more than 0L. Difference: -1
+Expected `number` &gt; 0L.
+Actual comparison: -1 &lt;= 0
+Difference: -1 &lt;= 0
 Backtrace:
     ▆
- 1. ├─rlang::eval_tidy(code, args)
+ 1. ├─rlang::eval_tidy(code, test_args)
  2. └─testthat::expect_gt(number, 0L) at test_example_param.R:5:3
 
 [ FAIL 1 | WARN 0 | SKIP 0 | PASS 3 ]</code></pre>
@@ -857,13 +860,13 @@ Backtrace:
 </ul>
 <p>As mentioned above, we are running these tests on the model from the <a href="../../../pages/guide/output_analysis/parallel.html">parallel processing</a> page (which is also the one used on the <a href="../../../pages/guide/experiments/scenarios.html">scenario and sensitivity analysis</a> page).</p>
 <div class="python-content">
-<div class="callout callout-style-simple callout-none no-icon callout-titled" title="▶&nbsp;&nbsp; View simulaltion code" style="minimal">
+<div class="callout callout-style-simple callout-none no-icon callout-titled" title="▶&nbsp;&nbsp; View simulation code" style="minimal">
 <div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon no-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">None</span>▶&nbsp;&nbsp; View simulaltion code
+<span class="screen-reader-only">None</span>▶&nbsp;&nbsp; View simulation code
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
@@ -1481,13 +1484,13 @@ Backtrace:
 </div>
 </div>
 <div class="r-content">
-<div class="callout callout-style-simple callout-none no-icon callout-titled" title="▶&nbsp;&nbsp; View simulaltion code" style="minimal">
+<div class="callout callout-style-simple callout-none no-icon callout-titled" title="▶&nbsp;&nbsp; View simulation code" style="minimal">
 <div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon no-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">None</span>▶&nbsp;&nbsp; View simulaltion code
+<span class="screen-reader-only">None</span>▶&nbsp;&nbsp; View simulation code
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
@@ -2144,7 +2147,7 @@ collected 2 items
 
 tests_resources/test_functional.py ..                                    [100%]
 
-============================== 2 passed in 0.45s ===============================
+============================== 2 passed in 0.26s ===============================
 &lt;ExitCode.OK: 0&gt;</code></pre>
 </div>
 </div>
@@ -2177,8 +2180,8 @@ tests_resources/test_functional.py ..                                    [100%]
 <span id="cb16-22"><a href="#cb16-22" aria-hidden="true" tabindex="-1"></a>       <span class="at">init_value =</span> <span class="dv">2000</span>L, <span class="at">adj_value =</span> <span class="dv">500</span>L)</span>
 <span id="cb16-23"><a href="#cb16-23" aria-hidden="true" tabindex="-1"></a>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Test passed 🌈
-Test passed 🎊</code></pre>
+<pre><code>Test passed with 1 success 🥳.
+Test passed with 1 success 🥳.</code></pre>
 </div>
 </div>
 </div>
@@ -2277,7 +2280,7 @@ Expected match: "must be greater than 0"
 Actual message: "ℹ In argument: `wait_time = .data[[\"serve_start\"]] -\n  .data[[\"start_time\"]]`.\nCaused by error in `.data[[\"serve_start\"]]`:\n! Column `serve_start` not found in `.data`."
 Backtrace:
     ▆
- 1. ├─rlang::eval_tidy(code, args)
+ 1. ├─rlang::eval_tidy(code, test_args)
  2. └─testthat::expect_error(...) at test_unit.R:11:3
 
 ── Error ('test_unit.R:11:3'): Check that model fails with zero inputs param_name=interarrival_time ──
@@ -2285,12 +2288,12 @@ Backtrace:
 Error in `.subset2(cnd, "rlang")`: subscript out of bounds
 Backtrace:
      ▆
-  1. ├─rlang::eval_tidy(code, args)
+  1. ├─rlang::eval_tidy(code, test_args)
   2. ├─testthat::expect_error(...) at test_unit.R:11:3
-  3. │ └─testthat:::quasi_capture(...) at testthat/R/expect-condition.R:126:5
-  4. │   ├─testthat (local) .capture(...) at testthat/R/quasi-label.R:54:3
-  5. │   │ └─base::withCallingHandlers(...) at testthat/R/deprec-condition.R:23:5
-  6. │   └─rlang::eval_bare(quo_get_expr(.quo), quo_get_env(.quo)) at testthat/R/quasi-label.R:54:3
+  3. │ └─testthat:::quasi_capture(...) at testthat/R/expect-condition.R:133:5
+  4. │   ├─testthat (local) .capture(...) at testthat/R/quasi-label.R:72:3
+  5. │   │ └─base::withCallingHandlers(...) at testthat/R/deprec-condition.R:31:5
+  6. │   └─rlang::eval_bare(quo_get_expr(.quo), quo_get_env(.quo)) at testthat/R/quasi-label.R:72:3
   7. ├─R.utils::withTimeout(...) at rlang/R/eval.R:96:3
   8. │ └─base::tryCatch(...) at R.utils/R/withTimeout.R:149:3
   9. │   └─base (local) tryCatchList(expr, classes, parentenv, handlers)
@@ -2300,7 +2303,7 @@ Backtrace:
  13. │         └─R.oo::throw.Exception(ex) at staging/1/R.oo:1:14
  14. │           └─base::signalCondition(this) at R.oo/R/Exception.R:313:3
  15. └─testthat (local) `&lt;fn&gt;`(`&lt;TmtExcpt&gt;`)
- 16.   └─rlang::cnd_entrace(cnd) at testthat/R/deprec-condition.R:7:7
+ 16.   └─rlang::cnd_entrace(cnd) at testthat/R/deprec-condition.R:8:9
  17.     └─rlang:::cnd_some(cnd, function(x) !is_null(x[["trace"]])) at rlang/R/cnd-entrace.R:242:3
 
 [ FAIL 2 | WARN 0 | SKIP 0 | PASS 0 ]</code></pre>
@@ -2484,22 +2487,88 @@ tests_resources/test_back.py .                                           [100%]
 <p>It is crucial to exercise caution when doing this, to avoid unintentionally overwriting correct expected results.</p>
 </section>
 </section>
+<section id="other-things-you-can-do-when-testing-code" class="level2">
+<h2 class="anchored" data-anchor-id="other-things-you-can-do-when-testing-code">Other things you can do when testing code</h2>
+<div class="python-content">
+<p><strong>pytest plugins</strong> extend testing functionality - useful plugins include:</p>
+<ul>
+<li><a href="https://github.com/pytest-dev/pytest-xdist">pytest-xdist</a> - parallel test execution to speed up test suites.</li>
+<li><a href="https://github.com/Teemu/pytest-sugar">pytest-sugar</a> - enhanced progress bars and better output formatting.</li>
+<li><a href="https://github.com/pytest-dev/pytest-html">pytest-html</a> - generate HTML test reports.</li>
+</ul>
+</div>
+<div class="r-content">
+<p>Another popular way to test your code is using <code>@examples</code>. These are executable code examples that form part of your function docstrings (written in roxygen2 format). They serve a dual purpose: documenting how to use a function, and testing that it works correctly.</p>
+<p>If you build documentation for your package with pkgdown, the examples are executed and their rendered output is displayed on the function reference pages.</p>
+<section id="structure-of-examples" class="level3">
+<h3 class="anchored" data-anchor-id="structure-of-examples">Structure of <code>@examples</code></h3>
+<p><code>@examples</code> are written as part of your roxygen2 docstring, after the <code>@return</code> tag.</p>
+<p>They only work on exported functions (functions with <code>@export</code> tag). You cannot use them to test internal helper functions.</p>
+<p>Example:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="co">#' Estimate the total wait time for all customers in the queue</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="co">#'</span></span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a><span class="co">#' @param queue_length numeric Number of customers currently in the queue.</span></span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a><span class="co">#' @param avg_service_time numeric Average time taken to serve one customer.</span></span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a><span class="co">#'</span></span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a><span class="co">#' @return numeric Estimated total wait time.</span></span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a><span class="co">#'</span></span>
+<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a><span class="co">#' @export</span></span>
+<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a><span class="co">#'</span></span>
+<span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a><span class="co">#' @examples</span></span>
+<span id="cb30-11"><a href="#cb30-11" aria-hidden="true" tabindex="-1"></a><span class="co">#' # Basic usage</span></span>
+<span id="cb30-12"><a href="#cb30-12" aria-hidden="true" tabindex="-1"></a><span class="co">#' estimate_wait_time(queue_length = 10, avg_service_time = 2)</span></span>
+<span id="cb30-13"><a href="#cb30-13" aria-hidden="true" tabindex="-1"></a><span class="co">#' # Returns 20</span></span>
+<span id="cb30-14"><a href="#cb30-14" aria-hidden="true" tabindex="-1"></a><span class="co">#'</span></span>
+<span id="cb30-15"><a href="#cb30-15" aria-hidden="true" tabindex="-1"></a><span class="co">#' # Different queue size</span></span>
+<span id="cb30-16"><a href="#cb30-16" aria-hidden="true" tabindex="-1"></a><span class="co">#' estimate_wait_time(queue_length = 5, avg_service_time = 3)</span></span>
+<span id="cb30-17"><a href="#cb30-17" aria-hidden="true" tabindex="-1"></a><span class="co">#' # Returns 15</span></span>
+<span id="cb30-18"><a href="#cb30-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-19"><a href="#cb30-19" aria-hidden="true" tabindex="-1"></a>estimate_wait_time <span class="ot">&lt;-</span> <span class="cf">function</span>(queue_length, avg_service_time) {</span>
+<span id="cb30-20"><a href="#cb30-20" aria-hidden="true" tabindex="-1"></a>  queue_length <span class="sc">*</span> avg_service_time</span>
+<span id="cb30-21"><a href="#cb30-21" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="running-examples" class="level3">
+<h3 class="anchored" data-anchor-id="running-examples">Running examples</h3>
+<p>You can execute <code>@examples</code> in several ways:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Run all examples in your package</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">run_examples</span>()</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Run examples from a specific function</span></span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">run_examples</span>(<span class="at">start =</span> <span class="st">"estimate_wait_time"</span>)</span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Examples also run automatically during package checking</span></span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">check</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>You can also run examples interactively from the RStudio editor. Place your cursor in the roxygen docstring (lines starting with <code>#'</code>) and press <strong>Ctrl+Enter</strong> (or Cmd+Enter on Mac). This can be useful for iterative testing whilst developing a function.</p>
+</section>
+<section id="when-to-use-examples-v.s.-testthat" class="level3">
+<h3 class="anchored" data-anchor-id="when-to-use-examples-v.s.-testthat">When to use <code>@examples</code> v.s. <code>testthat</code>?</h3>
+<p>The purpose of <code>@examples</code> is to demonstrate how to use a function via basic use cases.</p>
+<p><code>testthat</code> is a dedicated testing framework for systematically checking that your code works correctly across many scenarios, edge cases, and error conditions.</p>
+<p>While <code>@examples</code> will run your code and verify that basic use cases works, they’re not a substitute for a full test suite. <code>@examples</code> shows “here’s how you use this function”, while <code>testthat</code> checks “does this function work correctly in all the ways it might be used”</p>
+</section>
+</div>
+</section>
 <section id="test-coverage" class="level2">
 <h2 class="anchored" data-anchor-id="test-coverage">Test coverage</h2>
 <p><strong>Coverage</strong> refers to the percentage of your code that is executed when you run your tests. It can help you spot parts of your code that are not included in any tests.</p>
 <div class="python-content">
 <p>The <a href="https://github.com/pytest-dev/pytest-cov">pytest-cov</a> package can be used to run coverage calculations alongside pytest. After installing it, simply run tests with the <code>--cov</code> flag:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb30"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pytest</span> <span class="at">--cov</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb32"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pytest</span> <span class="at">--cov</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>See the <a href="../../../pages/guide/style_docs/github_actions.html#example-test-coverage">GitHub actions</a> page for guidance on generating a coverage badge for your README within CI/CD.</p>
 </div>
 <div class="r-content">
 <p><br></p>
 <p>If your research is <a href="../../../pages/guide/setup/package.html">structured as a package</a>, then you can use <code>devtools</code> to calculate coverage:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">test_coverage</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">test_coverage</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><br></p>
 <p>If not structured as a package, you can use <a href="https://github.com/r-lib/covr">covr</a>’s <code>file_coverage()</code> function - for example:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">file_coverage</span>(<span class="at">source_files =</span> <span class="fu">c</span>(<span class="st">"param.R"</span>, <span class="st">"model.R"</span>),</span>
-<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>              <span class="at">test_files =</span> <span class="fu">c</span>(<span class="st">"test-unit.R"</span>, <span class="st">"test-back.R"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">file_coverage</span>(<span class="at">source_files =</span> <span class="fu">c</span>(<span class="st">"param.R"</span>, <span class="st">"model.R"</span>),</span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>              <span class="at">test_files =</span> <span class="fu">c</span>(<span class="st">"test-unit.R"</span>, <span class="st">"test-back.R"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><br></p>
+<p>Your <code>@examples</code> will not count towards your overall code coverage, but you can track them separately using <code>covr</code>:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">package_coverage</span>(<span class="at">type =</span> <span class="st">"examples"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="explore-the-example-models" class="level2">
@@ -3121,7 +3190,7 @@ document.addEventListener('DOMContentLoaded', function() {
     <div class="nav-footer-center">
       <ul class="footer-items list-unstyled">
     <li class="nav-item">
- Part of the STARS research project.<br>
+ Part of the <a href="https://pythonhealthdatascience.github.io/stars/" target="_blank" rel="noopener">STARS research project</a>.<br>
 Code licence: <a href="https://opensource.org/license/mit" target="_blank" rel="noopener">MIT</a>.  
 Text licence: <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC-BY-SA 4.0</a>.
   </li>  
