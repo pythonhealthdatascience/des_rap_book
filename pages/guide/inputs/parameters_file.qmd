@@ -107,16 +107,11 @@ data_path <- "parameters_file_resources"
 
 ### CSV example
 
-For CSV files, use a simple tabular structure and follow tidy data principles - each row is an observation, each column a variable. Avoid merged cells or stacked headers, as these make data processing difficult. You can use either:
+For CSV files, use a simple tabular structure and follow tidy data principles - each row is an observation, each column a variable. Avoid merged cells or stacked headers, as these make data processing difficult.
 
-* **Long format (one parameter per row)** - works well when you have a single parameter set with grouped parameters.
-* **Wide format (one parameter per column)** - useful for when you have multiple parameter sets or scenarios in one file. It can also work directly with `purrr::pmap()` (see "Direct import to model functions" below).
+::: {.python-content}
 
-#### Long format
-
-{{< downloadthis parameters_file_resources/example_parameters.csv dname="example_parameters_long" label="Download example_parameters.csv (long)" type="primary" >}}
-
-:::{.python-content}
+{{< downloadthis parameters_file_resources/example_parameters.csv dname="example_parameters" label="Download example_parameters.csv" type="primary" >}}
 
 ```{python}
 # Import and preview parameter file
@@ -126,7 +121,16 @@ HTML(to_html_datatable(csv_content))
 
 :::
 
-:::{.r-content}
+::: {.r-content}
+
+You can use either:
+
+* **Long format (one parameter per row)** - works well when you have a single parameter set with grouped parameters.
+* **Wide format (one parameter per column)** - useful for when you have multiple parameter sets or scenarios in one file. It can also work directly with `purrr::pmap()` (see "Direct import to model functions" below).
+
+#### Long format
+
+{{< downloadthis parameters_file_resources/example_parameters.csv dname="example_parameters_long" label="Download example_parameters.csv (long)" type="primary" >}}
 
 ```{r}
 # Import and view the parameter table
@@ -134,25 +138,9 @@ csv_content <- read.csv(file.path(data_path, "example_parameters.csv"))
 kable(csv_content)
 ```
 
-:::
-
 #### Wide format
 
 {{< downloadthis parameters_file_resources/example_parameters_wide.csv dname="example_parameters_wide" label="Download example_parameters.csv (wide)" type="primary" >}}
-
-:::{.python-content}
-
-```{python}
-# Import and preview parameter file
-csv_content = pd.read_csv(
-    os.path.join(data_path, "example_parameters_wide.csv")
-)
-HTML(to_html_datatable(csv_content))
-```
-
-:::
-
-:::{.r-content}
 
 ```{r}
 # Import and view the parameter table
@@ -232,7 +220,11 @@ subprocess.run([
 
 ### CSV data dictionary example
 
+::: {.r-content}
+
 This example is for the wide format CSV data.
+
+:::
 
 {{< downloadthis parameters_file_resources/_csv_data_dictionary.md dname="csv_data_dictionary" label="Download CSV data dictionary" type="primary" >}}
 
