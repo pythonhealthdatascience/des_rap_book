@@ -33,10 +33,12 @@ These should be available from environment setup on the [Structuring as a packag
 ::: {.python-content}
 
 ```{python}
+from collections import defaultdict
+from IPython.display import HTML
+from itables import to_html_datatable
+import json
 import os
 import pandas as pd
-import json
-from collections import defaultdict
 ```
 
 :::
@@ -45,6 +47,7 @@ from collections import defaultdict
 
 ```{r}
 library(jsonlite)
+library(kableExtra)
 ```
 
 :::
@@ -106,23 +109,43 @@ data_path <- "parameters_file_resources"
 
 For CSV files, use a simple tabular structure and follow tidy data principles - each row is an observation, each column a variable. Avoid merged cells or stacked headers, as these make data processing difficult.
 
-{{< downloadthis parameters_file_resources/example_parameters.csv dname="example_parameters" label="Download example_parameters.csv" type="primary" >}}
+::: {.python-content}
 
-:::{.python-content}
+{{< downloadthis parameters_file_resources/example_parameters.csv dname="example_parameters" label="Download example_parameters.csv" type="primary" >}}
 
 ```{python}
 # Import and preview parameter file
 csv_content = pd.read_csv(os.path.join(data_path, "example_parameters.csv"))
-csv_content.head()
+HTML(to_html_datatable(csv_content))
 ```
 
 :::
 
-:::{.r-content}
+::: {.r-content}
+
+You can use either:
+
+* **Long format (one parameter per row)** - works well when you have a single parameter set with grouped parameters.
+* **Wide format (one parameter per column)** - useful for when you have multiple parameter sets or scenarios in one file. It can also work directly with `purrr::pmap()` (see "Direct import to model functions" below).
+
+#### Long format
+
+{{< downloadthis parameters_file_resources/example_parameters.csv dname="example_parameters_long" label="Download example_parameters.csv (long)" type="primary" >}}
 
 ```{r}
 # Import and view the parameter table
-read.csv(file.path(data_path, "example_parameters.csv"))
+csv_content <- read.csv(file.path(data_path, "example_parameters.csv"))
+kable(csv_content)
+```
+
+#### Wide format
+
+{{< downloadthis parameters_file_resources/example_parameters_wide.csv dname="example_parameters_wide" label="Download example_parameters.csv (wide)" type="primary" >}}
+
+```{r}
+# Import and view the parameter table
+csv_content <- read.csv(file.path(data_path, "example_parameters_wide.csv"))
+kable(csv_content)
 ```
 
 :::
@@ -197,6 +220,12 @@ subprocess.run([
 
 ### CSV data dictionary example
 
+::: {.r-content}
+
+This example is for the wide format CSV data.
+
+:::
+
 {{< downloadthis parameters_file_resources/_csv_data_dictionary.md dname="csv_data_dictionary" label="Download CSV data dictionary" type="primary" >}}
 
 <iframe src="parameters_file_resources/_csv_data_dictionary.pdf" width="100%" height="500px" style="border:1px solid #dee2e6"></iframe>
@@ -216,19 +245,6 @@ As explained in the [parameters from script](parameters_script.qmd) page, there 
 
 If you haven't already, see the [parameters from script](parameters_script.qmd) page for more detail on why this explicit grouping and passing is important.
 
-::: {.python-content}
-
-On that page, we discussed three implementation options: **dictionary**, **function**, and **class**. When defining parameters within scripts, we recommended using a function or class. But what about when you're importing parameters from a file?
-
-:::
-
-::: {.r-content}
-
-On that page, we discussed two implementation options: a **list** or a **function**. When defining parameters within scripts, we recommended using a function. But what about when you're importing parameters from a file?
-
-:::
-
-
 ### Implementation options for file-based parameters
 
 ::: {.python-content}
@@ -241,45 +257,47 @@ You still have two main choices: a **function** or a **class**.
 
 **Function (returns a dictionary)**
 
-:::
-
-::: {.r-content}
-
-We still recommend using a function.
-
-**Direct list import** (loading the file straight into a named list) is rarely practical.
-
-* ❌ It only works if the file structure exactly matches your model and no extra parameters are needed.
-
-**Function (returns a named list)**
-
-:::
-
 * ✅ Handles any processing needed to go from file to parameter structure.
 
 * ✅ Lets you merge file-based and script-based parameters into one object.
 
 * ✅ Keeps all import/processing logic together for easy reuse and debugging.
 
-::: {.python-content}
-
-* ❌ Dictionaries can be modified after creation, so validation must be performed in the model functions/classes (ensuring the final set of parameters is being checked). This means that errors are only caught later, rather than immediately at the point of import/change.
+* ❌ Dictionaries can be modified after creation, so [validation](parameters_validation.qmd) must be performed in the model functions/classes (ensuring the final set of parameters is being checked). This means that errors are only caught later, rather than immediately at the point of import/change.
 
 **Class**
 
 * ✅ Includes all function benefits: processing, merging, in one place.
 
-* ✅ Supports validation at creation or update, catching errors earlier.
+* ✅ Supports [validation](parameters_validation.qmd) at creation or update, catching errors earlier.
 
 :::
 
 ::: {.r-content}
 
-* ❌ Named list can be modified after creation, so validation must be performed in the model functions (ensuring the final set of parameters is being checked). This means that errors are only caught later, rather than immediately at the point of import/change.
+When importing parameters from a file, you have two main approaches:
+
+| | Parameter function | Direct import to model |
+| - | -- | -- |
+| **Description** | A function loads parameters from the file and returns them as a named list. This list is then passed to your model. | Import parameters directly as individual arguments to your model function. |
+| **Organisation** | ✅ Functions have fewer inputs (easier to read) | ❌ All parameters in model function signature (harder to read with many) |
+| **Complex nested structures** | ✅ Useful for nested parameters | ❌ Less flexible for nesting |
+| **Multiple parameter sets** | ❌ Requires extra processing steps | ✅ Natural integration with `purrr::pmap()`, and `furrr::future_pmap()` for parallelisation |
+| **Risk of accidental modification** (see [validation](parameters_validation.qmd) page) | ❌ Named list can be modified after creation | ✅ Function signature prevents undefined parameters |
+
+<br>
+
+> **Why wasn't direct import to model included an option on the [parameters from script](parameters_script.qmd) page?**
+>
+> Direct import to model functions works best when parameters are in a file or dataframe, particularly when you have **multiple scenarios**. 
+>
+> With script-based parameters, you typically define a single parameter set with defaults. Direct import becomes overkill - you'd end up recreating what a parameter function already does, just with a messier function signature.
+>
+> With file-based parameters, you naturally have multiple rows (scenarios) in a dataframe. Direct import leverages this structure: column names map directly to function arguments, and `purrr::pmap()` runs each row through your model efficiently.
+>
+> For script-based parameters, a parameter function (as shown on the [Parameters from script](parameters_script.qmd) page) remains the cleaner approach.
 
 :::
-
-For more context on validation, see the [parameter validation](parameters_validation.qmd) page.
 
 ::: {.python-content}
 
@@ -320,7 +338,11 @@ print(params["adult_interarrival"])
 
 ::: {.r-content}
 
-### Function output: nested or flat list
+### Parameter function function
+
+<div class="h4-tight"></div>
+
+#### Choice of outputs: nested or flat list
 
 A function loads parameters and returns them as a named list. You can choose between a **nested** or **flat** structure, depending on complexity.
 
@@ -455,7 +477,7 @@ print(json.dumps(param, indent=3))
 
 ::: {.r-content}
 
-### Function input: JSON
+#### Importing from JSON
 
 This uses a nested format, as the JSON was already in that format:
 
@@ -482,7 +504,7 @@ param <- create_parameters(file.path(data_path, "example_parameters.json"))
 print(param[1L:4L])
 ```
 
-### Function input: CSV
+#### Importing from CSV
 
 With flat output:
 
@@ -745,6 +767,78 @@ params = setup_param_from_csv(
 # View object
 print(json.dumps(params.__dict__, indent=3))
 ```
+
+:::
+
+::: {.r-content}
+
+### Direct import to model
+
+With the wide format, parameters can be imported directly into your model function using `purrr::pmap()`.
+
+We haven't built the full model yet, but let's create a simple example to demonstrate the pattern. This model function accepts parameters directly as individual arguments:
+
+```{r}
+#' Simple model example with explicit parameters
+#'
+#' @param adult_interarrival Numeric. Time between adult patient arrivals 
+#'   (minutes).
+#' @param adult_consultation Numeric. Duration of consultation time for adult 
+#'   patients (minutes).
+#' @param adult_transfer Numeric. Probability of transferring adult patients 
+#'   between stages.
+#' @param child_interarrival Numeric. Time between child patient arrivals 
+#'   (minutes).
+#' @param child_consultation Numeric. Duration of consultation time for child 
+#'   patients (minutes).
+#' @param child_transfer Numeric. Probability of transferring child patients 
+#'   between stages.
+#' @param elderly_interarrival Numeric. Time between elderly patient arrivals 
+#'   (minutes).
+#' @param elderly_consultation Numeric. Duration of consultation time for 
+#'   elderly patients (minutes).
+#' @param elderly_transfer Numeric. Probability of transferring elderly 
+#'   patients between stages.
+#'
+#' @return Model results
+#' @export
+model <- function(
+  adult_interarrival, adult_consultation, adult_transfer,
+  child_interarrival, child_consultation, child_transfer,
+  elderly_interarrival, elderly_consultation, elderly_transfer
+) {
+  
+  # Model code would go here
+  # For now, let's just demonstrate it imported successfully by printing...
+
+  print(paste("Parameters imported! For example:"))
+  print(paste("Adult interarrival time:", adult_interarrival, "minutes"))
+  print(paste("Child consultation time:", child_consultation, "minutes"))
+  print(paste("Elderly transfer probability:", elderly_transfer))
+}
+```
+
+Import the wide-format parameters:
+
+```{r}
+params <- readr::read_csv(
+  file.path(data_path, "example_parameters_wide.csv"), show_col_types = FALSE
+)
+```
+
+For a single parameter set, we can use `do.call()`:
+
+```{r}
+do.call(model, params[1, ])
+```
+
+For multiple scenarios (if we had multiple rows), we can use `purrr::pmap()`:
+
+```{r}
+params %>% purrr::pmap(model)
+```
+
+The column names in the CSV must match the function argument names exactly - this provides automatic validation against typos (see [parameter validation](parameters_validation.qmd) page).
 
 :::
 

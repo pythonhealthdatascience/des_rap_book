@@ -16,6 +16,7 @@ date: "2025-10-13T15:40:55+01:00"
 
 * Recognise where a **reproducible analytical pipeline** begins, and what data is included.
 * Learn recommended practices for **storing and sharing raw data, input modelling code, and parameters**.
+* Understand how to protect sensitive data and avoid committing secrets to version control.
 * Understand how **private and public versions** of a model could be maintained when there is sensitive data.
 
 :::
@@ -43,9 +44,69 @@ Keep in mind that, especially in sensitive areas like healthcare, you may not be
 
 > **Why is this important?** By starting at the source, you make your work transparent and easy to repeat. For instance, if new raw data becomes available, it's important you have your input modelling code so that you can check your distributions are still appropriate, re-estimate your model parameters, and re-run your analysis.
 
+## Never commit secrets or sensitive data to Git
+
+Never commit to Git:
+
+* Raw identifiable data (patient records, personally identifiable information).
+* Secrets (API keys, passwords, database connection strings, access tokens).
+* Real sensitive parameter files that must remain private.
+* Configuration files with embedded credentials (e.g. .env, secrets.yml).
+
+**Even if your repository is private, secrets in Git history are vulnerable**: anyone with current or future repository access can see the full history, and if the repository ever becomes public, secrets are exposed to the internet. **Removing secrets from Git history is painful and error-prone, so prevention is far easier than cure**.
+
+### Protect your repository
+
+You need to **store sensitive data outside your public Git repository**. You have two main approaches:
+
+1. **Completely outside any Git repository**. Store raw data, secrets, and real sensitive parameters in a secure location entirely separate from version control, such as in a restricted database or institutional data source. This approach is safest when your data requires strict separation and storage rules. Reference these resources in your RAP via documented access paths (e.g. database connection details, file paths) rather than committing exports.
+
+2. **In a private Git repository**. For less sensitive data, use a separate private repository (never mix public and private content in the same repository). The advantage is that your team maintains version control and change history for sensitive materials. However, a private repository is not foolproof - it is only as secure as your team's access permissions, and if the repository's access ever changes, sensitive data could be exposed.
+
+::: {.callout-note title="Learn more about maintaining a private and public version of your model" collapse="true"}
+
+The way you might set up private and public repositories depends on whether you are allowed to share the real simulation parameter files. This assumes your sensitive data is stored using one of the approaches above (either completely outside Git, or in a private repository if appropriate).
+
+### Scenario 1: Allowed to share real parameters
+
+* **Public repository:** Contains everything needed to reproduce your model except sensitive raw data and input modelling scripts.
+
+* **Private repository (or secure external storage):** Contains the sensitive raw data, input modelling scripts, and anything else that cannot be publicly released.
+
+* **Workflow:**
+  1. Do all input modelling (parameter estimation) on real data stored securely (either in a private repository or external to Git).
+  2. Copy the resulting real parameter files to the public repository.
+  3. Run your model and share code/results publicly - users can fully reproduce your analysis using the real parameters.
+
+### Scenario 2: Only sharing fake/synthetic parameters
+
+* **Public repository:** Contains only synthetic/fake parameter files, synthetic/example data, analysis code, and documentation describing how these synthetic values were generated.
+
+* **Private repository (or secure external storage):** Contains the sensitive raw data and real parameter files, plus scripts for analysis with the real values.
+
+* **Shared simulation package (in it's own repository or part of the public repository):** All analysis code is [developed as a package](../setup/package.qmd) that can be installed and used by both the public and private repositories. This greatly reduces code duplication.
+
+* **Workflow:**
+  1. Estimate parameters using real data stored securely (either in a private repository if appropriate, or completely outside Git for highly sensitive data).
+  2. Generate synthetic parameter files for the public repository, documenting the generation process.
+  3. Use the shared simulation package in both repositories.
+  4. Run and share the full workflow in public with synthetic parameters; run the actual analysis in private with the real parameters.
+
+:::
+
+Some additional safeguards to protect your repository include to:
+
+* Add sensitive files to `.gitignore`.
+* Store secrets using environment variables or a secrets manager.
+* Use pre-commit secret scanners (e.g., `git-secrets`, `detect-secrets`) to block commits with secrets.
+
+### If you accidentally commit sensitive data
+
+See [GitHub's guide to removing sensitive data](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/removing-sensitive-data-from-a-repository) for advice on what to do!
+
 ## Raw data
 
-This is data which reflects system you will be simulating. It is used to estimate parameters and fit distributions for your simulation model. For example:
+This is data which reflects the system you will be simulating. It is used to estimate parameters and fit distributions for your simulation model. For example:
 
 ::: {.grey-table}
 
@@ -204,37 +265,6 @@ You must share some parameters with your model so that it is possible for others
 * **Explain access restrictions**<br>State why real parameters cannot be shared and provide contact information fore requests, if appropriate.
 
 :::
-
-## Maintaining a private and public version of your model
-
-It's common to have data and/or code that cannot be shared publicly. **Both your private and public components should be [version controlled](../setup/version.qmd)**, but you cannot split a single GitHub repository into public and private sections. The suggested solution is to use two separate repositories: **one public, one private**.
-
-The way you might set these up depends on whether you are allowed to share the real simulation parameter files.
-
-### Scenario 1: Allowed to share real parameters
-
-* **Public repository:** Contains everything needed to reproduce your model except sensitive raw data and input modelling scripts.
-
-* **Private repository:** Contains the sensitive raw data, input modelling scripts, and anything else that cannot be publicly released.
-
-* **Workflow:**
-  1. Do all input modelling (parameter estimation) on real data in your private repository.
-  2. Copy the resulting real parameter files to the public repository.
-  3. Run your model and share code/results publicly - users can fully reproduce your analysis using the real parameters.
-
-### Scenario 2: Only sharing fake/synthetic parameters
-
-* **Public repository:** Contains only synthetic/fake parameter files, synthetic/example data, analysis code, and documentation describing how these synthetic values were generated.
-
-* **Private repository:** Contains the sensitive raw data and real parameter files, plus scripts for analysis with the real values.
-
-* **Shared simulation package (in it's own repository or part of the public repository):** All analysis code is [developed as a package](../setup/package.qmd) that can be installed and used by both the public and private repositories. This greatly reduces code duplication.
-
-* **Workflow:**
-  1. Estimate parameters using real data in your private repository - store these securely.
-  2. Generate synthetic parameter files for the public repository, documenting the generation process.
-  3. Use the shared simulation package in both repositories.
-  4. Run and share the full workflow in public with synthetic parameters; run the actual analysis in private with the real parameters.
 
 ## Test yourself
 

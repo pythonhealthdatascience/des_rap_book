@@ -406,108 +406,9 @@ audit_results = run_warmup_analysis(
 HTML(to_html_datatable(audit_results.head(200)))
 ```
 
-### Plot the results for time series inspection
-
-We can now create plots of the cumulative mean metrics over time. We plot the results from each run (light blue), then an overall cumulative mean (dark blue). Rather than attempting to properly combine time-weighted statistics across runs with different event timepoints, we:
-
-1. Pool all timepoint observations from all runs
-2. Sort them chronologically
-3. Compute a running average of the cumulative mean values
-
-Whilst this is just an approximation of the cumulative mean for time-weighted values, it is perfectly fine for the purposes of this exercise, which is just so see roughly when metrics stabilise.
-
-```{python}
-def plot_time_series(audit_results, metric, warmup_time=None):
-    """
-    Plot cumulative mean trajectories and compute overall cumulative mean.
-
-    Parameters
-    ----------
-    audit_results : pd.DataFrame
-        Audit results, where columns include "time", "run" and the
-        chosen metric like "wait_time" or "time_in_system".
-    metric : str
-        The performance measure to visualise.
-    warmup_time : int
-        The time point at which to display a vertical dashed line marking the
-        suggested warm-up period.
-
-    Returns
-    -------
-    plotly.graph_objects.Figure
-        A Plotly Figure object containing cumulative mean trajectories for
-        each run and the overall cumulative mean.
-    """
-    # Computer overall cumulative mean
-    df = audit_results.groupby("time")[metric].mean().reset_index()
-    df["overall_cumulative"] = df[metric].expanding().mean()
-
-    # Plot cumulative mean for each run
-    fig = px.line(
-        data_frame=audit_results,
-        x="time",
-        y=metric,
-        line_group="run"
-    )
-    fig.update_traces(line_color="lightblue")
-
-    # Overlay overall cumulative mean
-    overall_fig = px.line(df, x="time", y="overall_cumulative")
-    fig.add_traces(list(overall_fig.select_traces()))
-
-    # Add warm-up line
-    if warmup_time:
-        fig.add_vline(x=warmup_time, line_color="red", line_dash="dash",
-                      annotation_text="Suggested warm-up",
-                      annotation_font_color="red",
-                      annotation_position="top right")
-
-    # Axis labels and layout
-    fig.update_layout(
-        xaxis_title="Run time (minutes)",
-        yaxis_title=f"cumulative_mean_{metric}",
-        template="plotly_white"
-    )
-    return fig
-```
-
-::: {.panel-tabset}
-
-## Mean wait time
-
-```{python}
-plot_time_series(audit_results, "wait_time", 3000)
-```
-
-## Mean utilisation
-
-```{python}
-plot_time_series(audit_results, "utilisation", 3000)
-```
-
-## Mean queue length
-
-```{python}
-plot_time_series(audit_results, "queue_length", 3000)
-```
-
-## Mean time in system
-
-```{python}
-plot_time_series(audit_results, "time_in_system", 3000)
-```
-
-## Mean patients in system
-
-```{python}
-plot_time_series(audit_results, "patients_in_system", 3000)
-```
-
-:::
-
 ::::
 
-::: {.r-content}
+:::: {.r-content}
 
 ### Simulation code
 
@@ -994,6 +895,120 @@ This section creates the plot, which overlays the cumulative mean lines per repl
 ```
 
 The plots are then arranged vertically in a single figure using `marrangeGrob()`, saved to a file using `ggsave()`, and returned by the function.
+
+::::
+
+### Choosing an interval size
+
+When using the time series inspection approach, you need to select an appropriate interval (or window size) for calculating cumulative means. @Robinson2007 provides guidance based on Welch's method:
+
+* Aim for the smallest interval that gives a reasonably smooth line. While larger intervals produce smoother plots, they tend to give more conservative (longer) estimates of the warm-up period.
+* The interval length should be less than a quarter of the total observation time. If you need larger intervals for smoothing, run the simulation for longer.
+
+:::: {.python-content}
+
+### Plot the results for time series inspection
+
+We can now create plots of the cumulative mean metrics over time. We plot the results from each run (light blue), then an overall cumulative mean (dark blue). Rather than attempting to properly combine time-weighted statistics across runs with different event timepoints, we:
+
+1. Pool all timepoint observations from all runs
+2. Sort them chronologically
+3. Compute a running average of the cumulative mean values
+
+Whilst this is just an approximation of the cumulative mean for time-weighted values, it is perfectly fine for the purposes of this exercise, which is just so see roughly when metrics stabilise.
+
+```{python}
+def plot_time_series(audit_results, metric, warmup_time=None):
+    """
+    Plot cumulative mean trajectories and compute overall cumulative mean.
+
+    Parameters
+    ----------
+    audit_results : pd.DataFrame
+        Audit results, where columns include "time", "run" and the
+        chosen metric like "wait_time" or "time_in_system".
+    metric : str
+        The performance measure to visualise.
+    warmup_time : int
+        The time point at which to display a vertical dashed line marking the
+        suggested warm-up period.
+
+    Returns
+    -------
+    plotly.graph_objects.Figure
+        A Plotly Figure object containing cumulative mean trajectories for
+        each run and the overall cumulative mean.
+    """
+    # Computer overall cumulative mean
+    df = audit_results.groupby("time")[metric].mean().reset_index()
+    df["overall_cumulative"] = df[metric].expanding().mean()
+
+    # Plot cumulative mean for each run
+    fig = px.line(
+        data_frame=audit_results,
+        x="time",
+        y=metric,
+        line_group="run"
+    )
+    fig.update_traces(line_color="lightblue")
+
+    # Overlay overall cumulative mean
+    overall_fig = px.line(df, x="time", y="overall_cumulative")
+    fig.add_traces(list(overall_fig.select_traces()))
+
+    # Add warm-up line
+    if warmup_time:
+        fig.add_vline(x=warmup_time, line_color="red", line_dash="dash",
+                      annotation_text="Suggested warm-up",
+                      annotation_font_color="red",
+                      annotation_position="top right")
+
+    # Axis labels and layout
+    fig.update_layout(
+        xaxis_title="Run time (minutes)",
+        yaxis_title=f"cumulative_mean_{metric}",
+        template="plotly_white"
+    )
+    return fig
+```
+
+::: {.panel-tabset}
+
+## Mean wait time
+
+```{python}
+plot_time_series(audit_results, "wait_time", 3000)
+```
+
+## Mean utilisation
+
+```{python}
+plot_time_series(audit_results, "utilisation", 3000)
+```
+
+## Mean queue length
+
+```{python}
+plot_time_series(audit_results, "queue_length", 3000)
+```
+
+## Mean time in system
+
+```{python}
+plot_time_series(audit_results, "time_in_system", 3000)
+```
+
+## Mean patients in system
+
+```{python}
+plot_time_series(audit_results, "patients_in_system", 3000)
+```
+
+:::
+
+::::
+
+:::: {.r-content}
 
 ### Running the approach
 

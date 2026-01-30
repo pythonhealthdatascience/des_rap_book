@@ -485,7 +485,7 @@ Example `renv.lock` containing only `renv`:
 }
 ```
 
-When you initialise `renv`, you project gets its own **project library** - a private folder (`renv/library/`) where packages are installed just for this project. This means package versions are isolated and recorded for each project, so updating a package in one project won't break others. This makes collaboration and reproducibility much easier.
+When you initialise `renv`, your project gets its own **project library** - a private folder (`renv/library/`) where packages are installed just for this project. This means package versions are isolated and recorded for each project, so updating a package in one project won't break others. This makes collaboration and reproducibility much easier.
 
 This is different from the **user library**, which is the default shared location where R installs packages used by all your R projects. See the "Packages" section on RStudio, which will show your project v.s. user library:
 
@@ -497,7 +497,7 @@ Some further information relevant when initialising `renv`:
 
 If a `DESCRIPTION` file is present, `renv` will prompt you to choose how dependencies are discovered:
 
-* **Implicit mode:** `renv` will scan you project files for any packages used in your code.
+* **Implicit mode:** `renv` will scan your project files for any packages used in your code.
 * **Explicit mode:** `renv` will use only the packages listed in your `DESCRIPTION` file (under "Imports").
 
 We recommend choosing implicit mode for most projects, as it ensures that all packages actually used in your code are detected and managed, even if you forget to list them in `DESCRIPTION`.
@@ -1256,6 +1256,20 @@ Most researchers handle these components by:
 * Documenting required system libraries in the project's README or set-up instructions.
 * Including project files (like `.Rproj` and `.Rprofile`) in version control (e.g., Git).
 
+<br>
+
+::: {.callout-note title="Using pak for system requirements"}
+
+The `pak` package can help with system libraries. Running `pak::pkg_sysreqs("packagename")` will return a list of operating system libraries and installation commands required for a given package. You can then document these in your README or set-up scripts.
+
+For example:
+
+```{r}
+pak::pkg_sysreqs("plotly")
+```
+
+:::
+
 ::::
 
 ## Recreate & troubleshoot
@@ -1334,6 +1348,24 @@ A **time-based snapshot** is a copy of all the packages from a repository (like 
 After MRAN closed, [**Posit Public Package Manager (P3M)**](https://packagemanager.posit.co/client/#/) became the main free source for R package snapshots. P3M creates daily snapshots of CRAN, Bioconductor and Python's PyPI, which you can use the same way: to get the exact package set for a chosen date. It's limitation however is that it does not archive packages from GitHub and r-universe. For more on P3M, check out this video from [Posit PBC](https://www.youtube.com/@PositPBC):
 
 {{< video https://youtu.be/NwZ4sVjNKlI?si=hb4KG7MT9HMa07ky >}}
+
+You may want to pin repositories (e.g., Posit Public Package Manager snapshots) using `options(repos = ...)` in the project's `.Rprofile`. You can open it by running:
+
+```{.r}
+usethis::edit_r_profile()
+```
+
+You can then edit the default repositories used - in the example below, to ensure that `renv::snapshot()` and `renv::restore()` work against a consistent, time-based snapshot:
+
+```{.r}
+local({
+  repos <- getOption("repos")
+  repos["P3M"] <- "https://packagemanager.posit.co/cran/2023-01-17"
+  # optional: keep a CRAN fallback
+  repos["CRAN"] <- "https://cran.r-project.org"
+  options(repos = repos)
+})
+```
 
 :::
 
