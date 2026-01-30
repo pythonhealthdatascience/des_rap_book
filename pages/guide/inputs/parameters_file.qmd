@@ -253,8 +253,6 @@ As explained in the [parameters from script](parameters_script.qmd) page, there 
 
 If you haven't already, see the [parameters from script](parameters_script.qmd) page for more detail on why this explicit grouping and passing is important.
 
-<!--TODO: EDIT THIS SINCE ADDING DIRECT IMPORT FOR R-->
-
 ### Implementation options for file-based parameters
 
 ::: {.python-content}
@@ -294,6 +292,18 @@ When importing parameters from a file, you have two main approaches:
 | **Complex nested structures** | ✅ Useful for nested parameters | ❌ Less flexible for nesting |
 | **Multiple parameter sets** | ❌ Requires extra processing steps | ✅ Natural integration with `purrr::pmap()`, and `furrr::future_pmap()` for parallelisation |
 | **Risk of accidental modification** (see [validation](parameters_validation.qmd) page) | ❌ Named list can be modified after creation | ✅ Function signature prevents undefined parameters |
+
+<br>
+
+> **Why wasn't direct import to model included an option on the [parameters from script](parameters_script.qmd) page?**
+>
+> Direct import to model functions works best when parameters are in a file or dataframe, particularly when you have **multiple scenarios**. 
+>
+> With script-based parameters, you typically define a single parameter set with defaults. Direct import becomes overkill - you'd end up recreating what a parameter function already does, just with a messier function signature.
+>
+> With file-based parameters, you naturally have multiple rows (scenarios) in a dataframe. Direct import leverages this structure: column names map directly to function arguments, and `purrr::pmap()` runs each row through your model efficiently.
+>
+> For script-based parameters, a parameter function (as shown on the [Parameters from script](parameters_script.qmd) page) remains the cleaner approach.
 
 :::
 
