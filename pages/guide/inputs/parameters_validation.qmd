@@ -66,11 +66,11 @@ library(jsonlite)
 
 ## Accidental creation of new parameters
 
+:::{.python-content}
+
 <div class="h3-tight"></div>
 
 ### The problem
-
-:::{.python-content}
 
 If you **mistype** a parameter name when defining parameters, no error is raised. Instead, a **new (unused) parameter** is created. This means your intended parameter remains unchanged, which can **silently** invalidate your results.
 
@@ -126,7 +126,17 @@ Again, no error was raised - we've simply created a new attribute (`transfer_pro
 
 :::
 
-:::{.r-content}
+::: {.r-content}
+
+::: {.callout-note title="Direct import avoids this problem"}
+
+If you use **direct import to model functions** (see [Parameters from file](parameters_file.qmd#direct-import-to-model-functions)), this problem does not occur. The function signature automatically prevents undefined parameters from being added. If you're using that approach, you can skip this section.
+
+This section applies to approaches where parameters are stored in an intermediate object (list or function output) before being passed to your model.
+
+:::
+
+### The problem
 
 If you **mistype** a parameter name when defining parameters for a function, no error is raised. Instead, a **new (unused) parameter** is created. This means your intended parameter remains unchanged, which can **silently** invalidate your results.
 
@@ -153,7 +163,7 @@ params
 
 Notice what happened: instead of updating the original value, R has add a **new item** (`transfer_probs`) and left the real parameter unchanged.
 
-:::
+::::
 
 ### The solution
 
