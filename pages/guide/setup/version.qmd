@@ -149,7 +149,7 @@ On the main page of you repository, click the &nbsp;[<> Code]{style="background:
 
 ### 2. Open up a terminal or Git Bash
 
-To clone the repository, we will open a **terminal** (or **Git Bash** on Windows). This is just a simple text window where you type commands (instead of clicking buttons and menus). You don't need to know lots of commands for this guide - we will tell you exactly what to type, starting with the Git commands needed to clone your repository.
+To clone the repository, we will open a terminal window. This is just a simple text window where you type commands (instead of clicking buttons and menus). You don't need to know lots of commands for this guide - we will tell you exactly what to type, starting with the Git commands needed to clone your repository.
 
 We have provided a few examples of where you might find this, depending on your chosen integrated development environment (e.g. VSCode, RStudio) or operating system - but there are many other options too.
 
@@ -313,13 +313,54 @@ Repository for working through examples from the des-rap-book:
 
 ### 2. Commit and push the changes
 
-To save this new version of our file to Git, we need to commit the changes. We use `git add` to choose which files to commit. We then write a descriptive commit message using `git commit`. Finally, we push the changes using `git push`.
+To save this new version of our file to Git, we need to commit the changes.   
+
+We use `git add` to choose which files to commit:
 
 ```{.bash}
 git add README.md
+```
+
+We then write a descriptive commit message using `git commit`:
+
+```{.bash}
 git commit -m "docs(README): add des-rap-book citation"
+```
+
+Finally, we push the changes using `git push`:
+
+```{.bash}
 git push
 ```
+
+<br>
+
+::: {.callout-tip title="Writing commit messages"}
+
+Clear, consistent commit messages make it easier to understand the project's history, trace bugs, and review progress over time.
+
+To keep commit messages structured and readable, we follow the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) specification. It is a simple standardised format where commit messages are structured as:
+
+```
+<type>(optional scope): <description>
+```
+
+Common types include:
+
+* `feat` - a new feature
+* `fix` - a bug fix
+* `docs` - documentation changes
+* `refactor` - code change that doesn't alter behaviour
+* `style` - formatting or style-only changes
+* `test` - adding or updating tests
+
+Examples:
+
+* `feat(model): add patient routing logic`
+* `fix(test): add correct path to input data`
+* `docs(README): update citation link`
+
+:::
 
 ## Collaborative workflow: using branches
 
@@ -374,6 +415,12 @@ Once you've finished committing changes to your branch (e.g. `dev`), the next st
 
 The easiest and most common way to merge is via a **pull request** on GitHub. A pull request is a way to propose merging changes from one branch into another. This lets you review your changes in a user-friendly interface, and gives others an opportunity to review and discuss them before they are added to the main project.
 
+The process is summarised in this diagram:
+
+![](version_resources/merge_github.drawio.png)
+
+:::: {.callout-note title="Click to view step-by-step instructions from merging using the GitHub website" collapse="true"}
+
 To create and merge a pull request, you should first go to your repository on GitHub. You should see that you now have multiple branches. **Click on your new branch** (e.g. `dev`) to switch to it.
 
 ::: {.python-content}
@@ -422,14 +469,22 @@ If new changes have been made to the main branch since you created your branch (
 
 If not though, you can just select &nbsp;[Merge pull request]{style="background: #597341; color: #fff; border-radius:4px; padding:2px 8px; font-family:monospace; font-weight:bold; font-size:90%;"}&nbsp; and then &nbsp;[Confirm merge]{style="background: #597341; color: #fff; border-radius:4px; padding:2px 8px; font-family:monospace; font-weight:bold; font-size:90%;"}&nbsp;.
 
+::::
+
 #### Merging using the command line
 
-Alternatively, if prefer to work from command line, you can also merge from the terminal or Git Bash. It's important to note that this will skip some of the important benefits of pull requests. Working from the command line:
+Alternatively, if you prefer to work from command line, you can also merge from the terminal or Git Bash. It's important to note that this will **skip some of the important benefits of pull requests**. Working from the command line:
 
 * Changes are merged without feedback or approval from others.
 * There is less transparency (as pull requests have clear discussion threads / rationale for changes).
 * There are no automated checks (whilst pull requests can run tests or require approvals before merging).
 * Harder to track as changes are less visible in the project history.
+
+The process is summarised in this diagram:
+
+![](version_resources/merge_command_line.drawio.png)
+
+::: {.callout-note title="Click to view step-by-step instructions from merging using the command line" collapse="true"}
 
 To merge from the command line, you will first need to switch to the `main` branch:
 
@@ -455,7 +510,9 @@ If there are no conflicts, the changes will merge successfully. You can then pus
 git push origin main
 ```
 
-### 5. Close your branch
+:::
+
+### 4. Delete your branch
 
 We can now delete the branch from the remote repository -
 
@@ -463,13 +520,13 @@ We can now delete the branch from the remote repository -
 
 We also need to delete the branch locally. We can do this using the terminal or Git Bash.
 
-First, switch back to main:
+First, switch back to `main`:
 
 ```{.bash}
 git checkout main
 ```
 
-Then pull the updated main branch, which contains our merged changes:
+Then pull the updated `main` branch, which now contains our merged changes:
 
 ```{.bash}
 git pull
@@ -481,13 +538,21 @@ We can then delete our local branch:
 git branch -d dev
 ```
 
-And also get the latest list of branches from the remote repository, with our old branch now removed:
+Finally, update our local view of the remote repository by removing any references to branches that no longer exist on the remote:
 
 ```{.bash}
 git remote prune origin
 ```
 
 To continue working in the repository, simply **create a new branch** and continue as above.
+
+<br>
+
+::: {.callout-note title="What does `prune` do?"}
+
+When a branch is deleted on the remote, Git does not automatically remove its reference locally. `git remote prune origin` cleans up these stale references, keeping your branch list accurate and uncluttered.
+
+:::
 
 ## Switching between repositories
 
@@ -588,5 +653,7 @@ Refer back to the examples and guidance in the tutorial above.
 * [git documentation](https://git-scm.com/doc)
 
   *Includes some great introductory videos on git and version control.*
+
+* ["Creating and managing repositories"](https://docs.github.com/en/repositories/creating-and-managing-repositories) in the GitHub documentation.
 
 <br><br>
