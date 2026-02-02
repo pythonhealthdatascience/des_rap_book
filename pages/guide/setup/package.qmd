@@ -174,7 +174,7 @@ However, we **generally recommend investing the time to adopt a package structur
 
 ### Choosing a package manager
 
-Python has several different tools for building and managing packages. We have chosen [flit](https://flit.pypa.io/en/stable/) for this tutorial and our example models due to its simplicity and ease of setup.
+Python has several different tools for building and managing packages. In this book we use [flit](https://flit.pypa.io/en/stable/) because it is the simplest package manager. You only need a small focused configuration file (a single `pyproject.toml` file). You then run one command to build or install. Flit does not try to manage environments or dependency locking (unlike other tools), which lets us reuse the same environment set-up (e.g., conda) across multiple projects and keep this chapter focused on the principles of package layout rather than tool-specific workflows.
 
 Other widely used package managers include [setuptools](https://setuptools.pypa.io/en/latest/), [poetry](https://python-poetry.org/) and [hatch](https://hatch.pypa.io/latest/). For a comprehensive comparison of packaging tools, see ["An unbiased evaluation of environment management and packaging tools"](https://alpopkes.com/posts/python/packaging_tools/) by Anna-Lena Popkes (2024).
 
@@ -380,6 +380,8 @@ Imports:
     roxygen2,
     usethis
 ```
+
+By default, the `usethis::use_description()` and `usethis::create_package()` templates set the Version field to `0.0.0.9000`. This convention is commonly used for packages that are in early development, before a first "proper" release. Some developers instead prefer to start at `0.1.0` once the package has a minimal set of working features.
 
 You can check that these packages are installed in your environment by running:
 
@@ -854,7 +856,7 @@ Duration: 7.3s
 0 errors ✔ | 0 warnings ✔ | 1 note ✖
 ```
 
-The note in this case is because we modified the `DESCRIPTION` file used for the `des-rap-r` environment (from the [environments](environment.qmd) page) which contains imports that are not currently used within `R/` - but don't worry about this for now, as we will do later when we build our simulation model.
+The note in this case is because we modified the `DESCRIPTION` file used for the `des-rap-r` environment (from the [environments](environment.qmd) page) which contains imports that are not currently used within `R/`. This is expected at this stage, because we have listed the packages we plan to use but have not yet written the full model code that calls them. As you work through the later chapters and add more functionality, these imports will be used and the NOTE will disappear.
 
 ### 3. Install the package
 
@@ -936,7 +938,7 @@ Number of results: 20
 
 ::::
 
-::: {.r-content}
+:::: {.r-content}
 
 We will run our model and analyse results within **R markdown (.Rmd)** files, as they combine code, results and explanations in one document. This can help make our methods and results easier to share, read through and understand.
 
@@ -1015,11 +1017,43 @@ Longer simulation completed with duration: 200
 Number of results: 20
 ```
 
+::: {.callout-note title="`devtools::load_all()`"}
+
+`devtools::load_all()` behaves as if your package were installed, but it loads it directly from the source files in your project folder. This is different from `devtools::install()`, which builds and installs the package into your R library.
+
+During development, `devtools::load_all()` is helpful because it lets you edit code in `R/`, reload the package in place, and immediately re-run your analysis, without the extra time and friction of reinstalling the package each time.
+
+:::
+
+::::
+
+## Troubleshooting
+
+Some common issues and quick checks...
+
+::: {.python-content}
+
+| Issue | Check |
+| - | - |
+| `ModuleNotFoundError: No module named 'simulation'` | Check that you have installed the package into your environment using `pip install -e .` and that you are running your notebook from that environment. |
+| Changes to `simulation/model.py` are not reflect in the notebook | Make sure the first cell of your notebook loads the autoreload extension - `%load_ext autoreload` then `%autoreload 2` - and re-run that cell after opening the notebook. |
+| Import works but function name is "not defined" | Confirm that your function is defined in `simulation/model.py`, that the file is saved, and that your import matches the definition (e.g., `from simulation.model import run_simulation`).
+
+:::
+
+::: {.r-content}
+
+| Issue | Check |
+| - | - |
+| `devtools::check()` fails with missing `DESCRIPTION` or `NAMESPACE` | Make sure you have created `DESCRIPTION` in your project root and run `devtools::document()` at least once so that `NAMESPACE` and `man/` are generated. |
+| `library(simulation)` cannot find the package | Check that you have either run `devtools::load_all()` or `devtools::install()` |
+| Function not found or changes to function are not reflected in Rmd | Confirm that the function is saved in a file under `R/`, that you have re-run `devtools::load_all()` and that the name in your analysis matches the function name exactly. |
+
 :::
 
 ## Summary
 
-:::{.python-content}
+::: {.python-content}
 
 To structure your simulation project as a python package:
 
