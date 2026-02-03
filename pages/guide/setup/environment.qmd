@@ -1571,4 +1571,61 @@ These are some nice resources generally covering topics related to R environment
 
 ::::
 
+## Summary
+
+Environment management is important because it lets you **isolate** project dependencies and reliably **recreate** the same setup later for reproducible work and collaboration.
+
+::: {.python-content}
+
+We introduce five main tools for managing environments: **venv, conda, mamba, poetry and uv**.
+
+We go into detail on using **conda/mamba to control Python versions and packages**: install conda/mamba, create an `environment.yaml` file with desired packages, then run:
+
+```{.bash}
+conda env create --file environment.yaml
+conda activate envname
+```
+
+You can then pin the exact package versions installed in the file - for example:
+
+```{.bash}
+name: envname
+channels:
+  - conda-forge
+dependencies:
+  - python=3.13.3
+  - simpy=4.1.1
+```
+
+We provide the full **des-rap-book environment** specification required to run all examples in the book.
+
+We also describe how to **recreate and troubleshoot environments**: find or reconstruct an environment file, rebuild the environment, and then resolve installation or compatibility errors by adjusting versions or channels and updating the environment file.
+
+:::
+
+::: {.r-content}
+
+We introduce three tools for managing environments: **rig, renv and rv**.
+
+We explain how to use **rig** to manage R versions, for example:
+
+```{.r}
+rig add 4.1.2
+rig default 4.1.2
+```
+
+We then explain **renv** for package management, with key steps of:
+
+1. Creating an `.Rproj`.
+2. Initialising `renv` (`renv::init()`).
+3. Create a `DESCRIPTION` file declaring the main dependencies.
+4. Installing these (`renv::install()`) (may require changing the snapshot type, as e.g., `implicit` mode will only install them if it can see them in use in your code).
+5. Recording the specific package versions installed in an `renv.lock` file (`renv::snapshot()`).
+
+We provide a full **DES RAP Book R environment**, listing all packages need to run the examples in the book.
+
+We also describe how to **recreate and troubleshoot environments**: identify or infer R version and packages, restore from renv.lock or DESCRIPTION, handle time‑based snapshots and GitHub/r-universe packages, and diagnose common problems such as unavailable packages, backdating needs, missing system libraries, legacy user libraries and when Docker or rocker images may be preferable.
+
+:::
+
 <br><br>
