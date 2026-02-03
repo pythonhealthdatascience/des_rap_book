@@ -158,6 +158,28 @@ To delete the image:
 sudo docker image rm -f desrapbookdocker
 ```
 
+## Accessibility
+
+We run automated accessibility checks on the site using axe, configured via the Quarto project settings:
+
+```{.yaml}
+format:
+  html:
+    axe:
+      output: console
+```
+
+To view any accessibility issues, preview the site (`quarto preview`), open the browser's developer tools (e.g., right click + "Inspect"), and look at the **Console** tab.
+
+If you prefer to see a full report overlaid on the page itself while you are working on accessibility fixes, you can temporarily change the configuration to:
+
+```{.yaml}
+format:
+  html:
+    axe:
+      output: document
+```
+
 ## Findability checks
 
 To support the FAIR principles for training materials, we keep a light-weight record of how easy it is for learners to discover the DES RAP Book via web search and chatbots. This helps us see whether changes to the site or metadata (for example, adding structured metadata or registering in training registries) actually improve real-world discoverability.
