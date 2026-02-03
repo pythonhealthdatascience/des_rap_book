@@ -160,7 +160,7 @@ sudo docker image rm -f desrapbookdocker
 
 ## Accessibility
 
-We run automated accessibility checks on the site using axe, configured via the Quarto project settings:
+You can run automated accessibility checks on the site using axe, configured via the Quarto project settings:
 
 ```{.yaml}
 format:
@@ -179,6 +179,11 @@ format:
     axe:
       output: document
 ```
+
+**Note:** It does flag several quarto defaults / built-ins as problems. Things to ignore include:
+
+* Role supports its ARIA attributed `.collapsed` (flags for any collapsed callouts).
+* Ensure the contrast between foreground and background colors `figcaption` (doesn't like Quarto's default figure caption colour).
 
 ## Findability checks
 
