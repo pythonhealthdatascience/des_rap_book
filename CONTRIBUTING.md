@@ -157,3 +157,21 @@ To delete the image:
 ```{.bash}
 sudo docker image rm -f desrapbookdocker
 ```
+
+## Findability checks
+
+To support the FAIR principles for training materials, we keep a light-weight record of how easy it is for learners to discover the DES RAP Book via web search and chatbots. This helps us see whether changes to the site or metadata (for example, adding structured metadata or registering in training registries) actually improve real-world discoverability.
+
+If you’d like to help with this, please see `findability_checks.md`. That file explains:
+
+- Which example queries to use.
+- Where to run them (e.g. search engines, chatbots).
+- How to record the results in the simple log.
+
+You are welcome to run these checks occasionally, for example:
+
+- After major changes to the site or its metadata.
+- After registering the resource in a new training registry.
+- Or just periodically (e.g. once or twice a year) as part of general maintenance.
+
+Even occasional contributions to the findability log are helpful for tracking whether learners can still easily find the resource over time.
