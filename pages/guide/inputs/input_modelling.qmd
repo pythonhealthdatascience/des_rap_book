@@ -285,7 +285,9 @@ data <- data %>%
   )
 
 # Preview
-data %>% select(service_datetime, departure_datetime, service_mins) %>% head()
+data %>%
+  select(service_datetime, departure_datetime, service_mins) %>%
+  head()
 ```
 
 :::
@@ -293,6 +295,8 @@ data %>% select(service_datetime, departure_datetime, service_mins) %>% head()
 ### Time series plots
 
 ::: {.python-content}
+
+The function below generates an interactive time series line plot from a pandas Series, using the index as the date axis and the supplied label for the y-axis.
 
 ```{python}
 def inspect_time_series(time_series, y_lab):
@@ -355,6 +359,8 @@ We see no trends, seasonality or outliers in the time series plot for mean servi
 :::
 
 ::: {.r-content}
+
+The function below creates a time series line plot from a data frame with date and value columns, optionally saves it as a static image, and returns either a static ggplot object or an interactive Plotly plot depending on the `interactive` argument.
 
 ```{r}
 #' Plot time-series
@@ -441,15 +447,173 @@ We see no trends, seasonality or outliers in the time series plot for mean servi
 
 :::
 
-::: {.callout-note title="What would if look like if there were trends, seasonality or outliers?"}
+:::: {.callout-note title="What would if look like if there were trends, seasonality or outliers?"}
 
 **Trends** are increases or decreases in the data over time. For example, if the mean length of consultations was getting longer and longer over time.
 
+In this example, there is a small linear increase to the daily mean service time:
+
+::: {.python-content}
+
+```{python}
+#| echo: false
+
+# Add a simple linear trend: +0.05 minutes per day
+trend = 0.05 * np.arange(len(daily_service))
+daily_service_trend = daily_service.copy() + trend
+
+p = inspect_time_series(
+    time_series=daily_service_trend,
+    y_lab="Mean consultation length (min)"
+)
+p.show()
+```
+
+:::
+
+::: {.r-content}
+
+```{r}
+#| echo: false
+
+daily_service_trend <- daily_service %>%
+  arrange(SERVICE_DATE) %>%
+  mutate(
+    day_index = row_number(),
+    # Add a linear trend: +0.05 minutes per day
+    mean_service_trend = mean_service + 0.05 * day_index
+  )
+
+inspect_time_series(
+  time_series = daily_service_trend,
+  date_col = "SERVICE_DATE",
+  value_col = "mean_service_trend",
+  y_lab = "Mean consultation length (min)",
+  interactive = TRUE
+)
+```
+
+:::
+
 **Seasonality** are regular patterns in the data depending on time or day - like higher arrivals every weekend, or peaks over each winter.
+
+In this example, there are higher arrivals at weekends than midweek:
+
+::: {.python-content}
+
+```{python}
+#| echo: false
+
+# Daily arrivals
+daily_arrivals = data.groupby("ARRIVAL_DATE").size()
+daily_arrivals.index = pd.to_datetime(daily_arrivals.index)
+
+# Boost December, slightly reduce other months
+daily_arrivals_dec = daily_arrivals.copy()
+is_december = daily_arrivals_dec.index.month == 12
+
+daily_arrivals_dec = np.where(
+    is_december,
+    daily_arrivals_dec * 1.4,   # higher in December
+    daily_arrivals_dec * 0.9,   # slightly lower otherwise
+)
+
+daily_arrivals_dec = pd.Series(
+    daily_arrivals_dec, index=daily_arrivals.index
+)
+
+p = inspect_time_series(
+    time_series=daily_arrivals_dec,
+    y_lab="Number of arrivals (higher in December)"
+)
+p.show()
+```
+
+:::
+
+::: {.r-content}
+
+```{r}
+#| echo: false
+
+daily_arrivals_dec <- daily_arrivals %>%
+  mutate(
+    month = lubridate::month(ARRIVAL_DATE),
+    n_dec = if_else(month == 12L, n * 1.4, n * 0.9)
+  )
+
+inspect_time_series(
+  time_series = daily_arrivals_dec,
+  date_col = "ARRIVAL_DATE",
+  value_col = "n_dec",
+  y_lab = "Number of arrivals",
+  interactive = TRUE
+)
+```
+
+:::
 
 **Outliers** are unusual observations (e.g., very very high or low number of arrivals that differ from the rest).
 
+In this example, we have one day with very high arrivals, and another day with very low arrivals:
+
+::: {.python-content}
+
+```{python}
+#| echo: false
+
+# Start from the original daily arrivals
+daily_arrivals_outliers = daily_arrivals.copy()
+
+# One very high day and one very low day
+high_day = pd.to_datetime("2025-02-15")
+low_day  = pd.to_datetime("2025-03-10")
+
+if high_day in daily_arrivals_outliers.index:
+    daily_arrivals_outliers.loc[high_day] *= 3
+
+if low_day in daily_arrivals_outliers.index:
+    daily_arrivals_outliers.loc[low_day] *= 0.2
+
+p = inspect_time_series(
+    time_series=daily_arrivals_outliers,
+    y_lab="Number of arrivals"
+)
+p.show()
+```
+
 :::
+
+::: {.r-content}
+
+```{r}
+#| echo: false
+
+daily_arrivals_outliers <- daily_arrivals %>%
+  arrange(ARRIVAL_DATE) %>%
+  mutate(n_outlier = n) %>%
+  # One very high day and one very low day
+  mutate(
+    n_outlier = ifelse(
+      ARRIVAL_DATE == as.Date("2025-02-15"), n_outlier * 3, n_outlier
+    ),
+    n_outlier = ifelse(
+      ARRIVAL_DATE == as.Date("2025-03-10"), n_outlier * 0.2, n_outlier
+    )
+  )
+
+inspect_time_series(
+  time_series = daily_arrivals_outliers,
+  date_col = "ARRIVAL_DATE",
+  value_col = "n_outlier",
+  y_lab = "Number of arrivals",
+  interactive = TRUE
+)
+```
+
+:::
+
+::::
 
 ### Histogram plots
 
@@ -620,19 +784,43 @@ plotdist(data_service, histo = TRUE, demp = TRUE)
 
 :::
 
+<br>
+
+::: {.callout-note title="Common input distributions"}
+
+When you are inspecting the histogram, you are mainly looking at the shape of the distribution and what values are possible (e.g., are they counts or continuous times, and can they ever be negative?). The table below summarises common choices in DES:
+
+| Distribution | Type/support | Typical shape | Common DES uses | Caveat/common mistake
+| - | - | - | - | -- |
+| Poisson | Discrete, counts ≥ 0 | Right‑skewed, unimodal when mean is moderate | Number of arrivals per period (e.g. patients per hour). | Assumes independent arrivals at a constant rate; often violated when arrival rates vary over time or come in bursts. |
+| Exponential | Continuous, > 0 | Strongly right‑skewed, highest near 0, long tail | Inter‑arrival times, simple service times. | Has the "memoryless" property (the remaining time does not depend on how long you have already waited), which is often unrealistic for service times that improve or worsen with duration. |
+| Gamma | Continuous, > 0 | Flexible right‑skewed; can be more "humped" than exponential | Service times, length of stay when more flexible shape is needed. | Easy to overfit if you do not have much data; its parameters can be hard for non‑statistical stakeholders to interpret directly. |
+| Lognormal | Continuous, > 0 | Right‑skewed with long tail; arises from multiplicative effects | Length of stay or service with occasional very long values. | Can generate extremely large values that may dominate the simulation if you do not check that the long tail matches real‑world data. |
+| Weibull | Continuous, > 0 | Right‑skewed; can model increasing or decreasing hazard over time | Time‑to‑event where risk changes with time (failures, discharges). | The shape parameter controls how risk changes over time and is often misunderstood; if risk is really constant, the simpler exponential distribution is enough. |
+| Normal | Continuous, any real | Symmetric bell curve, allows negatives | Approx. symmetric variables where negatives are plausible; usually not suitable for raw service times. | Because it allows negative values, using it directly for durations can produce impossible negative times; only suitable if you truncate negatives or if the mean is much larger than the standard deviation so negatives are virtually impossible. |
+| Uniform | Continuous, between min and max | Flat; all values between bounds equally likely | Crude model when only min/max are known. | Often underestimates realistic variability and structure in the data; frequently used as a quick placeholder and then mistakenly treated as a realistic final choice instead of fitting a more appropriate distribution. |
+​
+:::
+
 ## Step 2. Fit distributions and compare goodness-of fit
 
 We will fit distributions and assess goodness-of-fit using the **Kolmogorov-Smirnov (KS) Test**. This is a common test which is well-suited to continuous distributions. For categorical (or binned) data, consider using chi-squared tests.
 
+The KS test compares your sample data to a specified theoretical distribution.
+
+**Null hypothesis:** Data come from the specified distribution.
+
+**Alternative hypothesis:** Data do not follow that distribution.
+
 The KS Test returns a statistic and p value.
 
 * **Statistic:** Measures how well the distribution fits your data.
+    * Ranges from 0 to 1.
     * **Lower KS test statistics indicate a better fit**.
-    * Ranges from 0 to 1.
 * **P-value:** Tells you if the fit could have happened by chance.
-    * **Higher p-values suggest the data follow the distribution**.
-    * In large datasets, even good fits often have small p-values.
     * Ranges from 0 to 1.
+    * **Higher p-values suggest the data follow the distribution**. In other words, we are measuring evidence against the null hypothesis, and a larger p-value means there is little evidence to reject the null, so the data are *consistent* with the chosen distribution - while a small p-value suggests a lack of fit.
+    * In large datasets, even good fits often have small p-values, so it is useful to look at both the KS statistic and graphical diagnostics when judging fit.
 
 ::: {.python-content}
 
