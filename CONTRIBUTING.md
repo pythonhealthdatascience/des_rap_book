@@ -166,9 +166,9 @@ Quarto's supported accessibility checker `axe` is not used because it is difficu
 
 A Python script is provided which checks for alt text. It supports patterns:
 
-* `![](fig.png)`
-* `<img src="fig.png">`
-* `![](fig.png){fig-alt=""}`
+* `![alt-text](fig.png)\` (backslash required for it to use caption as alt-text too).
+* `<img src="fig.png" fig-alt="alt-text">`
+* `![](fig.png){fig-alt="alt-text"}`
 
 To run the script:
 
