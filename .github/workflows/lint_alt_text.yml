@@ -1,0 +1,23 @@
+name: Check Alt Text
+
+on:
+  push:
+    paths:
+      - '**.qmd'
+      - 'lint_alt_text.py'
+      - '.github/workflows/lint_alt_text.yml'
+  pull_request:
+    paths:
+      - '**.qmd'
+      - 'lint_alt_text.py'
+      - '.github/workflows/lint_alt_text.yml'
+  workflow_dispatch:
+
+jobs:
+  check-alt-text:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Check images for alt text
+        run: python lint_alt_text.py

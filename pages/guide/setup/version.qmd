@@ -61,7 +61,7 @@ This tutorial will focus on **GitHub** as it is the most widely used and beginne
 
 Go to <https://github.com/signup> and sign up with your email and a username.
 
-![](version_resources/github_1.png)
+![](version_resources/github_1.png){fig-alt="Screenshot of GitHub sign up page."}
 
 <br>
 
@@ -69,7 +69,7 @@ Go to <https://github.com/signup> and sign up with your email and a username.
 
 Click the "+" button in the top right corner, and select "New repository".
 
-![](version_resources/github_2.png){fig-align="center" width=70%}
+![](version_resources/github_2.png){fig-align="center" width=70% fig-alt="Screenshot of 'New repository' button."}
 
 Next, fill out the form to create your repository.
 
@@ -106,13 +106,13 @@ A simple, illustrative example is shown below:
 
 ::: {.python-content}
 
-![](version_resources/github_3_python.png)
+![](version_resources/github_3_python.png){fig-alt="Screenshot of 'Create a new repository' page."}
 
 :::
 
 ::: {.r-content}
 
-![](version_resources/github_3_r.png)
+![](version_resources/github_3_r.png){fig-alt="Screenshot of 'Create a new repository' page."}
 
 :::
 
@@ -145,11 +145,11 @@ You have created a remote repository on GitHub - we now want to clone it, which 
 
 On the main page of you repository, click the &nbsp;[<> Code]{style="background: #597341; color: #fff; border-radius:4px; padding:2px 8px; font-family:monospace; font-weight:bold; font-size:90%;"}&nbsp; button, then copy the HTTPS url.
 
-![](version_resources/github_4.png)
+![](version_resources/github_4.png){fig-alt="Screenshot of 'Copy url to clipboard'."}
 
 ### 2. Open up a terminal or Git Bash
 
-To clone the repository, we will open a **terminal** (or **Git Bash** on Windows). This is just a simple text window where you type commands (instead of clicking buttons and menus). You don't need to know lots of commands for this guide - we will tell you exactly what to type, starting with the Git commands needed to clone your repository.
+To clone the repository, we will open a terminal window. This is just a simple text window where you type commands (instead of clicking buttons and menus). You don't need to know lots of commands for this guide - we will tell you exactly what to type, starting with the Git commands needed to clone your repository.
 
 We have provided a few examples of where you might find this, depending on your chosen integrated development environment (e.g. VSCode, RStudio) or operating system - but there are many other options too.
 
@@ -159,7 +159,7 @@ We have provided a few examples of where you might find this, depending on your 
 
 In VS Code, open your project folder, then choose **View → Terminal** (or **View → Integrated Terminal**, depending on your version).
 
-![](version_resources/vscode_terminal.gif)
+![](version_resources/vscode_terminal.gif){fig-alt="Recording of VS Code, showing how to open the terminal"}
 
 :::
 
@@ -171,7 +171,7 @@ In RStudio, look for the **Terminal** tab next to the **Console** tab and click 
 
 If you cannot see the Terminal tab, go to **Tools → Terminal → New Terminal** (or **Move Focus to Terminal**) to make it appear.
 
-![](version_resources/rstudio_terminal.gif)
+![](version_resources/rstudio_terminal.gif){fig-alt="Recording of RStudio, showing how to open the terminal"}
 
 :::
 
@@ -197,13 +197,13 @@ You can view a list of files in that directory:
 ls
 ```
 
-You can then change directories using `cd`, e.g.:
+You can then change directories using the `cd` command (short for "change directory"). The text after `cd` is the path to the folder you want to move into, for example:
 
 ```{.bash}
 cd Documents/myproject/
 ```
 
-To move up a folder, you can use:
+To move up a folder (to the parent directory), you can use:
 
 ```{.bash}
 cd ..
@@ -220,10 +220,10 @@ git clone https://github.com/your-username/your-repo-name.git
 For example:
 
 ::: {.python-content}
-![](version_resources/github_5_python.png)
+![](version_resources/github_5_python.png){fig-alt="Screenshot of git clone command having run from the terminal."}
 :::
 ::: {.r-content}
-![](version_resources/github_5_r.png)
+![](version_resources/github_5_r.png){fig-alt="Screenshot of git clone command having run from the terminal."}
 :::
 
 This will create a local copy of your repository.
@@ -236,7 +236,7 @@ Once you've cloned your repository, you can manage Git directly from your develo
 
 For example, **VSCode** is a popular option in Python which offers built-in Git integration. To view the Git options, click on "Source Control" in the activity bar.
 
-![](version_resources/vscode_sourcecontrol.png)
+![](version_resources/vscode_sourcecontrol.png){fig-alt="Screenshot of VSCode Source Control."}
 
 From here you can view commit files, view diffs, change branches, and push/pull to GitHub without leaving VSCode.
 
@@ -246,7 +246,7 @@ From here you can view commit files, view diffs, change branches, and push/pull 
 
 For example, **RStudio** is a popular option in R which offers built-in Git integration. When you open a folder connected to a Git repository in RStudio, a **Git** tab appears in the top-right pane.
 
-![](version_resources/rstudio_git.png)
+![](version_resources/rstudio_git.png){fig-alt="Screenshot of RStudio Git tab."}
 
 From here you can view commit files, view diffs, change branches, and push/pull to GitHub without leaving RStudio.
 
@@ -313,13 +313,62 @@ Repository for working through examples from the des-rap-book:
 
 ### 2. Commit and push the changes
 
-To save this new version of our file to Git, we need to commit the changes. We use `git add` to choose which files to commit. We then write a descriptive commit message using `git commit`. Finally, we push the changes using `git push`.
+To save this new version of our file to Git, we need to commit the changes.   
+
+We use `git add` to choose which files to commit, followed by the files you want to include, for example:
 
 ```{.bash}
 git add README.md
+```
+
+You can use `git add .` which stages all new and modified files in the current folder and its subfolder. However, this can accidentally include files that you did not intend to commit (e.g., large data, temporary outputs). We recommend listing files or directories explicitly with `git add <filename>` or `git add <directory>` so you stay more in control of exactly what goes into each commit.
+
+We then write a descriptive commit message using `git commit`:
+
+```{.bash}
 git commit -m "docs(README): add des-rap-book citation"
+```
+
+We can view our staged commits (i.e., set of files selected with `git add` and ready to be pushed) by running:
+
+```{.bash}
+git status
+```
+
+Finally, we push the changes using `git push`:
+
+```{.bash}
 git push
 ```
+
+<br>
+
+::: {.callout-tip title="Writing commit messages"}
+
+Clear, consistent commit messages make it easier to understand the project's history, trace bugs, and review progress over time.
+
+To keep commit messages structured and readable, we follow the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) specification. It is a simple standardised format where commit messages are structured as:
+
+```
+<type>(optional scope): <description>
+```
+
+Common types include:
+
+* `feat` - a new feature
+* `fix` - a bug fix
+* `docs` - documentation changes
+* `refactor` - code change that doesn't alter behaviour
+* `style` - formatting or style-only changes
+* `test` - adding or updating tests
+
+Examples:
+
+* `feat(model): add patient routing logic`
+* `fix(test): add correct path to input data`
+* `docs(README): update citation link`
+
+:::
 
 ## Collaborative workflow: using branches
 
@@ -331,7 +380,7 @@ A **branch** is a separate workspace where you can safely experiment with change
 
 **For solo development**, branches are also beneficial. They allow you to keep a stable version on main while experimenting with new features on separate branches. This is especially useful if you have GitHub Actions (or similar) running automated tests on pushes to main - you can test experimental code on branches before merging to main, ensuring your main branch always contains working code.
 
-![](version_resources/git_branch.drawio.png)
+![](version_resources/git_branch.drawio.png){fig-alt="Illustration showing how we can create a branch off of main, commit changes on the branch, and then merge back into main"}
 
 To work in a branch and push changes...
 
@@ -374,13 +423,19 @@ Once you've finished committing changes to your branch (e.g. `dev`), the next st
 
 The easiest and most common way to merge is via a **pull request** on GitHub. A pull request is a way to propose merging changes from one branch into another. This lets you review your changes in a user-friendly interface, and gives others an opportunity to review and discuss them before they are added to the main project.
 
+The process is summarised in this diagram:
+
+![](version_resources/merge_github.drawio.png){fig-alt="Summarises steps for merging using GitHub"}
+
+:::: {.callout-note title="Click to view step-by-step instructions from merging using the GitHub website" collapse="true"}
+
 To create and merge a pull request, you should first go to your repository on GitHub. You should see that you now have multiple branches. **Click on your new branch** (e.g. `dev`) to switch to it.
 
 ::: {.python-content}
-![](version_resources/github_6_python.png)
+![](version_resources/github_6_python.png){fig-alt="Screenshot of GitHub repository showing branches that could switch to."}
 :::
 ::: {.r-content}
-![](version_resources/github_6_r.png)
+![](version_resources/github_6_r.png){fig-alt="Screenshot of GitHub repository showing branches that could switch to."}
 :::
 
 <br>
@@ -391,10 +446,10 @@ Navigate to **page comparing branch to main**. You can do this by clicking eithe
 * &nbsp;[Compare & pull request]{style="background: #597341; color: #fff; border-radius:4px; padding:2px 8px; font-family:monospace; font-weight:bold; font-size:90%;"}&nbsp;
 
 ::: {.python-content}
-![](version_resources/github_7_python.png)
+![](version_resources/github_7_python.png){fig-alt="Screenshot of GitHub dev branch, showing cursor hovering over 'X commits ahead of main'."}
 :::
 ::: {.r-content}
-![](version_resources/github_7_r.png)
+![](version_resources/github_7_r.png){fig-alt="Screenshot of GitHub dev branch, showing cursor hovering over 'X commits ahead of main'."}
 :::
 
 <br>
@@ -402,10 +457,10 @@ Navigate to **page comparing branch to main**. You can do this by clicking eithe
 You will be able to see **side-by-side changes** in the files you have modified. To create a pull request, click on the button: &nbsp;[Create pull request]{style="background: #597341; color: #fff; border-radius:4px; padding:2px 8px; font-family:monospace; font-weight:bold; font-size:90%;"}&nbsp;.
 
 ::: {.python-content}
-![](version_resources/github_8_python.png)
+![](version_resources/github_8_python.png){fig-alt="Screenshot of GitHub 'comparing changes' page."}
 :::
 ::: {.r-content}
-![](version_resources/github_8_r.png)
+![](version_resources/github_8_r.png){fig-alt="Screenshot of GitHub 'comparing changes' page."}
 :::
 
 <br>
@@ -414,7 +469,7 @@ We can modify the message or just leave as is.
 
 Then, again, you need to click &nbsp;[Create pull request]{style="background: #597341; color: #fff; border-radius:4px; padding:2px 8px; font-family:monospace; font-weight:bold; font-size:90%;"}&nbsp;.
 
-![](version_resources/github_9.png)
+![](version_resources/github_9.png){fig-alt="Screenshot of GitHub 'open a pull request' section."}
 
 <br>
 
@@ -422,14 +477,22 @@ If new changes have been made to the main branch since you created your branch (
 
 If not though, you can just select &nbsp;[Merge pull request]{style="background: #597341; color: #fff; border-radius:4px; padding:2px 8px; font-family:monospace; font-weight:bold; font-size:90%;"}&nbsp; and then &nbsp;[Confirm merge]{style="background: #597341; color: #fff; border-radius:4px; padding:2px 8px; font-family:monospace; font-weight:bold; font-size:90%;"}&nbsp;.
 
+::::
+
 #### Merging using the command line
 
-Alternatively, if prefer to work from command line, you can also merge from the terminal or Git Bash. It's important to note that this will skip some of the important benefits of pull requests. Working from the command line:
+Alternatively, if you prefer to work from command line, you can also merge from the terminal or Git Bash. It's important to note that this will **skip some of the important benefits of pull requests**. Working from the command line:
 
 * Changes are merged without feedback or approval from others.
 * There is less transparency (as pull requests have clear discussion threads / rationale for changes).
 * There are no automated checks (whilst pull requests can run tests or require approvals before merging).
 * Harder to track as changes are less visible in the project history.
+
+The process is summarised in this diagram:
+
+![](version_resources/merge_command_line.drawio.png){fig-alt="Summarises steps for merging using command line."}
+
+::: {.callout-note title="Click to view step-by-step instructions from merging using the command line" collapse="true"}
 
 To merge from the command line, you will first need to switch to the `main` branch:
 
@@ -455,21 +518,23 @@ If there are no conflicts, the changes will merge successfully. You can then pus
 git push origin main
 ```
 
-### 5. Close your branch
+:::
+
+### 4. Delete your branch
 
 We can now delete the branch from the remote repository -
 
-![](version_resources/github_10.png)
+![](version_resources/github_10.png){fig-alt="Screenshot of GitHub 'Pull request successfully merged and closed' - 'Delete branch' button."}
 
 We also need to delete the branch locally. We can do this using the terminal or Git Bash.
 
-First, switch back to main:
+First, switch back to `main`:
 
 ```{.bash}
 git checkout main
 ```
 
-Then pull the updated main branch, which contains our merged changes:
+Then pull the updated `main` branch, which now contains our merged changes:
 
 ```{.bash}
 git pull
@@ -481,13 +546,21 @@ We can then delete our local branch:
 git branch -d dev
 ```
 
-And also get the latest list of branches from the remote repository, with our old branch now removed:
+Finally, update our local view of the remote repository by removing any references to branches that no longer exist on the remote:
 
 ```{.bash}
 git remote prune origin
 ```
 
 To continue working in the repository, simply **create a new branch** and continue as above.
+
+<br>
+
+::: {.callout-note title="What does `prune` do?"}
+
+When a branch is deleted on the remote, Git does not automatically remove its reference locally. `git remote prune origin` cleans up these stale references, keeping your branch list accurate and uncluttered.
+
+:::
 
 ## Switching between repositories
 
@@ -524,11 +597,11 @@ To create a GitHub organisation...
 
 In the top-right corner, select your profile photo, then click "Settings".
 
-![](version_resources/organisation_1.png){fig-align="center" width=50%}
+![](version_resources/organisation_1.png){fig-align="center" width=50% fig-alt="Screenshot with cursor hovering over Settings button."}
 
 Then select "Organizations" under the Access section in the sidebar.
 
-![](version_resources/organisation_2.png){fig-align="center" width=60%}
+![](version_resources/organisation_2.png){fig-align="center" width=60% fig-alt="Screenshot with cursor hovering over Organizations button."}
 
 ### 2. Make new organisation
 
@@ -542,7 +615,7 @@ For example, simply select the Free plan.
 
 It will ask for a name and contact email. You can typically then select that the organisation belongs to your personal account. Follow the prompts to create the organisation. You can then add other GitHub users as owners or collaborators.
 
-![](version_resources/organisation_3.png)
+![](version_resources/organisation_3.png){fig-alt="Screenshot of 'Set up your organization' page on GitHub."}
 
 ## Test yourself
 
@@ -588,5 +661,7 @@ Refer back to the examples and guidance in the tutorial above.
 * [git documentation](https://git-scm.com/doc)
 
   *Includes some great introductory videos on git and version control.*
+
+* ["Creating and managing repositories"](https://docs.github.com/en/repositories/creating-and-managing-repositories) in the GitHub documentation.
 
 <br><br>

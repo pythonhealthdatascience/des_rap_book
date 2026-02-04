@@ -157,3 +157,41 @@ To delete the image:
 ```{.bash}
 sudo docker image rm -f desrapbookdocker
 ```
+
+## Accessibility
+
+Quarto's supported accessibility checker `axe` is not used because it is difficult to read, and it mostly flagged things that cannot be changed (i.e., Quarto defaults and built-ins). As such, other approaches are used.
+
+### `lint_alt_text.py`
+
+A Python script is provided which checks for alt text. It supports patterns:
+
+* `![alt-text](fig.png)\` (backslash required for it to use caption as alt-text too).
+* `<img src="fig.png" fig-alt="alt-text">`
+* `![](fig.png){fig-alt="alt-text"}`
+
+To run the script:
+
+```{.bash}
+python lint_alt_text.py
+```
+
+This is configured to run via GitHub actions - see `.github/workflows/lint_alt_text.yml`.
+
+## Findability checks
+
+To support the FAIR principles for training materials, we keep a light-weight record of how easy it is for learners to discover the DES RAP Book via web search and chatbots. This helps us see whether changes to the site or metadata (for example, adding structured metadata or registering in training registries) actually improve real-world discoverability.
+
+If you’d like to help with this, please see `findability_checks.md`. That file explains:
+
+- Which example queries to use.
+- Where to run them (e.g. search engines, chatbots).
+- How to record the results in the simple log.
+
+You are welcome to run these checks occasionally, for example:
+
+- After major changes to the site or its metadata.
+- After registering the resource in a new training registry.
+- Or just periodically (e.g. once or twice a year) as part of general maintenance.
+
+Even occasional contributions to the findability log are helpful for tracking whether learners can still easily find the resource over time.

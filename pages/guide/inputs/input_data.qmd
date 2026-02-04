@@ -29,18 +29,20 @@ When managing input data in your RAP, there are three key files:
 * **Input modelling code:** Code/scripts used to estimate parameters or fit distributions.
 * **Parameters:** Numerical values used by your model (e.g., arrival rates, service times).
 
-![](input_data_resources/input_files.png)
+![](input_data_resources/input_files.png){fig-alt="Illustration of raw data, which is fed to input modelling code, which is the basis of the chosen parameters."}
 
 ## What is included in a RAP?
 
-Your reproducible analytical pipeline (RAP) should begin with the **earliest data you access**. This could be:
+Your reproducible analytical pipeline (RAP) begins with the **first step in your data processing workflow** and should **include both the data you use and the code that processes it**, from initial ingestion through to final outputs. This could be:
 
-* **Raw data** (if you estimate parameters yourself), or-
+* **Raw data** (if you estimate parameters yourself), or
 * **Pre-defined parameters** (if these are already supplied).
+
+In other words, a complete RAP covers the journey from version-controlled input data to published results, so that anyone with the same data, code, and environment can reproduce your outputs.
 
 Keep in mind that, especially in sensitive areas like healthcare, you may not be able to share your full RAP outside your team or organisation. Even so, it's crucial to **maintain a complete RAP internally** so your work remains fully reproducible. For example:
 
-![](input_data_resources/input_rap.png)
+![](input_data_resources/input_rap.png){fig-alt="Illustration showing that full internal RAP starts from raw data, but that RAP components shared publicly may start from later point (e.g., parameters)."}
 
 > **Why is this important?** By starting at the source, you make your work transparent and easy to repeat. For instance, if new raw data becomes available, it's important you have your input modelling code so that you can check your distributions are still appropriate, re-estimate your model parameters, and re-run your analysis.
 
@@ -78,6 +80,8 @@ The way you might set up private and public repositories depends on whether you 
   2. Copy the resulting real parameter files to the public repository.
   3. Run your model and share code/results publicly - users can fully reproduce your analysis using the real parameters.
 
+![](input_modelling_resources/scenario1.drawio.png){fig-alt="Flow diagram for scenario 1."}
+
 ### Scenario 2: Only sharing fake/synthetic parameters
 
 * **Public repository:** Contains only synthetic/fake parameter files, synthetic/example data, analysis code, and documentation describing how these synthetic values were generated.
@@ -91,6 +95,8 @@ The way you might set up private and public repositories depends on whether you 
   2. Generate synthetic parameter files for the public repository, documenting the generation process.
   3. Use the shared simulation package in both repositories.
   4. Run and share the full workflow in public with synthetic parameters; run the actual analysis in private with the real parameters.
+
+![](input_modelling_resources/scenario2.drawio.png){fig-alt="Flow diagram for scenario 2."}
 
 :::
 
@@ -135,7 +141,7 @@ This is data which reflects the system you will be simulating. It is used to est
 
 **If you can share the data:**
 
-* **Make the data openly available**<br>Follow the [FAIR principles]((https://open-science-training-handbook.github.io/Open-Science-Training-Handbook_EN/02OpenScienceBasics/02OpenResearchDataAndMaterials.html)): Findable, Accessible, Interoperable, Reusable.
+* **Make the data openly available**<br>Follow the [FAIR principles](https://open-science-training-handbook.github.io/Open-Science-Training-Handbook_EN/02OpenScienceBasics/02OpenResearchDataAndMaterials.html): Findable, Accessible, Interoperable, Reusable.
 
 * **Deposit in a trusted archive**<br>Use platforms like Zenodo, Figshare, GitHub or GitLab.
 
@@ -207,6 +213,10 @@ Instructions for Zenodo archiving are provided on our [sharing and archiving](..
 
 [Input modelling code](input_modelling.qmd#input-modelling) refers to the scripts used to define and fit the statistical distributions that represent the uncertain inputs for a simulation model.
 
+Input modelling is often first developed in an interactive environment (e.g. a Jupyter or Quarto notebook). This is a good place to explore the data and prototype candidate distributions. However, once your approach stabilises, it is helpful to move key functions for estimating and validating inputs into scripts or a package module, and call them from the notebook. This keeps the notebook focused on narrative and diagnostics, while the reusable logic lives in version-controlled code that can be tested and reused across projects.
+
+In a RAP, store these input modelling scripts alongside your simulation code (for example under `src/input_modelling/` or an equivalent module) so that input estimation is a visible, testable part of the pipeline rather than hidden inside a single notebook.
+
 These scripts are often not shared, but are an essential part of your simulation RAP. Sharing them ensures transparency in how distributions were chosen and allows you (or others) to re-run the process if new data or assumptions arise.
 
 ### Checklist: Managing your input modelling code
@@ -254,9 +264,7 @@ Parameters are the numerical values used in your model, like the arrival rates, 
 
 <br>
 
-You must share some parameters with your model so that it is possible for others to run it. Parameters are often less sensitive than raw data, so sharing is usually possible. However-
-
-**If you cannot share the parameters:**
+For others to run your model, they need parameter values. These can be real parameters (ideal for full reproducibility) or synthetic parameters (which allow others to run and test the code, but will produce different numerical results). Parameters are often less sensitive than patient-level data because they are aggregated values; however, in some settings they may still be sensitive. In those cases, you should:
 
 * **Provide synthetic parameters**<br>Supply artifical values for each parameter, clearly labelled as synthetic.
 
@@ -293,7 +301,7 @@ cat(longmcq(c(
 
 :::{.callout-note}
 
-## Even if it cannot be shared publicly, input modelling code be retained so parameters can be re-estimated if new data or assumptions arise.
+## Even if it cannot be shared publicly, input modelling code should be retained so parameters can be re-estimated if new data or assumptions arise.
 
 ```{r}
 #| output: asis

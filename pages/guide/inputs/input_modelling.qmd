@@ -77,7 +77,7 @@ Discrete-event simulation (DES) models are **stochastic**, which means they inco
 
 Instead of using fixed times for events (like having a patient arrive exactly every five minutes), DES models pick the timing of events by **randomly sampling values from a probability distribution**.
 
-![](input_data_resources/samples.png)
+![](input_data_resources/samples.png){fig-alt="Illustration showing multiple samples being taken from one distribution."}
 
 ## Input modelling
 
@@ -86,16 +86,17 @@ The process of selecting the most appropriate statistical distributions to use i
 When selecting appropriate distributions, if you only have summary statistics (like the mean), you may need to rely on expert opinion or the general properties of the process you're modelling. For example:
 
 * **Arrivals**: Random independent arrivals are often modelled with the Poisson distribution, whilst their inter-arrival times are modelled using an exponential distribution (@Pishro-Nik2014).
+  * *The Poisson and exponential distributions are mathematically linked: if arrivals follow a Poisson process with a constant rate, then the time between arrivals follows an exponential distribution with the same rate parameter.*
 * **Length of stay**: Length of stay is commonly right skewed (@Lee2003), and so will often be modelled with distributions like exponential, gamma, log-normal (for log-transformed length of stay) or Weibull.
 
 However, these standard choices may not always be appropriate. If the actual process differs from your assumptions or has unique features, the chosen distribution might not fit well.
 
 Therefore, if you have enough data, it's best to analyse it directly to select the most suitable distributions. This analysis generally involves two key steps:
 
-1. **Identify possible distributions**. This is based on knowledge of the process being modelled, and by inspecting the data using time series plots and histograms.
-2. **Fit distributions to your data and compare goodness-of fit**. You can do this using a:
-    a. **Targeted approach**. Just test the distributions from step 1.
-    b. **Comprehensive approach**. Test a wide range of distributions.
+1. **Identify candidate distributions**. This step is essential because it uses your knowledge of the real process and visual inspection of the data (time series, histograms) to narrow down to distributions that are both statistically plausible and contextually appropriate (for example, non‑negative, right‑skewed, allowing for counts vs continuous times).
+2. **Fit distributions to your data and compare goodness-of fit**.
+    a. **Targeted approach**. Fit and test only the candidate distributions from Step 1.
+    b. **Comprehensive approach**. Fit and test a wide range of distributions, then use Step 1 knowledge to exclude contextually inappropriate options (for example, distributions that allow negative times, or that ignore clear temporal patterns) even if they appear to fit well mathematically
 
 Though the comprehensive approach tests lots of different distributions, it's still important to do step 1 as:
 
@@ -222,12 +223,14 @@ data[["ARRIVAL_DATE", "ARRIVAL_TIME", "arrival_datetime", "iat_mins"]].head()
 
 ::: {.r-content}
 
+> As per the [tidyverse style guide](https://style.tidyverse.org/pipes.html), we use base R's `|>` instead of magrittr's `%>%`.
+
 ```{r}
-data <- data %>%
+data <- data |>
   # Combine date/time and convert to datetime
-  mutate(arrival_datetime = ymd_hm(paste(ARRIVAL_DATE, ARRIVAL_TIME))) %>%
+  mutate(arrival_datetime = ymd_hm(paste(ARRIVAL_DATE, ARRIVAL_TIME))) |>
   # Sort by arrival time
-  arrange(arrival_datetime) %>%
+  arrange(arrival_datetime) |>
   # Calculate inter-arrival times
   mutate(
     iat_mins = as.numeric(
@@ -238,8 +241,8 @@ data <- data %>%
   )
 
 # Preview
-data %>%
-  select(ARRIVAL_DATE, ARRIVAL_TIME, arrival_datetime, iat_mins) %>%
+data |>
+  select(ARRIVAL_DATE, ARRIVAL_TIME, arrival_datetime, iat_mins) |>
   head()
 ```
 
@@ -275,7 +278,7 @@ data[["service_datetime", "departure_datetime", "service_mins"]].head()
 ::: {.r-content}
 
 ```{r}
-data <- data %>%
+data <- data |>
   mutate(
     service_datetime   = ymd_hm(paste(SERVICE_DATE, SERVICE_TIME)),
     departure_datetime = ymd_hm(paste(DEPARTURE_DATE, DEPARTURE_TIME)),
@@ -285,7 +288,9 @@ data <- data %>%
   )
 
 # Preview
-data %>% select(service_datetime, departure_datetime, service_mins) %>% head()
+data |>
+  select(service_datetime, departure_datetime, service_mins) |>
+  head()
 ```
 
 :::
@@ -293,6 +298,8 @@ data %>% select(service_datetime, departure_datetime, service_mins) %>% head()
 ### Time series plots
 
 ::: {.python-content}
+
+The function below generates an interactive time series line plot from a pandas Series, using the index as the date axis and the supplied label for the y-axis.
 
 ```{python}
 def inspect_time_series(time_series, y_lab):
@@ -356,6 +363,8 @@ We see no trends, seasonality or outliers in the time series plot for mean servi
 
 ::: {.r-content}
 
+The function below creates a time series line plot from a data frame with date and value columns, optionally saves it as a static image, and returns either a static ggplot object or an interactive Plotly plot depending on the `interactive` argument.
+
 ```{r}
 #' Plot time-series
 #'
@@ -405,7 +414,7 @@ inspect_time_series <- function(
 
 ```{r}
 # Plot daily arrivals
-daily_arrivals <- data %>% group_by(ARRIVAL_DATE) %>% count()
+daily_arrivals <- data |> group_by(ARRIVAL_DATE) |> count()
 inspect_time_series(
   time_series = daily_arrivals, date_col = "ARRIVAL_DATE", value_col = "n",
   y_lab = "Number of arrivals", interactive = TRUE
@@ -420,9 +429,9 @@ We see no trends, seasonality or outliers in the time series plot for number of 
 
 ```{r}
 # Calculate mean service length per day, dropping last day (incomplete)
-daily_service <- data %>%
-  group_by(SERVICE_DATE) %>%
-  summarise(mean_service = mean(service_mins)) %>%
+daily_service <- data |>
+  group_by(SERVICE_DATE) |>
+  summarise(mean_service = mean(service_mins)) |>
   filter(row_number() <= n() - 1L)
 
 # Plot mean service length each day
@@ -441,15 +450,173 @@ We see no trends, seasonality or outliers in the time series plot for mean servi
 
 :::
 
-::: {.callout-note title="What would if look like if there were trends, seasonality or outliers?"}
+:::: {.callout-note title="What would if look like if there were trends, seasonality or outliers?"}
 
 **Trends** are increases or decreases in the data over time. For example, if the mean length of consultations was getting longer and longer over time.
 
+In this example, there is a small linear increase to the daily mean service time:
+
+::: {.python-content}
+
+```{python}
+#| echo: false
+
+# Add a simple linear trend: +0.05 minutes per day
+trend = 0.05 * np.arange(len(daily_service))
+daily_service_trend = daily_service.copy() + trend
+
+p = inspect_time_series(
+    time_series=daily_service_trend,
+    y_lab="Mean consultation length (min)"
+)
+p.show()
+```
+
+:::
+
+::: {.r-content}
+
+```{r}
+#| echo: false
+
+daily_service_trend <- daily_service |>
+  arrange(SERVICE_DATE) |>
+  mutate(
+    day_index = row_number(),
+    # Add a linear trend: +0.05 minutes per day
+    mean_service_trend = mean_service + 0.05 * day_index
+  )
+
+inspect_time_series(
+  time_series = daily_service_trend,
+  date_col = "SERVICE_DATE",
+  value_col = "mean_service_trend",
+  y_lab = "Mean consultation length (min)",
+  interactive = TRUE
+)
+```
+
+:::
+
 **Seasonality** are regular patterns in the data depending on time or day - like higher arrivals every weekend, or peaks over each winter.
+
+In this example, there are higher arrivals at weekends than midweek:
+
+::: {.python-content}
+
+```{python}
+#| echo: false
+
+# Daily arrivals
+daily_arrivals = data.groupby("ARRIVAL_DATE").size()
+daily_arrivals.index = pd.to_datetime(daily_arrivals.index)
+
+# Boost December, slightly reduce other months
+daily_arrivals_dec = daily_arrivals.copy()
+is_december = daily_arrivals_dec.index.month == 12
+
+daily_arrivals_dec = np.where(
+    is_december,
+    daily_arrivals_dec * 1.4,   # higher in December
+    daily_arrivals_dec * 0.9,   # slightly lower otherwise
+)
+
+daily_arrivals_dec = pd.Series(
+    daily_arrivals_dec, index=daily_arrivals.index
+)
+
+p = inspect_time_series(
+    time_series=daily_arrivals_dec,
+    y_lab="Number of arrivals (higher in December)"
+)
+p.show()
+```
+
+:::
+
+::: {.r-content}
+
+```{r}
+#| echo: false
+
+daily_arrivals_dec <- daily_arrivals |>
+  mutate(
+    month = lubridate::month(ARRIVAL_DATE),
+    n_dec = if_else(month == 12L, n * 1.4, n * 0.9)
+  )
+
+inspect_time_series(
+  time_series = daily_arrivals_dec,
+  date_col = "ARRIVAL_DATE",
+  value_col = "n_dec",
+  y_lab = "Number of arrivals",
+  interactive = TRUE
+)
+```
+
+:::
 
 **Outliers** are unusual observations (e.g., very very high or low number of arrivals that differ from the rest).
 
+In this example, we have one day with very high arrivals, and another day with very low arrivals:
+
+::: {.python-content}
+
+```{python}
+#| echo: false
+
+# Start from the original daily arrivals
+daily_arrivals_outliers = daily_arrivals.copy()
+
+# One very high day and one very low day
+high_day = pd.to_datetime("2025-02-15")
+low_day  = pd.to_datetime("2025-03-10")
+
+if high_day in daily_arrivals_outliers.index:
+    daily_arrivals_outliers.loc[high_day] *= 3
+
+if low_day in daily_arrivals_outliers.index:
+    daily_arrivals_outliers.loc[low_day] *= 0.2
+
+p = inspect_time_series(
+    time_series=daily_arrivals_outliers,
+    y_lab="Number of arrivals"
+)
+p.show()
+```
+
 :::
+
+::: {.r-content}
+
+```{r}
+#| echo: false
+
+daily_arrivals_outliers <- daily_arrivals |>
+  arrange(ARRIVAL_DATE) |>
+  mutate(n_outlier = n) |>
+  # One very high day and one very low day
+  mutate(
+    n_outlier = ifelse(
+      ARRIVAL_DATE == as.Date("2025-02-15"), n_outlier * 3, n_outlier
+    ),
+    n_outlier = ifelse(
+      ARRIVAL_DATE == as.Date("2025-03-10"), n_outlier * 0.2, n_outlier
+    )
+  )
+
+inspect_time_series(
+  time_series = daily_arrivals_outliers,
+  date_col = "ARRIVAL_DATE",
+  value_col = "n_outlier",
+  y_lab = "Number of arrivals",
+  interactive = TRUE
+)
+```
+
+:::
+
+::::
 
 ### Histogram plots
 
@@ -610,8 +777,8 @@ The service times are right skewed distribution. Hence, it would be good to try 
 
 ```{r}
 # Get IAT and service time columns as numeric vectors (with NA dropped)
-data_iat <- data %>% drop_na(iat_mins) %>% select(iat_mins) %>% pull()
-data_service <- data %>% select(service_mins) %>% pull()
+data_iat <- data |> drop_na(iat_mins) |> select(iat_mins) |> pull()
+data_service <- data |> select(service_mins) |> pull()
 
 # Plot histograms and CDFs
 plotdist(data_iat, histo = TRUE, demp = TRUE)
@@ -620,19 +787,43 @@ plotdist(data_service, histo = TRUE, demp = TRUE)
 
 :::
 
+<br>
+
+::: {.callout-note title="Common input distributions"}
+
+When you are inspecting the histogram, you are mainly looking at the shape of the distribution and what values are possible (e.g., are they counts or continuous times, and can they ever be negative?). The table below summarises common choices in DES:
+
+| Distribution | Type/support | Typical shape | Common DES uses | Caveat/common mistake
+| - | - | - | - | -- |
+| Poisson | Discrete, counts ≥ 0 | Right‑skewed, unimodal when mean is moderate | Number of arrivals per period (e.g. patients per hour). | Assumes independent arrivals at a constant rate; often violated when arrival rates vary over time or come in bursts. |
+| Exponential | Continuous, > 0 | Strongly right‑skewed, highest near 0, long tail | Inter‑arrival times, simple service times. | Has the "memoryless" property (the remaining time does not depend on how long you have already waited), which is often unrealistic for service times that improve or worsen with duration. |
+| Gamma | Continuous, > 0 | Flexible right‑skewed; can be more "humped" than exponential | Service times, length of stay when more flexible shape is needed. | Easy to overfit if you do not have much data; its parameters can be hard for non‑statistical stakeholders to interpret directly. |
+| Lognormal | Continuous, > 0 | Right‑skewed with long tail; arises from multiplicative effects | Length of stay or service with occasional very long values. | Can generate extremely large values that may dominate the simulation if you do not check that the long tail matches real‑world data. |
+| Weibull | Continuous, > 0 | Right‑skewed; can model increasing or decreasing hazard over time | Time‑to‑event where risk changes with time (failures, discharges). | The shape parameter controls how risk changes over time and is often misunderstood; if risk is really constant, the simpler exponential distribution is enough. |
+| Normal | Continuous, any real | Symmetric bell curve, allows negatives | Approx. symmetric variables where negatives are plausible; usually not suitable for raw service times. | Because it allows negative values, using it directly for durations can produce impossible negative times; only suitable if you truncate negatives or if the mean is much larger than the standard deviation so negatives are virtually impossible. |
+| Uniform | Continuous, between min and max | Flat; all values between bounds equally likely | Crude model when only min/max are known. | Often underestimates realistic variability and structure in the data; frequently used as a quick placeholder and then mistakenly treated as a realistic final choice instead of fitting a more appropriate distribution. |
+​
+:::
+
 ## Step 2. Fit distributions and compare goodness-of fit
 
 We will fit distributions and assess goodness-of-fit using the **Kolmogorov-Smirnov (KS) Test**. This is a common test which is well-suited to continuous distributions. For categorical (or binned) data, consider using chi-squared tests.
 
+The KS test compares your sample data to a specified theoretical distribution.
+
+**Null hypothesis:** Data come from the specified distribution.
+
+**Alternative hypothesis:** Data do not follow that distribution.
+
 The KS Test returns a statistic and p value.
 
 * **Statistic:** Measures how well the distribution fits your data.
+    * Ranges from 0 to 1.
     * **Lower KS test statistics indicate a better fit**.
-    * Ranges from 0 to 1.
 * **P-value:** Tells you if the fit could have happened by chance.
-    * **Higher p-values suggest the data follow the distribution**.
-    * In large datasets, even good fits often have small p-values.
     * Ranges from 0 to 1.
+    * **Higher p-values suggest the data follow the distribution**. In other words, we are measuring evidence against the null hypothesis, and a larger p-value means there is little evidence to reject the null, so the data are *consistent* with the chosen distribution - while a small p-value suggests a lack of fit.
+    * In large datasets, even good fits often have small p-values, so it is useful to look at both the KS statistic and graphical diagnostics when judging fit.
 
 ::: {.python-content}
 
@@ -1071,6 +1262,30 @@ Rate:
 :::
 
 For guidance on storing and using these parameters, see the pages managing parameters [in a script](parameters_script.qmd) and [in a file](parameters_file.qmd).
+
+## Working with insufficient data
+
+A common challenge in healthcare modelling is having insufficient data or no suitable raw data. In these cases, you need to adapt your distribution-fitting approach.
+
+### What indicates insufficient data?
+
+* Your histogram looks very jagged or sparse, making it hard to see a clear shape.
+* You're trying to fit distributions with multiple parameters (gamma, Weibull, lognormal) but have fewer than 30-50 observations.
+* Goodness-of-fit test results change dramatically when you add or remove just a few observations.
+* You only have summary statistics (mean, median, range) rather than individual observations.
+* Your data comes from a very short time period and may not capture typical variation.
+
+### What should you do?
+
+1. **Use simple standard distributions**. Prefer distributions with fewer parameters (exponential over gamma; uniform or triangular over more complex forms). These are less prone to overfitting and their parameters are easier for stakeholders to interpret and validate.
+
+2. **Use the triangular distribution**. This is a simple way to capture uncertainty when you only have approximate minimum, mode and maaximum values. These may have been optained through a handful of observations, or expert interviews - asking "What is the shortest time this has ever taken?", "What is typical?", and "What is the longest time this has taken?".
+
+3. **Pool data across similar settings**. If your site has limited data, consider combining it with comparable sites, time periods, or patient groups. Document your pooling rationale and, where possible, check for heterogeneity between groups.
+
+4. **Use structured expert elicitation**. Formal methods like the Sheffield Elicitation Framework (SHELF) or Delphi panels can elicit probability distributions from clinical or operational experts. This is particularly valuable for parameters that are difficult to observe directly.
+
+5. **Conduct sensitivity analysis**. When parameter uncertainty is high due to limited data, conduct sensitivity analysis to understand how your conclusions change across plausible ranges. This helps communicate uncertainty to stakeholders and identifies which parameters most need better data.
 
 ## Test yourself
 

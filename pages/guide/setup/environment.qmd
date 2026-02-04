@@ -63,42 +63,46 @@ An R environment is the complete computational context required to run an R proj
 
 Recording the environment used acts like a **time capsule**, allowing you to return to a project later and run it with the exact same packages and versions, reproducing the results generated previously.
 
-![](environment_resources/time_capsule.png){fig-align="center" width=70%}
+![](environment_resources/time_capsule.png){fig-align="center" width=70% fig-alt="Illustration representing time capsule idea."}
 
 Managing dependencies allows you to **isolate environments for different projects**. Each project can maintain its own set of packages and R version, preventing conflicts between projects and making it effortless to switch between them without worrying about version mismatches.
 
-![](environment_resources/isolated_env.png){fig-align="center" width=70%}
+![](environment_resources/isolated_env.png){fig-align="center" width=70% fig-alt="Illustration representing isolated environments."}
 
 Consistent environments are important for collaboration. Ensuring everyone on the team uses the same setup prevents issues caused by differing packages or versions.
 
-![](environment_resources/collaborate.png){fig-align="center" width=70%}
+![](environment_resources/collaborate.png){fig-align="center" width=70% fig-alt="Illustration representing collaboration with matching environments."}
 
 ## Tools
 
 :::: {.python-content}
 
-In Python, there are several popular tools for environment management. We'd recommend using a tool that can both:
+In Python, there are several popular tools for environment management. We'd recommend using a tool that can do both:
 
-* **Install and switch between different versions of Python**, and-
-* **Install required packages and dependencies**.
+1. **Install and switch between different versions of Python**
+2. **Install required packages and dependencies**.
 
 As outlined in the table below, there are several tools that can achieve this - `conda`, `mamba` and `uv`. However, there are other factors to consider - for example:
 
-* **Environment location** - by default, are environments created in the project folder (local) or in a central cache (shared across projects)? Can the location be customised?
-* **Dependency files** - does the tool maintain a list of top-level packages (i.e. those you explicitly request) or a fully snapshot (i.e. including all transitive dependencies and pinned versions)?
-* **Packaging** - can the tool build Python packages for distribution? If you are [structuring your research as a package](package.qmd), you may wish to use one tool - or separate tools - for dependency management and creation of your package.
+* **Default location** - by default, are environments created in the project folder (local) or in a central cache (shared across projects)?
+  * **Note:** This isn't too important, as for all these tools, the location can be customised!
+* **Dependency files** - does the tool maintain a list of top‑level packages, or a full snapshot of the environment?
+  * "**Top-level packages**" are packages that you explicitly request (for example, the names you put in `environment.yaml`).
+  * A **snapshot** is a complete pinned list of *all* packages in the environment (including indirect dependencies) with exact versions so the environment can be recreated.
+* **Speed**
+* **Whether it can build and publish packages** - can the tool build Python packages for distribution? If you are [structuring your research as a package](package.qmd), you may wish to use one tool - or separate tools - for dependency management and creation of your package.
 
 ::: {.grey-table}
-| Tool | Python versions | Env location | Custom location | Package source | Config file | Speed | Build + publish package |
-| - | - | - | - | - | - | - | - |
-| `venv` | ❌ No | Project folder | ✅ Yes | PyPI | `requirements.txt` *(top-level only)* | ⚡ Fast | ❌ No |
-| `conda` | ✅ Yes | Central | ✅ Yes | Conda / PyPI | `environment.yml` *(top-level or snapshot)* | 🐢 Slow | ❌ No |
-| `mamba` | ✅ Yes | Central | ✅ Yes | Conda / PyPI | `environment.yml` *(top-level or snapshot)* | ⚡ Fast | ❌ No |
-| `poetry` | ⚠️ Partial | Central | ✅ Yes | PyPI | `pyproject.toml` *(top-level)* + `poetry.lock` *(snapshot)* | ⚡ Fast | ✅ Yes |
-| `uv` | 	✅ Yes | Project folder | ❌ No | PyPI | `pyproject.toml` *(top-level)* + `uv.lock` *(snapshot)* | 🚀 Very fast | ✅ Yes |
+| Tool | Python versions | Default location | Dependency files | Speed | Can build + publish package? |
+| - | - | - | - | - | - |
+| `venv` | ❌ No | Project folder | `requirements.txt` *(top-level only)* | ⚡ Fast | ❌ No |
+| `conda` | ✅ Yes | Central | `environment.yml` *(top-level or snapshot)* | 🐢 Slow | ❌ No |
+| `mamba` | ✅ Yes | Central | `environment.yml` *(top-level or snapshot)* | 🚀 Very fast | ❌ No |
+| `poetry` | ⚠️ Partial | Central | `pyproject.toml` *(top-level)* + `poetry.lock` *(snapshot)* | 🐢 Slow | ✅ Yes |
+| `uv` | 	✅ Yes | Project folder | `pyproject.toml` *(top-level)* + `uv.lock` *(snapshot)* | 🚀 Very fast | ✅ Yes |
 :::
 
-⚠️ Partial: `Poetry` can select among installed versions of Python, but cannot install new Python versions itself
+⚠️ Partial: `Poetry` can select among installed versions of Python, but cannot install new Python versions itself.
 
 ::: {.callout-note collapse="true" title="Find out more about each tool"}
 
@@ -136,6 +140,22 @@ In R, managing your project environment typically requires multiple, specialised
 | `rig` | ✅ Yes | ❌ No |
 | `renv` | ❌ No | ✅ Yes |
 | `rv` (in development) | ❌ No | ✅ Yes |
+:::
+
+::: {.callout-note collapse="true" title="Find out more about each tool"}
+
+| **rig**
+| 🔗 <https://github.com/r-lib/rig>
+A command-line tool for installing, listing, and switching between multiple R versions on Windows, macOS, and Linux.
+
+| **renv**
+| 🔗 <https://rstudio.github.io/renv/>
+A package for project-specific libraries and lockfiles. It records the exact package versions used in a project (via `renv.lock`), so you can recreate the same environment later or on another machine.
+
+| **rv**
+| 🔗 <https://a2-ai.github.io/rv-docs/>
+An emerging tool for declarative R environments using `rproject.toml` and `rv.lock`. You declare the R version and all dependencies up front; rv then enforces that version and set of packages for the project.
+
 :::
 
 ### Legacy tools
@@ -205,7 +225,7 @@ We have used `conda-forge` which is a community-maintained channel run by volunt
 
 Other main channels include:
 
-* `default` and `anaconda` - Maintained by Anaconda's engineers and designed for high security and stability. Organisations with 200 or more employees have to pay to use this channel (excluding students and non-commercial research at universities)
+* `default` and `anaconda` - Maintained by Anaconda's engineers and designed for high security and stability.  As of January 2026, organisations with 200 or more employees have to pay to use this channel (excluding students and non-commercial research at universities). Please check [Anaconda's current Terms of Service](https://www.anaconda.com/legal/terms/terms-of-service) for the latest details.
 * `bioconda` - Volunteer-run, offers bioinformatics-related packages.
 
 :::
@@ -354,7 +374,9 @@ Choose which R version should be active (for example, when you open RStudio):
 rig default 4.1.2
 ```
 
-This makes the selected version the default for new R sessions. (**Note:** If you later change versions manually or with other tools, you may need to reset this.)
+This sets R 4.1.2 as the default R version for new R sessions (including RStudio).
+
+If you later switch R versions in another way (for example, by reinstalling R or changing your PATH) and want rig to control it again, run `rig default <version>` once more (e.g., `rig default 4.1.2`) to set that version as the default again.
 
 ::::
 
@@ -430,11 +452,11 @@ It's best to use `renv` within an R project. R projects are commonly created and
 
 In RStudio, select "File > New Project..." and choose "Existing Directory".
 
-![](environment_resources/rproject1.png)
+![](environment_resources/rproject1.png){fig-alt="Screenshot of RStudio New Project Wizard: Create Project."}
 
 Navigate to your project directory, then select "Create Project".
 
-![](environment_resources/rproject2.png)
+![](environment_resources/rproject2.png){fig-alt="Screenshot of RStudio New Project Wizard: Create Project from Existing Directory."}
 
 This will create :
 
@@ -489,7 +511,7 @@ When you initialise `renv`, your project gets its own **project library** - a pr
 
 This is different from the **user library**, which is the default shared location where R installs packages used by all your R projects. See the "Packages" section on RStudio, which will show your project v.s. user library:
 
-![](environment_resources/renv_init.png)
+![](environment_resources/renv_init.png){fig-alt="Screenshot of RStudio Packages pane showing Project Library v.s. User Library."}
 
 Some further information relevant when initialising `renv`:
 
@@ -537,7 +559,7 @@ However, we recommend using a `DESCRIPTION` file. This is a file listing only th
 
 This differs from `renv.lock` which records **all packages** needed to recreate your environment, including every main package and all their dependencies, plus the exact versions used.
 
-![](environment_resources/description_vs_lock.png)
+![](environment_resources/description_vs_lock.png){fig-alt="Illustration showing DESCRIPTION containing 'simmer', whilst renv.lock contains 'simmer 4.4.7', 'Rcpp 1.0.14', and 'magrittr 2.0.3'."}
 
 The benefit of using a `DESCRIPTION` file when adding packages is:
 
@@ -1084,7 +1106,7 @@ It requires all dependencies to be specified before installation, rather than ta
 
 **Installation**
 
-Follow the [installation instructions](https://github.com/A2-ai/rv/blob/main/docs/installation.md) for your operating system. For example, on linux:
+Follow the [installation instructions](https://a2-ai.github.io/rv-docs/intro/installation/) for your operating system. For example, on linux:
 
 ```{.bash}
 curl -sSL https://raw.githubusercontent.com/A2-ai/rv/refs/heads/main/scripts/install.sh | bash
@@ -1274,7 +1296,21 @@ pak::pkg_sysreqs("plotly")
 
 ## Recreate & troubleshoot
 
-<div class="h3-tight"></div>
+When you return to a project after some time or share it with collaborators, you often need to **recreate the original environment** so that the code runs successfully, produces the same results as before, and can be reliably reused or adapted by others.
+
+::: {.python-content}
+
+If you skip this step and instead use different versions of Python and packages, the code may fail to run altogether or may produce different results from those originally reported.
+
+:::
+
+::: {.r-content}
+
+If you skip this step and instead use different versions of R and packages, the code may fail to run altogether or may produce different results from those originally reported.
+
+:::
+
+This section explains how to recreate an environment.
 
 ::: {.python-content}
 
@@ -1534,5 +1570,62 @@ These are some nice resources generally covering topics related to R environment
 * ["21. Lifecycle" from R Packages](https://r-pkgs.org/lifecycle.html) by Hadley Wickham and Jennifer Bryan.
 
 ::::
+
+## Summary
+
+Environment management is important because it lets you **isolate** project dependencies and reliably **recreate** the same setup later for reproducible work and collaboration.
+
+::: {.python-content}
+
+We introduce five main tools for managing environments: **venv, conda, mamba, poetry and uv**.
+
+We go into detail on using **conda/mamba to control Python versions and packages**: install conda/mamba, create an `environment.yaml` file with desired packages, then run:
+
+```{.bash}
+conda env create --file environment.yaml
+conda activate envname
+```
+
+You can then pin the exact package versions installed in the file - for example:
+
+```{.bash}
+name: envname
+channels:
+  - conda-forge
+dependencies:
+  - python=3.13.3
+  - simpy=4.1.1
+```
+
+We provide the full **des-rap-book environment** specification required to run all examples in the book.
+
+We also describe how to **recreate and troubleshoot environments**: find or reconstruct an environment file, rebuild the environment, and then resolve installation or compatibility errors by adjusting versions or channels and updating the environment file.
+
+:::
+
+::: {.r-content}
+
+We introduce three tools for managing environments: **rig, renv and rv**.
+
+We explain how to use **rig** to manage R versions, for example:
+
+```{.r}
+rig add 4.1.2
+rig default 4.1.2
+```
+
+We then explain **renv** for package management, with key steps of:
+
+1. Creating an `.Rproj`.
+2. Initialising `renv` (`renv::init()`).
+3. Create a `DESCRIPTION` file declaring the main dependencies.
+4. Installing these (`renv::install()`) (may require changing the snapshot type, as e.g., `implicit` mode will only install them if it can see them in use in your code).
+5. Recording the specific package versions installed in an `renv.lock` file (`renv::snapshot()`).
+
+We provide a full **DES RAP Book R environment**, listing all packages need to run the examples in the book.
+
+We also describe how to **recreate and troubleshoot environments**: identify or infer R version and packages, restore from renv.lock or DESCRIPTION, handle time‑based snapshots and GitHub/r-universe packages, and diagnose common problems such as unavailable packages, backdating needs, missing system libraries, legacy user libraries and when Docker or rocker images may be preferable.
+
+:::
 
 <br><br>

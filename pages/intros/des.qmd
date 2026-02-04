@@ -19,7 +19,7 @@ In DES models, time progresses only when **specific events** happen. Unlike a co
 
 Between events, the system state remains unchanged - nothing happens until the next event occurs. This makes DES well-suited for modeling systems where entities (patients, prescriptions, ambulances) move through processes and wait for resources.
 
-![Simple model animation created using web app developed by Sammi Rosser (2024) available at <https://github.com/hsma-programme/Teaching_DES_Concepts_Streamlit> and shared under an MIT Licence.](des_resources/simple_des.gif)
+![Simple model animation created using web app developed by Sammi Rosser (2024) available at <https://github.com/hsma-programme/Teaching_DES_Concepts_Streamlit> and shared under an MIT Licence.](des_resources/simple_des.gif)\
 
 ## Core components of DES models
 
@@ -44,7 +44,40 @@ Instead of assigning fixed values, DES models **sample from statistical distribu
 
 This randomness means that every run of a DES model can produce different results, just like real life. By running the simulation many times, you can see the range of possible outcomes and understand how the system performs under different scenarios—good days, bad days, and everything in between.
 
-![](/pages/guide/inputs/input_data_resources/samples.png)
+![](/pages/guide/inputs/input_data_resources/samples.png){fig-alt="Illustration showing multiple samples being taken from one distribution."}
+
+In the plot below, each point shows the value of a performance measure from one independent run of the same simulation model, and the labels ("Run 1", "Run 2", ...) identify which run it came from. The horizontal axis has two different performance measures (for example, average waiting time and resource utilisation), and you can see that even though the model is unchanged, the values jump around from run to run because of randomness in arrivals, service times, and other processes. This mirrors what happens in real systems: some days are "good" (short waits, lower utilisation), others are "bad" (long waits, higher utilisation), and we need multiple runs to understand both the typical performance and how much it varies.
+
+```{r}
+#| echo: false
+#| output: false
+# For illustrative plot only, code hidden
+library(ggplot2)
+```
+
+```{r}
+#| echo: false
+set.seed(9L)
+
+df <- data.frame(
+  Category = rep(c("Performance measure 1", "Performance measure 2"),
+                 each = 7L),
+  Value = runif(14L, min = 0L, max = 1L),
+  Run = rep(paste("Run", 1L:7L), 2L),
+  stringsAsFactors = FALSE
+)
+
+ggplot(df, aes(x = Category, y = Value)) +
+  geom_point(size = 3L) +
+  geom_text(aes(label = Run), vjust = -1L, size = 3L) +
+  labs(x = NULL, y = "Value") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(size = 12L))
+```
+
+Because each run is influenced by randomness, a single simulation run is rarely enough to understand how the system performs on average or how variable it is. By running **many replications** of the same model (with different random seeds), you can estimate averages, variability, and uncertainty in key outputs, such as mean waiting times or resource utilisation.
+
+Multiple replications are also essential when comparing interventions, because they help you distinguish genuine performance improvements from differences that arose purely by chance.
 
 ## How DES models advance time and handle events
 
@@ -60,7 +93,7 @@ If the chosen time unit is too small, the simulation runs very slowly because it
 
 <br>
 
-![Activity-based approach](des_resources/activity_based.drawio.png)
+![Activity-based approach](des_resources/activity_based.drawio.png){fig-alt="Illustration of activity-based approach"}
 
 ### Event-based approach
 
@@ -72,7 +105,7 @@ This approach uses **variable time advancement**, which is when the simulation c
 
 <br>
 
-![Event-based approach](des_resources/event_based.drawio.png)
+![Event-based approach](des_resources/event_based.drawio.png){fig-alt="Illustration of event-based approach"}
 
 ### Process-based approach
 
@@ -88,7 +121,7 @@ This is the approach in the simulation packages used in the book - SimPy (Python
 
 <br>
 
-![Process-based approach](des_resources/process_based.drawio.png)
+![Process-based approach](des_resources/process_based.drawio.png){fig-alt="Illustration of process-based approach"}
 
 ### Three-phase approach
 
@@ -106,7 +139,7 @@ This approach improves efficiency by only scanning for conditional activities at
 
 <br>
 
-![Three-phase approach](des_resources/three_phase.drawio.png)
+![Three-phase approach](des_resources/three_phase.drawio.png){fig-alt="Illustration of three-phase approach"}
 
 ## Applications of DES
 

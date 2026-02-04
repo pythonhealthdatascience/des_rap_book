@@ -64,6 +64,10 @@ library(jsonlite)
 
 ::::
 
+<br>
+
+Parameter validation is about catching problems in your inputs before they quietly corrupt your results. In DES models, even a small typo or out‑of‑range value can create plausible‑looking but wrong outputs, because the simulation will usually run without complaining. Good validation acts as risk management: it turns silent failures into explicit errors with clear messages.
+
 ## Accidental creation of new parameters
 
 :::{.python-content}
@@ -687,6 +691,8 @@ We can write a validation function which checks that **all the required paramete
 
 This is based on the arguments of `param_function`. We first use `checkmate::assert_list()` to ensure `param` is a properly formed list with uniquely named elements.
 
+We use the `checkmate` package's `assert_*` functions because they automatically generate concise, informative error messages when something is wrong.
+
 ```{r}
 #' Validate parameter names.
 #'
@@ -1095,10 +1101,10 @@ If you haven't already, now's the time to try out **parameter validation** in pr
 **Task:**
 
 ::: {.python-content}
-* Create a simple set of parameters for a simulation model using a function, dictionary, or class (you can use an example from above if you want to).
+* Create a simple set of parameters for a simulation model using a function, dictionary, or class. You can reuse the simple `param_function()`, `ParamClass` and/or `model()` from earlier on this page, or from the [Parameters from script](parameters_script.qmd) or [Parameters from file](parameters_file.qmd) pages.
 :::
 ::: {.r-content}
-* Create a simple set of parameters for a simulation model.
+* Create a simple set of parameters for a simulation model. You can reuse the simple `param_function()` and `model()` from earlier on this page, or from the [Parameters from script](parameters_script.qmd) or [Parameters from file](parameters_file.qmd) pages.
 :::
 
 * Try **mistyping** a parameter name. Observe what happens - does it raise an error, or does it quietly add a new unused parameter?

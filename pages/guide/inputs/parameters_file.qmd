@@ -73,6 +73,8 @@ There are several file types you can use to store parameters, with **CSV** and *
 * **Supported** by many tools: spreadsheets, text editors, programming languages.
 * **Easier to import** and parse programmatically than Excel.
 
+**Use CSV** as the default choice for parameter files, since most simulation parameters fit well into a flat table of rows and columns. **Use JSON** when parameters are naturally hierarchical, need multiple attributes per parameter, or when you want the file to mirror a nested structure in your code.
+
 ::: {.python-content}
 
 We will make a folder called `inputs` to store our parameter files within.
@@ -181,6 +183,10 @@ str(json_file)
 
 ### Storing the parameter file
 
+<div class="h4-tight"></div>
+
+#### Package
+
 If you have [structured your research as a package](../setup/package.qmd), a good location for the parameter file/s is in `inst/extdata`. This is the conventional location for example data in packages, with everything in `inst` copied upon installation. It means the directory becomes `<pkg>/extdata/` and can be accessed using `system.file("extdata", "filename", package = "yourpackage")`,
 
 Packages can also have a `data/` folder, but this is intended only for `.rda` files. These are documented datasets that can be loaded using `data()`. You use a `data-raw/` directory to store scripts that read, process and save raw data as `.rda` files. These scripts are not included in the final package but provide a clear record of how datasets are generated.
@@ -188,6 +194,10 @@ Packages can also have a `data/` folder, but this is intended only for `.rda` fi
 You could make custom locations (e.g., an `inputs/` directory) if it suits your workflow, though it's worth noting that this isn't not part of the standard R package structure. If you do so, just make sure to document clearly for users how to find and access your files, as package tools and conventions may not automatically support these locations.
 
 You can also share data separately from your package (such as for collaborative projects or frequency updated datasets). Check out the [pins](https://pins.rstudio.com/) package as one of the possible tools for doing this.
+
+#### Non-package
+
+If you are not working in a package, keep parameter files in a clearly named folder at the project root (for example `data/`, `inputs/` or `config/`), and read them using relative paths from there. The important thing is that the location is stable, documented, and under version control; you can always move these files into `inst/extdata` later if you convert the project into a package.
 
 :::
 
@@ -835,7 +845,7 @@ do.call(model, params[1, ])
 For multiple scenarios (if we had multiple rows), we can use `purrr::pmap()`:
 
 ```{r}
-params %>% purrr::pmap(model)
+params |> purrr::pmap(model)
 ```
 
 The column names in the CSV must match the function argument names exactly - this provides automatic validation against typos (see [parameter validation](parameters_validation.qmd) page).

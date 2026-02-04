@@ -47,13 +47,13 @@ library(simEd)
 
 When simulating real-world systems (e.g. patients arriving, prescriptions queueing), using fixed values is unrealistic. Instead, **discrete-event simulations rely on randomness**: they generate event times and outcomes by sampling randomly from probability distributions.
 
-![](../inputs/input_data_resources/samples.png)
+![](../inputs/input_data_resources/samples.png){fig-alt="Illustration showing multiple samples being taken from one distribution."}
 
 However, computers can't generate "true" randomness. Instead, they use **pseudorandom number generators (PRNGs)**: algorithms which produce a sequence of numbers that appear random, but are in fact completely determined by an initial starting point called a **seed**. If you use the same seed, you'll get the same random sequence every time - a crucial feature for reproducibility in research and development.
 
 By default, most software PRNGs initialise the seed based on something that changes rapidly, such as the current system time. This ensures a unique sequence with every fresh run. But for **reproducible experiments**, you should manually set the seed yourself, allowing you and others to exactly recreate simulation results.
 
-![](distributions_resources/prng_sample.png)
+![](distributions_resources/prng_sample.png){fig-alt="Illustration showing that seed is given to PRNG which generates random number stream. Stream and distribution parameters are then fed to sampler which produces samples from distribution."}
 
 ## Introducing tools for random sampling
 
@@ -127,7 +127,7 @@ print(samples)
 
 :::::: {.r-content}
 
-In R, random sampling is typically done with functions from the `stats` package. To ensure reproducibility, set a global random seed with `set.seed()`. Then use the appropriate function for your desired distribution.
+In R, random sampling is typically done with functions from the `stats` package. To ensure reproducibility, set a global random seed with `set.seed()`, using any integer value (e.g., `set.seed(3L)` or `set.seed(123L)`). Then use the appropriate function for your desired distribution.
 
 For example, the exponential distribution is sampled with `rexp()` which requires the rate parameter (the inverse of the mean). To generate 3 samples from an exponential distribution with a mean of 6, you would use:
 
@@ -396,6 +396,39 @@ For most everyday simulation work though, this isn't a disaster! In fact, for st
 :::
 
 The key is simply to be **aware** of how shared random number streams work, so you aren't caught by surprise if results subtly shift when you tweak the simulation structure.
+
+## Sampling functions
+
+On the [Input modelling](/pages/guide/inputs/input_modelling.qmd) page, we introduced a table of common probability distributions and discussed when each is appropriate for DES. On this page, the relevant sampling functions are shown:
+
+::: {.python-content}
+
+| Distribution | NumPy `Generator` function | `sim_tools` distribution class |
+| - | - | - |
+| Poisson | `rng.poisson()` | `Poisson()` |
+| Exponential | `rng.exponential()` | `Exponential()` |
+| Gamma | `rng.gamma()` | `Gamma()` |
+| Lognormal | `rng.lognormal()` | `Lognormal()` |
+| Weibull | `rng.weibull()` | `Weibull()` |
+| Normal | `rng.normal()` | `Normal()` |
+| Uniform | `rng.uniform()` | `Uniform()` |
+
+:::
+
+::: {.r-content}
+
+| Distribution | Base R function | `simEd` function |
+| - | - | - |
+| Poisson | `rpois()` | `vpois()` |
+| Exponential | `rexp()` | `vexp()` |
+| Gamma | `rgamma()` | `vgamma()` |
+| Lognormal | `rlnorm()` | `vlnorm()` |
+| Weibull | `rweibull()` | `vweibull()` |
+| Normal | `rnorm()` | `vnorm()` |
+| Uniform | `runif()` | `vunif()` |
+
+:::
+
 
 ## What's next?
 

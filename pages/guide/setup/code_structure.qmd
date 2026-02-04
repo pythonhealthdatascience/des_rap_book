@@ -46,6 +46,10 @@ import pandas as pd
 
 ::::
 
+<br>
+
+On the previous [Structuring as a package](/pages/guide/setup/package.qmd) page, you organised your project into folders and modules so that code can be imported cleanly between files. This page now focuses on how to structure the code *inside* those modules using small, reusable functions and classes.
+
 ## Reusing code
 
 It might seem convenient to write all your code in a **single script** and simply **copy-and-paste** sections when you need to reuse code. However, this approach quickly becomes unmanageable as your project grows.
@@ -54,7 +58,7 @@ It might seem convenient to write all your code in a **single script** and simpl
 
 The main tools you can use to **organise** your code are **functions** and **classes**.
 
-These allow you to break your code into **modular** components, each focused on a specific task. Modular code is easier to manage, test, and reuse - and these functions or classes can then be stored in **separate files**.
+These allow you to break your code into **modular** components, each focused on a specific task. Modular code is easier to manage, test, and reuse - and these functions or classes can then be stored in **separate files** (modules) inside the package structure you set up on the previous page, so that other parts of your project can import and reuse them.
 
 Using functions and classes has several benefits:
 
@@ -64,7 +68,7 @@ Using functions and classes has several benefits:
 
 You can organise your code using **functions**.
 
-These allow you to break your code into **modular** components, each focused on a specific task. Modular code is easier to manage, test, and reuse - and these functions can then be stored in **separate files**.
+These allow you to break your code into **modular** components, each focused on a specific task. Modular code is easier to manage, test, and reuse - and these functions can then be stored in **separate files** (modules) inside the package structure you set up on the previous page, so that other parts of your project can import and reuse them.
 
 Using functions has several benefits:
 
@@ -74,7 +78,7 @@ Using functions has several benefits:
 * **Simpler to maintain with fewer errors**. Complex processes are broken into manageable parts. This makes them easier to update, test, and debug.
 * **No duplication**. Writing reusable code means changes only need to be made in one place, such as when you are updating or fixing a bug. In contrast, duplicated code requires updates everywhere it appears, and you may miss some.
 
-![](code_structure_resources/structure.png)
+![](code_structure_resources/structure.png){fig-alt="Illustration representing differences between messy and modular code."}
 
 ## Writing modular code
 
@@ -113,6 +117,11 @@ def estimate_wait_time(queue_length, avg_service_time):
 # There are 4 patients ahead, average service time is 15 minutes
 print(estimate_wait_time(queue_length=4, avg_service_time=15))
 ```
+
+Below, we identify the different components of the function:
+
+![](code_structure_resources/pythonfunction.png){fig-alt="Annotated python function identifying function name, arguments, docstring and return value."}
+
 :::
 
 ::: {.r-content}
@@ -134,9 +143,13 @@ estimate_wait_time <- function(queue_length, avg_service_time) {
 print(estimate_wait_time(queue_length = 4L, avg_service_time = 15L))
 ```
 
+Below, we identify the different components of the function:
+
+![](code_structure_resources/rfunction.png){fig-alt="Annotated R class identifying function name, arguments, docstring and return value."}
+
 :::
 
-::: {.python-content}
+:::: {.python-content}
 
 ### Classes
 
@@ -203,6 +216,10 @@ print(alice.status)
 alice.admit()
 print(alice.status)
 ```
+
+Below, we identify the different components of the class:
+
+![](code_structure_resources/pythonclass.png){fig-alt="Annotated python class identifying class name, class docstring, initialiser method, attributes, methods and method docstrings."}
 
 <br>
 
@@ -274,9 +291,17 @@ print(ben.triage())
 
 {{< video https://www.youtube.com/watch?v=u1be7Vele5o >}}
 
-:::
+<br>
 
-:::: {.python-content}
+::: {.callout-note title="When should you use inheritance?"}
+
+Inheritance is most useful when you have several types that are all variations of the same thing, and they share behaviour that you want to implement once in a common base class (e.g. `Patient`, with `EmergencyPatient`, `ElectivePatient`, etc. as special cases).
+
+In these cases, each subclass is a more specific version of the parent class (an emergency patient *is* a patient), and you mainly add small bits of extra data or behaviour such as `severity` and `triage()` rather than rewriting everything.
+
+If you find yourself just trying to reuse code between unrelated things, or needing lots of different combinations of behaviours, it is usually better to keep a single class and use composition (one object has a reference to another) instead of inheritance.
+
+:::
 
 ### Programming paradigms
 
@@ -298,6 +323,10 @@ This table provides a brief overview of the programming paradigms.
 | **Procedural programming** | Functions | •  Code runs **step-by-step** using functions, often passing data between them<br>• Data structures (like lists) are usually **mutable** (i.e. they can be changed directly).<br>• Use **loops** like `for` and `while` to repeat actions. |
 | **Functional programming** | Functions | • Uses **pure functions**, which always return the same output for same input, and do not alter anything outside themselves (only effect is to return value/s).<br>• Functions are values - they can be saved in variables, passed to other functions, or returned just like other data types.<br>• Data structures are **immutable**, meaning they can't be changed directly - instead, a new version is created when a change is needed.<br>• Often replaces loops with **recursion** (a function calling itself) and **higher-order functions** (like Python's `map` or R's `sapply`).<br>•These features tend to make code more predictable, easier to debug, and more maintainable than procedural approaches. |
 | **Object-oriented programming (OOP)** | Classes/Objects | • Organises code using **objects** - instances of classes that combine data (attributes) and behaviour (methods).<br>• Supports **encapsulation** - combining related data and functions, and hiding internal details when needed.<br>• Enables **inheritance**, where one class can build on another.<br>• Supports **polymorphism**, allowing different objects to respond differently to the same operation depending on their type. |
+
+Functional programming is well-suited to analyses where you pass inputs in and get results, without needing to keep track of state between calls (like the simple queue example in this chapter).
+
+Object-oriented programming is helpful when you need to manage evolving state and related operations together, such as a queue object that can be run, summarised, and extended with extra methods as your simulation grows.
 
 If you want to find out more, check out the following:
 
