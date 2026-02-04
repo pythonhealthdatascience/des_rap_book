@@ -6,7 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2026-01-30">
+<meta name="dcterms.date" content="2026-02-04">
 
 <title>Environments – DES RAP</title>
 <style>
@@ -219,12 +219,16 @@ background-size: cover;
   </li>  
     </ul>
   </li>
+  <li class="nav-item">
+    <a class="nav-link" href="../../../pages/impact/impact.html"> 
+<span class="menu-text">Impact</span></a>
+  </li>  
 </ul>
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
-  <li class="nav-item compact">
+  <li class="nav-item">
     <a class="nav-link" href="https://github.com/pythonhealthdatascience/des_rap_book"> <i class="bi bi-github" role="img">
 </i> 
-<span class="menu-text"></span></a>
+<span class="menu-text">GitHub</span></a>
   </li>  
 </ul>
           </div> <!-- /navcollapse -->
@@ -263,7 +267,7 @@ background-size: cover;
       <div>
       <div class="quarto-title-meta-heading">Page last modified</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">January 30, 2026</p>
+        <p class="date">February 4, 2026</p>
       </div>
     </div>
     
@@ -621,6 +625,7 @@ background-size: cover;
   <li><a href="#other" id="toc-other" class="nav-link" data-scroll-target="#other">Other</a></li>
   <li><a href="#recreate-troubleshoot" id="toc-recreate-troubleshoot" class="nav-link" data-scroll-target="#recreate-troubleshoot">Recreate &amp; troubleshoot</a></li>
   <li><a href="#further-ideas" id="toc-further-ideas" class="nav-link" data-scroll-target="#further-ideas">Further ideas</a></li>
+  <li><a href="#summary" id="toc-summary" class="nav-link" data-scroll-target="#summary">Summary</a></li>
   </ul>
 </nav>
     </div>
@@ -680,19 +685,19 @@ background-size: cover;
 <p>Recording the environment used acts like a <strong>time capsule</strong>, allowing you to return to a project later and run it with the exact same packages and versions, reproducing the results generated previously.</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><a href="environment_resources/time_capsule.png" class="lightbox" data-gallery="quarto-lightbox-gallery-1"><img src="environment_resources/time_capsule.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:70.0%"></a></p>
+<p><a href="environment_resources/time_capsule.png" class="lightbox" data-gallery="quarto-lightbox-gallery-1"><img src="environment_resources/time_capsule.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:70.0%" alt="Illustration representing time capsule idea."></a></p>
 </figure>
 </div>
 <p>Managing dependencies allows you to <strong>isolate environments for different projects</strong>. Each project can maintain its own set of packages and R version, preventing conflicts between projects and making it effortless to switch between them without worrying about version mismatches.</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><a href="environment_resources/isolated_env.png" class="lightbox" data-gallery="quarto-lightbox-gallery-2"><img src="environment_resources/isolated_env.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:70.0%"></a></p>
+<p><a href="environment_resources/isolated_env.png" class="lightbox" data-gallery="quarto-lightbox-gallery-2"><img src="environment_resources/isolated_env.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:70.0%" alt="Illustration representing isolated environments."></a></p>
 </figure>
 </div>
 <p>Consistent environments are important for collaboration. Ensuring everyone on the team uses the same setup prevents issues caused by differing packages or versions.</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><a href="environment_resources/collaborate.png" class="lightbox" data-gallery="quarto-lightbox-gallery-3"><img src="environment_resources/collaborate.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:70.0%"></a></p>
+<p><a href="environment_resources/collaborate.png" class="lightbox" data-gallery="quarto-lightbox-gallery-3"><img src="environment_resources/collaborate.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:70.0%" alt="Illustration representing collaboration with matching environments."></a></p>
 </figure>
 </div>
 </section>
@@ -700,39 +705,43 @@ background-size: cover;
 <section id="tools" class="level2">
 <h2 class="anchored" data-anchor-id="tools">Tools</h2>
 <div class="python-content">
-<p>In Python, there are several popular tools for environment management. We’d recommend using a tool that can both:</p>
-<ul>
-<li><strong>Install and switch between different versions of Python</strong>, and-</li>
+<p>In Python, there are several popular tools for environment management. We’d recommend using a tool that can do both:</p>
+<ol type="1">
+<li><strong>Install and switch between different versions of Python</strong></li>
 <li><strong>Install required packages and dependencies</strong>.</li>
-</ul>
+</ol>
 <p>As outlined in the table below, there are several tools that can achieve this - <code>conda</code>, <code>mamba</code> and <code>uv</code>. However, there are other factors to consider - for example:</p>
 <ul>
-<li><strong>Environment location</strong> - by default, are environments created in the project folder (local) or in a central cache (shared across projects)? Can the location be customised?</li>
-<li><strong>Dependency files</strong> - does the tool maintain a list of top-level packages (i.e.&nbsp;those you explicitly request) or a fully snapshot (i.e.&nbsp;including all transitive dependencies and pinned versions)?</li>
-<li><strong>Packaging</strong> - can the tool build Python packages for distribution? If you are <a href="../../../pages/guide/setup/package.html">structuring your research as a package</a>, you may wish to use one tool - or separate tools - for dependency management and creation of your package.</li>
+<li><strong>Default location</strong> - by default, are environments created in the project folder (local) or in a central cache (shared across projects)?
+<ul>
+<li><strong>Note:</strong> This isn’t too important, as for all these tools, the location can be customised!</li>
+</ul></li>
+<li><strong>Dependency files</strong> - does the tool maintain a list of top‑level packages, or a full snapshot of the environment?
+<ul>
+<li>“<strong>Top-level packages</strong>” are packages that you explicitly request (for example, the names you put in <code>environment.yaml</code>).</li>
+<li>A <strong>snapshot</strong> is a complete pinned list of <em>all</em> packages in the environment (including indirect dependencies) with exact versions so the environment can be recreated.</li>
+</ul></li>
+<li><strong>Speed</strong></li>
+<li><strong>Whether it can build and publish packages</strong> - can the tool build Python packages for distribution? If you are <a href="../../../pages/guide/setup/package.html">structuring your research as a package</a>, you may wish to use one tool - or separate tools - for dependency management and creation of your package.</li>
 </ul>
 <div class="grey-table">
 <table class="caption-top table">
 <colgroup>
-<col style="width: 12%">
-<col style="width: 12%">
-<col style="width: 12%">
-<col style="width: 12%">
-<col style="width: 12%">
-<col style="width: 12%">
-<col style="width: 12%">
-<col style="width: 12%">
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 16%">
 </colgroup>
 <thead>
 <tr class="header">
 <th>Tool</th>
 <th>Python versions</th>
-<th>Env location</th>
-<th>Custom location</th>
-<th>Package source</th>
-<th>Config file</th>
+<th>Default location</th>
+<th>Dependency files</th>
 <th>Speed</th>
-<th>Build + publish package</th>
+<th>Can build + publish package?</th>
 </tr>
 </thead>
 <tbody>
@@ -740,8 +749,6 @@ background-size: cover;
 <td><code>venv</code></td>
 <td>❌ No</td>
 <td>Project folder</td>
-<td>✅ Yes</td>
-<td>PyPI</td>
 <td><code>requirements.txt</code> <em>(top-level only)</em></td>
 <td>⚡ Fast</td>
 <td>❌ No</td>
@@ -750,8 +757,6 @@ background-size: cover;
 <td><code>conda</code></td>
 <td>✅ Yes</td>
 <td>Central</td>
-<td>✅ Yes</td>
-<td>Conda / PyPI</td>
 <td><code>environment.yml</code> <em>(top-level or snapshot)</em></td>
 <td>🐢 Slow</td>
 <td>❌ No</td>
@@ -760,28 +765,22 @@ background-size: cover;
 <td><code>mamba</code></td>
 <td>✅ Yes</td>
 <td>Central</td>
-<td>✅ Yes</td>
-<td>Conda / PyPI</td>
 <td><code>environment.yml</code> <em>(top-level or snapshot)</em></td>
-<td>⚡ Fast</td>
+<td>🚀 Very fast</td>
 <td>❌ No</td>
 </tr>
 <tr class="even">
 <td><code>poetry</code></td>
 <td>⚠️ Partial</td>
 <td>Central</td>
-<td>✅ Yes</td>
-<td>PyPI</td>
 <td><code>pyproject.toml</code> <em>(top-level)</em> + <code>poetry.lock</code> <em>(snapshot)</em></td>
-<td>⚡ Fast</td>
+<td>🐢 Slow</td>
 <td>✅ Yes</td>
 </tr>
 <tr class="odd">
 <td><code>uv</code></td>
 <td>✅ Yes</td>
 <td>Project folder</td>
-<td>❌ No</td>
-<td>PyPI</td>
 <td><code>pyproject.toml</code> <em>(top-level)</em> + <code>uv.lock</code> <em>(snapshot)</em></td>
 <td>🚀 Very fast</td>
 <td>✅ Yes</td>
@@ -789,7 +788,7 @@ background-size: cover;
 </tbody>
 </table>
 </div>
-<p>⚠️ Partial: <code>Poetry</code> can select among installed versions of Python, but cannot install new Python versions itself</p>
+<p>⚠️ Partial: <code>Poetry</code> can select among installed versions of Python, but cannot install new Python versions itself.</p>
 <div class="callout callout-style-default callout-note callout-titled" title="Find out more about each tool">
 <div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
@@ -851,6 +850,30 @@ background-size: cover;
 </tbody>
 </table>
 </div>
+<div class="callout callout-style-default callout-note callout-titled" title="Find out more about each tool">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Find out more about each tool
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-2" class="callout-2-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="line-block"><strong>rig</strong><br>
+🔗 <a href="https://github.com/r-lib/rig" class="uri">https://github.com/r-lib/rig</a></div>
+<p>A command-line tool for installing, listing, and switching between multiple R versions on Windows, macOS, and Linux.</p>
+<div class="line-block"><strong>renv</strong><br>
+🔗 <a href="https://rstudio.github.io/renv/" class="uri">https://rstudio.github.io/renv/</a></div>
+<p>A package for project-specific libraries and lockfiles. It records the exact package versions used in a project (via <code>renv.lock</code>), so you can recreate the same environment later or on another machine.</p>
+<div class="line-block"><strong>rv</strong><br>
+🔗 <a href="https://a2-ai.github.io/rv-docs/" class="uri">https://a2-ai.github.io/rv-docs/</a></div>
+<p>An emerging tool for declarative R environments using <code>rproject.toml</code> and <code>rv.lock</code>. You declare the R version and all dependencies up front; rv then enforces that version and set of packages for the project.</p>
+</div>
+</div>
+</div>
 <section id="legacy-tools" class="level3">
 <h3 class="anchored" data-anchor-id="legacy-tools">Legacy tools</h3>
 <p><strong>R version management:</strong> Before <code>rig</code>, users had to install and switch R versions using platform-specific tools (e.g.&nbsp;RSwitch on Mac, CRAN installer on Windows, Homebrew or manual compilation on Linux). These approaches are more involved and prone to inconsistencies.</p>
@@ -910,7 +933,7 @@ background-size: cover;
 <p>We have used <code>conda-forge</code> which is a community-maintained channel run by volunteers. It offers a wide range of packages and is a popular choice for many users.</p>
 <p>Other main channels include:</p>
 <ul>
-<li><code>default</code> and <code>anaconda</code> - Maintained by Anaconda’s engineers and designed for high security and stability. Organisations with 200 or more employees have to pay to use this channel (excluding students and non-commercial research at universities)</li>
+<li><code>default</code> and <code>anaconda</code> - Maintained by Anaconda’s engineers and designed for high security and stability. As of January 2026, organisations with 200 or more employees have to pay to use this channel (excluding students and non-commercial research at universities). Please check <a href="https://www.anaconda.com/legal/terms/terms-of-service">Anaconda’s current Terms of Service</a> for the latest details.</li>
 <li><code>bioconda</code> - Volunteer-run, offers bioinformatics-related packages.</li>
 </ul>
 </div>
@@ -1024,7 +1047,8 @@ tzdata                    2025b                h78e105d_0    conda-forge</code><
 <h3 class="anchored" data-anchor-id="set-the-active-r-version">Set the active R version</h3>
 <p>Choose which R version should be active (for example, when you open RStudio):</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="ex">rig</span> default 4.1.2</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>This makes the selected version the default for new R sessions. (<strong>Note:</strong> If you later change versions manually or with other tools, you may need to reset this.)</p>
+<p>This sets R 4.1.2 as the default R version for new R sessions (including RStudio).</p>
+<p>If you later switch R versions in another way (for example, by reinstalling R or changing your PATH) and want rig to control it again, run <code>rig default &lt;version&gt;</code> once more (e.g., <code>rig default 4.1.2</code>) to set that version as the default again.</p>
 </section>
 </div>
 </section>
@@ -1078,9 +1102,9 @@ tzdata                    2025b                h78e105d_0    conda-forge</code><
 <h4 class="anchored" data-anchor-id="create-an-r-project">2. Create an R project</h4>
 <p>It’s best to use <code>renv</code> within an R project. R projects are commonly created and managed by RStudio.</p>
 <p>In RStudio, select “File &gt; New Project…” and choose “Existing Directory”.</p>
-<p><a href="environment_resources/rproject1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-4"><img src="environment_resources/rproject1.png" class="img-fluid"></a></p>
+<p><a href="environment_resources/rproject1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-4"><img src="environment_resources/rproject1.png" class="img-fluid" alt="Screenshot of RStudio New Project Wizard: Create Project."></a></p>
 <p>Navigate to your project directory, then select “Create Project”.</p>
-<p><a href="environment_resources/rproject2.png" class="lightbox" data-gallery="quarto-lightbox-gallery-5"><img src="environment_resources/rproject2.png" class="img-fluid"></a></p>
+<p><a href="environment_resources/rproject2.png" class="lightbox" data-gallery="quarto-lightbox-gallery-5"><img src="environment_resources/rproject2.png" class="img-fluid" alt="Screenshot of RStudio New Project Wizard: Create Project from Existing Directory."></a></p>
 <p>This will create :</p>
 <ul>
 <li><code>.Rproj</code>: project file (contains some settings for the project).</li>
@@ -1124,10 +1148,10 @@ tzdata                    2025b                h78e105d_0    conda-forge</code><
 <span id="cb19-23"><a href="#cb19-23" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>When you initialise <code>renv</code>, your project gets its own <strong>project library</strong> - a private folder (<code>renv/library/</code>) where packages are installed just for this project. This means package versions are isolated and recorded for each project, so updating a package in one project won’t break others. This makes collaboration and reproducibility much easier.</p>
 <p>This is different from the <strong>user library</strong>, which is the default shared location where R installs packages used by all your R projects. See the “Packages” section on RStudio, which will show your project v.s. user library:</p>
-<p><a href="environment_resources/renv_init.png" class="lightbox" data-gallery="quarto-lightbox-gallery-6"><img src="environment_resources/renv_init.png" class="img-fluid"></a></p>
+<p><a href="environment_resources/renv_init.png" class="lightbox" data-gallery="quarto-lightbox-gallery-6"><img src="environment_resources/renv_init.png" class="img-fluid" alt="Screenshot of RStudio Packages pane showing Project Library v.s. User Library."></a></p>
 <p>Some further information relevant when initialising <code>renv</code>:</p>
 <div class="callout callout-style-default callout-note callout-titled" title="Implicit or explicit mode">
-<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-5-contents" aria-controls="callout-5" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
@@ -1136,7 +1160,7 @@ tzdata                    2025b                h78e105d_0    conda-forge</code><
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
-<div id="callout-4" class="callout-4-contents callout-collapse collapse">
+<div id="callout-5" class="callout-5-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
 <p>If a <code>DESCRIPTION</code> file is present, <code>renv</code> will prompt you to choose how dependencies are discovered:</p>
 <ul>
@@ -1149,7 +1173,7 @@ tzdata                    2025b                h78e105d_0    conda-forge</code><
 </div>
 </div>
 <div class="callout callout-style-default callout-note callout-titled" title="Initialising a bare environment">
-<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-5-contents" aria-controls="callout-5" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-6-contents" aria-controls="callout-6" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
@@ -1158,7 +1182,7 @@ tzdata                    2025b                h78e105d_0    conda-forge</code><
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
-<div id="callout-5" class="callout-5-contents callout-collapse collapse">
+<div id="callout-6" class="callout-6-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
 <p>By default, <code>renv::init()</code> will scan and install packages into your project library. If your directory is empty or contains no code using packages, only <code>renv</code> itself will be installed.</p>
 <p>If you want to initialise <code>renv</code> without installing any packages, you can use:</p>
@@ -1178,7 +1202,7 @@ tzdata                    2025b                h78e105d_0    conda-forge</code><
 <span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="st">"packagename"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>However, we recommend using a <code>DESCRIPTION</code> file. This is a file listing only the <strong>main packages</strong> your project directly depends on - i.e.&nbsp;those you might have add using <code>renv::install()</code>.</p>
 <p>This differs from <code>renv.lock</code> which records <strong>all packages</strong> needed to recreate your environment, including every main package and all their dependencies, plus the exact versions used.</p>
-<p><a href="environment_resources/description_vs_lock.png" class="lightbox" data-gallery="quarto-lightbox-gallery-7"><img src="environment_resources/description_vs_lock.png" class="img-fluid"></a></p>
+<p><a href="environment_resources/description_vs_lock.png" class="lightbox" data-gallery="quarto-lightbox-gallery-7"><img src="environment_resources/description_vs_lock.png" class="img-fluid" alt="Illustration showing DESCRIPTION containing 'simmer', whilst renv.lock contains 'simmer 4.4.7', 'Rcpp 1.0.14', and 'magrittr 2.0.3'."></a></p>
 <p>The benefit of using a <code>DESCRIPTION</code> file when adding packages is:</p>
 <ul>
 <li><p>📝 <strong>Clear requirements.</strong> The <code>DESCRIPTION</code> file gives a simple, readable summary of your project’s main packages. It’s much easier to read than <code>renv.lock</code>.</p></li>
@@ -1361,7 +1385,7 @@ tzdata                    2025b                h78e105d_0    conda-forge</code><
 <div class="python-content">
 <p>If you’re interested in using one of the other tools for dependency management, we’ve provided some brief information on each below, and direct you to other sources for a more detailed explanation of how to use them.</p>
 <div class="callout callout-style-default callout-note callout-titled" title="`venv`">
-<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-6-contents" aria-controls="callout-6" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-7-contents" aria-controls="callout-7" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
@@ -1370,7 +1394,7 @@ tzdata                    2025b                h78e105d_0    conda-forge</code><
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
-<div id="callout-6" class="callout-6-contents callout-collapse collapse">
+<div id="callout-7" class="callout-7-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
 <p><strong>Installation</strong></p>
 <p>As <code>venv</code> is included with the standard Python library, you do not need to install it.</p>
@@ -1413,7 +1437,7 @@ tzdata                    2025b                h78e105d_0    conda-forge</code><
 </div>
 </div>
 <div class="callout callout-style-default callout-note callout-titled" title="`poetry`">
-<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-7-contents" aria-controls="callout-7" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-8-contents" aria-controls="callout-8" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
@@ -1422,7 +1446,7 @@ tzdata                    2025b                h78e105d_0    conda-forge</code><
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
-<div id="callout-7" class="callout-7-contents callout-collapse collapse">
+<div id="callout-8" class="callout-8-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
 <p><strong>Installation</strong></p>
 <p>Install poetry following the <a href="https://python-poetry.org/docs/">instructions for your operating system</a>. For example, on Linux:</p>
@@ -1508,7 +1532,7 @@ content-hash = "53e967cadef99331a7f895f64ccb1bd8680e6fe09253335b9d88bd4cb3d6d793
 </div>
 </div>
 <div class="callout callout-style-default callout-note callout-titled" title="`uv`">
-<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-8-contents" aria-controls="callout-8" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-9-contents" aria-controls="callout-9" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
@@ -1517,7 +1541,7 @@ content-hash = "53e967cadef99331a7f895f64ccb1bd8680e6fe09253335b9d88bd4cb3d6d793
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
-<div id="callout-8" class="callout-8-contents callout-collapse collapse">
+<div id="callout-9" class="callout-9-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
 <p><strong>Installation</strong></p>
 <p><a href="https://docs.astral.sh/uv/getting-started/installation/">Install</a> for your operating system - for example, on linux:</p>
@@ -1600,7 +1624,7 @@ wheels = [
 <h3 class="anchored" data-anchor-id="other-tools-for-environment-management">Other tools for environment management</h3>
 <p>If you’re interested in using one of the other tools for dependency management, we’ve provided some brief information on <code>rv</code> below, and direct you to other sources for a more detailed explanation of how to use it.</p>
 <div class="callout callout-style-default callout-note callout-titled" title="`rv`">
-<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-9-contents" aria-controls="callout-9" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-10-contents" aria-controls="callout-10" aria-expanded="false" aria-label="Toggle callout">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
@@ -1609,13 +1633,13 @@ wheels = [
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
-<div id="callout-9" class="callout-9-contents callout-collapse collapse">
+<div id="callout-10" class="callout-10-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
 <p>This section provides more information on <code>rv</code>.</p>
 <p>Using <code>rv</code>, you can declare an R version up-front and, whilst it will not automate installation or switching of R versions, it will warn/error if you try to use a different version.</p>
 <p>It requires all dependencies to be specified before installation, rather than taking snapshots as you go along like with <code>renv</code>. These dependencies are saved in an <code>rproject.toml file</code>.</p>
 <p><strong>Installation</strong></p>
-<p>Follow the <a href="https://github.com/A2-ai/rv/blob/main/docs/installation.md">installation instructions</a> for your operating system. For example, on linux:</p>
+<p>Follow the <a href="https://a2-ai.github.io/rv-docs/intro/installation/">installation instructions</a> for your operating system. For example, on linux:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb59"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> <span class="at">-sSL</span> https://raw.githubusercontent.com/A2-ai/rv/refs/heads/main/scripts/install.sh <span class="kw">|</span> <span class="fu">bash</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>We can then check it has installed by running:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb60"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a><span class="ex">rv</span> <span class="at">--version</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -1775,9 +1799,14 @@ stringi   – libicu-dev</code></pre>
 </section>
 <section id="recreate-troubleshoot" class="level2">
 <h2 class="anchored" data-anchor-id="recreate-troubleshoot">Recreate &amp; troubleshoot</h2>
-<div class="h3-tight">
-
+<p>When you return to a project after some time or share it with collaborators, you often need to <strong>recreate the original environment</strong> so that the code runs successfully, produces the same results as before, and can be reliably reused or adapted by others.</p>
+<div class="python-content">
+<p>If you skip this step and instead use different versions of Python and packages, the code may fail to run altogether or may produce different results from those originally reported.</p>
 </div>
+<div class="r-content">
+<p>If you skip this step and instead use different versions of R and packages, the code may fail to run altogether or may produce different results from those originally reported.</p>
+</div>
+<p>This section explains how to recreate an environment.</p>
 <div class="python-content">
 <section id="identify-or-create-environment-file" class="level3">
 <h3 class="anchored" data-anchor-id="identify-or-create-environment-file">1. Identify or create environment file</h3>
@@ -2028,6 +2057,41 @@ stringi   – libicu-dev</code></pre>
 <li><a href="https://r-pkgs.org/lifecycle.html">“21. Lifecycle” from R Packages</a> by Hadley Wickham and Jennifer Bryan.</li>
 </ul>
 </section>
+</div>
+</section>
+<section id="summary" class="level2">
+<h2 class="anchored" data-anchor-id="summary">Summary</h2>
+<p>Environment management is important because it lets you <strong>isolate</strong> project dependencies and reliably <strong>recreate</strong> the same setup later for reproducible work and collaboration.</p>
+<div class="python-content">
+<p>We introduce five main tools for managing environments: <strong>venv, conda, mamba, poetry and uv</strong>.</p>
+<p>We go into detail on using <strong>conda/mamba to control Python versions and packages</strong>: install conda/mamba, create an <code>environment.yaml</code> file with desired packages, then run:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb88"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb88-1"><a href="#cb88-1" aria-hidden="true" tabindex="-1"></a><span class="ex">conda</span> env create <span class="at">--file</span> environment.yaml</span>
+<span id="cb88-2"><a href="#cb88-2" aria-hidden="true" tabindex="-1"></a><span class="ex">conda</span> activate envname</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>You can then pin the exact package versions installed in the file - for example:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb89"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb89-1"><a href="#cb89-1" aria-hidden="true" tabindex="-1"></a><span class="ex">name:</span> envname</span>
+<span id="cb89-2"><a href="#cb89-2" aria-hidden="true" tabindex="-1"></a><span class="ex">channels:</span></span>
+<span id="cb89-3"><a href="#cb89-3" aria-hidden="true" tabindex="-1"></a>  <span class="ex">-</span> conda-forge</span>
+<span id="cb89-4"><a href="#cb89-4" aria-hidden="true" tabindex="-1"></a><span class="ex">dependencies:</span></span>
+<span id="cb89-5"><a href="#cb89-5" aria-hidden="true" tabindex="-1"></a>  <span class="ex">-</span> python=3.13.3</span>
+<span id="cb89-6"><a href="#cb89-6" aria-hidden="true" tabindex="-1"></a>  <span class="ex">-</span> simpy=4.1.1</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>We provide the full <strong>des-rap-book environment</strong> specification required to run all examples in the book.</p>
+<p>We also describe how to <strong>recreate and troubleshoot environments</strong>: find or reconstruct an environment file, rebuild the environment, and then resolve installation or compatibility errors by adjusting versions or channels and updating the environment file.</p>
+</div>
+<div class="r-content">
+<p>We introduce three tools for managing environments: <strong>rig, renv and rv</strong>.</p>
+<p>We explain how to use <strong>rig</strong> to manage R versions, for example:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb90"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb90-1"><a href="#cb90-1" aria-hidden="true" tabindex="-1"></a>rig add <span class="dv">4</span>.<span class="fl">1.2</span></span>
+<span id="cb90-2"><a href="#cb90-2" aria-hidden="true" tabindex="-1"></a>rig default <span class="dv">4</span>.<span class="fl">1.2</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>We then explain <strong>renv</strong> for package management, with key steps of:</p>
+<ol type="1">
+<li>Creating an <code>.Rproj</code>.</li>
+<li>Initialising <code>renv</code> (<code>renv::init()</code>).</li>
+<li>Create a <code>DESCRIPTION</code> file declaring the main dependencies.</li>
+<li>Installing these (<code>renv::install()</code>) (may require changing the snapshot type, as e.g., <code>implicit</code> mode will only install them if it can see them in use in your code).</li>
+<li>Recording the specific package versions installed in an <code>renv.lock</code> file (<code>renv::snapshot()</code>).</li>
+</ol>
+<p>We provide a full <strong>DES RAP Book R environment</strong>, listing all packages need to run the examples in the book.</p>
+<p>We also describe how to <strong>recreate and troubleshoot environments</strong>: identify or infer R version and packages, restore from renv.lock or DESCRIPTION, handle time‑based snapshots and GitHub/r-universe packages, and diagnose common problems such as unavailable packages, backdating needs, missing system libraries, legacy user libraries and when Docker or rocker images may be preferable.</p>
 </div>
 <p><br><br></p>
 

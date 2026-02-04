@@ -6,7 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2026-01-30">
+<meta name="dcterms.date" content="2026-02-04">
 
 <title>Parameter validation – DES RAP</title>
 <style>
@@ -215,12 +215,16 @@ background-size: cover;
   </li>  
     </ul>
   </li>
+  <li class="nav-item">
+    <a class="nav-link" href="../../../pages/impact/impact.html"> 
+<span class="menu-text">Impact</span></a>
+  </li>  
 </ul>
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
-  <li class="nav-item compact">
+  <li class="nav-item">
     <a class="nav-link" href="https://github.com/pythonhealthdatascience/des_rap_book"> <i class="bi bi-github" role="img">
 </i> 
-<span class="menu-text"></span></a>
+<span class="menu-text">GitHub</span></a>
   </li>  
 </ul>
           </div> <!-- /navcollapse -->
@@ -259,7 +263,7 @@ background-size: cover;
       <div>
       <div class="quarto-title-meta-heading">Page last modified</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">January 30, 2026</p>
+        <p class="date">February 4, 2026</p>
       </div>
     </div>
     
@@ -658,6 +662,8 @@ background-size: cover;
 </div>
 </div>
 </div>
+<p><br></p>
+<p>Parameter validation is about catching problems in your inputs before they quietly corrupt your results. In DES models, even a small typo or out‑of‑range value can create plausible‑looking but wrong outputs, because the simulation will usually run without complaining. Good validation acts as risk management: it turns silent failures into explicit errors with clear messages.</p>
 <section id="accidental-creation-of-new-parameters" class="level2">
 <h2 class="anchored" data-anchor-id="accidental-creation-of-new-parameters">Accidental creation of new parameters</h2>
 <div class="python-content">
@@ -1301,7 +1307,7 @@ $transfer_probs
 <span id="cb31-12"><a href="#cb31-12" aria-hidden="true" tabindex="-1"></a><span class="cf">except</span> <span class="pp">KeyError</span> <span class="im">as</span> e:</span>
 <span id="cb31-13"><a href="#cb31-13" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"Error: </span><span class="sc">{</span>e<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Error: "Attempted to add or update key 'newattribute', which is not one of the original locked keys. This is likely due to a typo or unintended new parameter. Allowed top-level keys are: [{'param2', 'param1'}]"</code></pre>
+<pre><code>Error: "Attempted to add or update key 'newattribute', which is not one of the original locked keys. This is likely due to a typo or unintended new parameter. Allowed top-level keys are: [{'param1', 'param2'}]"</code></pre>
 </div>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(param)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
@@ -1335,7 +1341,7 @@ $transfer_probs
 <span id="cb35-23"><a href="#cb35-23" aria-hidden="true" tabindex="-1"></a><span class="cf">except</span> <span class="pp">KeyError</span> <span class="im">as</span> e:</span>
 <span id="cb35-24"><a href="#cb35-24" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"Error: </span><span class="sc">{</span>e<span class="sc">}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Error: "Attempted to add or update key 'new_attribute', which is not one of the original locked keys. This is likely due to a typo or unintended new parameter. Allowed top-level keys are: [{'param2', 'param1'}]"</code></pre>
+<pre><code>Error: "Attempted to add or update key 'new_attribute', which is not one of the original locked keys. This is likely due to a typo or unintended new parameter. Allowed top-level keys are: [{'param1', 'param2'}]"</code></pre>
 </div>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb37"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(param_instance.param_dict)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
@@ -1365,6 +1371,7 @@ $transfer_probs
 </div>
 <p>We can write a validation function which checks that <strong>all the required parameters are present</strong>, and that <strong>no extra parameters</strong> are provided.</p>
 <p>This is based on the arguments of <code>param_function</code>. We first use <code>checkmate::assert_list()</code> to ensure <code>param</code> is a properly formed list with uniquely named elements.</p>
+<p>We use the <code>checkmate</code> package’s <code>assert_*</code> functions because they automatically generate concise, informative error messages when something is wrong.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="co">#' Validate parameter names.</span></span>
 <span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a><span class="co">#'</span></span>
@@ -1850,12 +1857,12 @@ $transfer_probs
 <p><strong>Task:</strong></p>
 <div class="python-content">
 <ul>
-<li>Create a simple set of parameters for a simulation model using a function, dictionary, or class (you can use an example from above if you want to).</li>
+<li>Create a simple set of parameters for a simulation model using a function, dictionary, or class. You can reuse the simple <code>param_function()</code>, <code>ParamClass</code> and/or <code>model()</code> from earlier on this page, or from the <a href="../../../pages/guide/inputs/parameters_script.html">Parameters from script</a> or <a href="../../../pages/guide/inputs/parameters_file.html">Parameters from file</a> pages.</li>
 </ul>
 </div>
 <div class="r-content">
 <ul>
-<li>Create a simple set of parameters for a simulation model.</li>
+<li>Create a simple set of parameters for a simulation model. You can reuse the simple <code>param_function()</code> and <code>model()</code> from earlier on this page, or from the <a href="../../../pages/guide/inputs/parameters_script.html">Parameters from script</a> or <a href="../../../pages/guide/inputs/parameters_file.html">Parameters from file</a> pages.</li>
 </ul>
 </div>
 <ul>

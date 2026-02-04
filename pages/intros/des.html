@@ -6,7 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2026-01-30">
+<meta name="dcterms.date" content="2026-02-04">
 
 <title>Discrete-event simulation (DES) – DES RAP</title>
 <style>
@@ -201,12 +201,16 @@ background-size: cover;
   </li>  
     </ul>
   </li>
+  <li class="nav-item">
+    <a class="nav-link" href="../../pages/impact/impact.html"> 
+<span class="menu-text">Impact</span></a>
+  </li>  
 </ul>
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
-  <li class="nav-item compact">
+  <li class="nav-item">
     <a class="nav-link" href="https://github.com/pythonhealthdatascience/des_rap_book"> <i class="bi bi-github" role="img">
 </i> 
-<span class="menu-text"></span></a>
+<span class="menu-text">GitHub</span></a>
   </li>  
 </ul>
           </div> <!-- /navcollapse -->
@@ -235,7 +239,7 @@ background-size: cover;
       <div>
       <div class="quarto-title-meta-heading">Page last modified</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">January 30, 2026</p>
+        <p class="date">February 4, 2026</p>
       </div>
     </div>
     
@@ -279,12 +283,8 @@ background-size: cover;
 <p>A <strong>simulation</strong> is a computer model that mimics a real-world system. It allows us to test different scenarios and see how the system behaves. One of the most common simulation types in healthcare is <strong>discrete-event simulation (DES)</strong>.</p>
 <p>In DES models, time progresses only when <strong>specific events</strong> happen. Unlike a continuous system where time flows smoothly, DES jumps forward between events. For example, in a clinic model, events might include a patient arriving, receiving treatment, and leaving.</p>
 <p>Between events, the system state remains unchanged - nothing happens until the next event occurs. This makes DES well-suited for modeling systems where entities (patients, prescriptions, ambulances) move through processes and wait for resources.</p>
-<div class="quarto-figure quarto-figure-center">
-<figure class="figure">
-<p><a href="des_resources/simple_des.gif" class="lightbox" data-gallery="quarto-lightbox-gallery-1" title="Simple model animation created using web app developed by Sammi Rosser (2024) available at https://github.com/hsma-programme/Teaching_DES_Concepts_Streamlit and shared under an MIT Licence."><img src="des_resources/simple_des.gif" class="img-fluid figure-img" alt="Simple model animation created using web app developed by Sammi Rosser (2024) available at https://github.com/hsma-programme/Teaching_DES_Concepts_Streamlit and shared under an MIT Licence."></a></p>
-<figcaption>Simple model animation created using web app developed by Sammi Rosser (2024) available at <a href="https://github.com/hsma-programme/Teaching_DES_Concepts_Streamlit" class="uri">https://github.com/hsma-programme/Teaching_DES_Concepts_Streamlit</a> and shared under an MIT Licence.</figcaption>
-</figure>
-</div>
+<p><img src="des_resources/simple_des.gif" class="img-fluid" alt="Simple model animation created using web app developed by Sammi Rosser (2024) available at https://github.com/hsma-programme/Teaching_DES_Concepts_Streamlit and shared under an MIT Licence."><br>
+</p>
 </section>
 <section id="core-components-of-des-models" class="level2">
 <h2 class="anchored" data-anchor-id="core-components-of-des-models">Core components of DES models</h2>
@@ -325,7 +325,19 @@ background-size: cover;
 <p>Real-world systems are unpredictable: patients don’t arrive at exactly the same time, and service durations vary from person to person. To capture this uncertainty, DES models use <strong>randomness</strong> (also called <strong>stochasticity</strong>) throughout the simulation.​</p>
 <p>Instead of assigning fixed values, DES models <strong>sample from statistical distributions</strong> to determine when events happen and how long activities take.</p>
 <p>This randomness means that every run of a DES model can produce different results, just like real life. By running the simulation many times, you can see the range of possible outcomes and understand how the system performs under different scenarios—good days, bad days, and everything in between.</p>
-<p><a href="../../pages/guide/inputs/input_data_resources/samples.png" class="lightbox" data-gallery="quarto-lightbox-gallery-2"><img src="../../pages/guide/inputs/input_data_resources/samples.png" class="img-fluid"></a></p>
+<p><a href="../../pages/guide/inputs/input_data_resources/samples.png" class="lightbox" data-gallery="quarto-lightbox-gallery-1"><img src="../../pages/guide/inputs/input_data_resources/samples.png" class="img-fluid" alt="Illustration showing multiple samples being taken from one distribution."></a></p>
+<p>In the plot below, each point shows the value of a performance measure from one independent run of the same simulation model, and the labels (“Run 1”, “Run 2”, …) identify which run it came from. The horizontal axis has two different performance measures (for example, average waiting time and resource utilisation), and you can see that even though the model is unchanged, the values jump around from run to run because of randomness in arrivals, service times, and other processes. This mirrors what happens in real systems: some days are “good” (short waits, lower utilisation), others are “bad” (long waits, higher utilisation), and we need multiple runs to understand both the typical performance and how much it varies.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><a href="des_files/figure-html/unnamed-chunk-2-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-2"><img src="des_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid figure-img" width="672"></a></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Because each run is influenced by randomness, a single simulation run is rarely enough to understand how the system performs on average or how variable it is. By running <strong>many replications</strong> of the same model (with different random seeds), you can estimate averages, variability, and uncertainty in key outputs, such as mean waiting times or resource utilisation.</p>
+<p>Multiple replications are also essential when comparing interventions, because they help you distinguish genuine performance improvements from differences that arose purely by chance.</p>
 </section>
 <section id="how-des-models-advance-time-and-handle-events" class="level2">
 <h2 class="anchored" data-anchor-id="how-des-models-advance-time-and-handle-events">How DES models advance time and handle events</h2>
@@ -338,7 +350,7 @@ background-size: cover;
 <p><br></p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><a href="des_resources/activity_based.drawio.png" class="lightbox" data-gallery="quarto-lightbox-gallery-3" title="Activity-based approach"><img src="des_resources/activity_based.drawio.png" class="img-fluid figure-img" alt="Activity-based approach"></a></p>
+<p><a href="des_resources/activity_based.drawio.png" class="lightbox" data-gallery="quarto-lightbox-gallery-3" title="Activity-based approach"><img src="des_resources/activity_based.drawio.png" class="img-fluid figure-img" alt="Illustration of activity-based approach"></a></p>
 <figcaption>Activity-based approach</figcaption>
 </figure>
 </div>
@@ -351,7 +363,7 @@ background-size: cover;
 <p><br></p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><a href="des_resources/event_based.drawio.png" class="lightbox" data-gallery="quarto-lightbox-gallery-4" title="Event-based approach"><img src="des_resources/event_based.drawio.png" class="img-fluid figure-img" alt="Event-based approach"></a></p>
+<p><a href="des_resources/event_based.drawio.png" class="lightbox" data-gallery="quarto-lightbox-gallery-4" title="Event-based approach"><img src="des_resources/event_based.drawio.png" class="img-fluid figure-img" alt="Illustration of event-based approach"></a></p>
 <figcaption>Event-based approach</figcaption>
 </figure>
 </div>
@@ -368,7 +380,7 @@ background-size: cover;
 <p><br></p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><a href="des_resources/process_based.drawio.png" class="lightbox" data-gallery="quarto-lightbox-gallery-5" title="Process-based approach"><img src="des_resources/process_based.drawio.png" class="img-fluid figure-img" alt="Process-based approach"></a></p>
+<p><a href="des_resources/process_based.drawio.png" class="lightbox" data-gallery="quarto-lightbox-gallery-5" title="Process-based approach"><img src="des_resources/process_based.drawio.png" class="img-fluid figure-img" alt="Illustration of process-based approach"></a></p>
 <figcaption>Process-based approach</figcaption>
 </figure>
 </div>
@@ -386,7 +398,7 @@ background-size: cover;
 <p><br></p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><a href="des_resources/three_phase.drawio.png" class="lightbox" data-gallery="quarto-lightbox-gallery-6" title="Three-phase approach"><img src="des_resources/three_phase.drawio.png" class="img-fluid figure-img" alt="Three-phase approach"></a></p>
+<p><a href="des_resources/three_phase.drawio.png" class="lightbox" data-gallery="quarto-lightbox-gallery-6" title="Three-phase approach"><img src="des_resources/three_phase.drawio.png" class="img-fluid figure-img" alt="Illustration of three-phase approach"></a></p>
 <figcaption>Three-phase approach</figcaption>
 </figure>
 </div>
@@ -417,8 +429,8 @@ background-size: cover;
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<div id="radio_CFRCAEUQOS" class="webex-radiogroup">
-<label><input type="radio" autocomplete="off" name="radio_CFRCAEUQOS" value=""> <span>Continuously at fixed time steps</span></label><label><input type="radio" autocomplete="off" name="radio_CFRCAEUQOS" value="answer"> <span>In jumps from one event to the next</span></label>
+<div id="radio_EJLCYVPIAU" class="webex-radiogroup">
+<label><input type="radio" autocomplete="off" name="radio_EJLCYVPIAU" value=""> <span>Continuously at fixed time steps</span></label><label><input type="radio" autocomplete="off" name="radio_EJLCYVPIAU" value="answer"> <span>In jumps from one event to the next</span></label>
 </div>
 </div>
 </div>
@@ -432,8 +444,8 @@ background-size: cover;
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<div id="radio_GKZEUGHSPA" class="webex-radiogroup">
-<label><input type="radio" autocomplete="off" name="radio_GKZEUGHSPA" value=""> <span>Random factors influencing system timing</span></label><label><input type="radio" autocomplete="off" name="radio_GKZEUGHSPA" value="answer"> <span>The people, equipment, or facilities that serve entities</span></label><label><input type="radio" autocomplete="off" name="radio_GKZEUGHSPA" value=""> <span>The time intervals between events</span></label>
+<div id="radio_FBOBNZSCVN" class="webex-radiogroup">
+<label><input type="radio" autocomplete="off" name="radio_FBOBNZSCVN" value=""> <span>Random factors influencing system timing</span></label><label><input type="radio" autocomplete="off" name="radio_FBOBNZSCVN" value="answer"> <span>The people, equipment, or facilities that serve entities</span></label><label><input type="radio" autocomplete="off" name="radio_FBOBNZSCVN" value=""> <span>The time intervals between events</span></label>
 </div>
 </div>
 </div>
@@ -447,8 +459,8 @@ background-size: cover;
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<div id="radio_MGFXXJFQZR" class="webex-radiogroup">
-<label><input type="radio" autocomplete="off" name="radio_MGFXXJFQZR" value="answer"> <span>It reflects real-world variability in arrivals and service times</span></label><label><input type="radio" autocomplete="off" name="radio_MGFXXJFQZR" value=""> <span>It removes uncertainty from the system</span></label><label><input type="radio" autocomplete="off" name="radio_MGFXXJFQZR" value=""> <span>It ensures all entities behave identically in each run</span></label>
+<div id="radio_EYIFKCKQOI" class="webex-radiogroup">
+<label><input type="radio" autocomplete="off" name="radio_EYIFKCKQOI" value="answer"> <span>It reflects real-world variability in arrivals and service times</span></label><label><input type="radio" autocomplete="off" name="radio_EYIFKCKQOI" value=""> <span>It removes uncertainty from the system</span></label><label><input type="radio" autocomplete="off" name="radio_EYIFKCKQOI" value=""> <span>It ensures all entities behave identically in each run</span></label>
 </div>
 </div>
 </div>

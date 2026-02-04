@@ -6,7 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2026-01-27">
+<meta name="dcterms.date" content="2026-02-04">
 
 <title>Randomness – DES RAP</title>
 <style>
@@ -218,12 +218,16 @@ background-size: cover;
   </li>  
     </ul>
   </li>
+  <li class="nav-item">
+    <a class="nav-link" href="../../../pages/impact/impact.html"> 
+<span class="menu-text">Impact</span></a>
+  </li>  
 </ul>
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
-  <li class="nav-item compact">
+  <li class="nav-item">
     <a class="nav-link" href="https://github.com/pythonhealthdatascience/des_rap_book"> <i class="bi bi-github" role="img">
 </i> 
-<span class="menu-text"></span></a>
+<span class="menu-text">GitHub</span></a>
   </li>  
 </ul>
           </div> <!-- /navcollapse -->
@@ -262,7 +266,7 @@ background-size: cover;
       <div>
       <div class="quarto-title-meta-heading">Page last modified</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">January 27, 2026</p>
+        <p class="date">February 4, 2026</p>
       </div>
     </div>
     
@@ -615,6 +619,7 @@ background-size: cover;
   <li><a href="#randomness" id="toc-randomness" class="nav-link active" data-scroll-target="#randomness">Randomness</a></li>
   <li><a href="#introducing-tools-for-random-sampling" id="toc-introducing-tools-for-random-sampling" class="nav-link" data-scroll-target="#introducing-tools-for-random-sampling">Introducing tools for random sampling</a></li>
   <li><a href="#independent-random-number-streams" id="toc-independent-random-number-streams" class="nav-link" data-scroll-target="#independent-random-number-streams">Independent random number streams</a></li>
+  <li><a href="#sampling-functions" id="toc-sampling-functions" class="nav-link" data-scroll-target="#sampling-functions">Sampling functions</a></li>
   <li><a href="#whats-next" id="toc-whats-next" class="nav-link" data-scroll-target="#whats-next">What’s next?</a></li>
   <li><a href="#test-yourself" id="toc-test-yourself" class="nav-link" data-scroll-target="#test-yourself">Test yourself</a></li>
   </ul>
@@ -657,10 +662,10 @@ background-size: cover;
 <section id="randomness" class="level2">
 <h2 class="anchored" data-anchor-id="randomness">Randomness</h2>
 <p>When simulating real-world systems (e.g.&nbsp;patients arriving, prescriptions queueing), using fixed values is unrealistic. Instead, <strong>discrete-event simulations rely on randomness</strong>: they generate event times and outcomes by sampling randomly from probability distributions.</p>
-<p><a href="../inputs/input_data_resources/samples.png" class="lightbox" data-gallery="quarto-lightbox-gallery-1"><img src="../inputs/input_data_resources/samples.png" class="img-fluid"></a></p>
+<p><a href="../inputs/input_data_resources/samples.png" class="lightbox" data-gallery="quarto-lightbox-gallery-1"><img src="../inputs/input_data_resources/samples.png" class="img-fluid" alt="Illustration showing multiple samples being taken from one distribution."></a></p>
 <p>However, computers can’t generate “true” randomness. Instead, they use <strong>pseudorandom number generators (PRNGs)</strong>: algorithms which produce a sequence of numbers that appear random, but are in fact completely determined by an initial starting point called a <strong>seed</strong>. If you use the same seed, you’ll get the same random sequence every time - a crucial feature for reproducibility in research and development.</p>
 <p>By default, most software PRNGs initialise the seed based on something that changes rapidly, such as the current system time. This ensures a unique sequence with every fresh run. But for <strong>reproducible experiments</strong>, you should manually set the seed yourself, allowing you and others to exactly recreate simulation results.</p>
-<p><a href="distributions_resources/prng_sample.png" class="lightbox" data-gallery="quarto-lightbox-gallery-2"><img src="distributions_resources/prng_sample.png" class="img-fluid"></a></p>
+<p><a href="distributions_resources/prng_sample.png" class="lightbox" data-gallery="quarto-lightbox-gallery-2"><img src="distributions_resources/prng_sample.png" class="img-fluid" alt="Illustration showing that seed is given to PRNG which generates random number stream. Stream and distribution parameters are then fed to sampler which produces samples from distribution."></a></p>
 </section>
 <section id="introducing-tools-for-random-sampling" class="level2">
 <h2 class="anchored" data-anchor-id="introducing-tools-for-random-sampling">Introducing tools for random sampling</h2>
@@ -677,7 +682,7 @@ background-size: cover;
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng()</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>rng.exponential(scale<span class="op">=</span><span class="dv">17</span>, size<span class="op">=</span><span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>array([ 5.57006601, 48.92748747,  7.73388632])</code></pre>
+<pre><code>array([ 1.64323112, 24.5298683 ,  2.3278279 ])</code></pre>
 </div>
 </div>
 <p>To ensure the same results everytime the code runs, initialise with a fixed seed:</p>
@@ -736,7 +741,7 @@ background-size: cover;
 </section>
 </div>
 <div class="r-content">
-<p>In R, random sampling is typically done with functions from the <code>stats</code> package. To ensure reproducibility, set a global random seed with <code>set.seed()</code>. Then use the appropriate function for your desired distribution.</p>
+<p>In R, random sampling is typically done with functions from the <code>stats</code> package. To ensure reproducibility, set a global random seed with <code>set.seed()</code>, using any integer value (e.g., <code>set.seed(3L)</code> or <code>set.seed(123L)</code>). Then use the appropriate function for your desired distribution.</p>
 <p>For example, the exponential distribution is sampled with <code>rexp()</code> which requires the rate parameter (the inverse of the mean). To generate 3 samples from an exponential distribution with a mean of 6, you would use:</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">3</span>L)</span>
@@ -1152,6 +1157,111 @@ Processing: [10.37810676  8.95450312  9.17387291]</code></pre>
 </div>
 <p>The key is simply to be <strong>aware</strong> of how shared random number streams work, so you aren’t caught by surprise if results subtly shift when you tweak the simulation structure.</p>
 </section>
+</section>
+<section id="sampling-functions" class="level2">
+<h2 class="anchored" data-anchor-id="sampling-functions">Sampling functions</h2>
+<p>On the <a href="../../../pages/guide/inputs/input_modelling.html">Input modelling</a> page, we introduced a table of common probability distributions and discussed when each is appropriate for DES. On this page, the relevant sampling functions are shown:</p>
+<div class="python-content">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Distribution</th>
+<th>NumPy <code>Generator</code> function</th>
+<th><code>sim_tools</code> distribution class</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Poisson</td>
+<td><code>rng.poisson()</code></td>
+<td><code>Poisson()</code></td>
+</tr>
+<tr class="even">
+<td>Exponential</td>
+<td><code>rng.exponential()</code></td>
+<td><code>Exponential()</code></td>
+</tr>
+<tr class="odd">
+<td>Gamma</td>
+<td><code>rng.gamma()</code></td>
+<td><code>Gamma()</code></td>
+</tr>
+<tr class="even">
+<td>Lognormal</td>
+<td><code>rng.lognormal()</code></td>
+<td><code>Lognormal()</code></td>
+</tr>
+<tr class="odd">
+<td>Weibull</td>
+<td><code>rng.weibull()</code></td>
+<td><code>Weibull()</code></td>
+</tr>
+<tr class="even">
+<td>Normal</td>
+<td><code>rng.normal()</code></td>
+<td><code>Normal()</code></td>
+</tr>
+<tr class="odd">
+<td>Uniform</td>
+<td><code>rng.uniform()</code></td>
+<td><code>Uniform()</code></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="r-content">
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Distribution</th>
+<th>Base R function</th>
+<th><code>simEd</code> function</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Poisson</td>
+<td><code>rpois()</code></td>
+<td><code>vpois()</code></td>
+</tr>
+<tr class="even">
+<td>Exponential</td>
+<td><code>rexp()</code></td>
+<td><code>vexp()</code></td>
+</tr>
+<tr class="odd">
+<td>Gamma</td>
+<td><code>rgamma()</code></td>
+<td><code>vgamma()</code></td>
+</tr>
+<tr class="even">
+<td>Lognormal</td>
+<td><code>rlnorm()</code></td>
+<td><code>vlnorm()</code></td>
+</tr>
+<tr class="odd">
+<td>Weibull</td>
+<td><code>rweibull()</code></td>
+<td><code>vweibull()</code></td>
+</tr>
+<tr class="even">
+<td>Normal</td>
+<td><code>rnorm()</code></td>
+<td><code>vnorm()</code></td>
+</tr>
+<tr class="odd">
+<td>Uniform</td>
+<td><code>runif()</code></td>
+<td><code>vunif()</code></td>
+</tr>
+</tbody>
+</table>
+</div>
 </section>
 <section id="whats-next" class="level2">
 <h2 class="anchored" data-anchor-id="whats-next">What’s next?</h2>
