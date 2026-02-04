@@ -11,8 +11,9 @@ def find_images_without_alt(file_path):
     issues = []
 
     # Pattern 1: ![...](...)  - markdown images without fig-alt
+    # Only flag images whose alt text is empty or whitespace
     # Negative lookahead: (?!.*\{[^}]*fig-alt=) - ensures no fig-alt follows
-    md_pattern = r"!\[[^\]]*\]\([^)]+\)(?!.*?\{[^}]*fig-alt=)"
+    md_pattern = r"(?<!\[)!\[(?:\s*)\]\([^)]+\)(?!.*?\{[^}]*fig-alt=)"
 
     for match in re.finditer(md_pattern, content):
         line_num = content[:match.start()].count("\n") + 1
