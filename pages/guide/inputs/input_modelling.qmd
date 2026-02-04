@@ -223,12 +223,14 @@ data[["ARRIVAL_DATE", "ARRIVAL_TIME", "arrival_datetime", "iat_mins"]].head()
 
 ::: {.r-content}
 
+> As per the [tidyverse style guide](https://style.tidyverse.org/pipes.html), we use base R's `|>` instead of magrittr's `%>%`.
+
 ```{r}
-data <- data %>%
+data <- data |>
   # Combine date/time and convert to datetime
-  mutate(arrival_datetime = ymd_hm(paste(ARRIVAL_DATE, ARRIVAL_TIME))) %>%
+  mutate(arrival_datetime = ymd_hm(paste(ARRIVAL_DATE, ARRIVAL_TIME))) |>
   # Sort by arrival time
-  arrange(arrival_datetime) %>%
+  arrange(arrival_datetime) |>
   # Calculate inter-arrival times
   mutate(
     iat_mins = as.numeric(
@@ -239,8 +241,8 @@ data <- data %>%
   )
 
 # Preview
-data %>%
-  select(ARRIVAL_DATE, ARRIVAL_TIME, arrival_datetime, iat_mins) %>%
+data |>
+  select(ARRIVAL_DATE, ARRIVAL_TIME, arrival_datetime, iat_mins) |>
   head()
 ```
 
@@ -276,7 +278,7 @@ data[["service_datetime", "departure_datetime", "service_mins"]].head()
 ::: {.r-content}
 
 ```{r}
-data <- data %>%
+data <- data |>
   mutate(
     service_datetime   = ymd_hm(paste(SERVICE_DATE, SERVICE_TIME)),
     departure_datetime = ymd_hm(paste(DEPARTURE_DATE, DEPARTURE_TIME)),
@@ -286,8 +288,8 @@ data <- data %>%
   )
 
 # Preview
-data %>%
-  select(service_datetime, departure_datetime, service_mins) %>%
+data |>
+  select(service_datetime, departure_datetime, service_mins) |>
   head()
 ```
 
@@ -412,7 +414,7 @@ inspect_time_series <- function(
 
 ```{r}
 # Plot daily arrivals
-daily_arrivals <- data %>% group_by(ARRIVAL_DATE) %>% count()
+daily_arrivals <- data |> group_by(ARRIVAL_DATE) |> count()
 inspect_time_series(
   time_series = daily_arrivals, date_col = "ARRIVAL_DATE", value_col = "n",
   y_lab = "Number of arrivals", interactive = TRUE
@@ -427,9 +429,9 @@ We see no trends, seasonality or outliers in the time series plot for number of 
 
 ```{r}
 # Calculate mean service length per day, dropping last day (incomplete)
-daily_service <- data %>%
-  group_by(SERVICE_DATE) %>%
-  summarise(mean_service = mean(service_mins)) %>%
+daily_service <- data |>
+  group_by(SERVICE_DATE) |>
+  summarise(mean_service = mean(service_mins)) |>
   filter(row_number() <= n() - 1L)
 
 # Plot mean service length each day
@@ -477,8 +479,8 @@ p.show()
 ```{r}
 #| echo: false
 
-daily_service_trend <- daily_service %>%
-  arrange(SERVICE_DATE) %>%
+daily_service_trend <- daily_service |>
+  arrange(SERVICE_DATE) |>
   mutate(
     day_index = row_number(),
     # Add a linear trend: +0.05 minutes per day
@@ -537,7 +539,7 @@ p.show()
 ```{r}
 #| echo: false
 
-daily_arrivals_dec <- daily_arrivals %>%
+daily_arrivals_dec <- daily_arrivals |>
   mutate(
     month = lubridate::month(ARRIVAL_DATE),
     n_dec = if_else(month == 12L, n * 1.4, n * 0.9)
@@ -590,9 +592,9 @@ p.show()
 ```{r}
 #| echo: false
 
-daily_arrivals_outliers <- daily_arrivals %>%
-  arrange(ARRIVAL_DATE) %>%
-  mutate(n_outlier = n) %>%
+daily_arrivals_outliers <- daily_arrivals |>
+  arrange(ARRIVAL_DATE) |>
+  mutate(n_outlier = n) |>
   # One very high day and one very low day
   mutate(
     n_outlier = ifelse(
@@ -775,8 +777,8 @@ The service times are right skewed distribution. Hence, it would be good to try 
 
 ```{r}
 # Get IAT and service time columns as numeric vectors (with NA dropped)
-data_iat <- data %>% drop_na(iat_mins) %>% select(iat_mins) %>% pull()
-data_service <- data %>% select(service_mins) %>% pull()
+data_iat <- data |> drop_na(iat_mins) |> select(iat_mins) |> pull()
+data_service <- data |> select(service_mins) |> pull()
 
 # Plot histograms and CDFs
 plotdist(data_iat, histo = TRUE, demp = TRUE)
