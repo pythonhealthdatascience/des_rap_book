@@ -86,16 +86,17 @@ The process of selecting the most appropriate statistical distributions to use i
 When selecting appropriate distributions, if you only have summary statistics (like the mean), you may need to rely on expert opinion or the general properties of the process you're modelling. For example:
 
 * **Arrivals**: Random independent arrivals are often modelled with the Poisson distribution, whilst their inter-arrival times are modelled using an exponential distribution (@Pishro-Nik2014).
+  * *The Poisson and exponential distributions are mathematically linked: if arrivals follow a Poisson process with a constant rate, then the time between arrivals follows an exponential distribution with the same rate parameter.*
 * **Length of stay**: Length of stay is commonly right skewed (@Lee2003), and so will often be modelled with distributions like exponential, gamma, log-normal (for log-transformed length of stay) or Weibull.
 
 However, these standard choices may not always be appropriate. If the actual process differs from your assumptions or has unique features, the chosen distribution might not fit well.
 
 Therefore, if you have enough data, it's best to analyse it directly to select the most suitable distributions. This analysis generally involves two key steps:
 
-1. **Identify possible distributions**. This is based on knowledge of the process being modelled, and by inspecting the data using time series plots and histograms.
-2. **Fit distributions to your data and compare goodness-of fit**. You can do this using a:
-    a. **Targeted approach**. Just test the distributions from step 1.
-    b. **Comprehensive approach**. Test a wide range of distributions.
+1. **Identify candidate distributions**. This step is essential because it uses your knowledge of the real process and visual inspection of the data (time series, histograms) to narrow down to distributions that are both statistically plausible and contextually appropriate (for example, non‑negative, right‑skewed, allowing for counts vs continuous times).
+2. **Fit distributions to your data and compare goodness-of fit**.
+    a. **Targeted approach**. Fit and test only the candidate distributions from Step 1.
+    b. **Comprehensive approach**. Fit and test a wide range of distributions, then use Step 1 knowledge to exclude contextually inappropriate options (for example, distributions that allow negative times, or that ignore clear temporal patterns) even if they appear to fit well mathematically
 
 Though the comprehensive approach tests lots of different distributions, it's still important to do step 1 as:
 
@@ -1259,6 +1260,30 @@ Rate:
 :::
 
 For guidance on storing and using these parameters, see the pages managing parameters [in a script](parameters_script.qmd) and [in a file](parameters_file.qmd).
+
+## Working with insufficient data
+
+A common challenge in healthcare modelling is having insufficient data or no suitable raw data. In these cases, you need to adapt your distribution-fitting approach.
+
+### What indicates insufficient data?
+
+* Your histogram looks very jagged or sparse, making it hard to see a clear shape.
+* You're trying to fit distributions with multiple parameters (gamma, Weibull, lognormal) but have fewer than 30-50 observations.
+* Goodness-of-fit test results change dramatically when you add or remove just a few observations.
+* You only have summary statistics (mean, median, range) rather than individual observations.
+* Your data comes from a very short time period and may not capture typical variation.
+
+### What should you do?
+
+1. **Use simple standard distributions**. Prefer distributions with fewer parameters (exponential over gamma; uniform or triangular over more complex forms). These are less prone to overfitting and their parameters are easier for stakeholders to interpret and validate.
+
+2. **Use the triangular distribution**. This is a simple way to capture uncertainty when you only have approximate minimum, mode and maaximum values. These may have been optained through a handful of observations, or expert interviews - asking "What is the shortest time this has ever taken?", "What is typical?", and "What is the longest time this has taken?".
+
+3. **Pool data across similar settings**. If your site has limited data, consider combining it with comparable sites, time periods, or patient groups. Document your pooling rationale and, where possible, check for heterogeneity between groups.
+
+4. **Use structured expert elicitation**. Formal methods like the Sheffield Elicitation Framework (SHELF) or Delphi panels can elicit probability distributions from clinical or operational experts. This is particularly valuable for parameters that are difficult to observe directly.
+
+5. **Conduct sensitivity analysis**. When parameter uncertainty is high due to limited data, conduct sensitivity analysis to understand how your conclusions change across plausible ranges. This helps communicate uncertainty to stakeholders and identifies which parameters most need better data.
 
 ## Test yourself
 
