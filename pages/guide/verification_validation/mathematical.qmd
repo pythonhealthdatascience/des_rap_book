@@ -659,6 +659,24 @@ Our test function `test_simulation_against_theory()` uses `@pytest.mark.parametr
 
 For each of these, it compares the results from the simulation model (from `run_simulation_model()`) with the results from the mathematical model (`MMSQueue`) and checks they are reasonably similar.
 
+:::
+
+::: {.r-content}
+
+Our test function uses `patrick` to run several different test cases.
+
+For each of these, it compares the results from the simulation model (from `run_simulation_model()`) with the results from the mathematical model from `queueing`, and checks they are reasonably similar.
+
+:::
+
+::: {.callout-note title="Tolerance"}
+
+We use a 15% threshold for the relative difference between simulation and analytical results. This allows for expected variation, while still flagging results that differ by more than would be reasonably explained by randomness alone.
+
+:::
+
+::: {.python-content}
+
 ```{.python}
 @pytest.mark.parametrize(
     "interarrival_time,consultation_time,number_of_doctors",
@@ -723,10 +741,6 @@ pytest.main(["tests_resources/test_mms.py"])
 
 ::: {.r-content}
 
-Our test function uses `patrick` to run several different test cases.
-
-For each of these, it compares the results from the simulation model (from `run_simulation_model()`) with the results from the mathematical model from `queueing`, and checks they are reasonably similar.
-
 ```{r}
 #| file: "tests_resources/test_mms.R"
 #| eval: false
@@ -744,6 +758,8 @@ testthat::test_file(file.path("tests_resources", "test_mms.R"))
 ```
 
 :::
+
+🎉 All tests have passed!
 
 ## Explore the example models
 
