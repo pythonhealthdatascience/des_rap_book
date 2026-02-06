@@ -177,7 +177,17 @@ HTML(to_html_datatable(result["run"]))
 
 We pass these results to the `confidence_interval_method` function from the [sim-tools](https://github.com/sim-tools/sim-tools) package.
 
-The `desired_precision` parameter is set to 0.1, which means we are interested in identifying when the percentage deviation of the confidence interval from the mean falls **below 10%**. *Note: This threshold is our default but relatively arbitrary. We are just using it to help us identify the point where results are stable enough.*
+The `desired_precision` parameter is set to 0.1, which means we are interested in identifying when the percentage deviation of the confidence interval from the mean falls **below 10%**.
+
+::: {.callout-note title="Stopping condition: `desired_precision` and confidence intervals"}
+
+We construct a confidence interval for each performance measure at a chosen confidence level (typically 95%). The interval has a half‑width, which is the margin of error around the estimated mean. The `desired_precision` parameter sets how small this half‑width must be relative to the mean (for example, 0.1 means “within 10% of the mean”).
+
+The confidence interval method keeps increasing the number of replications until this relative half‑width falls below `desired_precision` (and is above `min_rep`), indicating that additional replications are unlikely to change the estimate by more than the chosen percentage.
+
+**Note:** The 10% threshold used is our default, but is relatively arbitrary. We are just using it to help us identify the point where results are stable enough.
+
+:::
 
 ```{python}
 # Define metrics to inspect
@@ -607,11 +617,11 @@ Here's how it works:
 
 ### Model adapter
 
-The `ReplicationsAlgorithm` work with many different simulation models, as long as they all present the same interface for running a single replication. This common interface is defined by the defined by the `ReplicationsAlgorithmModelAdapter` protocol in `sim-tools`.
+The `ReplicationsAlgorithm`  is designed to work with many different simulation models. To keep it general, it doesn't know any model‑specific details; instead, it expects each model to provide the same simple interface: a `single_run(replication_number)` function that runs on replication and returns a dictionary of metric values.
 
-A `Protocol` describes the expected methods and attributes an object must provide. In this case, the protocol states that a compatible model must implement a `single_run(replication_number)` method returning a dictionary of metric values.
+The `ReplicationsAlgorithmModelAdapter` Protocol describes this expected interface. Our `SimulationAdapter` class is a small wrapper that adapts our existing `Runner` and `Parameter` classes so that they match this interface. This is an example of the adapter pattern from software design: we keep the algorithm code unchanged, and just adapt different models to plug into it.
 
-It is tagged `@runtime_checkable` so that, in addition to helping static type checkers, the code can also perform runtime checks (for example using `isinstance`) to verify that an object really satisfies the protocol's interface.
+> **Optional detail (for the curious): The Protocol is tagged with `@runtime_checkable`. You don't need to worry about this to use the algorithm but, if you're interested, it means Python can check at runtime whether an object follows this interface (for example, using `isinstance`), as well as helping static type checkers.
 
 ```{python}
 @runtime_checkable
