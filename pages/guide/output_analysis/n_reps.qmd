@@ -29,25 +29,29 @@ This page continues on from: [Replications](replications.qmd).
 
 **Required packages:**
 
-These should be available from environment setup on the [Structuring as a package](/pages/guide/setup/package.qmd) page.
+The following imports are required. These should be available from environment setup on the [Structuring as a package](/pages/guide/setup/package.qmd) page.
+
+Since [Replications](replications.qmd), we have several new imports: functions from `typing` and from `sim_tools.output_analysis`.
 
 ::: {.python-content}
 
 ```{python}
-from typing import Protocol, runtime_checkable
-
+# For display purposes:
 from IPython.display import HTML
 from itables import to_html_datatable
+
+# For the simulation modelling and analysis:
+from typing import Protocol, runtime_checkable#<<
 import numpy as np
 import pandas as pd
 import scipy.stats as st
 import simpy
 from sim_tools.distributions import Exponential
-from sim_tools.output_analysis import (
-    confidence_interval_method,
-    plotly_confidence_interval_method,
-    ReplicationsAlgorithm
-)
+from sim_tools.output_analysis import (#<<
+    confidence_interval_method,#<<
+    plotly_confidence_interval_method,#<<
+    ReplicationsAlgorithm#<<
+)#<<
 ```
 
 ```{python}
@@ -196,6 +200,8 @@ For each metric, the function returns:
 1. The number of replications required for **deviation to fall below 10%** (and must also be **higher than `min_rep`** set in `confidence_interval_method()`).
 2. A dataframe of cumulative calculations: the mean, cumulative mean, standard deviation, confidence interval bounds, and the percentage deviation of the confidence interval from the mean (displayed in the far-right column).
 
+Click the name of each metric below to view the relevant results:
+
 ::: {.panel-tabset}
 
 ## Mean wait time
@@ -253,6 +259,8 @@ HTML(to_html_datatable(confint_results["mean_patients_in_system"][1]))
 <br>
 
 To visualise when precision is achieved and check for stability, we can use the `plotly_confidence_interval_method` function from [sim-tools](https://github.com/sim-tools/sim-tools):
+
+Click the name of each metric below to view the relevant plot:
 
 ::: {.panel-tabset}
 
@@ -508,6 +516,8 @@ for (m in metrics) {
 }
 ```
 
+Click the name of each metric below to view the relevant plot:
+
 ::: {.panel-tabset}
 
 ## Mean wait time
@@ -720,6 +730,8 @@ HTML(to_html_datatable(summary_frame))
 <br>
 
 Again, we can use `plotly_confidence_interval_method` to create plots.
+
+Click the name of each metric below to view the relevant plot:
 
 ::: {.panel-tabset}
 
@@ -1439,6 +1451,8 @@ res$summary_table |>
 <br>
 
 We can use the function `plot_replication_ci` from above again to create the plots.
+
+Click the name of each metric below to view the relevant plot:
 
 ::: {.panel-tabset}
 

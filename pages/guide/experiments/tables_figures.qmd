@@ -32,21 +32,30 @@ This page uses the results saved on the [Scenario and sensitivity analysis](scen
 
 **Required packages:**
 
-These should be available from environment setup on the [Structuring as a package](/pages/guide/setup/package.qmd) page. 
+The following imports are required. These should be available from environment setup on the [Structuring as a package](/pages/guide/setup/package.qmd) page. 
 
 ::: {.python-content}
 
-```{python}
-import os
+On this page, we have three new imports: `os`, `matplotlib.colors` and `plotly.graph_objects`.
 
+```{python}
+# For display purposes:
 from IPython.display import HTML
 from itables import to_html_datatable
-import matplotlib.colors as mcolors
+
+# For the simulation modelling and analysis:
+import itertools
+import os#<<
+import time
+from joblib import Parallel, delayed, cpu_count
+import matplotlib.colors as mcolors#<<
 import numpy as np
 import pandas as pd
 import plotly.express as px
-import plotly.graph_objects as go
+import plotly.graph_objects as go#<<
 import scipy.stats as st
+import simpy
+from sim_tools.distributions import Exponential
 ```
 
 ```{python}
@@ -225,6 +234,8 @@ scenario_tables = summarise_scenarios(
 )
 ```
 
+Click the name of each metric below to view the relevant dataframe:
+
 ::: {.panel-tabset}
 
 ## Mean wait time
@@ -269,6 +280,8 @@ sensitivity_tables = summarise_scenarios(
     path_prefix=os.path.join("tables_figures_resources", "python_sensitivity")
 )
 ```
+
+Click the name of each metric below to view the relevant dataframe:
 
 ::: {.panel-tabset}
 
@@ -370,6 +383,8 @@ scenario_tables <- summarise_scenarios(
 )
 ```
 
+Click the name of each metric below to view the relevant table:
+
 ::: {.panel-tabset}
 
 ## Mean wait time
@@ -414,6 +429,8 @@ sensitivity_tables <- summarise_scenarios(
   path_prefix = file.path("tables_figures_resources", "r_sensitivity")
 )
 ```
+
+Click the name of each metric below to view the relevant table:
 
 ::: {.panel-tabset}
 
@@ -620,6 +637,8 @@ scenario_plots = plot_metrics(
 )
 ```
 
+Click the name of each metric below to view the relevant plot:
+
 ::: {.panel-tabset}
 
 ## Mean wait time
@@ -663,6 +682,8 @@ sensitivity_plots = plot_metrics(
     path_prefix=os.path.join("tables_figures_resources", "python_sensitivity")
 )
 ```
+
+Click the name of each metric below to view the relevant plot:
 
 ::: {.panel-tabset}
 
@@ -829,6 +850,8 @@ scenario_plots <- plot_metrics(
 )
 ```
 
+Click the name of each metric below to view the relevant plot:
+
 ::: {.panel-tabset}
 
 ## Mean wait time
@@ -875,6 +898,8 @@ sensitivity_plots <- plot_metrics(
   path_prefix = file.path("tables_figures_resources", "r_sensitivity")
 )
 ```
+
+Click the name of each metric below to view the relevant plot:
 
 ::: {.panel-tabset}
 
