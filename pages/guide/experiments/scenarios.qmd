@@ -85,7 +85,7 @@ library(tidyr)
 
 ## Running and sharing scenarios
 
-When creating a DES, you won't just run one model - you run scenarios, which are different parameter set-ups. These are used to test how outcomes change under varying conditions.
+When creating a DES, you won't just run one model - you run scenarios, which can involve different parameter set‑ups and/or changes to the process flow or simulation logic (e.g., alternative configurations of resources, routing, or priority rules). These are used to test how outcomes change under varying conditions.
 
 When running scenarios, there are two important things to remember:
 
@@ -95,7 +95,14 @@ When running scenarios, there are two important things to remember:
 
 :::
 
-Don't duplicate whole scripts just to test different set-ups. The idea is to build the model with functions and classes so you only need to change the parameters and re-run. That's why we guide you through building the model this way in this book.
+**Don't duplicate whole scripts** just to test different set-ups.
+
+Using functions and classes is important here, as:
+
+* If your scenarios only change **parameters**, you just run the same model with different inputs.
+* If your scenarios change the **configuration** of the system (e.g., routing or scheduling), you can create alternative methods, functions, or configuration objects.
+
+On this page, we only show examples where scenarios differ by parameters.
 
 ::: {.cream}
 
@@ -385,7 +392,11 @@ scenario_results = run_scenarios(
                "number_of_doctors": [3, 4, 5]},
     param_factory=Parameters
 )
+```
 
+We'll save results to CSV - you can change the file path listed, or otherwise, you'll just need to create the `scenarios_resources` directory first.
+
+```{python}
 # Save to CSV
 scenario_results.to_csv(
     "scenarios_resources/python_scenario_results.csv", index=False
@@ -459,7 +470,11 @@ sensitivity_results = run_scenarios(
     scenarios={"interarrival_time": [4, 4.5, 5, 5.5, 6, 6.5, 7]},
     param_factory=Parameters
 )
+```
 
+We'll save results to CSV - you can change the file path listed, or otherwise, you'll just need to ensure you have already made the `scenarios_resources` directory first.
+
+```{python}
 # Save to CSV
 sensitivity_results.to_csv(
     "scenarios_resources/python_sensitivity_results.csv", index=False
@@ -487,6 +502,12 @@ write.csv(sensitivity_results,
 # View sensitivity results
 kable(sensitivity_results) |> scroll_box(height = "400px")
 ```
+
+:::
+
+::: {.callout-note title="Sensitivity analysis across scenarios"}
+
+In practice, sensitivity analysis is often performed within each scenario - for example, you might define several scenarios (different configurations of arrivals, capacity, or routing) and then vary a key parameter (such as interarrival time) around each of them. In this book, for simplicity, we show sensitivity analysis for a single scenario at a time, and you can repeat the same approach for any other plausible scenarios you define.
 
 :::
 
