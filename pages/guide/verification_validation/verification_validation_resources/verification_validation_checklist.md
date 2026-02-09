@@ -45,9 +45,23 @@ Mathematical proof of correctness
 
 ## Validation
 
-Face validation
+Conceptual model validation
 
-* [ ] Present key simulation outputs and model behaviour to people such as: project team members; intended users of the model (e.g., healthcare analysts, managers); people familiar with the real system (e.g., clinicians, frontline staff, patient representatives). Ask for their subjective feedback on whether the model and results "look right". Discuss specific areas, such as whether performance measures (e.g., patient flow, wait times) match expectations under similar conditions.
+* [ ] Document and justify all modeling assumptions.
+* [ ] Review the conceptual model with people familiar with the real system to assess completeness and accuracy.
+
+Input data validation
+
+* [ ] Check the datasets used - screen for outliers, determine if they are correct, and if the reason for them occurring should be incorporated into the simulation.
+* [ ] Ensure you have performed appropriate input modelling steps when choosing your distributions.
+
+Graphical comparison
+
+* [ ] Create time-series plots and distributions of key results (e.g., daily patient arrivals, resource utilisation, waiting times) for both the model and the actual system, and compare the graphs to assess whether patterns and trends are similar.
+
+Statistical comparison
+
+* [ ] Collect real system data on key performance measures (e.g., wait times, lengths of stay, throughput) and compare with model outputs statistically using appropriate tests.
 
 Turing test
 
@@ -59,14 +73,6 @@ Predictive validation
 * [ ] Consider varying the periods you validate on—year-by-year, season-by-season, or even for particular policy changes or events—to detect strengths or weaknesses in the model across different scenarios.
 * [ ] Use graphical comparisons (e.g., time series plots) or statistical measures (e.g., goodness-of-fit, mean errors, confidence intervals) to assess how closely the model matches reality - see below.
 
-Graphical comparison
-
-* [ ] Create time-series plots of key metrics (e.g., daily patient arrivals, resource utilisation) for both the model and system. Create distributions of waiting times, service times, and other performance measures. Compare the model and system graphs.
-
-Statistical comparison
-
-* [ ] Collect real system data on key performance measures (e.g., wait times, lengths of stay, throughput) and compare with model outputs statistically using appropriate tests.
-
 Animation visualisation
 
 * [ ] Create an animation to help with validation (as well as communicaton and reuse).
@@ -75,15 +81,9 @@ Comparison testing
 
 * [ ] If you have multiple models of the same system, compare them!
 
-Input data validation
+Face validation
 
-* [ ] Check the datasets used - screen for outliers, determine if they are correct, and if the reason for them occurring should be incorporated into the simulation.
-* [ ] Ensure you have performed appropriate input modelling steps when choosing your distributions.
-
-Conceptual model validation
-
-* [ ] Document and justify all modeling assumptions.
-* [ ] Review the conceptual model with people familiar with the real system to assess completeness and accuracy.
+* [ ] Present key simulation outputs and model behaviour to people such as: project team members; intended users of the model (e.g., healthcare analysts, managers); people familiar with the real system (e.g., clinicians, frontline staff, patient representatives). Ask for their subjective feedback on whether the model and results "look right". Discuss specific areas, such as whether performance measures (e.g., patient flow, wait times) match expectations under similar conditions.
 
 Experimentation validation
 
