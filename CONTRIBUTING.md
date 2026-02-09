@@ -160,6 +160,8 @@ sudo docker image rm -f desrapbookdocker
 
 ## Accessibility
 
+This site uses [W3C's Web Accessibility Initiative (WAI) Easy Checks](https://www.w3.org/WAI/test-evaluate/easy-checks/) as a lightweight accessibility framework. Please see this [GitHub issue](https://github.com/pythonhealthdatascience/des_rap_book/issues/188) for a record of which checks are currently met and any known limitations.
+
 Quarto's supported accessibility checker `axe` is not used because it is difficult to read, and it mostly flagged things that cannot be changed (i.e., Quarto defaults and built-ins). As such, other approaches are used.
 
 ### `lint_alt_text.py`
