@@ -1,5 +1,7 @@
 ---
 title:  Tables and figures
+filters:
+  - line-highlight
 bibliography: scenarios_resources/references.bib
 date: "2025-10-24T10:55:25+01:00"
 ---
@@ -158,7 +160,6 @@ It uses the `summary_stats()` function introduced on the [Replications](../outpu
 ::: {.callout-note title="View `summary_stats()`" collapse="true"}
 
 ```{python}
-#| echo: false
 #| file: ../output_analysis/replications_resources/summary_stats.py
 ```
 
@@ -214,6 +215,8 @@ def summarise_scenarios(results, groups, result_vars, path_prefix=None):
 ```
 
 ### Scenario analysis
+
+Here and throughout page, we will save results to a folder called `tables_figures_resources`, and then a subfolder (e.g., `python_scenario/`). You can rename this path (e.g. to `os.path.join("results", "scenario"))`), or otherwise, create the listed directory structure (here, `tables_figures_resources/python_scenario/`).
 
 ```{python}
 result_variables = [
@@ -844,16 +847,18 @@ scenario_plots[["mean_patients_in_system"]]
 
 :::
 
-These plots look a little funny simple due to the wide confidence intervals - with very short run times and few replications in our illustrative example, the confidence intervals are very wide!
-
 ::::
+
+In the figure, each line shows the result (e.g., mean wait time for a doctor) as the patient inter-arrival time increases. The different coloured lines correspond to a different number of doctors. The shaded bands around each line represent 95% confidence intervals for the mean.
+
+These plots can look a little funny simple due to the wide confidence intervals - with very short run times and few replications in our illustrative example, the confidence intervals are very wide!
 
 ::: {.callout-note title="Good practice for plots"}
 
 * Use consistent names for variables on your axis labels.
 * Include units in axis labels (e.g., minutes, days, patients per hour).
 * Make sure to plot uncertainty (e.g., confidence intervals, percentile range).
-* *Keep colour and line style consistent across related figures.
+* Keep colour and line style consistent across related figures.
  
 :::
 
@@ -957,6 +962,8 @@ sensitivity_plots[["mean_patients_in_system"]]
 :::
 
 ::::
+
+In this figure, the blue line shows the result (e.g., mean wait time) as we increase the patient inter-arrival time. The shaded band around the line is a 95% confidence interval, reflecting uncertainty due to random variation between simulation runs.
 
 ## Explore the example models
 
