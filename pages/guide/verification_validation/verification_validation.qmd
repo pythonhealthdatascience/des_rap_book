@@ -169,9 +169,9 @@ To check your routing logic, you would run boundary value tests using values jus
 
 Suppose we simulate a screening programme where patients are only eligible if their age is betwen 18 and 75 inclusive. Boundary value tests would check:
 
-* Patients below the minimum are rejected (17).
-* Patients at/near the thresholds are accepted (18, 19, 74, 75).
-* Patients above the maximum are rejected (76).
+* Patients below the minimum are rejected (17 or under).
+* Patients at/near the thresholds are accepted (e.g., 18, 19, 74, 75).
+* Patients above the maximum are rejected (76 or over).
 
 
 ::: {.cream}
@@ -188,7 +188,7 @@ Stress testing involves running your model under extremely demanding conditions.
 
 * Do patients queue correctly?
 * Does it respect resource constraints?
-* Do calculated performance measures remain valid (e.g., utilisation within 0-1).
+* Do calculated performance measures remain valid (e.g., utilisation within 0-1 or 0-100%).
 
 ::: {.cream}
 
@@ -260,23 +260,66 @@ This is a great baseline: start with a simple model you can compare against theo
 
 <div class="h3-tight"></div>
 
-### Face validation
+### Conceptual model validation
 
-**Face validation** is a process where the project team, potential model users, and people with relevant experience of the healthcare system review the simulation. Based on their knowledge and experiences, they compare the model's behaviour and results with what would be expected in the real system and judge whether the model appears realistic and appropriate (@Balci1998).
+Conceptual model validation determines whether the theories, assumptions, and underlying structure of your conceptual model are correct and reasonable for the intended purpose (@Sargent2013, @Robinson2007). This focuses on whether the model includes the necessary details and relationships to meet the study objectives.
 
-Evaluating and reporting face validity is a requirement of the DES reporting checklist from @Zhang2025 (which is based on reports from the International Society for Pharmacoeconomics and Outcomes Research (ISPOR)-Society for Medical Decision Making (SMDM) Modeling Good Research Practices Task Force).
+Key questions include:
+
+* Are the model's assumptions realistic and justified?
+* Does the model structure capture the essential elements of the real system?
+* Are simplifications appropriate given the study purpose?
+* Do the causal relationships make sense?
 
 ::: {.cream}
 
 **What does this mean in practice?**
 
-✔️ Present key simulation outputs and model behaviour to people such as:
+✔️ Document and justify all modeling assumptions.
 
-* Project team members.
-* Intended users of the model (e.g., healthcare analysts, managers).
-* People familiar with the real system (e.g., clinicians, frontline staff, patient representatives).
+✔️ Review the conceptual model with people familiar with the real system to assess completeness and accuracy.
 
-Ask for their subjective feedback on whether the model and results "look right". Discuss specific areas, such as whether performance measures (e.g., patient flow, wait times) match expectations under similar conditions.
+:::
+
+### Input data validation
+
+Data validation involves confirming that the data used in your model are appropriate and accurately reflect the real system (@Sargent2013).
+
+This includes checking that statistical distributions are appropriate representations and that any data transformations preserve the essential characteristics of the original data (@Banks2005).
+
+::: {.cream}
+
+**What does this mean in practice?**
+
+✔️ Check the datasets used - screen for outliers, determine if they are correct, and if the reason for them occurring should be incorporated into the simulation (@Sargent2013).
+
+✔️ Ensure you have performed appropriate input modelling steps when choosing your distributions - see [input modelling](../inputs/input_modelling.qmd) page.
+
+:::
+
+### Graphical comparison
+
+**Graphical comparison** involves comparing graphs of model results over time with graphs of actual observed outcomes. You should look for similarities in patterns, trends, periodicities (i.e., recurring events), and other characteristics (@Balci1998).
+
+::: {.cream}
+
+**What does this mean in practice?**
+
+✔️ Create time-series plots and distributions of key results (e.g., daily patient arrivals, resource utilisation, waiting times) for both the model and the actual system, and compare the graphs to assess whether patterns and trends are similar.
+
+:::
+
+### Statistical comparison
+
+Statistical comparison involves using formal **statistical techniques** to compare model outputs with real system data. @Balci1998 recommend a validation procedure using simultaneous confidence intervals. Other statistical techniques including t-tests and goodness-of-fits tests have also been proposed.
+
+This is a type of **external validation** (comparing model results to empirical data of actual event), which is a requirement in the DES reporting checklist from @Zhang2025.
+
+::: {.cream}
+
+**What does this mean in practice?**
+
+✔️ Collect real system data on key performance measures (e.g., wait times, lengths of stay, throughput) and compare with model outputs statistically using appropriate tests.
 
 :::
 
@@ -312,32 +355,6 @@ Predictive validation is a requirement in the DES reporting checklist from @Zhan
 
 :::
 
-### Graphical comparison
-
-**Graphical comparison** involves comparing graphs of model variables over time with graphs of real system variables. You should look for similarities in patterns, trends, periodicities (i.e., recurring events), and other characteristics (@Balci1998).
-
-::: {.cream}
-
-**What does this mean in practice?**
-
-✔️ Create time-series plots of key metrics (e.g., daily patient arrivals, resource utilisation) for both the model and system. Create distributions of waiting times, service times, and other performance measures. Compare the model and system graphs.
-
-:::
-
-### Statistical comparison
-
-Statistical comparison involves using formal **statistical techniques** to compare model outputs with real system data. @Balci1998 recommend a validation procedure using simultaneous confidence intervals. Other statistical techniques including t-tests and goodness-of-fits tests have also been proposed.
-
-This is a type of **external validation** (comparing model results to empirical data of actual event), which is a requirement in the DES reporting checklist from @Zhang2025.
-
-::: {.cream}
-
-**What does this mean in practice?**
-
-✔️ Collect real system data on key performance measures (e.g., wait times, lengths of stay, throughput) and compare with model outputs statistically using appropriate tests.
-
-:::
-
 ### Animation visualisation
 
 If you build an animation that shows your simulation model as it runs, it can help you spot errors by letting you "see" what's happening (@Balci1998). You can watch patients flow, queues grow and shrink, and resources being used - and you maybe be able to spot odd behaviours.
@@ -346,17 +363,25 @@ If you build an animation that shows your simulation model as it runs, it can he
 
 **What does this mean in practice?**
 
-Creating an animation takes time, but it has several benefits beyond just validation.
-
-* ✔️ **Validation:** It can help you spot mistakes
-* ✔️ **Communication:** It is really helpful for sharing the models with others (such as with stakeholders and decision makers).
-* ✔️ **Reuse:** It supports reuse of the model (as in the [STARS framework](https://pythonhealthdatascience.github.io/stars/pages/research/stars_framework_reuse.html)).
+There are free and open-source tools for creating animations.
 
 ::: {.python-content}
 
 In Python, check out [vidigi](https://github.com/Bergam0t/vidigi/tree/main) - a package developed by Sammi Rosser to make animated visualisations for open-source simulation models (e.g., SimPy with streamlit).
 
 :::
+
+::: {.r-content}
+
+In R, check out [bupaR's `animate_process` function](https://bupaverse.github.io/docs/animate_maps.html), which can be used to create animated visualisations of simmer models.
+
+:::
+
+Though it may take time, creating an animation has several benefits beyond just validation.
+
+* ✔️ **Validation:** It can help you spot mistakes
+* ✔️ **Communication:** It is really helpful for sharing the models with others (such as with stakeholders and decision makers) and supporting discussion and communication between different stakeholder groups.
+* ✔️ **Reuse:** It supports reuse of the model (as in the [STARS framework](https://pythonhealthdatascience.github.io/stars/pages/research/stars_framework_reuse.html)).
 
 ::::
 
@@ -374,40 +399,25 @@ You probably won't have two models often, but when you do, comparing them is ver
 
 :::
 
-### Input data validation
+*Comparison testing cannot guarantee that either model is "right" - both could be wrong in the same way. However, it does identify any disagreements between the models, and will prompt you to re-check assumptions, logic and data handling, and so will help improve the quality of all models involved.*
 
-Data validation involves confirming that the data used in your model are appropriate and accurately reflect the real system (@Sargent2013).
+### Face validation
 
-This includes checking that statistical distributions are appropriate representations and that any data transformations preserve the essential characteristics of the original data (@Banks2005).
+**Face validation** is a process where the project team, potential model users, and people with relevant experience of the healthcare system review the simulation. Based on their knowledge and experiences, they compare the model's behaviour and results with what would be expected in the real system and judge whether the model appears realistic and appropriate (@Balci1998).
 
-::: {.cream}
-
-**What does this mean in practice?**
-
-✔️ Check the datasets used - screen for outliers, determine if they are correct, and if the reason for them occurring should be incorporated into the simulation (@Sargent2013).
-
-✔️ Ensure you have performed appropriate input modelling steps when choosing your distributions - see [input modelling](../inputs/input_modelling.qmd) page.
-
-:::
-
-### Conceptual model validation
-
-Conceptual model validation determines whether the theories, assumptions, and underlying structure of your conceptual model are correct and reasonable for the intended purpose (@Sargent2013, @Robinson2007). This focuses on whether the model includes the necessary details and relationships to meet the study objectives.
-
-Key questions include:
-
-* Are the model's assumptions realistic and justified?
-* Does the model structure capture the essential elements of the real system?
-* Are simplifications appropriate given the study purpose?
-* Do the causal relationships make sense?
+Evaluating and reporting face validity is a requirement of the DES reporting checklist from @Zhang2025 (which is based on reports from the International Society for Pharmacoeconomics and Outcomes Research (ISPOR)-Society for Medical Decision Making (SMDM) Modeling Good Research Practices Task Force).
 
 ::: {.cream}
 
 **What does this mean in practice?**
 
-✔️ Document and justify all modeling assumptions.
+✔️ Present key simulation outputs and model behaviour to people such as:
 
-✔️ Review the conceptual model with people familiar with the real system to assess completeness and accuracy.
+* People familiar with the real system (e.g., clinicians, frontline staff, patient representatives).
+* Intended users of the model (e.g., healthcare analysts, managers).
+* Project team members.
+
+Ask for their subjective feedback on whether the model and results "look right". Discuss specific areas, such as whether performance measures (e.g., patient flow, wait times) match expectations under similar conditions.
 
 :::
 
@@ -442,7 +452,7 @@ Cross validation is a requirement in the DES reporting checklist from @Zhang2025
 
 **What does this mean in practice?**
 
-✔️ Search for similar simulation studies and compare the key assumptions, methods and results. Discuss discrepancies and explain reasons for different findings or approaches. Use insights from other studies to improve or validate your own model.
+✔️ Search for similar simulation studies and compare the key assumptions, model structures, and results with your own. Discuss important differences and explain possible reasons.
 
 :::
 
@@ -464,6 +474,18 @@ We have completed steps to **verify** the model. **Validation** has not been per
 
 ::: {.python-content}
 
+Verification can be viewed in [GitHub Issue #84](https://github.com/pythonhealthdatascience/pydesrap_mms/issues/84)
+
+:::
+
+::: {.r-content}
+
+Verification can be viewed in [GitHub Issue #97](https://github.com/pythonhealthdatascience/rdesrap_mms/issues/97)
+
+:::
+
+::: {.python-content}
+
 {{< include /html/pydesrapstroke.html >}}
 
 :::
@@ -476,13 +498,30 @@ We have completed steps to **verify** the model. **Validation** has not been per
 
 We have completed steps to **verify** the model. **Validation** has not been performed as this example just replicates an existing published model, and is not being re-applied to a real system.
 
+::: {.python-content}
+
+Verification can be viewed in [GitHub Issue #27](https://github.com/pythonhealthdatascience/pydesrap_stroke/issues/27)
+
+:::
+
+::: {.r-content}
+
+Verification can be viewed in [GitHub Issue #18](https://github.com/pythonhealthdatascience/rdesrap_stroke/issues/18)
+
+:::
+
 ## Test yourself
 
 We encourage you to apply as many verification and validation methods as you can to your simulation models. Each approach gives a fresh angle on model quality, and together they build a robust foundation of trust in your work.
 
 However, trying to do everything at once can feel overwhelming! Remember, verification and validation are iterative processes - it's normal and expected to work on them bit by bit, returning to add, review, and improve methods as your project develops.
 
-To help you get started, we've put together a checklist you can copy into a [GitHub issue](../sharing/peer_review.qmd#github-issues) on your project. Use it to track which methods you've tried, what you want to tackle next, and which seem most relevant or feasible for your current context. This makes it easier to plan, prioritise, and document your verification and validation efforts over time.
+To help you get started, we've put together a simple Markdown checklist that you can use to plan or track your work. You can either:
+
+* Open a new [GitHub issue](../sharing/peer_review.qmd#github-issues) in your repository, copy and paste the checklist, and then use the tickboxes to record progress.
+* Download the `.md` file (`verification_validation_checklist.md`) into your repository and update it as you complete activities.
+
+Use the checklist to track which methods you've tried, what you want to tackle next, and which seem most relevant or feasible for your current context.
 
 {{< downloadthis verification_validation_resources/verification_validation_checklist.md dname="verification_validation_checklist" label="Download the verification and validation checklist" type="primary" >}}
 

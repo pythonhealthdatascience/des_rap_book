@@ -65,17 +65,37 @@ A bash script is a plain text file that contains a list of terminal commands, wr
 
 ### Where to put the script?
 
-Save the script below as `run_notebooks.sh` in the root of your project, alongside the `notebooks/` folder.
-
 ::: {.python-content}
 
-This allows the script to loop over `rmarkdown/*.Rmd` without extra path adjustments.
+Save the script below as `run_notebooks.sh` in the project root - for example:
+
+```
+├── run_notebooks.sh
+├── notebooks/
+|   └── ...
+├── simulation/
+|   └── ...
+├── ...
+```
+
+This allows the script to loop over all `.ipynb` in the `notebooks/` folder using `notebooks/*.ipynb` without extra path adjustments.
 
 :::
 
 ::: {.r-content}
 
-This allows the script to loop over `notebooks/*.ipynb` without extra path adjustments.
+Save the script below as `run_rmarkdown.sh` in the project root - for example:
+
+```
+├── run_rmarkdown.sh
+├── R/
+|   └── ...
+├── rmarkdown/
+|   └── ...
+├── ...
+```
+
+This allows the script to loop over all `.Rmd` files in the `rmarkdown/` folder using `rmarkdown/*.Rmd` without extra path adjustments.
 
 :::
 
@@ -140,6 +160,17 @@ CONDA_JUPYTER=$(dirname "$(which python)")/jupyter
 
 This line finds the `jupyter` executable linked to your current python environment. This ensures it uses the correct version of Jupyter (i.e., instead of trying to run a system-wide or different environment's Jupyter).
 
+::: {.callout-note title="Alternative path for Windows users"}
+
+On Windows, `jupyter.exe` is usually in the `Scripts` folder of your conda environment, not directly next to `python.exe`. For example, if `which python` returns `envs/des-example/python.exe`, then `jupyter.exe` is typically at `env/des-example/Scripts/jupyter.exe`.
+You will want to change the line above to:
+
+```{.bash}
+CONDA_JUPYTER=$(dirname "$(which python)")/Scripts/jupyter`
+```
+
+:::
+
 <br>
 
 ```{.bash}
@@ -186,15 +217,17 @@ The Jupyter nbconvert command (a single command, though split across several lin
 
 * `"${CONDA_JUPYTER}" nbconvert`: Execute nbconvert from your environment.
 * `--to notebook --inplace --execute`: Run the notebook, overwrite in place, and execute all cells from scratch.
+	* By using `--inplace`, nbconvert overwrites the existing notebook file with the executed version. If you prefer to keep the original notebook and write the executed result to a new file, remove `--inplace` and use `--output`.
+	* You can also change `--to notebook` to another format (e.g., `--to html` generates HTML).
 * `--ClearMetadataPreprocessor.enabled=True`: Enable pre-processor that can clear notebook metadata.
 * `--ClearMetadataPreprocessor.clear_notebook_metadata=True`: Remove notebook metadata.
 * `"$nb"`: Specifies the notebook file to run.
 
 ::: {.callout title="Why do we have the metadata settings?" collapse="true"}
 
-These are to **avoid changes in files that have been re-run**, when all the results and code are still the same, **just the notebook metadata has changed**.
+Jupyter stores a lot of extra metadata in notebooks (kernel name, environment IDs, timing info, UI state, etc.). These fields often change even when the code and outputs are identical, which creates noisy diffs in version control. The metadata options in the command tell nbconvert to strip most of this metadata so that the file only changes when the code or outputs really change.
 
-With these settings in our bash script, the output notebook metadata will be:
+*Note: One side effect is that clearing all notebook metadata can change how the Jupyter interface behaves (e.g., some menu items like "Clear All Outputs" may disappear or look different), because the frontend relies on metadata like the kernelspec and language information.*
 
 ```{.bash}
 {
@@ -331,12 +364,13 @@ if __name__ == "__main__":
     main()
 ```
 
-These can then be easily run from bash scripts like so:
+These can then be easily run from the command line:
 
 ```{.bash}
-#!/bin/bash
 python filename.py
 ```
+
+You could put your whole pipeline inside a single `main()` function and avoid bash scripts altogether. However, a separate bash script becomes useful when you want to mix different tools (e.g., `.ipynb` and `.py`) and languages in one pipeline.
 
 :::
 
@@ -406,6 +440,8 @@ You can run this R script from a Bash script or terminal with the following comm
 Rscript analysis/filename.R
 ```
 
+You could call your whole pipeline from inside a single R script and avoid bash scripts altogether. However, a separate bash script becomes useful when you want to mix different tools (e.g., `.Rmd` and `R` files) and languages in one pipeline.
+
 :::
 
 ## Literate programming
@@ -430,7 +466,7 @@ Rscript analysis/filename.R
 
 ::::
 
-This style of working can be really handy for **reproducibility**, a all the parameter choices, steps and outputs are documented alongside explanatory text.
+This style of working can be really handy for **reproducibility**, as all the parameter choices, steps and outputs are documented alongside explanatory text.
 
 There are several common ways to use literate programming in research workflows:
 

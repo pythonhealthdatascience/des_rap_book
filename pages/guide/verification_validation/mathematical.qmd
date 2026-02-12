@@ -1,5 +1,7 @@
 ---
 title: Mathematical proof of correctness
+filters:
+  - line-highlight
 date: "2025-10-23T16:24:23+01:00"
 ---
 
@@ -28,16 +30,20 @@ The test is run on the model from the [parallel processing](../output_analysis/p
 
 **Required packages:**
 
-These should be available from environment setup on the [Structuring as a package](/pages/guide/setup/package.qmd) page.
+The following imports are required. These should be available from environment setup on the [Structuring as a package](/pages/guide/setup/package.qmd) page.
+
+Since [Parallel processing](/pages/guide/output_analysis/parallel.qmd), we have one new imports: `math`.
 
 ::: {.python-content}
 
 ```{python}
-import math
-import time
-
+# For display purposes:
 from IPython.display import HTML
 from itables import to_html_datatable
+
+# For the simulation modelling and analysis:
+import math#<<
+import time
 from joblib import Parallel, delayed, cpu_count
 import numpy as np
 import pandas as pd
@@ -655,6 +661,24 @@ Our test function `test_simulation_against_theory()` uses `@pytest.mark.parametr
 
 For each of these, it compares the results from the simulation model (from `run_simulation_model()`) with the results from the mathematical model (`MMSQueue`) and checks they are reasonably similar.
 
+:::
+
+::: {.r-content}
+
+Our test function uses `patrick` to run several different test cases.
+
+For each of these, it compares the results from the simulation model (from `run_simulation_model()`) with the results from the mathematical model from `queueing`, and checks they are reasonably similar.
+
+:::
+
+::: {.callout-note title="Tolerance"}
+
+We use a 15% threshold for the relative difference between simulation and analytical results. This allows for expected variation, while still flagging results that differ by more than would be reasonably explained by randomness alone.
+
+:::
+
+::: {.python-content}
+
 ```{.python}
 @pytest.mark.parametrize(
     "interarrival_time,consultation_time,number_of_doctors",
@@ -719,10 +743,6 @@ pytest.main(["tests_resources/test_mms.py"])
 
 ::: {.r-content}
 
-Our test function uses `patrick` to run several different test cases.
-
-For each of these, it compares the results from the simulation model (from `run_simulation_model()`) with the results from the mathematical model from `queueing`, and checks they are reasonably similar.
-
 ```{r}
 #| file: "tests_resources/test_mms.R"
 #| eval: false
@@ -740,6 +760,8 @@ testthat::test_file(file.path("tests_resources", "test_mms.R"))
 ```
 
 :::
+
+🎉 All tests have passed!
 
 ## Explore the example models
 

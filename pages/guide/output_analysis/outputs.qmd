@@ -35,13 +35,20 @@ This page continues on from: [Initialisation bias](warmup.qmd).
 
 **Required packages:**
 
-These should be available from environment setup on the [Structuring as a package](/pages/guide/setup/package.qmd) page.
+The following imports are required. These should be available from environment setup on the [Structuring as a package](/pages/guide/setup/package.qmd) page.
+
+On this page, we add `pandas`. We also import from `IPython` and `itables`, but that is just for displaying tables nicely within the book.
 
 ::: {.python-content}
 
 ```{python}
+# For display purposes:#<<
+from IPython.display import HTML#<<
+from itables import to_html_datatable#<<
+
+# For the simulation modelling and analysis:#<<
 import numpy as np
-import pandas as pd
+import pandas as pd#<<
 import simpy
 from sim_tools.distributions import Exponential
 ```
@@ -357,6 +364,298 @@ At the moment, `result[["run_results"]]` is pretty empty (just has the replicati
 
 :::
 
+## Overview of performance measures
+
+On this page, we breakdown how to add several different performance measures to your model. These include:
+
+* Total arrivals
+* Mean wait time
+* Mean time in consultation
+* Mean doctor utilisation
+* Mean queue length
+* Mean time in system
+* Mean number of patients in the system
+* Backlogged patient count
+* Backlogged patient mean wait time
+
+We introduce these on-by-one below, with each measure added and the required code changes clearly highlighted so it is easy to see what is needed for each statistic.
+
+::: {.pale-blue}
+
+**If you would prefer to work from a complete example with all of the measures implemented together, you can find that in the following callout:**
+
+:::
+
+:::: {.callout title="▶&nbsp;&nbsp;View how to record all performance measures" collapse="true"}
+
+Here, we just provide a brief description of the changes. For a full explanation of how these measures are implementation, please refer to the information on individual measures below.
+
+::: {.python-content}
+
+**Note:** There are two approaches to recording utilisation - here, we have used the time-weighted approach (approach 2).
+
+### Patient class
+
+There are three new attributes:
+
+* `wait_time` - used for mean wait time.
+* `time_with_doctor` - used for mean time in consultation, backlogged patient count and backlogged patient mean wait time.
+* `end_time` - used for mean time in system.
+
+```{python}
+{{< include outputs_resources/all_measures/patient.py >}}
+```
+
+### Monitored resource class
+
+A new class `MonitoredResource` is used for mean doctor utilisation and mean queue length.
+
+```{python}
+{{< include outputs_resources/all_measures/monitored_resource.py >}}
+```
+
+### Model class
+
+There are several new attributes and a method used for mean number of patients in the system (`area_n_in_system`, `time_last_n_in_system`, `n_in_system`, `update_n_in_system()`).
+
+The doctor is now a `MonitoredResource`, as required for mean doctor utilisation and mean queue length.
+
+During `consultation()`, the patient's `wait_time` is recorded for mean wait time. Time with the doctor is recorded for mean time in consultation, backlogged patient count and backlogged patient mean wait time. End time is recorded for mean time in system. 
+
+```{python}
+{{< include outputs_resources/all_measures/model.py >}}
+```
+
+### Runner class
+
+In the Runner class, we calculate each of the metrics...
+
+```{python}
+{{< include outputs_resources/all_measures/runner.py >}}
+```
+
+### Run the model
+
+```{python}
+runner = Runner(param=Parameters())
+result = runner.run_single(run=0)
+HTML(to_html_datatable(result["patient"]))
+print(result["run"])
+```
+
+:::
+
+::: {.r-content}
+
+### Imports
+
+There are several new imports required.
+
+```{.r}
+#' @keywords internal
+"_PACKAGE"
+
+## usethis namespace: start
+#' @importFrom dplyr arrange bind_cols bind_rows desc filter group_by lead#<<
+#' @importFrom dplyr left_join mutate n n_distinct row_number slice summarise#<<
+#' @importFrom dplyr transmute ungroup#<<
+#' @importFrom rlang .data
+#' @importFrom simmer add_generator add_resource get_attribute get_mon_arrivals#<<
+#' @importFrom simmer get_mon_resources get_queue_count now release run seize#<<
+#' @importFrom simmer set_attribute simmer timeout trajectory#<<
+#' @importFrom tibble tibble
+#' @importFrom tidyr drop_na pivot_wider#<<
+#' @importFrom tidyselect any_of#<<
+## usethis namespace: end
+
+NULL
+```
+
+### Parameter function
+
+No changes required.
+
+### Warm-up function
+
+No changes required.
+
+### Functions to calculate different metrics
+
+We introduce new functions to calculate each metric.
+
+```{r}
+#| file: outputs_resources/all_measures/metrics.R
+```
+
+### Run results function
+
+We add a new `simulation_end_time` parameter to `get_run_results()`, and call the functions which calculate each metric.
+
+```{r}
+#' Get average results for the provided single run.
+#'
+#' @param results Named list with `arrivals` from `get_mon_arrivals()` and
+#'   `resources` from `get_mon_resources()`
+#'   (`per_resource = TRUE` and `ongoing = TRUE`).
+#' @param run_number Integer index of current simulation run.
+#' @param simulation_end_time Time at end of simulation run.#<<
+#'
+#' @return Tibble with processed results from replication.
+#' @export
+
+get_run_results <- function(results, run_number, simulation_end_time) {#<<
+  metrics <- list(
+    calc_arrivals(results[["arrivals"]]),#<<
+    calc_mean_wait(results[["arrivals"]]),#<<
+    calc_mean_serve_length(results[["arrivals"]]),#<<
+    calc_utilisation(results[["resources"]], simulation_end_time),#<<
+    calc_mean_queue_length(results[["arrivals"]], simulation_end_time),#<<
+    calc_mean_time_in_system(results[["arrivals"]]),#<<
+    calc_mean_patients_in_system(results[["patients_in_system"]],#<<
+                                 simulation_end_time)#<<
+  )#<<
+  dplyr::bind_cols(tibble(replication = run_number), metrics)
+}
+```
+
+### Model function
+
+There quite a few changes to our `model()` function. These include:
+
+* Saving `full_run_length`, as we use it in multiple places now (and not just in `simmer::run()`).
+* Within the patient trajectory, recording `doctor_queue_on_arrival`, `doctor_serve_start` and `doctor_serve_length`.
+* Setting `mon = 2` for the patient generator, as we are adding our own attributes, and this is required so that these are returned. These attributes are processed and merged with the arrivals data returned by `get_mon_arrivals()`.
+* Calculations for patient `time_in_system` and `wait_time`.
+* Recording when each patient arrived and left (`arrivals_start`, `arrivals_end`) and using those to determine the `patients_in_system` at each timepoint.
+
+```{r}
+#' Run simulation.
+#'
+#' @param param List. Model parameters.
+#' @param run_number Numeric. Run number for random seed generation.
+#'
+#' @return Named list with tables `arrivals`, `resources` and `run_results`.
+#' @export
+
+model <- function(param, run_number) {
+
+  # Set random seed based on run number
+  set.seed(run_number)
+
+  # Create simmer environment
+  env <- simmer("simulation", verbose = param[["verbose"]])
+
+  # Calculate full run length#<<
+  full_run_length <- (param[["warm_up_period"]] +#<<
+                        param[["data_collection_period"]])#<<
+
+  # Define the patient trajectory
+  patient <- trajectory("consultation") |>
+    # Record queue length on arrival#<<
+    set_attribute("doctor_queue_on_arrival",#<<
+                  function() get_queue_count(env, "doctor")) |>#<<
+    seize("doctor", 1L) |>
+    # Record time resource is obtained#<<
+    set_attribute("doctor_serve_start", function() now(env)) |>#<<
+    # Record sampled length of consultation#<<
+    set_attribute("doctor_serve_length", function() {#<<
+      rexp(n = 1L, rate = 1L / param[["consultation_time"]])#<<
+    }) |>#<<
+    timeout(function() get_attribute(env, "doctor_serve_length")) |>#<<
+    release("doctor", 1L)
+
+  env <- env |>
+    # Add doctor resource
+    add_resource("doctor", param[["number_of_doctors"]]) |>
+    # Add patient generator (mon=2 so can get manual attributes)#<<
+    add_generator("patient", patient, function() {
+      rexp(n = 1L, rate = 1L / param[["interarrival_time"]])
+    }, mon = 2L) |>#<<
+    # Run the simulation
+    simmer::run(until = full_run_length)#<<
+
+  # Extract information on arrivals and resources from simmer environment
+  result <- list(
+    arrivals = get_mon_arrivals(env, per_resource = TRUE, ongoing = TRUE),
+    resources = get_mon_resources(env)
+  )
+
+  # Get the extra arrivals attributes#<<
+  extra_attributes <- get_mon_attributes(env) |>#<<
+    dplyr::select("name", "key", "value") |>#<<
+    # Add column with resource name, and remove that from key#<<
+    mutate(resource = gsub("_.+", "", .data[["key"]]),#<<
+           key = gsub("^[^_]+_", "", .data[["key"]])) |>#<<
+    pivot_wider(names_from = "key", values_from = "value")#<<
+
+  # Merge extra attributes with the arrival data#<<
+  result[["arrivals"]] <- left_join(#<<
+    result[["arrivals"]], extra_attributes, by = c("name", "resource")#<<
+  )#<<
+
+  # Add time in system (unfinished patients will set to NaN) #<<
+  result[["arrivals"]][["time_in_system"]] <- (#<<
+    result[["arrivals"]][["end_time"]] - result[["arrivals"]][["start_time"]]#<<
+  )#<<
+
+  # Filter to remove results from the warm-up period
+  result <- filter_warmup(result, param[["warm_up_period"]])
+
+  # Gather all start and end times, with a row for each, marked +1 or -1#<<
+  # Drop NA for end time, as those are patients who haven't left system#<<
+  # at the end of the simulation#<<
+  arrivals_start <- transmute(#<<
+    result[["arrivals"]], time = .data[["start_time"]], change = 1L#<<
+  )#<<
+  arrivals_end <- result[["arrivals"]] |>#<<
+    drop_na(all_of("end_time")) |>#<<
+    transmute(time = .data[["end_time"]], change = -1L)#<<
+  events <- bind_rows(arrivals_start, arrivals_end)#<<
+
+  # Determine the count of patients in the service with each entry/exit#<<
+  result[["patients_in_system"]] <- events |>#<<
+    # Sort events by time#<<
+    arrange(.data[["time"]], desc(.data[["change"]])) |>#<<
+    # Use cumulative sum to find number of patients in system at each time#<<
+    mutate(count = cumsum(.data[["change"]])) |>#<<
+    dplyr::select(c("time", "count"))#<<
+
+  # Replace "replication" value with appropriate run number
+  result[["arrivals"]] <- mutate(result[["arrivals"]],
+                                 replication = run_number)
+  result[["resources"]] <- mutate(result[["resources"]],
+                                  replication = run_number)
+  result[["patients_in_system"]] <- mutate(result[["patients_in_system"]],#<<
+                                           replication = run_number)#<<
+
+  # Calculate wait time for each patient#<<
+  result[["arrivals"]] <- mutate(#<<
+    result[["arrivals"]],#<<
+    wait_time = .data[["serve_start"]] - .data[["start_time"]]#<<
+  )#<<
+
+  # Calculate the average results for that run
+  result[["run_results"]] <- get_run_results(
+    result, run_number, simulation_end_time = full_run_length#<<
+  )
+
+  result
+}
+```
+
+### Run the model
+
+```{r}
+param <- create_params()
+result <- model(param = param, run_number = 1L)
+kable(arrange(result[["arrivals"]], start_time))
+kable(result[["run_results"]])
+```
+
+:::
+
+::::
+
 ## Total arrivals
 
 :::: {.callout title="▶&nbsp;&nbsp;View how to record the total arrivals" collapse="true"}
@@ -553,7 +852,7 @@ For this measure, we need to record the **time each patient spent waiting** for 
 
 A new attribute `wait_time` is added to the `Patient` class.
 
-As it is an attribute, we have to give `wait_time` an initial value. A value like 0 would wrongly look like "no wait", so `np.nan` is used instead to clearly mean "we don't know this patient's wait time yet". Patients who still have `wait_time = np.nan` at the end of the simulation are those who were never seen, and this is used below when calculating metrics for unseen (backlogged) patients.
+As it is an attribute, we have to give `wait_time` an initial value. A value like 0 would wrongly look like "no wait", so `np.nan` is used instead to clearly mean "we don't know this patient's wait time yet". Patients who still have `wait_time = np.nan` at the end of the simulation are those who were never seen, and this is used below when calculating metrics for unseen (backlogged) patients. Patients who have `wait_time = 0` at the end of the simulation did not wait for the resource (doctor) as the resource was free.
 
 ```{python}
 class Patient:
@@ -1285,6 +1584,8 @@ kable(result[["run_results"]])
 
 Mean utilisation measures the proportion of available doctor time that is actually used during the data collection period. We have suggested two different approaches for measuring utilisation - both return the same result.
 
+### Approach 1
+
 The first approach is **easier to understand**, as it just sums consultation times for each patient. However, it relies on making **corrections** when consultations overlap the end of the simulation or span the warm-up and data collection periods.
 
 ::: {.callout title="▶&nbsp;&nbsp;View how to record utilisation" collapse="true"}
@@ -1567,7 +1868,9 @@ class Runner:
 
 :::
 
-While this method introduces a **new class** and may initially seem **harder to grasp**, it has the advantage of requiring **fewer changes** to the rest of the simulation code. It is also handy for [choosing the length of the warm-up period](length_warmup.qmd), as it provides you with utilisation at each timepoint (rather than a final overall utilisation).
+### Approach 2
+
+This second approach introduces a **new class** and may initially seem **harder to grasp**, but it has the advantage of requiring **fewer changes** to the rest of the simulation code. It is also handy for [choosing the length of the warm-up period](length_warmup.qmd), as it provides you with utilisation at each timepoint (rather than a final overall utilisation).
 
 ::: {.callout title="▶&nbsp;&nbsp;View how to record utilisation (time-weighted approach)" collapse="true"}
 
@@ -1610,9 +1913,9 @@ class MonitoredResource(simpy.Resource):
         Parameters
         ----------
         *args :
-            Positional arguments to be passed to the parent class.
+            Positional arguments to be passed to the parent class constructor.
         **kwargs :
-            Keyword arguments to be passed to the parent class.
+            Keyword arguments to be passed to the parent class constructor.
         """
         # Initialise a SimPy Resource
         super().__init__(*args, **kwargs)
@@ -1715,9 +2018,9 @@ class MonitoredResource(simpy.Resource):
         Parameters
         ----------
         *args :
-            Positional arguments to be passed to the parent class.
+            Positional arguments to be passed to the parent class constructor.
         **kwargs :
-            Keyword arguments to be passed to the parent class.
+            Keyword arguments to be passed to the parent class constructor.
         """
         # Initialise a SimPy Resource
         super().__init__(*args, **kwargs)
@@ -1725,9 +2028,11 @@ class MonitoredResource(simpy.Resource):
         self.init_results()
 ```
 
-This class inherits SimPy's `Resource` class (if new to inheritance, see the [Code organisation](../setup/code_structure.qmd) page for an introduction). This means it has same functionality, but we can modify, etcetc.
+This class inherits SimPy's `Resource` class (if new to inheritance, see the [Code organisation](../setup/code_structure.qmd) page for an introduction). This means it has same functionality, but we can modify and add to it.
 
-In the `__init__` method, the class is initialised as it would be for a standard resource class, but then also calls the new `init_results` method.
+In the `__init__` method, we initialise the object by calling the constructor of the parent `simpy.Resource` class via `super().__init__(*args, **kwargs)`, passing through all positional and keyword arguments unchanged. We then call the new `init_results` method to set up the monitoring attributes.
+
+> Those with a C/C++ background might see `*args` and `**kwargs` and think of variable argument lists. In Python, `*` and `**` are used to collect (and later unpack) positional and keyword arguments, which we forward directly to the parent class constructor and methods using `super(...)(*args, **kwargs)`.
 
 <br>
 
@@ -1908,6 +2213,8 @@ class Runner:
 ```
 
 :::
+
+Moving forward, as we develop the code in the rest of the book (for example, when we introduce [replications](replications.qmd) on the next page), we will use the second, time‑weighted utilisation approach.
 
 ::::
 
@@ -4237,7 +4544,7 @@ The value is much closer to the true "average" experienced in time, because the 
 
 The same logic applies for the other performance measures. In the code, we track the product of value and duration ("area under the curve") for each metric, then divide the total by the observation time.
 
-It's called "**area under the curve**" because, when you plot the measure (e.g., queue length) over time, the total area of all the rectangles you get under the curve (height=queue x width=time) returns your average.
+It's called "**area under the curve**" because, when you plot the measure (e.g., queue length) over time, the total area of all the rectangles you get under the curve, divided by the time elapsed, returns your average.
 
 ```{r}
 #| echo: false

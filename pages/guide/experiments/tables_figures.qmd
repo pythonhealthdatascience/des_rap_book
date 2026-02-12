@@ -1,5 +1,7 @@
 ---
 title:  Tables and figures
+filters:
+  - line-highlight
 bibliography: scenarios_resources/references.bib
 date: "2025-10-24T10:55:25+01:00"
 ---
@@ -32,21 +34,30 @@ This page uses the results saved on the [Scenario and sensitivity analysis](scen
 
 **Required packages:**
 
-These should be available from environment setup on the [Structuring as a package](/pages/guide/setup/package.qmd) page. 
+The following imports are required. These should be available from environment setup on the [Structuring as a package](/pages/guide/setup/package.qmd) page. 
 
 ::: {.python-content}
 
-```{python}
-import os
+On this page, we have three new imports: `os`, `matplotlib.colors` and `plotly.graph_objects`.
 
+```{python}
+# For display purposes:
 from IPython.display import HTML
 from itables import to_html_datatable
-import matplotlib.colors as mcolors
+
+# For the simulation modelling and analysis:
+import itertools
+import os#<<
+import time
+from joblib import Parallel, delayed, cpu_count
+import matplotlib.colors as mcolors#<<
 import numpy as np
 import pandas as pd
 import plotly.express as px
-import plotly.graph_objects as go
+import plotly.graph_objects as go#<<
 import scipy.stats as st
+import simpy
+from sim_tools.distributions import Exponential
 ```
 
 ```{python}
@@ -149,7 +160,6 @@ It uses the `summary_stats()` function introduced on the [Replications](../outpu
 ::: {.callout-note title="View `summary_stats()`" collapse="true"}
 
 ```{python}
-#| echo: false
 #| file: ../output_analysis/replications_resources/summary_stats.py
 ```
 
@@ -206,6 +216,8 @@ def summarise_scenarios(results, groups, result_vars, path_prefix=None):
 
 ### Scenario analysis
 
+Here and throughout page, we will save results to a folder called `tables_figures_resources`, and then a subfolder (e.g., `python_scenario/`). You can rename this path (e.g. to `os.path.join("results", "scenario"))`), or otherwise, create the listed directory structure (here, `tables_figures_resources/python_scenario/`).
+
 ```{python}
 result_variables = [
     "mean_wait_time",
@@ -224,6 +236,8 @@ scenario_tables = summarise_scenarios(
     path_prefix=os.path.join("tables_figures_resources", "python_scenario")
 )
 ```
+
+Click the name of each metric below to view the relevant dataframe:
 
 ::: {.panel-tabset}
 
@@ -269,6 +283,8 @@ sensitivity_tables = summarise_scenarios(
     path_prefix=os.path.join("tables_figures_resources", "python_sensitivity")
 )
 ```
+
+Click the name of each metric below to view the relevant dataframe:
 
 ::: {.panel-tabset}
 
@@ -370,6 +386,8 @@ scenario_tables <- summarise_scenarios(
 )
 ```
 
+Click the name of each metric below to view the relevant table:
+
 ::: {.panel-tabset}
 
 ## Mean wait time
@@ -415,6 +433,8 @@ sensitivity_tables <- summarise_scenarios(
 )
 ```
 
+Click the name of each metric below to view the relevant table:
+
 ::: {.panel-tabset}
 
 ## Mean wait time
@@ -456,6 +476,8 @@ kable(sensitivity_tables[["mean_patients_in_system"]])
 :::: {.python-content}
 
 These functions are used to plot the results from the scenarios and sensitivity analysis.
+
+We have used [plotly.express](https://plotly.com/python/plotly-express/) for our plots.
 
 ```{python}
 def pale_colour(colour, alpha=0.2):
@@ -620,6 +642,8 @@ scenario_plots = plot_metrics(
 )
 ```
 
+Click the name of each metric below to view the relevant plot:
+
 ::: {.panel-tabset}
 
 ## Mean wait time
@@ -654,55 +678,13 @@ scenario_plots["mean_patients_in_system"]
 
 :::
 
-### Sensitivity analysis
-
-```{python}
-sensitivity_plots = plot_metrics(
-    summary_tables=sensitivity_tables,
-    name_mappings=name_mappings,
-    path_prefix=os.path.join("tables_figures_resources", "python_sensitivity")
-)
-```
-
-::: {.panel-tabset}
-
-## Mean wait time
-
-```{python}
-sensitivity_plots["mean_wait_time"]
-```
-
-## Mean utilisation
-
-```{python}
-sensitivity_plots["mean_utilisation_tw"]
-```
-
-## Mean queue length
-
-```{python}
-sensitivity_plots["mean_queue_length"]
-```
-
-## Mean time in system
-
-```{python}
-sensitivity_plots["mean_time_in_system"]
-```
-
-## Mean patients in system
-
-```{python}
-sensitivity_plots["mean_patients_in_system"]
-```
-
-:::
-
 ::::
 
 ::: {.r-content}
 
 This function is used to plot the results from the scenarios and sensitivity analysis.
+
+We have used [ggplot2](https://ggplot2.tidyverse.org/) for our plots.
 
 ```{r}
 #' Plot multiple performance measures at once
@@ -829,6 +811,8 @@ scenario_plots <- plot_metrics(
 )
 ```
 
+Click the name of each metric below to view the relevant plot:
+
 ::: {.panel-tabset}
 
 ## Mean wait time
@@ -863,7 +847,72 @@ scenario_plots[["mean_patients_in_system"]]
 
 :::
 
-These plots look a little funny simple due to the wide confidence intervals - with very short run times and few replications in our illustrative example, the confidence intervals are very wide!
+::::
+
+In the figure, each line shows the result (e.g., mean wait time for a doctor) as the patient inter-arrival time increases. The different coloured lines correspond to a different number of doctors. The shaded bands around each line represent 95% confidence intervals for the mean.
+
+These plots can look a little funny simple due to the wide confidence intervals - with very short run times and few replications in our illustrative example, the confidence intervals are very wide!
+
+::: {.callout-note title="Good practice for plots"}
+
+* Use consistent names for variables on your axis labels.
+* Include units in axis labels (e.g., minutes, days, patients per hour).
+* Make sure to plot uncertainty (e.g., confidence intervals, percentile range).
+* Keep colour and line style consistent across related figures.
+ 
+:::
+
+:::: {.python-content}
+
+### Sensitivity analysis
+
+```{python}
+sensitivity_plots = plot_metrics(
+    summary_tables=sensitivity_tables,
+    name_mappings=name_mappings,
+    path_prefix=os.path.join("tables_figures_resources", "python_sensitivity")
+)
+```
+
+Click the name of each metric below to view the relevant plot:
+
+::: {.panel-tabset}
+
+## Mean wait time
+
+```{python}
+sensitivity_plots["mean_wait_time"]
+```
+
+## Mean utilisation
+
+```{python}
+sensitivity_plots["mean_utilisation_tw"]
+```
+
+## Mean queue length
+
+```{python}
+sensitivity_plots["mean_queue_length"]
+```
+
+## Mean time in system
+
+```{python}
+sensitivity_plots["mean_time_in_system"]
+```
+
+## Mean patients in system
+
+```{python}
+sensitivity_plots["mean_patients_in_system"]
+```
+
+:::
+
+::::
+
+:::: {.r-content}
 
 ### Sensitivity analysis
 
@@ -875,6 +924,8 @@ sensitivity_plots <- plot_metrics(
   path_prefix = file.path("tables_figures_resources", "r_sensitivity")
 )
 ```
+
+Click the name of each metric below to view the relevant plot:
 
 ::: {.panel-tabset}
 
@@ -911,6 +962,8 @@ sensitivity_plots[["mean_patients_in_system"]]
 :::
 
 ::::
+
+In this figure, the blue line shows the result (e.g., mean wait time) as we increase the patient inter-arrival time. The shaded band around the line is a 95% confidence interval, reflecting uncertainty due to random variation between simulation runs.
 
 ## Explore the example models
 

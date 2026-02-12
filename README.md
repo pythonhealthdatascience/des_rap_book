@@ -78,6 +78,12 @@ You can also cite the archived version of this work on Zenodo: https://doi.org/1
 
 <br>
 
+## Accessibility
+
+This site uses [W3C's Web Accessibility Initiative (WAI) Easy Checks](https://www.w3.org/WAI/test-evaluate/easy-checks/) as a lightweight accessibility framework. Please see this [GitHub issue](https://github.com/pythonhealthdatascience/des_rap_book/issues/188) for a record of which checks are currently met and any known limitations.
+
+<br>
+
 ## Contributors
 
 If you're interested in contributing (or just viewing this website locally), check out the `CONTRIBUTING.md` file.
