@@ -437,53 +437,7 @@ First, we compute P0 which is the probability that the system is completely empt
         """
         # Sum for n = 0 to s-1
         sum_part = sum(
-            (self.lambda_over_mu**n) / math.factorial(n)# Validates a discrete event simulation of a healthcare M/M/S queue by
-# comparing simulation results to analytical queueing theory.
-#
-# Metrics (using standard queueing theory notation):
-# - ρ (rho): utilisation
-# - Lq: mean queue length
-# - W: mean time in system
-# - Wq: mean waiting
-#
-# Results must match theory with a 15% tolerance (accomodates stochasticity).
-# Tests are run across diverse parameter combinations and utilisation levels.
-# System stability requires arrival rate < number_of_servers * service_rate.
-
-
-#' Run simulation and return key performance indicators using standard queueing
-#' theory notation.
-#'
-#' The warm-up period should be sufficiently long to allow the system to reach
-#' steady-state before data collection begins.
-
-run_simulation_model <- function(
-  patient_inter, mean_n_consult_time, number_of_nurses
-) {
-  # Run simulation
-  param <- parameters(
-    patient_inter = patient_inter,
-    mean_n_consult_time = mean_n_consult_time,
-    number_of_nurses = number_of_nurses,
-    warm_up_period = 500L,
-    data_collection_period = 1500L,
-    number_of_runs = 100L,
-    scenario_name = 0L,
-    cores = 1L
-  )
-  run_results <- runner(param)[["run_results"]]
-
-  # Get overall results, using queueing theory notation in column names
-  results <- run_results |>
-    summarise(
-      RO = mean(.data[["utilisation_nurse"]]),
-      Lq = mean(.data[["mean_queue_length_nurse"]]),
-      W = mean(.data[["mean_time_in_system"]]),
-      Wq = mean(.data[["mean_waiting_time_nurse"]])
-    )
-  results
-}
-
+            (self.lambda_over_mu**n) / math.factorial(n)
             for n in range(self.num_servers)
         )
 
