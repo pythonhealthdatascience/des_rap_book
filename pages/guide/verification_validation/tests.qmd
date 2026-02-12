@@ -21,7 +21,7 @@ date: "2025-11-05T11:21:31+00:00"
 
 **Pre-reading:**
 
-This page will run tests on the model from the [parallel processing](../output_analysis/parallel.qmd) page (likewise, also used on the [scenario and sensitivity analysis](../experiments/scenarios.qmd) page).
+This page will run tests on the model from the [parallel processing](../output_analysis/parallel.qmd) page.
 
 > *Entity generation → Entity processing → Initialisation bias → Performance measures → Replications → Parallel processing → Tests*
 
@@ -60,8 +60,10 @@ def test_positive():
     Confirm that the number is positive.
     """
     number = 5
-    assert number > 0, "The number should be positive"
+    assert number > 0
 ```
+
+This is a minimal example of a test. In this test, we hard‑code `number = 5` inside the function and then use an `assert` to check that it is positive. This test is just for illustration and should always pass. In the examples below, we will do more interesting things than this.
 
 :::
 
@@ -86,6 +88,8 @@ test_that("Confirm that the number is positive", {
   expect_gt(number, 0L)
 })
 ```
+
+This is a minimal example of a test. In this test, we hard‑code `number <- 5L` inside the function and then use `expect_gt()` to check that it is positive. This test is just for illustration and should always pass. In the examples below, we will do more interesting things than this.
 
 ### Setting up a testing structure with testthat
 
@@ -125,6 +129,8 @@ pytest.main(["tests_resources/test_example_simple.py"])
 
 :::
 
+In this book, we have to run `pytest` from within Python, so you also see a final line like `<ExitCode.OK: 0>`. When you run `pytest` directly in your own terminal, you will just see the usual summary line (for example, `1 passed in 0.01s`) and not this extra ExitCode line.
+
 ::::
 
 ::: {.r-content}
@@ -138,6 +144,8 @@ Tests are typically run from the R console. Commands include:
 When you run a test, you'll see output in the console indicating whether tests passed or failed.
 
 :::
+
+If you try changing the number to a negative value, you should find that the test returns an error.
 
 ### Parametrised tests
 
@@ -192,7 +200,7 @@ There are many different ways of categorising tests. We will focus on three type
 * **Unit testing**
 * **Back testing**
 
-As mentioned above, we are running these tests on the model from the [parallel processing](../output_analysis/parallel.qmd) page (which is also the one used on the [scenario and sensitivity analysis](../experiments/scenarios.qmd) page).
+As mentioned above, we are running these tests on the model from the [parallel processing](../output_analysis/parallel.qmd) pag.
 
 :::: {.python-content}
 
@@ -229,6 +237,10 @@ For example, we expect that the number of arrivals should decrease if:
 * The length of the data collection period decreases.
 
 :::: {.python-content}
+
+In your test file, you need to import the model classes you want to test If your code is split across files, you might use something like: `from simulation.parameters import Parameters` and `from simulation.runner import Runner`. If your model lives in a single file (for example `simulation.py`), you can import directly as: `from simulation import Parameters, Runner`.
+
+Make sure you run `pytest` from the project root (the folder that contains the `tests/` directory). For example: `pytest tests/test_functional.py`. This lets Python find your simulation package or module correctly when the tests import it.
 
 ```{python}
 {{< include tests_resources/test_functional.py >}}
@@ -275,7 +287,7 @@ cases(
 
 :::
 
-As another example, we expect that our model should fail if the number of doctors or the patient inter-arrival time were set to 0. This is tested using `test_zero_inputs`:
+Here's another example of a functional test. In this case, we **expect the model to raise an error when we give it clearly invalid inputs** (for example, setting the number of doctors or the inter‑arrival time to 0). The test will **pass** if creating the model with these zero values raises the expected error with the right message, and it will **fail** only if no error (or the wrong error/message) is raised.
 
 :::: {.python-content}
 
@@ -434,33 +446,29 @@ testthat::test_file(file.path("tests_resources", "test_back.R"))
 
 :::
 
+::: {.callout-tip title="Break the test!"}
+
+Want to see this back test fail? Change one of the parameters in the test (for example, set the inter-arrival time to 4 instead of 5). The model will now produce different results from the saved `.csv` files, and the test should fail.
+
+:::
+
+#### Generating the expected results for our back test
+
 ::: {.python-content}
 
-We generate the expected results for our backtest in a **seperate Python file or Jupyter notebook**, rather than within the test itself.
+We generate the expected results for our backtest in a **seperate Python script or Jupyter notebook**, rather than within the test itself.
 
 :::
 
 ::: {.r-content}
 
-We generate the expected results for our backtest in a **seperate R file or R markdown file**, rather than within the test itself.
+We generate the expected results for our backtest in a **seperate R script or R markdown file**, rather than within the test itself.
 
 :::
 
-We then would generally run tests using the same pre-generated `.csv` files, without regenerating them. However, the test will **fail if the model logic is intentionally changed**, leading to different results from the same parameters.
+We save these results as `.csv` files and then write a test that re-runs the model with the same parameters and compares the new results against the saved `.csv` files. The test passes if the new results exactly match the stored ones, and fails if they differ.
 
-::: {.python-content}
-
-In that case, if we are **certain** that these changes are the reason for differing results, we should re-run the Python file or notebook to regenerate the `.csv`.
-
-:::
-
-::: {.r-content}
-
-In that case, if we are **certain** that these changes are the reason for differing results, we should re-run the R file or R markdown file to regenerate the `.csv`.
-
-:::
-
-It is crucial to exercise caution when doing this, to avoid unintentionally overwriting correct expected results.
+If we intentionally change the model logic, we expect this back test to start failing, because the model now produces different results from before. In that situation, and only when we are confident the changes are correct, we rerun the code to regenerate the expected `.csv` files. We need to be careful when doing this, so we do not accidentally overwrite correct expected results with incorrect ones.
 
 ## Other things you can do when testing code
 
