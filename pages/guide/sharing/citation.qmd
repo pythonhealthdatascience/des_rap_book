@@ -49,7 +49,9 @@ This page explains why and how to provide citation instructions in your simulati
 
 > Explicitly list and acknowledge everyone who played a role in the project (including minor contributions). There are structured frameworks which can be used to specify roles, like the [Contributor Role Taxonomy (CRediT)](https://credit.niso.org/) for research projects.
 
-For `CITATION.cff` files...
+<br>
+
+Many repositories use a CITATION.cff file to store structured citation metadata for software and datasets. This plain-text file is both human- and machine-readable and is supported by tools like GitHub, Zenodo, and Zotero. For repositories using `CITATION.cff` files, additional benefits are that it is...
 
 **Used when archiving**
 
@@ -65,7 +67,7 @@ For `CITATION.cff` files...
 
 ### `CITATION.cff`
 
-A `CITATION.cff` file is a plain text file with a standard structure to share citation metadata for software or datasets.
+As mentioned above, a `CITATION.cff` file is a plain text file with a standard structure to share citation metadata for software or datasets.
 
 The easiest way to create this file is using the [cffinit](https://citation-file-format.github.io/cff-initializer-javascript/#/) web application. It will guide you through the required information, and generate a `CITATION.cff` file at the end.
 
@@ -85,9 +87,15 @@ As an example, the `CITATION.cff` from the repository for this book:
 
 * **Zotero:** The Zotero reference manager uses `CITATION.cff` when importing the repository as a reference.
 
-* **GitHub:** Adds a "Cite this repository" button to the sidebar, which provides APA and BibTeX citations (based on the `CITATION.cff` file), and links to the file. For example:
+* **GitHub:** Adds a "Cite this repository" button to the sidebar, which provides APA and BibTeX citations (based on the `CITATION.cff` file), and links to the file.
 
-![](citation_resources/cff_github.png){fig-alt="Screenshot of GitHub 'Cite this repository'."}
+::: {.callout-tip title="Why Zenodo and Zotero matter for your model"}
+
+**Zenodo:** Archiving a release of your GitHub repo on Zenodo gives your software a DOI, and Zenodo can read your `CITATION.cff` to auto‑populate title, authors, and version. This means others can cite the exact version of your model reproducibly.
+
+**Zotero:** Many collaborators and reviewers manage references in Zotero. Having a DOI and structured metadata (via `CITATION.cff` or Zenodo) lets them add your software to their library and cite it like a paper or dataset.
+
+:::
 
 ### `README.md`
 
@@ -120,11 +128,11 @@ Heather, A., Monks, T., Mustafee, N., Harper, A., Alidoost, F., Challen, R., & S
 If you have [structured your model as a package](../setup/package.qmd), then you can include some citation instructions within the package.
 
 :::{.python-content}
-Depending on your package manager, you can include citation and author details in several ways...
+Depending on your package manager, you can include citation and author details in several ways. A package manager is a tool that helps you build, install, and share your Python project as a package; it usually reads project metadata from a configuration file called `pyproject.toml`. This file can store information such as the package name, version, and authors, which users and tools can then use when citing your work.
 
 <br>
 
-**Flit:** Our tutorial used this as it is a very basic minimalist package manager. It had `__init.py` and `pyproject.toml` files. We can amend the `pyproject.toml` to add some citation information as follows:
+**Flit:** Our tutorial used Flit, a minimalist package manager that keeps configuration in a `pyproject.toml` file. You can add basic citation information (such as your name and email) to the `[project]` section so it is recorded as part of the package metadata:
 
 ```{.bash}
 [build-system]
@@ -141,7 +149,7 @@ authors = [
 
 <br>
 
-**Poetry:** Another popular manager, this has project details within `pyproject.toml` like so:
+**Poetry:** Poetry is another popular tool for managing dependencies and packaging, which also uses `pyproject.toml` to store project details. Here, citation‑related information like the package name, version, and authors is defined under the `[tool.poetry]` section:
 
 ```{.bash}
 [tool.poetry]
@@ -150,6 +158,11 @@ version = "0.1.0"
 authors = ["First Last <firstname.lastname@example.com>"]
 readme = "README.md"
 ```
+
+<br>
+
+Other tools follow the same idea, but the exact section and format depend on the package manager you use.
+
 :::
 
 :::{.r-content}

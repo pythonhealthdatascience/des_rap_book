@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Dates formatted as YYYY-MM-DD as per [ISO standard](https://www.iso.org/iso-8601-date-and-time-format.html).
 
+## v0.5.0 - 2026-02-20
+
+This release has lots and lots of changes based on peer review of the book from Nav Mustafee, Rob Challen, Tom Slater and Alison Harper. Other changes include addressing FAIRness requirements, switching R length of warm-up analysis to use intervals, and improving the docker action used to build the site.
+
+### Added
+
+* Addressed FAIRness requirements ([#170](https://github.com/pythonhealthdatascience/des_rap_book/issues/170)), with some larger changes including:
+    * Addition of action which checks all images have alt text.
+    * New "Impact" page.
+
+### Changed
+
+* R length of warm-up now uses intervals.
+* Improved `docker_quarto.yaml` (shorter run-time as doesn't need to restore renv every time build book).
+* Addressed peer review feedback from Nav Mustafee ([#149](https://github.com/pythonhealthdatascience/des_rap_book/issues/149), [#150](https://github.com/pythonhealthdatascience/des_rap_book/issues/150), [#158](https://github.com/pythonhealthdatascience/des_rap_book/issues/158), and [#161](https://github.com/pythonhealthdatascience/des_rap_book/issues/161)).
+* Addressed peer review feedback from Rob Challen ([#152](https://github.com/pythonhealthdatascience/des_rap_book/issues/152) and sub-issues).
+* Addressed peer review feedback from Tom Slater ([#172](https://github.com/pythonhealthdatascience/des_rap_book/issues/172) and sub-issues).
+* Addressed peer review feedback from Alison Harper ([#169](https://github.com/pythonhealthdatascience/des_rap_book/issues/169) and sub-issues).
+* Add all-contributors CLI instructions to `CONTRIBUTING.md`.
+
 ## v0.4.0 - 2026-01-06
 
 ### Added

@@ -61,13 +61,13 @@ Popular R style guides include:
 
 :::
 
-You are not required to follow style guides, but they are recommended for writing clear, maintainable, and consistent code. The easiest way to enforce their requirements is using linters or code formatters.
+You are not required to follow style guides, but they are recommended for writing clear, maintainable, and consistent code. The guides themselves are written documents; tools like **linters** and **code formatters** help you check your code against them automatically.
 
 ## Linters
 
 **Linters** are tools that analyse code for:
 
-* **Possible errors** - looking for issues like unused variables and code complexity.
+* **Possible errors** - looking for issues like unused variables, unreachable code, and code complexity.
 * **Style issues** - enforcing requirements from style guides.
 
 They are often run from the terminal/command line, and return a list of suggestions for you to address. Sometimes, they might flag code that you have intentionally written, and it's okay to disagree with their suggestion to change it!
@@ -80,20 +80,15 @@ They are handy for "desk checking" as part of your model [verification](../verif
 
 Popular linters in Python include:
 
-* [**pylint**](https://pypi.org/project/pylint/) - detailed linter that detects errors, bugs, variable naming issues, and other code problems.
+* [**pylint**](https://pypi.org/project/pylint/) - detailed linter that detects potential bugs (for example, undefined variables or unreachable code) as well as style and naming issues.
 
 * [**flake8**](https://pypi.org/project/flake8/) - lightweight tool focused on PEP-8 style, basic errors, and code complexity.
 
-* [**ruff**](https://pypi.org/project/ruff/) - modern, ultra-fast linter that implements checks from Flake8 and some other popular plugins. It is also a code formatter (see below) - though note: the linter does not report every issue that can be fixed by the formatter. Stylistic issues are handled silently by the formatter and not surfaced as lint errors - so the linter is intentionally more restricted in scope than the formatter.
+* [**ruff**](https://pypi.org/project/ruff/) - modern, ultra-fast linter that re-implements many of Flake8's checks (and popular Flake8 plugins) inside Ruff itself, so it can often be used as a drop‑in replacement. It is also a code formatter (see below) - though note: the linter does not report every issue that can be fixed by the formatter. Stylistic issues are handled silently by the formatter and not surfaced as lint errors - so the linter is intentionally more restricted in scope than the formatter.
 
 You can use several linters, or choose one that suits you best.
 
-To better understand their differences, let's run them on a some poor quality code. We can see that:
-
-* Both identify the trailing whitespace.
-* Pylint identifies the missing module and function docstrings, and the function name.
-* Flake8 identifies the missing whitespace around an operator.
-* Ruff did not identify any issues! This is because the linter incorporates some - but not all - of Flake8's checks - and it doesn't check whitespace by default.
+To better understand their differences, let's run them on a some poor quality code. 
 
 `code.py`:
 
@@ -148,6 +143,27 @@ result = subprocess.run(
 )
 print(result.stdout)
 ```
+
+We can see that:
+
+* Pylint and Flake8 both identify the trailing whitespace.
+* Pylint identifies the missing module and function docstrings, and the function name.
+* Flake8 identifies the missing whitespace around an operator.
+* Ruff did not identify any issues. This is because, by default, Ruff only enables Flake8's "error" rules (F and a subset of E) and omits many purely stylistic checks, such as whitespace‑only issues, which are instead handled by formatters like `ruff format` or Black.
+
+<br>
+
+::: {.callout-tip title="Final newline"}
+
+If you try running this example locally, you may get another error too:
+
+`C0304: Final newline missing (missing-final-newline)`
+
+This will be present if you don't include a blank line at the end of your `.py` file.
+
+**Note:** In editors like VS Code, you can avoid this by enabling the "Insert Final newline" setting, which automatically adds a newline at the end of the file when you save. On VS Code, go to File -> Preferences -> Settings then search `insertfinalnewline` and click the box by "Files: Insert Final Newline".
+
+:::
 
 <br>
 
@@ -208,7 +224,9 @@ Popular code formatters in Python include:
 
 * [**ruff**](https://github.com/astral-sh/ruff) - designed to be a drop-in replacement for `black` that should have a near identical output, but runs faster.
 
-As an example, if we ran either of these code formatters on our example by executing `black linting_resources/code.py` or `ruff format linting_resources/code.py`, they would alter the file as follows:
+As an example, if we ran either of these code formatters on our example by executing `black linting_resources/code.py` or `ruff format linting_resources/code.py`, they would update the file in place.
+
+Below, we show the changes as a unified diff for illustration:
 
 ```{python}
 #| echo: false
@@ -240,6 +258,8 @@ html_output = re.sub(r'font-family:.*?;', '', html_output)
 # Display
 HTML(html_output)
 ```
+
+When you run `black` or `ruff format` normally, they just rewrite the file and either print nothing or a short "reformatted file.py" message. Using a `--diff` option or version control tools like `git diff` is what produces the `---`, `+++`, and `+`/`-` markers shown above.
 
 :::
 
@@ -479,7 +499,13 @@ Linters will sometimes flag things that you don't want to change. For example:
 If you want to ignore these warnings, you can disable them in your code **using comments**. For example:
 
 ```{.python}
-# pylint: disable=wrong-import-position
+# pylint: disable=too-many-arguments
+```
+
+You can also disable multiple warnings at once by listing them, separated by commas:
+
+```{.python}
+# pylint: disable=too-many-arguments,missing-module-docstring
 ```
 
 You can place this comment:
@@ -487,12 +513,6 @@ You can place this comment:
 * At the top of a code cell or file to disable the warning for everything below it.
 * Directory above a line or block of code to apply it only there.
 * At the end of a specific line to disable it just for that line.
-
-You can also disable multiple warnings at once by listing them, separated by commas:
-
-```{.python}
-# pylint: disable=too-many-arguments,missing-module-docstring
-```
 
 :::
 
@@ -660,7 +680,7 @@ lint.sh
 
 {{< include /html/pydesrapstroke.html >}}
 
-These repositories use `pylint` for linting, and can run it on model code, tests and notebooks with a single command using `lint.sh`. They have a GitHub action described in `lint.yaml` which runs the script on pushes to main.
+These repositories use `pylint` for linting, and can run it on model code, tests and notebooks with a single command using `lint.sh`. They have a GitHub actions workflow (`.github/workflows/lint.yaml`) that is configured to run this script automatically whenever new commits are pushed to the `main` branch, so linting happens on every update to the main version of the code.
 
 :::
 
@@ -670,7 +690,7 @@ These repositories use `pylint` for linting, and can run it on model code, tests
 
 {{< include /html/rdesrapstroke.html >}}
 
-These repositories use `lintr`. They have a GitHub action described in `lint.yaml` which runs the linter on pushes to main. Settings are provided in `.lintr`.
+These repositories use `lintr`. They have a GitHub actions workflow (`.github/workflows/lint.yaml`) that is configured to run `lintr` automatically whenever new commits are pushed to the `main` branch, so linting happens on every update to the main version of the code. Settings are provided in `.lintr`.
 
 :::
 

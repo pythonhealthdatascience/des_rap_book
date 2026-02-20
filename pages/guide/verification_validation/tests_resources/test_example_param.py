@@ -6,8 +6,9 @@ def test_positive_param(number):
     """
     Confirm that the number is positive.
 
-    Arguments:
-        number (float):
-            Number to check.
+    Parameters
+    ----------
+    number : float
+        Number to check.
     """
-    assert number > 0, f"The number {number} is not positive."
+    assert number > 0

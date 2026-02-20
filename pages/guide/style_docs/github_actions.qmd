@@ -9,7 +9,7 @@ date: "2025-11-03T10:48:30+00:00"
 
 **Learning objectives:**
 
-* Recognise the utility of CI/CD for RAP.
+* Recognise the utility of CI/CD (Continuous Integration and Continuous Delivery/Deployment) for RAP.
 * Understand the basic structure and set-up of GitHub actions.
 * Explore some example actions that could be relevant for your research.
 
@@ -23,13 +23,13 @@ This page assumes your simulation project is in a GitHub repository - set-up gui
 
 ::::
 
-## Continuous Integration, Continuous Delivery, and Continuous Deployment (CI/CD)
+## Continuous Integration and Continuous Delivery/Deployment (CI/CD)
 
 <div class="h3-tight"></div>
 
 ### Definition
 
-CI/CD processes (Continuous Integration, Continuous Delivery, and Continuous Deployment) are a valuable tool for reproducible analytical pipelines. These processes are typically defined as follows:
+CI/CD processes (Continuous Integration and Continuous Delivery/Deployment) are a valuable tool for reproducible analytical pipelines. These processes are typically defined as follows:
 
 ::: {.blue}
 
@@ -39,6 +39,8 @@ CI/CD processes (Continuous Integration, Continuous Delivery, and Continuous Dep
 
 **Continuous deployment (CD):** Extends CD by releasing changes automatically to production as soon as all tests pass, with no manual approval required.
 
+*It may seem a little odd that CD is used for both continuous delivery and continuous deployment, but this dual use is the standard convention in most CI/CD tooling and documentation.*
+
 :::
 
 **Further information**
@@ -47,7 +49,7 @@ CI/CD processes (Continuous Integration, Continuous Delivery, and Continuous Dep
 
 ### Relevance for your simulation RAP
 
-CI will be **relevant for all projects**. CI automates checks on your code and outputs to ensure reliability and code quality. This can include tests, linting, formatting and other checks.
+CI will be **relevant for all projects**. CI automates checks on your code and outputs to ensure reliability and code quality. This can include tests, linting, formatting and other checks. It can also support collaborative work by running these checks automatically whenever team members merge or push changes into a shared branch (for example, using GitHub Actions on the `main` branch).
 
 CD **may not be needed for every project**, but it can be useful:
 
@@ -101,9 +103,9 @@ Creating a GitHub action to run your model tests is really helpful, as it helps 
 
 ::: {.python-content}
 
-This simple action will install Python 3.13 and dependencies in a `requirements.txt` file, then run `pytest()`.
+This simple GitHub Actions workflow will install Python 3.13 and dependencies in a `requirements.txt` file, then run `pytest()`.
 
-> **Note:** We'd recommend using `requirements.txt` for GitHub actions as it is much simpler than working with conda for these. We typically maintain an `environment.yaml` file for working with conda locally, and then an equivalent `requirements.txt` for GitHub actions.
+> **Note:** We'd recommend using `requirements.txt` for GitHub actions as it is much simpler than working with conda inside CI. Locally, we typically maintain a full `environment.yaml` file for conda (which includes the Python version and all dependencies), and then create a corresponding `requirements.txt` listing the Python packages needed to run the project in GitHub Actions. In other words, `requirements.txt` is a pip-style dependency list derived from the same environment as `environment.yaml`, tailored for use in CI.
 
 ```{.yaml}
 name: tests

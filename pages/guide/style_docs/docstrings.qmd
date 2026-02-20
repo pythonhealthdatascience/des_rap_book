@@ -166,7 +166,7 @@ In‑line comments should be concise and avoid clutter; more is not necessarily 
     Import SimPy and load the documentation for the `Environment()` class.
 
     ```{.python}
-    library(simpy)
+    import simpy
     help(simpy.core.Environment)
     ```
 
@@ -201,46 +201,24 @@ Two popular ones include:
 
 In our example models, we have used NumPy style. Below, we illustrate both approaches for comparison.
 
-### Function
+### Module
 
-**NumPy style:**
+A module is a `.py` file within a package containing package code, like functions or classes. Each `.py` file is considered a module, and modules can be used to group related code together.
 
-```{python}
-def estimate_wait_time(queue_length, avg_service_time):
-    """
-    Estimate the total wait time for all customers in the queue.
+Module docstrings - similar to tests - are usually brief, giving an overview of the file's purpose and main contents, without necessarily following a strict style guide.
 
-    Parameters
-    ----------
-    queue_length : int or float
-        Number of customers currently in the queue.
-    avg_service_time : int or float
-        Average time taken to serve one customer.
+**Example:**
 
-    Returns
-    -------
-    float
-        Estimated total wait time.
-    """
-    return queue_length * avg_service_time
-```
+```{.python}
+"""
+hospital.py
 
-**Google style:**
+A simple healthcare utility module.
 
-```{python}
-def estimate_wait_time(queue_length, avg_service_time):
-    """Estimate the total wait time for all customers in the queue.
-
-    Args:
-        queue_length (int or float): Number of customers currently in the
-            queue.
-        avg_service_time (int or float): Average time taken to serve one
-            customer.
-
-    Returns:
-        float: Estimated total wait time.
-    """
-    return queue_length * avg_service_time
+Provides:
+- A function to estimate patient wait times in a queue.
+- A class to represent a patient and manage their admission status.
+"""
 ```
 
 ### Class
@@ -322,6 +300,48 @@ class Patient:
 
 ```
 
+### Function
+
+**NumPy style:**
+
+```{python}
+def estimate_wait_time(queue_length, avg_service_time):
+    """
+    Estimate the total wait time for all customers in the queue.
+
+    Parameters
+    ----------
+    queue_length : int or float
+        Number of customers currently in the queue.
+    avg_service_time : int or float
+        Average time taken to serve one customer.
+
+    Returns
+    -------
+    float
+        Estimated total wait time.
+    """
+    return queue_length * avg_service_time
+```
+
+**Google style:**
+
+```{python}
+def estimate_wait_time(queue_length, avg_service_time):
+    """Estimate the total wait time for all customers in the queue.
+
+    Args:
+        queue_length (int or float): Number of customers currently in the
+            queue.
+        avg_service_time (int or float): Average time taken to serve one
+            customer.
+
+    Returns:
+        float: Estimated total wait time.
+    """
+    return queue_length * avg_service_time
+```
+
 ### Test
 
 Tests are a bit different. They usually just have a short, one‑line description without formal parameters or return sections, and are not based on any specific style guide.
@@ -332,26 +352,6 @@ Tests are a bit different. They usually just have a short, one‑line descriptio
 def test_estimate_wait_time():
     """Test estimate_wait_time with sample input and expected output."""
     assert estimate_wait_time(5, 2) == 10
-```
-
-### Module
-
-A module is a `.py` file within a package containing package code, like functions or classes. Each `.py` file is considered a module, and modules can be used to group related code together.
-
-Module docstrings - similar to tests - are usually brief, giving an overview of the file's purpose and main contents, without necessarily following a strict style guide.
-
-**Example:**
-
-```{.python}
-"""
-hospital.py
-
-A simple healthcare utility module.
-
-Provides:
-- A function to estimate patient wait times in a queue.
-- A class to represent a patient and manage their admission status.
-"""
 ```
 
 :::

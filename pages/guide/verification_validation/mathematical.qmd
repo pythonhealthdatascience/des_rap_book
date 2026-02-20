@@ -20,7 +20,7 @@ date: "2025-10-23T16:24:23+01:00"
 
 This page implements mathematical proof of correctness implemented on the [verification and validation page](verification_validation.qmd). It does so within a test ([tests](tests.qmd) page).
 
-The test is run on the model from the [parallel processing](../output_analysis/parallel.qmd) page (likewise, also used on the [scenario and sensitivity analysis](../experiments/scenarios.qmd) page and [tests](tests.qmd) pages).
+The test is run on the model from the [parallel processing](../output_analysis/parallel.qmd) page.
 
 > *Entity generation → Entity processing → Initialisation bias → Performance measures → Replications → Parallel processing → Mathematical proof of correctness*
 
@@ -90,11 +90,11 @@ A mathematical model is a set of equations or formulas that describe how systems
 
 Real-world systems are often too complex for neat equations (e.g., variable arrivals, different service rules or other complex features). In these cases, discrete-event simulation allows us to better mimic the system. However, if your simulation is simple enough - or if you start with a basic model to verify your code (and later build in complexity) - you can use mathematical proof of correctness.
 
-The small example we've been building throughout this book is an instance of an **M/M/s queue model** (as is the nurse visit simulation example). For a reminder on what an M/M/s queue model is, see the section "*Find out more about M/M/s models*" on the [example conceptual models](/pages/example_models/example_models.qmd) page. In the following sections, we'll show how to verify our small example by comparing it to a mathematical model.
+The simple example we've been building throughout this book is an instance of an **M/M/s queue model** (as is the nurse visit simulation example). For a reminder on what an M/M/s queue model is, see the section "*Find out more about M/M/s models*" on the [example conceptual models](/pages/example_models/example_models.qmd) page. In the following sections, we'll show how to verify our simple example by comparing it to a mathematical model.
 
 ## Simulation code
 
-The model used is the same as that on the [parallel processing](../output_analysis/parallel.qmd) page - as also used on the [scenario and sensitivity analysis](../experiments/scenarios.qmd) and [tests](tests.qmd) pages.
+The model used is the same as that on the [parallel processing](../output_analysis/parallel.qmd) page.
 
 ```{python}
 #| file: "tests_resources/simulation.py"
@@ -437,53 +437,7 @@ First, we compute P0 which is the probability that the system is completely empt
         """
         # Sum for n = 0 to s-1
         sum_part = sum(
-            (self.lambda_over_mu**n) / math.factorial(n)# Validates a discrete event simulation of a healthcare M/M/S queue by
-# comparing simulation results to analytical queueing theory.
-#
-# Metrics (using standard queueing theory notation):
-# - ρ (rho): utilisation
-# - Lq: mean queue length
-# - W: mean time in system
-# - Wq: mean waiting
-#
-# Results must match theory with a 15% tolerance (accomodates stochasticity).
-# Tests are run across diverse parameter combinations and utilisation levels.
-# System stability requires arrival rate < number_of_servers * service_rate.
-
-
-#' Run simulation and return key performance indicators using standard queueing
-#' theory notation.
-#'
-#' The warm-up period should be sufficiently long to allow the system to reach
-#' steady-state before data collection begins.
-
-run_simulation_model <- function(
-  patient_inter, mean_n_consult_time, number_of_nurses
-) {
-  # Run simulation
-  param <- parameters(
-    patient_inter = patient_inter,
-    mean_n_consult_time = mean_n_consult_time,
-    number_of_nurses = number_of_nurses,
-    warm_up_period = 500L,
-    data_collection_period = 1500L,
-    number_of_runs = 100L,
-    scenario_name = 0L,
-    cores = 1L
-  )
-  run_results <- runner(param)[["run_results"]]
-
-  # Get overall results, using queueing theory notation in column names
-  results <- run_results |>
-    summarise(
-      RO = mean(.data[["utilisation_nurse"]]),
-      Lq = mean(.data[["mean_queue_length_nurse"]]),
-      W = mean(.data[["mean_time_in_system"]]),
-      Wq = mean(.data[["mean_waiting_time_nurse"]])
-    )
-  results
-}
-
+            (self.lambda_over_mu**n) / math.factorial(n)
             for n in range(self.num_servers)
         )
 

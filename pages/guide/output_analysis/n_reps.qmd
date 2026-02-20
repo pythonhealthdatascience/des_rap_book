@@ -31,9 +31,9 @@ This page continues on from: [Replications](replications.qmd).
 
 The following imports are required. These should be available from environment setup on the [Structuring as a package](/pages/guide/setup/package.qmd) page.
 
-Since [Replications](replications.qmd), we have several new imports: functions from `typing` and from `sim_tools.output_analysis`.
-
 ::: {.python-content}
+
+Since [Replications](replications.qmd), we have several new imports: functions from `typing` and from `sim_tools.output_analysis`.
 
 ```{python}
 # For display purposes:
@@ -181,7 +181,7 @@ The `desired_precision` parameter is set to 0.1, which means we are interested i
 
 ::: {.callout-note title="Stopping condition: `desired_precision` and confidence intervals"}
 
-We construct a confidence interval for each performance measure at a chosen confidence level (typically 95%). The interval has a half‑width, which is the margin of error around the estimated mean. The `desired_precision` parameter sets how small this half‑width must be relative to the mean (for example, 0.1 means “within 10% of the mean”).
+We construct a confidence interval for each performance measure at a chosen confidence level (typically 95%). The interval has a half‑width, which is the margin of error around the estimated mean. The `desired_precision` parameter sets how small this half‑width must be relative to the mean (for example, 0.1 means "within 10% of the mean").
 
 The confidence interval method keeps increasing the number of replications until this relative half‑width falls below `desired_precision` (and is above `min_rep`), indicating that additional replications are unlikely to change the estimate by more than the chosen percentage.
 
@@ -508,6 +508,20 @@ plot_replication_ci <- function(
 
 :::
 
+`confidence_interval_method()` runs the model for the specified number of replications, and after each replication it updates a single row that summarises what we know so far about the chosen performance measure. It records the most recent value of the metric, the running average across all completed replications, the standard deviation, and the 95% confidence interval around that average (lower and upper bounds). From this interval it also calculates a relative "half‑width" (how far the upper confidence limit is above the mean, as a proportion of the mean), which is compared to desired_precision to decide when you have run enough replications. The function returns a data frame containing this full sequence of per‑replication summaries, and prints a message when the desired precision is first achieved.
+
+We supply `confidence_interval_method` with three main inputs: the parameters, the performance measure to analyse, and the `desired_precision`. The `desired_precision` parameter is set to 0.1, which means we are interested in identifying when the percentage deviation of the confidence interval from the mean falls **below 10%**.
+
+::: {.callout-note title="Stopping condition: `desired_precision` and confidence intervals"}
+
+We construct a confidence interval for each performance measure at a chosen confidence level (typically 95%). The interval has a half‑width, which is the margin of error around the estimated mean. The `desired_precision` parameter sets how small this half‑width must be relative to the mean (for example, 0.1 means "within 10% of the mean").
+
+The confidence interval method keeps increasing the number of replications until this relative half‑width falls below `desired_precision`, indicating that additional replications are unlikely to change the estimate by more than the chosen percentage.
+
+**Note:** The 10% threshold used is our default, but is relatively arbitrary. We are just using it to help us identify the point where results are stable enough.
+
+::: 
+
 ```{r}
 metrics <- c("mean_wait_time_doctor", "utilisation_doctor",
              "mean_queue_length_doctor", "mean_time_in_system",
@@ -525,6 +539,8 @@ for (m in metrics) {
   )
 }
 ```
+
+`plot_replication_ci()` then takes that data frame and produces a plot showing how the cumulative mean and its confidence interval change as you add more replications, optionally marking the recommended number of replications with a vertical dashed line so you can visually check that the estimates have stabilised.
 
 Click the name of each metric below to view the relevant plot:
 
@@ -1451,7 +1467,11 @@ res <- run_replications_algorithm(
 
 # View recommended number of replications
 res$nreps
+```
 
+The algorithm returns the minimum number of replications required for each performance measure to reach the desired precision. In this example, the largest of these values is 19 (for `mean_queue_length_doctor`), so we would use approximately 19 replications for this model overall, to ensure all performance measures meet the target precision.
+
+```{r}
 # View full results table
 res$summary_table |>
   kable() |>
