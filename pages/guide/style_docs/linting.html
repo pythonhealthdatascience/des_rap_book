@@ -6,7 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2026-02-04">
+<meta name="dcterms.date" content="2026-02-13">
 
 <title>Linting – DES RAP</title>
 <style>
@@ -266,7 +266,7 @@ background-size: cover;
       <div>
       <div class="quarto-title-meta-heading">Page last modified</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">February 4, 2026</p>
+        <p class="date">February 13, 2026</p>
       </div>
     </div>
     
@@ -673,13 +673,13 @@ white-space: pre-wrap !important;
 <li><p><a href="https://google.github.io/styleguide/Rguide.html"><strong>Google style guide</strong></a> - adapted from the tidyverse guide for used at google.</p></li>
 </ul>
 </div>
-<p>You are not required to follow style guides, but they are recommended for writing clear, maintainable, and consistent code. The easiest way to enforce their requirements is using linters or code formatters.</p>
+<p>You are not required to follow style guides, but they are recommended for writing clear, maintainable, and consistent code. The guides themselves are written documents; tools like <strong>linters</strong> and <strong>code formatters</strong> help you check your code against them automatically.</p>
 </section>
 <section id="linters" class="level2">
 <h2 class="anchored" data-anchor-id="linters">Linters</h2>
 <p><strong>Linters</strong> are tools that analyse code for:</p>
 <ul>
-<li><strong>Possible errors</strong> - looking for issues like unused variables and code complexity.</li>
+<li><strong>Possible errors</strong> - looking for issues like unused variables, unreachable code, and code complexity.</li>
 <li><strong>Style issues</strong> - enforcing requirements from style guides.</li>
 </ul>
 <p>They are often run from the terminal/command line, and return a list of suggestions for you to address. Sometimes, they might flag code that you have intentionally written, and it’s okay to disagree with their suggestion to change it!</p>
@@ -692,18 +692,12 @@ white-space: pre-wrap !important;
 <div class="python-content">
 <p>Popular linters in Python include:</p>
 <ul>
-<li><p><a href="https://pypi.org/project/pylint/"><strong>pylint</strong></a> - detailed linter that detects errors, bugs, variable naming issues, and other code problems.</p></li>
+<li><p><a href="https://pypi.org/project/pylint/"><strong>pylint</strong></a> - detailed linter that detects potential bugs (for example, undefined variables or unreachable code) as well as style and naming issues.</p></li>
 <li><p><a href="https://pypi.org/project/flake8/"><strong>flake8</strong></a> - lightweight tool focused on PEP-8 style, basic errors, and code complexity.</p></li>
-<li><p><a href="https://pypi.org/project/ruff/"><strong>ruff</strong></a> - modern, ultra-fast linter that implements checks from Flake8 and some other popular plugins. It is also a code formatter (see below) - though note: the linter does not report every issue that can be fixed by the formatter. Stylistic issues are handled silently by the formatter and not surfaced as lint errors - so the linter is intentionally more restricted in scope than the formatter.</p></li>
+<li><p><a href="https://pypi.org/project/ruff/"><strong>ruff</strong></a> - modern, ultra-fast linter that re-implements many of Flake8’s checks (and popular Flake8 plugins) inside Ruff itself, so it can often be used as a drop‑in replacement. It is also a code formatter (see below) - though note: the linter does not report every issue that can be fixed by the formatter. Stylistic issues are handled silently by the formatter and not surfaced as lint errors - so the linter is intentionally more restricted in scope than the formatter.</p></li>
 </ul>
 <p>You can use several linters, or choose one that suits you best.</p>
-<p>To better understand their differences, let’s run them on a some poor quality code. We can see that:</p>
-<ul>
-<li>Both identify the trailing whitespace.</li>
-<li>Pylint identifies the missing module and function docstrings, and the function name.</li>
-<li>Flake8 identifies the missing whitespace around an operator.</li>
-<li>Ruff did not identify any issues! This is because the linter incorporates some - but not all - of Flake8’s checks - and it doesn’t check whitespace by default.</li>
-</ul>
+<p>To better understand their differences, let’s run them on a some poor quality code.</p>
 <p><code>code.py</code>:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> MyFunction(a, b):</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    x<span class="op">=</span><span class="dv">1</span></span>
@@ -737,6 +731,30 @@ linting_resources/code.py:4:26: W291 trailing whitespace</code></pre>
 <div class="cell">
 <div class="cell-output cell-output-stdout">
 <pre><code>All checks passed!</code></pre>
+</div>
+</div>
+<p>We can see that:</p>
+<ul>
+<li>Pylint and Flake8 both identify the trailing whitespace.</li>
+<li>Pylint identifies the missing module and function docstrings, and the function name.</li>
+<li>Flake8 identifies the missing whitespace around an operator.</li>
+<li>Ruff did not identify any issues. This is because, by default, Ruff only enables Flake8’s “error” rules (F and a subset of E) and omits many purely stylistic checks, such as whitespace‑only issues, which are instead handled by formatters like <code>ruff format</code> or Black.</li>
+</ul>
+<p><br></p>
+<div class="callout callout-style-default callout-tip callout-titled" title="Final newline">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Final newline
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>If you try running this example locally, you may get another error too:</p>
+<p><code>C0304: Final newline missing (missing-final-newline)</code></p>
+<p>This will be present if you don’t include a blank line at the end of your <code>.py</code> file.</p>
+<p><strong>Note:</strong> In editors like VS Code, you can avoid this by enabling the “Insert Final newline” setting, which automatically adds a newline at the end of the file when you save. On VS Code, go to File -&gt; Preferences -&gt; Settings then search <code>insertfinalnewline</code> and click the box by “Files: Insert Final Newline”.</p>
 </div>
 </div>
 <p><br></p>
@@ -793,7 +811,8 @@ linting_resources/code.py:4:26: W291 trailing whitespace</code></pre>
 <li><p><a href="https://github.com/psf/black"><strong>black</strong></a> - very popular code formatter.</p></li>
 <li><p><a href="https://github.com/astral-sh/ruff"><strong>ruff</strong></a> - designed to be a drop-in replacement for <code>black</code> that should have a near identical output, but runs faster.</p></li>
 </ul>
-<p>As an example, if we ran either of these code formatters on our example by executing <code>black linting_resources/code.py</code> or <code>ruff format linting_resources/code.py</code>, they would alter the file as follows:</p>
+<p>As an example, if we ran either of these code formatters on our example by executing <code>black linting_resources/code.py</code> or <code>ruff format linting_resources/code.py</code>, they would update the file in place.</p>
+<p>Below, we show the changes as a unified diff for illustration:</p>
 <div class="cell">
 <div class="cell-output-display">
 
@@ -831,6 +850,7 @@ linting_resources/code.py:4:26: W291 trailing whitespace</code></pre>
 
 </div>
 </div>
+<p>When you run <code>black</code> or <code>ruff format</code> normally, they just rewrite the file and either print nothing or a short “reformatted file.py” message. Using a <code>--diff</code> option or version control tools like <code>git diff</code> is what produces the <code>---</code>, <code>+++</code>, and <code>+</code>/<code>-</code> markers shown above.</p>
 </div>
 <div class="r-content">
 <p>Code formatters in R include:</p>
@@ -962,15 +982,15 @@ Current channels:
 <pre><code>R0913: Too many arguments (too-many-arguments)</code></pre></li>
 </ul>
 <p>If you want to ignore these warnings, you can disable them in your code <strong>using comments</strong>. For example:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb37"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="co"># pylint: disable=wrong-import-position</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb37"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="co"># pylint: disable=too-many-arguments</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>You can also disable multiple warnings at once by listing them, separated by commas:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb38"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="co"># pylint: disable=too-many-arguments,missing-module-docstring</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>You can place this comment:</p>
 <ul>
 <li>At the top of a code cell or file to disable the warning for everything below it.</li>
 <li>Directory above a line or block of code to apply it only there.</li>
 <li>At the end of a specific line to disable it just for that line.</li>
 </ul>
-<p>You can also disable multiple warnings at once by listing them, separated by commas:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb38"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="co"># pylint: disable=too-many-arguments,missing-module-docstring</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="r-content">
 <p>Linters will sometimes flag things that you don’t want to change. For example, if you explicitly use <code>return()</code> at the end of a function, the linter can complain that terminal returns should be implicit.</p>
@@ -1071,7 +1091,7 @@ disable=too-many-lines</code></pre></li>
   color: #fff; border-radius: 20px; padding: 0.4em 1em; font-weight: 600;
   gap: 0.5em;"> <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/github.svg" alt="GitHub" width="20" height="20" style="filter: brightness(0)
     invert(1);"> Click to visit pydesrap_stroke repository </span> </a></p>
-<p>These repositories use <code>pylint</code> for linting, and can run it on model code, tests and notebooks with a single command using <code>lint.sh</code>. They have a GitHub action described in <code>lint.yaml</code> which runs the script on pushes to main.</p>
+<p>These repositories use <code>pylint</code> for linting, and can run it on model code, tests and notebooks with a single command using <code>lint.sh</code>. They have a GitHub actions workflow (<code>.github/workflows/lint.yaml</code>) that is configured to run this script automatically whenever new commits are pushed to the <code>main</code> branch, so linting happens on every update to the main version of the code.</p>
 </div>
 <div class="r-content">
 <p><a href="https://github.com/pythonhealthdatascience/rdesrap_mms" target="_blank" style="text-decoration: none;"> <span style="display: inline-flex; align-items: center; background: #1d7898;
@@ -1082,7 +1102,7 @@ disable=too-many-lines</code></pre></li>
   color: #fff; border-radius: 20px; padding: 0.4em 1em; font-weight: 600;
   gap: 0.5em;"> <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/github.svg" alt="GitHub" width="20" height="20" style="filter: brightness(0)
     invert(1);"> Click to visit rdesrap_stroke repository </span> </a></p>
-<p>These repositories use <code>lintr</code>. They have a GitHub action described in <code>lint.yaml</code> which runs the linter on pushes to main. Settings are provided in <code>.lintr</code>.</p>
+<p>These repositories use <code>lintr</code>. They have a GitHub actions workflow (<code>.github/workflows/lint.yaml</code>) that is configured to run <code>lintr</code> automatically whenever new commits are pushed to the <code>main</code> branch, so linting happens on every update to the main version of the code. Settings are provided in <code>.lintr</code>.</p>
 </div>
 </section>
 <section id="test-yourself" class="level2">

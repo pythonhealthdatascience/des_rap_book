@@ -6,7 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2026-01-30">
+<meta name="dcterms.date" content="2026-02-13">
 
 <title>GitHub actions – DES RAP</title>
 <style>
@@ -264,7 +264,7 @@ background-size: cover;
       <div>
       <div class="quarto-title-meta-heading">Page last modified</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">January 30, 2026</p>
+        <p class="date">February 13, 2026</p>
       </div>
     </div>
     
@@ -614,7 +614,7 @@ background-size: cover;
     <h2 id="toc-title">On this page</h2>
    
   <ul class="collapse">
-  <li><a href="#continuous-integration-continuous-delivery-and-continuous-deployment-cicd" id="toc-continuous-integration-continuous-delivery-and-continuous-deployment-cicd" class="nav-link active" data-scroll-target="#continuous-integration-continuous-delivery-and-continuous-deployment-cicd">Continuous Integration, Continuous Delivery, and Continuous Deployment (CI/CD)</a></li>
+  <li><a href="#continuous-integration-and-continuous-deliverydeployment-cicd" id="toc-continuous-integration-and-continuous-deliverydeployment-cicd" class="nav-link active" data-scroll-target="#continuous-integration-and-continuous-deliverydeployment-cicd">Continuous Integration and Continuous Delivery/Deployment (CI/CD)</a></li>
   <li><a href="#github-actions" id="toc-github-actions" class="nav-link" data-scroll-target="#github-actions">GitHub actions</a></li>
   <li><a href="#example-tests" id="toc-example-tests" class="nav-link" data-scroll-target="#example-tests">Example: Tests</a></li>
   <li><a href="#example-test-coverage" id="toc-example-test-coverage" class="nav-link" data-scroll-target="#example-test-coverage">Example: Test coverage</a></li>
@@ -634,7 +634,7 @@ background-size: cover;
 <div class="pale-blue">
 <p><strong>Learning objectives:</strong></p>
 <ul>
-<li>Recognise the utility of CI/CD for RAP.</li>
+<li>Recognise the utility of CI/CD (Continuous Integration and Continuous Delivery/Deployment) for RAP.</li>
 <li>Understand the basic structure and set-up of GitHub actions.</li>
 <li>Explore some example actions that could be relevant for your research.</li>
 </ul>
@@ -645,18 +645,19 @@ background-size: cover;
 <p><strong>Pre-reading:</strong></p>
 <p>This page assumes your simulation project is in a GitHub repository - set-up guidance available on the <a href="../../../pages/guide/setup/version.html">Version control</a> page. We include some example actions which run <a href="../../../pages/guide/verification_validation/tests.html">Tests</a> and <a href="../../../pages/guide/style_docs/linting.html">Linting</a>.</p>
 </div>
-<section id="continuous-integration-continuous-delivery-and-continuous-deployment-cicd" class="level2">
-<h2 class="anchored" data-anchor-id="continuous-integration-continuous-delivery-and-continuous-deployment-cicd">Continuous Integration, Continuous Delivery, and Continuous Deployment (CI/CD)</h2>
+<section id="continuous-integration-and-continuous-deliverydeployment-cicd" class="level2">
+<h2 class="anchored" data-anchor-id="continuous-integration-and-continuous-deliverydeployment-cicd">Continuous Integration and Continuous Delivery/Deployment (CI/CD)</h2>
 <div class="h3-tight">
 
 </div>
 <section id="definition" class="level3">
 <h3 class="anchored" data-anchor-id="definition">Definition</h3>
-<p>CI/CD processes (Continuous Integration, Continuous Delivery, and Continuous Deployment) are a valuable tool for reproducible analytical pipelines. These processes are typically defined as follows:</p>
+<p>CI/CD processes (Continuous Integration and Continuous Delivery/Deployment) are a valuable tool for reproducible analytical pipelines. These processes are typically defined as follows:</p>
 <div class="blue">
 <p><strong>Continuous integration (CI):</strong> A process where team members regularly merge their code changes into a shared branch. Each integration triggers automated tests (e.g., unit and integration tests) to ensure that new commits do not break existing functionality. By committing and testing changes frequently, teams can identify and resolve issues earlier, and avoid large merges with lots of conflicts.</p>
 <p><strong>Continuous delivery (CD):</strong> Builds on CI by running more extensive automated checks (e.g., end-to-end tests) to ensure a repository is ready for deployment. Deployment can refer to updating a package, publishing a website, or release new results. This can be released when approved by a team member.</p>
 <p><strong>Continuous deployment (CD):</strong> Extends CD by releasing changes automatically to production as soon as all tests pass, with no manual approval required.</p>
+<p><em>It may seem a little odd that CD is used for both continuous delivery and continuous deployment, but this dual use is the standard convention in most CI/CD tooling and documentation.</em></p>
 </div>
 <p><strong>Further information</strong></p>
 <ul>
@@ -665,7 +666,7 @@ background-size: cover;
 </section>
 <section id="relevance-for-your-simulation-rap" class="level3">
 <h3 class="anchored" data-anchor-id="relevance-for-your-simulation-rap">Relevance for your simulation RAP</h3>
-<p>CI will be <strong>relevant for all projects</strong>. CI automates checks on your code and outputs to ensure reliability and code quality. This can include tests, linting, formatting and other checks.</p>
+<p>CI will be <strong>relevant for all projects</strong>. CI automates checks on your code and outputs to ensure reliability and code quality. This can include tests, linting, formatting and other checks. It can also support collaborative work by running these checks automatically whenever team members merge or push changes into a shared branch (for example, using GitHub Actions on the <code>main</code> branch).</p>
 <p>CD <strong>may not be needed for every project</strong>, but it can be useful:</p>
 <ul>
 <li>If you choose to create a <strong>documentation website</strong> to accompany your projcet, you can use CD to automatically rebuild and deploy it whenever changes are merged.</li>
@@ -737,9 +738,9 @@ background-size: cover;
 <h2 class="anchored" data-anchor-id="example-tests">Example: Tests</h2>
 <p>Creating a GitHub action to run your model tests is really helpful, as it helps ensure you are running your tests regularly (e.g., everytime you merge into main). This is important for <a href="../../../pages/guide/verification_validation/verification_validation.html#regression-testing">regression testing</a>, a form of model verification which involves re-running your tests everytime you make changes to ensure those changes haven’t introduced new errors.</p>
 <div class="python-content">
-<p>This simple action will install Python 3.13 and dependencies in a <code>requirements.txt</code> file, then run <code>pytest()</code>.</p>
+<p>This simple GitHub Actions workflow will install Python 3.13 and dependencies in a <code>requirements.txt</code> file, then run <code>pytest()</code>.</p>
 <blockquote class="blockquote">
-<p><strong>Note:</strong> We’d recommend using <code>requirements.txt</code> for GitHub actions as it is much simpler than working with conda for these. We typically maintain an <code>environment.yaml</code> file for working with conda locally, and then an equivalent <code>requirements.txt</code> for GitHub actions.</p>
+<p><strong>Note:</strong> We’d recommend using <code>requirements.txt</code> for GitHub actions as it is much simpler than working with conda inside CI. Locally, we typically maintain a full <code>environment.yaml</code> file for conda (which includes the Python version and all dependencies), and then create a corresponding <code>requirements.txt</code> listing the Python packages needed to run the project in GitHub Actions. In other words, <code>requirements.txt</code> is a pip-style dependency list derived from the same environment as <code>environment.yaml</code>, tailored for use in CI.</p>
 </blockquote>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1" data-code-line-numbers=""><pre class="sourceCode yaml code-with-copy"><code class="sourceCode yaml"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">name</span><span class="kw">:</span><span class="at"> tests</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>

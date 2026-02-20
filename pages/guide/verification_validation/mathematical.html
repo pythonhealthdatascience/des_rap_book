@@ -6,7 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2026-02-09">
+<meta name="dcterms.date" content="2026-02-12">
 
 <title>Mathematical proof of correctness – DES RAP</title>
 <style>
@@ -264,7 +264,7 @@ background-size: cover;
       <div>
       <div class="quarto-title-meta-heading">Page last modified</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">February 9, 2026</p>
+        <p class="date">February 12, 2026</p>
       </div>
     </div>
     
@@ -638,7 +638,7 @@ background-size: cover;
 </ul>
 <p><strong>Pre-reading:</strong></p>
 <p>This page implements mathematical proof of correctness implemented on the <a href="../../../pages/guide/verification_validation/verification_validation.html">verification and validation page</a>. It does so within a test (<a href="../../../pages/guide/verification_validation/tests.html">tests</a> page).</p>
-<p>The test is run on the model from the <a href="../../../pages/guide/output_analysis/parallel.html">parallel processing</a> page (likewise, also used on the <a href="../../../pages/guide/experiments/scenarios.html">scenario and sensitivity analysis</a> page and <a href="../../../pages/guide/verification_validation/tests.html">tests</a> pages).</p>
+<p>The test is run on the model from the <a href="../../../pages/guide/output_analysis/parallel.html">parallel processing</a> page.</p>
 <blockquote class="blockquote">
 <p><em>Entity generation → Entity processing → Initialisation bias → Performance measures → Replications → Parallel processing → Mathematical proof of correctness</em></p>
 </blockquote>
@@ -685,11 +685,11 @@ background-size: cover;
 <p>One of the suggested methods for <a href="../../../pages/guide/verification_validation/verification_validation.html">model verification</a> is <strong>mathematical proof of correctness</strong>. This involves showing that the simulation results align with those determined by a suitable <strong>mathematical model</strong>.</p>
 <p>A mathematical model is a set of equations or formulas that describe how systems behave. Over time, researchers have studied simple systems (like people waiting in a queue) and discovered that, when rules are straightforward, their behaviour can be described exactly using math.</p>
 <p>Real-world systems are often too complex for neat equations (e.g., variable arrivals, different service rules or other complex features). In these cases, discrete-event simulation allows us to better mimic the system. However, if your simulation is simple enough - or if you start with a basic model to verify your code (and later build in complexity) - you can use mathematical proof of correctness.</p>
-<p>The small example we’ve been building throughout this book is an instance of an <strong>M/M/s queue model</strong> (as is the nurse visit simulation example). For a reminder on what an M/M/s queue model is, see the section “<em>Find out more about M/M/s models</em>” on the <a href="../../../pages/example_models/example_models.html">example conceptual models</a> page. In the following sections, we’ll show how to verify our small example by comparing it to a mathematical model.</p>
+<p>The simple example we’ve been building throughout this book is an instance of an <strong>M/M/s queue model</strong> (as is the nurse visit simulation example). For a reminder on what an M/M/s queue model is, see the section “<em>Find out more about M/M/s models</em>” on the <a href="../../../pages/example_models/example_models.html">example conceptual models</a> page. In the following sections, we’ll show how to verify our simple example by comparing it to a mathematical model.</p>
 </section>
 <section id="simulation-code" class="level2">
 <h2 class="anchored" data-anchor-id="simulation-code">Simulation code</h2>
-<p>The model used is the same as that on the <a href="../../../pages/guide/output_analysis/parallel.html">parallel processing</a> page - as also used on the <a href="../../../pages/guide/experiments/scenarios.html">scenario and sensitivity analysis</a> and <a href="../../../pages/guide/verification_validation/tests.html">tests</a> pages.</p>
+<p>The model used is the same as that on the <a href="../../../pages/guide/output_analysis/parallel.html">parallel processing</a> page.</p>
 </section>
 <section id="mathematical-mms-queue-model" class="level2">
 <h2 class="anchored" data-anchor-id="mathematical-mms-queue-model">Mathematical M/M/s queue model</h2>
@@ -1013,62 +1013,16 @@ background-size: cover;
 <span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a><span class="co">        """</span></span>
 <span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Sum for n = 0 to s-1</span></span>
 <span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>        sum_part <span class="op">=</span> <span class="bu">sum</span>(</span>
-<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>            (<span class="va">self</span>.lambda_over_mu<span class="op">**</span>n) <span class="op">/</span> math.factorial(n)<span class="co"># Validates a discrete event simulation of a healthcare M/M/S queue by</span></span>
-<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a><span class="co"># comparing simulation results to analytical queueing theory.</span></span>
-<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a><span class="co">#</span></span>
-<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Metrics (using standard queueing theory notation):</span></span>
-<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a><span class="co"># - ρ (rho): utilisation</span></span>
-<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a><span class="co"># - Lq: mean queue length</span></span>
-<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a><span class="co"># - W: mean time in system</span></span>
-<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a><span class="co"># - Wq: mean waiting</span></span>
-<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a><span class="co">#</span></span>
-<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a><span class="co"># Results must match theory with a 15% tolerance (accomodates stochasticity).</span></span>
-<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a><span class="co"># Tests are run across diverse parameter combinations and utilisation levels.</span></span>
-<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a><span class="co"># System stability requires arrival rate &lt; number_of_servers * service_rate.</span></span>
-<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a><span class="co">#' Run simulation and return key performance indicators using standard queueing</span></span>
-<span id="cb10-30"><a href="#cb10-30" aria-hidden="true" tabindex="-1"></a><span class="co">#' theory notation.</span></span>
-<span id="cb10-31"><a href="#cb10-31" aria-hidden="true" tabindex="-1"></a><span class="co">#'</span></span>
-<span id="cb10-32"><a href="#cb10-32" aria-hidden="true" tabindex="-1"></a><span class="co">#' The warm-up period should be sufficiently long to allow the system to reach</span></span>
-<span id="cb10-33"><a href="#cb10-33" aria-hidden="true" tabindex="-1"></a><span class="co">#' steady-state before data collection begins.</span></span>
-<span id="cb10-34"><a href="#cb10-34" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-35"><a href="#cb10-35" aria-hidden="true" tabindex="-1"></a>run_simulation_model <span class="op">&lt;-</span> function(</span>
-<span id="cb10-36"><a href="#cb10-36" aria-hidden="true" tabindex="-1"></a>  patient_inter, mean_n_consult_time, number_of_nurses</span>
-<span id="cb10-37"><a href="#cb10-37" aria-hidden="true" tabindex="-1"></a>) {</span>
-<span id="cb10-38"><a href="#cb10-38" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Run simulation</span></span>
-<span id="cb10-39"><a href="#cb10-39" aria-hidden="true" tabindex="-1"></a>  param <span class="op">&lt;-</span> parameters(</span>
-<span id="cb10-40"><a href="#cb10-40" aria-hidden="true" tabindex="-1"></a>    patient_inter <span class="op">=</span> patient_inter,</span>
-<span id="cb10-41"><a href="#cb10-41" aria-hidden="true" tabindex="-1"></a>    mean_n_consult_time <span class="op">=</span> mean_n_consult_time,</span>
-<span id="cb10-42"><a href="#cb10-42" aria-hidden="true" tabindex="-1"></a>    number_of_nurses <span class="op">=</span> number_of_nurses,</span>
-<span id="cb10-43"><a href="#cb10-43" aria-hidden="true" tabindex="-1"></a>    warm_up_period <span class="op">=</span> <span class="dv">500L</span>,</span>
-<span id="cb10-44"><a href="#cb10-44" aria-hidden="true" tabindex="-1"></a>    data_collection_period <span class="op">=</span> <span class="dv">1500L</span>,</span>
-<span id="cb10-45"><a href="#cb10-45" aria-hidden="true" tabindex="-1"></a>    number_of_runs <span class="op">=</span> <span class="dv">100L</span>,</span>
-<span id="cb10-46"><a href="#cb10-46" aria-hidden="true" tabindex="-1"></a>    scenario_name <span class="op">=</span> <span class="dv">0L</span>,</span>
-<span id="cb10-47"><a href="#cb10-47" aria-hidden="true" tabindex="-1"></a>    cores <span class="op">=</span> <span class="dv">1L</span></span>
-<span id="cb10-48"><a href="#cb10-48" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb10-49"><a href="#cb10-49" aria-hidden="true" tabindex="-1"></a>  run_results <span class="op">&lt;-</span> runner(param)[[<span class="st">"run_results"</span>]]</span>
-<span id="cb10-50"><a href="#cb10-50" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-51"><a href="#cb10-51" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Get overall results, using queueing theory notation in column names</span></span>
-<span id="cb10-52"><a href="#cb10-52" aria-hidden="true" tabindex="-1"></a>  results <span class="op">&lt;-</span> run_results <span class="op">|&gt;</span></span>
-<span id="cb10-53"><a href="#cb10-53" aria-hidden="true" tabindex="-1"></a>    summarise(</span>
-<span id="cb10-54"><a href="#cb10-54" aria-hidden="true" tabindex="-1"></a>      RO <span class="op">=</span> mean(.data[[<span class="st">"utilisation_nurse"</span>]]),</span>
-<span id="cb10-55"><a href="#cb10-55" aria-hidden="true" tabindex="-1"></a>      Lq <span class="op">=</span> mean(.data[[<span class="st">"mean_queue_length_nurse"</span>]]),</span>
-<span id="cb10-56"><a href="#cb10-56" aria-hidden="true" tabindex="-1"></a>      W <span class="op">=</span> mean(.data[[<span class="st">"mean_time_in_system"</span>]]),</span>
-<span id="cb10-57"><a href="#cb10-57" aria-hidden="true" tabindex="-1"></a>      Wq <span class="op">=</span> mean(.data[[<span class="st">"mean_waiting_time_nurse"</span>]])</span>
-<span id="cb10-58"><a href="#cb10-58" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb10-59"><a href="#cb10-59" aria-hidden="true" tabindex="-1"></a>  results</span>
-<span id="cb10-60"><a href="#cb10-60" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb10-61"><a href="#cb10-61" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-62"><a href="#cb10-62" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> n <span class="kw">in</span> <span class="bu">range</span>(<span class="va">self</span>.num_servers)</span>
-<span id="cb10-63"><a href="#cb10-63" aria-hidden="true" tabindex="-1"></a>        )</span>
-<span id="cb10-64"><a href="#cb10-64" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-65"><a href="#cb10-65" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Term for n &gt;= s</span></span>
-<span id="cb10-66"><a href="#cb10-66" aria-hidden="true" tabindex="-1"></a>        server_term <span class="op">=</span> (<span class="va">self</span>.lambda_over_mu<span class="op">**</span><span class="va">self</span>.num_servers) <span class="op">/</span> (</span>
-<span id="cb10-67"><a href="#cb10-67" aria-hidden="true" tabindex="-1"></a>            math.factorial(<span class="va">self</span>.num_servers) <span class="op">*</span> (<span class="dv">1</span> <span class="op">-</span> <span class="va">self</span>.rho)</span>
-<span id="cb10-68"><a href="#cb10-68" aria-hidden="true" tabindex="-1"></a>        )</span>
-<span id="cb10-69"><a href="#cb10-69" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-70"><a href="#cb10-70" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="dv">1</span> <span class="op">/</span> (sum_part <span class="op">+</span> server_term)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>            (<span class="va">self</span>.lambda_over_mu<span class="op">**</span>n) <span class="op">/</span> math.factorial(n)</span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> n <span class="kw">in</span> <span class="bu">range</span>(<span class="va">self</span>.num_servers)</span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Term for n &gt;= s</span></span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>        server_term <span class="op">=</span> (<span class="va">self</span>.lambda_over_mu<span class="op">**</span><span class="va">self</span>.num_servers) <span class="op">/</span> (</span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>            math.factorial(<span class="va">self</span>.num_servers) <span class="op">*</span> (<span class="dv">1</span> <span class="op">-</span> <span class="va">self</span>.rho)</span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="dv">1</span> <span class="op">/</span> (sum_part <span class="op">+</span> server_term)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>This method calculates P0, which is the probability that the system is completely empty - i.e., no customers are waiting and all servers are idle.</p>
 </section>
 </div>
@@ -1194,16 +1148,16 @@ function(t)
     }
     res
   }
-&lt;bytecode: 0x5608fbb325e8&gt;
-&lt;environment: 0x5608fbb24b20&gt;
+&lt;bytecode: 0x55c17baa6b78&gt;
+&lt;environment: 0x55c17ba90118&gt;
 
 $FWq
 function(t)
   {
     1 - ( cErlang * exp( (-1) * (1 - RO) * x$c * x$mu * t ) )  
   }
-&lt;bytecode: 0x5608fbb374d0&gt;
-&lt;environment: 0x5608fbb24b20&gt;
+&lt;bytecode: 0x55c17baaa7e8&gt;
+&lt;environment: 0x55c17ba90118&gt;
 
 attr(,"class")
 [1] "o_MMC"</code></pre>

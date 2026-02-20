@@ -6,7 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2026-02-12">
+<meta name="dcterms.date" content="2026-02-13">
 
 <title>Tests – DES RAP</title>
 <style>
@@ -263,7 +263,7 @@ background-size: cover;
       <div>
       <div class="quarto-title-meta-heading">Page last modified</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">February 12, 2026</p>
+        <p class="date">February 13, 2026</p>
       </div>
     </div>
     
@@ -640,7 +640,7 @@ background-size: cover;
 <li>NHS Levels of RAP (🥈): Pipeline includes a testing framework (unit tests, back tests).</li>
 </ul>
 <p><strong>Pre-reading:</strong></p>
-<p>This page will run tests on the model from the <a href="../../../pages/guide/output_analysis/parallel.html">parallel processing</a> page (likewise, also used on the <a href="../../../pages/guide/experiments/scenarios.html">scenario and sensitivity analysis</a> page).</p>
+<p>This page will run tests on the model from the <a href="../../../pages/guide/output_analysis/parallel.html">parallel processing</a> page.</p>
 <blockquote class="blockquote">
 <p><em>Entity generation → Entity processing → Initialisation bias → Performance measures → Replications → Parallel processing → Tests</em></p>
 </blockquote>
@@ -670,8 +670,9 @@ background-size: cover;
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co">    Confirm that the number is positive.</span></span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    number <span class="op">=</span> <span class="dv">5</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> number <span class="op">&gt;</span> <span class="dv">0</span>, <span class="st">"The number should be positive"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> number <span class="op">&gt;</span> <span class="dv">0</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
+<p>This is a minimal example of a test. In this test, we hard‑code <code>number = 5</code> inside the function and then use an <code>assert</code> to check that it is positive. This test is just for illustration and should always pass. In the examples below, we will do more interesting things than this.</p>
 </div>
 <div class="r-content">
 <p>A popular framework for testing in R is <strong>testthat</strong>.</p>
@@ -687,9 +688,10 @@ background-size: cover;
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">expect_gt</span>(number, <span class="dv">0</span>L)</span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Test passed with 1 success 😸.</code></pre>
+<pre><code>Test passed with 1 success 🥳.</code></pre>
 </div>
 </div>
+<p>This is a minimal example of a test. In this test, we hard‑code <code>number &lt;- 5L</code> inside the function and then use <code>expect_gt()</code> to check that it is positive. This test is just for illustration and should always pass. In the examples below, we will do more interesting things than this.</p>
 <section id="setting-up-a-testing-structure-with-testthat" class="level3">
 <h3 class="anchored" data-anchor-id="setting-up-a-testing-structure-with-testthat">Setting up a testing structure with testthat</h3>
 <p>If you model is <a href="../../../pages/guide/setup/package.html">structured as a package</a>, the easiest way to get started with tests is to let <code>usethis</code> create the standard <code>testthat</code> layout for you:</p>
@@ -735,6 +737,7 @@ tests_resources/test_example_simple.py .                                 [100%]
 </div>
 </div>
 </div>
+<p>In this book, we have to run <code>pytest</code> from within Python, so you also see a final line like <code>&lt;ExitCode.OK: 0&gt;</code>. When you run <code>pytest</code> directly in your own terminal, you will just see the usual summary line (for example, <code>1 passed in 0.01s</code>) and not this extra ExitCode line.</p>
 </div>
 <div class="r-content">
 <p>Tests are typically run from the R console. Commands include:</p>
@@ -745,6 +748,7 @@ tests_resources/test_example_simple.py .                                 [100%]
 </ul>
 <p>When you run a test, you’ll see output in the console indicating whether tests passed or failed.</p>
 </div>
+<p>If you try changing the number to a negative value, you should find that the test returns an error.</p>
 </section>
 <section id="parametrised-tests" class="level3">
 <h3 class="anchored" data-anchor-id="parametrised-tests">Parametrised tests</h3>
@@ -760,11 +764,12 @@ tests_resources/test_example_simple.py .                                 [100%]
 <span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
 <span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="co">    Confirm that the number is positive.</span></span>
 <span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="co">    Arguments:</span></span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="co">        number (float):</span></span>
-<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="co">            Number to check.</span></span>
-<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
-<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> number <span class="op">&gt;</span> <span class="dv">0</span>, <span class="ss">f"The number </span><span class="sc">{</span>number<span class="sc">}</span><span class="ss"> is not positive."</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="co">    Parameters</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="co">    ----------</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="co">    number : float</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="co">        Number to check.</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">assert</span> number <span class="op">&gt;</span> <span class="dv">0</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>In this example, we’re testing the same logic with four different values: <code>1</code>, <code>2</code>, <code>3</code>, and <code>-1</code>. The last value, <code>-1</code>, will cause the test to fail. The error message includes the failed value for easy debugging.</p>
 <div class="callout callout-style-default callout-note no-icon callout-titled" title="Test output:">
@@ -797,18 +802,17 @@ number = -1
         """
         Confirm that the number is positive.
     
-        Arguments:
-            number (float):
-                Number to check.
+        Parameters
+        ----------
+        number : float
+            Number to check.
         """
-&gt;       assert number &gt; 0, f"The number {number} is not positive."
-E       AssertionError: The number -1 is not positive.
+&gt;       assert number &gt; 0
 E       assert -1 &gt; 0
 
-tests_resources/test_example_param.py:13: AssertionError
+tests_resources/test_example_param.py:14: AssertionError
 =========================== short test summary info ============================
-FAILED tests_resources/test_example_param.py::test_positive_param[-1] - AssertionError: The number -1 is not positive.
-assert -1 &gt; 0
+FAILED tests_resources/test_example_param.py::test_positive_param[-1] - assert -1 &gt; 0
 ========================= 1 failed, 3 passed in 0.04s ==========================
 &lt;ExitCode.TESTS_FAILED: 1&gt;</code></pre>
 </div>
@@ -862,7 +866,7 @@ Backtrace:
 <li><strong>Unit testing</strong></li>
 <li><strong>Back testing</strong></li>
 </ul>
-<p>As mentioned above, we are running these tests on the model from the <a href="../../../pages/guide/output_analysis/parallel.html">parallel processing</a> page (which is also the one used on the <a href="../../../pages/guide/experiments/scenarios.html">scenario and sensitivity analysis</a> page).</p>
+<p>As mentioned above, we are running these tests on the model from the <a href="../../../pages/guide/output_analysis/parallel.html">parallel processing</a> pag.</p>
 <div class="python-content">
 <div class="callout callout-style-simple callout-none no-icon callout-titled" title="▶&nbsp;&nbsp; View simulation code" style="minimal">
 <div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="false" aria-label="Toggle callout">
@@ -2101,6 +2105,8 @@ Backtrace:
 <li>The length of the data collection period decreases.</li>
 </ul>
 <div class="python-content">
+<p>In your test file, you need to import the model classes you want to test If your code is split across files, you might use something like: <code>from simulation.parameters import Parameters</code> and <code>from simulation.runner import Runner</code>. If your model lives in a single file (for example <code>simulation.py</code>), you can import directly as: <code>from simulation import Parameters, Runner</code>.</p>
+<p>Make sure you run <code>pytest</code> from the project root (the folder that contains the <code>tests/</code> directory). For example: <code>pytest tests/test_functional.py</code>. This lets Python find your simulation package or module correctly when the tests import it.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pytest</span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> simulation <span class="im">import</span> Parameters, Runner</span>
@@ -2185,11 +2191,11 @@ tests_resources/test_functional.py ..                                    [100%]
 <span id="cb16-23"><a href="#cb16-23" aria-hidden="true" tabindex="-1"></a>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Test passed with 1 success 😸.
-Test passed with 1 success 😸.</code></pre>
+Test passed with 1 success 🌈.</code></pre>
 </div>
 </div>
 </div>
-<p>As another example, we expect that our model should fail if the number of doctors or the patient inter-arrival time were set to 0. This is tested using <code>test_zero_inputs</code>:</p>
+<p>Here’s another example of a functional test. In this case, we <strong>expect the model to raise an error when we give it clearly invalid inputs</strong> (for example, setting the number of doctors or the inter‑arrival time to 0). The test will <strong>pass</strong> if creating the model with these zero values raises the expected error with the right message, and it will <strong>fail</strong> only if no error (or the wrong error/message) is raised.</p>
 <div class="python-content">
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pytest</span>
@@ -2393,46 +2399,47 @@ Backtrace:
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pathlib <span class="im">import</span> Path</span>
 <span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
-<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> simulation <span class="im">import</span> Parameters, Runner</span>
-<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pytest</span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> simulation <span class="im">import</span> Parameters, Runner</span>
 <span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> test_reproduction():</span>
-<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
-<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a><span class="co">    Check that results from particular run of the model match those</span></span>
-<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a><span class="co">    previously generated using the code.</span></span>
-<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
-<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Define model parameters</span></span>
-<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a>    param <span class="op">=</span> Parameters(</span>
-<span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a>        interarrival_time<span class="op">=</span><span class="dv">5</span>,</span>
-<span id="cb26-15"><a href="#cb26-15" aria-hidden="true" tabindex="-1"></a>        consultation_time<span class="op">=</span><span class="dv">10</span>,</span>
-<span id="cb26-16"><a href="#cb26-16" aria-hidden="true" tabindex="-1"></a>        number_of_doctors<span class="op">=</span><span class="dv">3</span>,</span>
-<span id="cb26-17"><a href="#cb26-17" aria-hidden="true" tabindex="-1"></a>        warm_up_period<span class="op">=</span><span class="dv">30</span>,</span>
-<span id="cb26-18"><a href="#cb26-18" aria-hidden="true" tabindex="-1"></a>        data_collection_period<span class="op">=</span><span class="dv">40</span>,</span>
-<span id="cb26-19"><a href="#cb26-19" aria-hidden="true" tabindex="-1"></a>        number_of_runs<span class="op">=</span><span class="dv">5</span>,</span>
-<span id="cb26-20"><a href="#cb26-20" aria-hidden="true" tabindex="-1"></a>        verbose<span class="op">=</span><span class="va">False</span></span>
-<span id="cb26-21"><a href="#cb26-21" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb26-22"><a href="#cb26-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-23"><a href="#cb26-23" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Run simulation</span></span>
-<span id="cb26-24"><a href="#cb26-24" aria-hidden="true" tabindex="-1"></a>    runner <span class="op">=</span> Runner(param<span class="op">=</span>param)</span>
-<span id="cb26-25"><a href="#cb26-25" aria-hidden="true" tabindex="-1"></a>    results <span class="op">=</span> runner.run_reps()</span>
-<span id="cb26-26"><a href="#cb26-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-27"><a href="#cb26-27" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Import expected results</span></span>
-<span id="cb26-28"><a href="#cb26-28" aria-hidden="true" tabindex="-1"></a>    exp_patient <span class="op">=</span> pd.read_csv(</span>
-<span id="cb26-29"><a href="#cb26-29" aria-hidden="true" tabindex="-1"></a>        Path(<span class="va">__file__</span>).parent.joinpath(<span class="st">"python_patient.csv"</span>)</span>
-<span id="cb26-30"><a href="#cb26-30" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb26-31"><a href="#cb26-31" aria-hidden="true" tabindex="-1"></a>    exp_run <span class="op">=</span> pd.read_csv(</span>
-<span id="cb26-32"><a href="#cb26-32" aria-hidden="true" tabindex="-1"></a>        Path(<span class="va">__file__</span>).parent.joinpath(<span class="st">"python_run.csv"</span>)</span>
-<span id="cb26-33"><a href="#cb26-33" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb26-34"><a href="#cb26-34" aria-hidden="true" tabindex="-1"></a>    exp_overall <span class="op">=</span> pd.read_csv(</span>
-<span id="cb26-35"><a href="#cb26-35" aria-hidden="true" tabindex="-1"></a>        Path(<span class="va">__file__</span>).parent.joinpath(<span class="st">"python_overall.csv"</span>)</span>
-<span id="cb26-36"><a href="#cb26-36" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb26-37"><a href="#cb26-37" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-38"><a href="#cb26-38" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Compare results</span></span>
-<span id="cb26-39"><a href="#cb26-39" aria-hidden="true" tabindex="-1"></a>    pd.testing.assert_frame_equal(results[<span class="st">"patient"</span>], exp_patient)</span>
-<span id="cb26-40"><a href="#cb26-40" aria-hidden="true" tabindex="-1"></a>    pd.testing.assert_frame_equal(results[<span class="st">"run"</span>], exp_run)</span>
-<span id="cb26-41"><a href="#cb26-41" aria-hidden="true" tabindex="-1"></a>    pd.testing.assert_frame_equal(</span>
-<span id="cb26-42"><a href="#cb26-42" aria-hidden="true" tabindex="-1"></a>        results[<span class="st">"overall"</span>].reset_index(drop<span class="op">=</span><span class="va">True</span>), exp_overall</span>
-<span id="cb26-43"><a href="#cb26-43" aria-hidden="true" tabindex="-1"></a>    )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> test_reproduction():</span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a><span class="co">    Check that results from particular run of the model match those</span></span>
+<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a><span class="co">    previously generated using the code.</span></span>
+<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Define model parameters</span></span>
+<span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a>    param <span class="op">=</span> Parameters(</span>
+<span id="cb26-15"><a href="#cb26-15" aria-hidden="true" tabindex="-1"></a>        interarrival_time<span class="op">=</span><span class="dv">5</span>,</span>
+<span id="cb26-16"><a href="#cb26-16" aria-hidden="true" tabindex="-1"></a>        consultation_time<span class="op">=</span><span class="dv">10</span>,</span>
+<span id="cb26-17"><a href="#cb26-17" aria-hidden="true" tabindex="-1"></a>        number_of_doctors<span class="op">=</span><span class="dv">3</span>,</span>
+<span id="cb26-18"><a href="#cb26-18" aria-hidden="true" tabindex="-1"></a>        warm_up_period<span class="op">=</span><span class="dv">30</span>,</span>
+<span id="cb26-19"><a href="#cb26-19" aria-hidden="true" tabindex="-1"></a>        data_collection_period<span class="op">=</span><span class="dv">40</span>,</span>
+<span id="cb26-20"><a href="#cb26-20" aria-hidden="true" tabindex="-1"></a>        number_of_runs<span class="op">=</span><span class="dv">5</span>,</span>
+<span id="cb26-21"><a href="#cb26-21" aria-hidden="true" tabindex="-1"></a>        verbose<span class="op">=</span><span class="va">False</span></span>
+<span id="cb26-22"><a href="#cb26-22" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb26-23"><a href="#cb26-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-24"><a href="#cb26-24" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Run simulation</span></span>
+<span id="cb26-25"><a href="#cb26-25" aria-hidden="true" tabindex="-1"></a>    runner <span class="op">=</span> Runner(param<span class="op">=</span>param)</span>
+<span id="cb26-26"><a href="#cb26-26" aria-hidden="true" tabindex="-1"></a>    results <span class="op">=</span> runner.run_reps()</span>
+<span id="cb26-27"><a href="#cb26-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-28"><a href="#cb26-28" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Import expected results</span></span>
+<span id="cb26-29"><a href="#cb26-29" aria-hidden="true" tabindex="-1"></a>    exp_patient <span class="op">=</span> pd.read_csv(</span>
+<span id="cb26-30"><a href="#cb26-30" aria-hidden="true" tabindex="-1"></a>        Path(<span class="va">__file__</span>).parent.joinpath(<span class="st">"python_patient.csv"</span>)</span>
+<span id="cb26-31"><a href="#cb26-31" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb26-32"><a href="#cb26-32" aria-hidden="true" tabindex="-1"></a>    exp_run <span class="op">=</span> pd.read_csv(</span>
+<span id="cb26-33"><a href="#cb26-33" aria-hidden="true" tabindex="-1"></a>        Path(<span class="va">__file__</span>).parent.joinpath(<span class="st">"python_run.csv"</span>)</span>
+<span id="cb26-34"><a href="#cb26-34" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb26-35"><a href="#cb26-35" aria-hidden="true" tabindex="-1"></a>    exp_overall <span class="op">=</span> pd.read_csv(</span>
+<span id="cb26-36"><a href="#cb26-36" aria-hidden="true" tabindex="-1"></a>        Path(<span class="va">__file__</span>).parent.joinpath(<span class="st">"python_overall.csv"</span>)</span>
+<span id="cb26-37"><a href="#cb26-37" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb26-38"><a href="#cb26-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-39"><a href="#cb26-39" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Compare results</span></span>
+<span id="cb26-40"><a href="#cb26-40" aria-hidden="true" tabindex="-1"></a>    pd.testing.assert_frame_equal(results[<span class="st">"patient"</span>], exp_patient)</span>
+<span id="cb26-41"><a href="#cb26-41" aria-hidden="true" tabindex="-1"></a>    pd.testing.assert_frame_equal(results[<span class="st">"run"</span>], exp_run)</span>
+<span id="cb26-42"><a href="#cb26-42" aria-hidden="true" tabindex="-1"></a>    pd.testing.assert_frame_equal(</span>
+<span id="cb26-43"><a href="#cb26-43" aria-hidden="true" tabindex="-1"></a>        results[<span class="st">"overall"</span>].reset_index(drop<span class="op">=</span><span class="va">True</span>), exp_overall</span>
+<span id="cb26-44"><a href="#cb26-44" aria-hidden="true" tabindex="-1"></a>    )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="callout callout-style-default callout-note no-icon callout-titled" title="Test output">
 <div class="callout-header d-flex align-content-center">
@@ -2475,20 +2482,30 @@ tests_resources/test_back.py .                                           [100%]
 </div>
 </div>
 </div>
+<div class="callout callout-style-default callout-tip callout-titled" title="Break the test!">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Tip</span>Break the test!
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Want to see this back test fail? Change one of the parameters in the test (for example, set the inter-arrival time to 4 instead of 5). The model will now produce different results from the saved <code>.csv</code> files, and the test should fail.</p>
+</div>
+</div>
+<section id="generating-the-expected-results-for-our-back-test" class="level4">
+<h4 class="anchored" data-anchor-id="generating-the-expected-results-for-our-back-test">Generating the expected results for our back test</h4>
 <div class="python-content">
-<p>We generate the expected results for our backtest in a <strong>seperate Python file or Jupyter notebook</strong>, rather than within the test itself.</p>
+<p>We generate the expected results for our backtest in a <strong>seperate Python script or Jupyter notebook</strong>, rather than within the test itself.</p>
 </div>
 <div class="r-content">
-<p>We generate the expected results for our backtest in a <strong>seperate R file or R markdown file</strong>, rather than within the test itself.</p>
+<p>We generate the expected results for our backtest in a <strong>seperate R script or R markdown file</strong>, rather than within the test itself.</p>
 </div>
-<p>We then would generally run tests using the same pre-generated <code>.csv</code> files, without regenerating them. However, the test will <strong>fail if the model logic is intentionally changed</strong>, leading to different results from the same parameters.</p>
-<div class="python-content">
-<p>In that case, if we are <strong>certain</strong> that these changes are the reason for differing results, we should re-run the Python file or notebook to regenerate the <code>.csv</code>.</p>
-</div>
-<div class="r-content">
-<p>In that case, if we are <strong>certain</strong> that these changes are the reason for differing results, we should re-run the R file or R markdown file to regenerate the <code>.csv</code>.</p>
-</div>
-<p>It is crucial to exercise caution when doing this, to avoid unintentionally overwriting correct expected results.</p>
+<p>We save these results as <code>.csv</code> files and then write a test that re-runs the model with the same parameters and compares the new results against the saved <code>.csv</code> files. The test passes if the new results exactly match the stored ones, and fails if they differ.</p>
+<p>If we intentionally change the model logic, we expect this back test to start failing, because the model now produces different results from before. In that situation, and only when we are confident the changes are correct, we rerun the code to regenerate the expected <code>.csv</code> files. We need to be careful when doing this, so we do not accidentally overwrite correct expected results with incorrect ones.</p>
+</section>
 </section>
 </section>
 <section id="other-things-you-can-do-when-testing-code" class="level2">
@@ -2578,30 +2595,57 @@ tests_resources/test_back.py .                                           [100%]
 <section id="explore-the-example-models" class="level2">
 <h2 class="anchored" data-anchor-id="explore-the-example-models">Explore the example models</h2>
 <div class="python-content">
+<p>A range of unit, functional, and back tests are available for both example models. These are available in the <code>tests/</code> folder. Data for back tests are generated within <code>notebooks/generate_exp_results.ipynb</code>.</p>
+<p>Tests are automatically run on pushes to <code>main</code> via GitHub actions (<code>.github/workflows/tests.yaml</code>). Test coverage is calculated as described in the coverage section above and the GitHub Actions page (with a coverage badge updated via <code>.github/workflows/tests.yaml</code>).</p>
 <p><a href="https://github.com/pythonhealthdatascience/pydesrap_mms" target="_blank" style="text-decoration: none;"> <span style="display: inline-flex; align-items: center; background: #1d7898;
   color: #fff; border-radius: 20px; padding: 0.4em 1em; font-weight: 600;
   gap: 0.5em;"> <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/github.svg" alt="GitHub" width="20" height="20" style="filter: brightness(0)
     invert(1);"> Click to visit pydesrap_mms repository </span> </a></p>
+<p>Test files include:</p>
+<ul>
+<li><code>tests/test_backtest.py</code></li>
+<li><code>tests/test_functionaltest.py</code></li>
+<li><code>tests/test_mms.py</code></li>
+<li><code>tests/test_unittest.py</code></li>
+</ul>
 <p><a href="https://github.com/pythonhealthdatascience/pydesrap_stroke" target="_blank" style="text-decoration: none;"> <span style="display: inline-flex; align-items: center; background: #1d7898;
   color: #fff; border-radius: 20px; padding: 0.4em 1em; font-weight: 600;
   gap: 0.5em;"> <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/github.svg" alt="GitHub" width="20" height="20" style="filter: brightness(0)
     invert(1);"> Click to visit pydesrap_stroke repository </span> </a></p>
-<p>A wide variety of tests are available in the <code>tests/</code> folder.</p>
-<p>Data for back tests are generated within <code>notebooks/generate_exp_results.ipynb</code>.</p>
-<p>Tests are run and coverage are calculated on pushes to main via GitHub actions (<code>.github/workflows/tests.yaml</code>).</p>
+<p>Test files include:</p>
+<ul>
+<li><code>tests/test_backtest.py</code></li>
+<li><code>tests/test_functionaltest.py</code></li>
+<li><code>tests/test_unittest.py</code></li>
+</ul>
 </div>
 <div class="r-content">
+<p>A range of unit, functional, and back tests are available for both example models. These are available in the <code>tests/</code> folder. Data for back tests are generated within <code>notebooks/generate_exp_results.Rmd</code>.</p>
+<p>Tests are automatically run on pushes to <code>main</code> via GitHub actions (<code>.github/workflows/R-CMD-check.yaml</code>). Test coverage is calculated as described in the coverage section above and the GitHub Actions page (with a coverage badge updated via <code>.github/workflows/test-coverage.yaml</code>).</p>
 <p><a href="https://github.com/pythonhealthdatascience/rdesrap_mms" target="_blank" style="text-decoration: none;"> <span style="display: inline-flex; align-items: center; background: #1d7898;
   color: #fff; border-radius: 20px; padding: 0.4em 1em; font-weight: 600;
   gap: 0.5em;"> <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/github.svg" alt="GitHub" width="20" height="20" style="filter: brightness(0)
     invert(1);"> Click to visit rdesrap_mms repository </span> </a></p>
+<p>Test files include:</p>
+<ul>
+<li><code>tests/testthat/test-backtest-replications.R</code></li>
+<li><code>tests/testthat/test-backtest.R</code></li>
+<li><code>tests/testthat/test-functionaltest-replications.R</code></li>
+<li><code>tests/testthat/test-functionaltest.R</code></li>
+<li><code>tests/testthat/test-mms.R</code></li>
+<li><code>tests/testthat/test-unittest-replications.R</code></li>
+<li><code>tests/testthat/test-unittest.R</code></li>
+</ul>
 <p><a href="https://github.com/pythonhealthdatascience/rdesrap_stroke" target="_blank" style="text-decoration: none;"> <span style="display: inline-flex; align-items: center; background: #1d7898;
   color: #fff; border-radius: 20px; padding: 0.4em 1em; font-weight: 600;
   gap: 0.5em;"> <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/github.svg" alt="GitHub" width="20" height="20" style="filter: brightness(0)
     invert(1);"> Click to visit rdesrap_stroke repository </span> </a></p>
-<p>A wide variety of tests are available in the <code>tests/</code> folder.</p>
-<p>Data for back tests are generated within <code>notebooks/generate_exp_results.Rmd</code>.</p>
-<p>Tests are run via GitHub actions (<code>.github/workflows/R-CMD-check.yaml</code>) and a coverage badge is updated (<code>.github/workflows/test-coverage.yaml</code>).</p>
+<p>Test files include:</p>
+<ul>
+<li><code>tests/testthat/test-backtest.R</code></li>
+<li><code>tests/testthat/test-functionaltest.R</code></li>
+<li><code>tests/testthat/test-unittest.R</code></li>
+</ul>
 </div>
 </section>
 <section id="test-yourself" class="level2">
