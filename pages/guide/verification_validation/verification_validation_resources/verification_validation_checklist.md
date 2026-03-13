@@ -75,7 +75,7 @@ Predictive validation
 
 Animation visualisation
 
-* [ ] Create an animation to help with validation (as well as communicaton and reuse).
+* [ ] Create an animation to help with validation (as well as communication and reuse).
 
 Comparison testing
 

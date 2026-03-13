@@ -606,6 +606,100 @@ You can create custom logs which are easier to interpret - see the [Logging](log
 
 ## Test yourself
 
+<div class="h3-tight"></div>
+
+### Quiz
+
+```{r}
+#| echo: false
+library(webexercises) # nolint: library_call_linter
+```
+
+:::: {.python-content}
+
+::: {.callout-note}
+
+## In the Python `consultation()` method, what is the effect of with `self.doctor.request() as req: yield req`?
+
+```{r}
+#| output: asis
+#| echo: false
+cat(longmcq(c(
+  answer = paste0(
+    "The patient requests a doctor; if none are available they wait in a ",
+    "queue until a doctor becomes free."
+  ),
+  "It forces every patient to skip the doctor and leave immediately.",
+  "It randomly changes the number of available doctors during the run."
+)))
+```
+
+:::
+
+::: {.callout-note}
+
+## How is consultation duration modelled?
+
+```{r}
+#| output: asis
+#| echo: false
+cat(longmcq(c(
+  "As a fixed constant equal to `consultation_time` for every patient.",
+  answer = paste0(
+    "As a random sample from an exponential distribution with mean ",
+    "`param.consultation_time`."
+  ),
+  "As a uniform draw between 0 and `run_length` regardless of parameters."
+)))
+```
+
+:::
+
+::::
+
+:::: {.r-content}
+
+::: {.callout-note}
+
+## What is the role of `add_resource("doctor", param[["number_of_doctors"]])` in the model?
+
+```{r}
+#| output: asis
+#| echo: false
+cat(longmcq(c(
+  "It creates a logging object that prints all arrivals to the console.",
+  answer = paste0(
+    "It defines a doctor resource in the simmer environment with capacity ",
+    "equal to the specified number of doctors."
+  ),
+  "It sets the maximum number of patients allowed in the system."
+)))
+```
+
+:::
+
+::::
+
+::: {.callout-note}
+
+## What happens when all doctors are busy and a new patient arrives?
+
+```{r}
+#| output: asis
+#| echo: false
+cat(longmcq(c(
+  "The patient is discarded and never served.",
+  "The simulation automatically adds a new temporary doctor for that patient.",
+  answer = (
+    "The patient joins a queue and waits until a doctor becomes available."
+  )
+)))
+```
+
+:::
+
+### Activity
+
 If you haven't already, try adding a resource-based process for your model.
 
 **Task:**
