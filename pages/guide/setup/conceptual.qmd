@@ -1,0 +1,140 @@
+---
+title: Conceptual modelling
+bibliography: conceptual_resources/references.bib
+date: "2026-05-19T10:26:08+00:00"
+---
+
+<!-- Hide as no python-content or r-content blocks -->
+<style>
+      #quarto-announcement {
+        display: none !important;
+      }
+</style>
+
+::: {.pale-blue}
+
+**Learning objectives:**
+
+* Decide when discrete-event simulation is an **appropriate technique** for a problem.
+* Understand what a **conceptual model** is and identify the key components of a conceptual model.
+* Apply **model simplification** strategies to build the simplest model that meets study objectives.
+
+**Acknowledgements:** This page was written with reference to the excellent content on conceptual modelling in @Robinson2014.
+
+:::
+
+## What is a conceptual model?
+
+A **conceptual model** is a description of the simulation to be developed. It sits between the real-world problem and the computer implementation, capturing *what* the model needs to do before *how* it will be coded (@Robinson2014).
+
+Developing a conceptual model involves:
+
+1. Determining whether simulation is the appropriate modelling approach.
+2. Describing the model itself - its purpose, boundaries, data, and assumptions.
+
+This description serves as a reference point during model development, for [verification](/pages/guide/verification_validation/verification_validation.qmd), and for any future collaborators or users of the model.
+
+## Is DES the right approach?
+
+TODO.
+
+## Components of a conceptual model
+
+@Robinson2014 break a conceptual model down into five key components:
+
+* Objectives
+* Inputs
+* Outputs
+* Content
+* Assumptions and simplifications
+
+### Objectives
+
+State clearly what question the model is being built to answer, and what constraints apply. If you cannot write a one-sentence answer to "what decision will this model inform?", the objective is not ready yet.
+
+There are two levels of objectives to consider:
+
+::: {.blue-table}
+
+| Level | Description |
+| - | -- |
+| **Modelling objectives** | What do you hope to achieve by the end of the study? What targets are you aiming for? What scenarios are in scope? |
+| **Project objectives** | Practical constraints that shape the model including timescale, required flexibility, run speed, visual display requirements, and ease of use for intended users. |
+
+:::
+
+### Inputs
+
+List the **parameters you plan to vary**, and the ranges you'll vary them over.
+
+Ideally, also decide *how* inputs will be supplied (e.g., within a script, read from a file, entered via a user interface) since this affect how the model code is designed. This will depend on the needs of the intended users.
+
+### Outputs
+
+List the **statistics the model needs to produce** (e.g. mean waiting time, resource utilisation, queue length) and decide how they will be reported.
+
+Outputs should map directly onto the objectives: if a statistic does not help answer the question, it probably does not need to be there.
+
+### Content
+
+Model content has two dimensions (@Robinson2014):
+
+::: {.blue-table}
+
+| Dimension | Description |
+| - | -- |
+| **Scope** | Which parts of the system are included in the model. |
+| **Level of detail** | How finely to represent each included component. |
+
+:::
+
+Content can be represented using:
+
+- Component lists
+- Process flow diagrams
+- Activity cycle diagrams
+- Logic flow diagrams
+
+### Assumptions and simplifications
+
+Document every place where you depart from the real system, distinguishing two types (@Robinson2014):
+
+::: {.blue-table}
+
+| Concept | Definition |
+| - | -- |
+| **Assumption** | Arise from incomplete knowledge - you do not know exactly how something works, so you use the best available information. |
+| **Simplification** | Deliberate design choices - you *could* model something in more detail, but you opt for a simpler representation. |
+
+::::
+
+Both need to be recorded. Assumptions may need revisiting if better data become available; simplifications should be justified against their impact on validity.
+
+## What makes a good model?
+
+A good model (@Robinson2014):
+
+- Produces **sufficiently accurate results** for the purpose at hand (*validity*).
+- Is **believed** by the clients and stakeholders (*credibility*).
+- Is **feasible to build** within constraints of available data, time, and expertise.
+- Has **utility** - it is easy enough to use, sufficiently flexible, adequately visual, and quick to run.
+
+Overarching all four criteria is the requirement to build the **simplest model possible** to meet the objectives of the simulation study. Simpler models are faster to build and run, easier to understand and explain, and require less data.
+
+Models can be simplified by removing components or by representing components more simply - for example (@Robinson2014):
+
+* Replace a detailed section of an operation with a simple time delay.
+* Rather than modelling a component explicitly, sample its effect from a statistical distribution (e.g. sample a delivery time directly rather than simulating the delivery process).
+* Omit rare events from the base model; optionally explore them as separate scenarios.
+* Divide a large model into two or more sub-models that can be run independently. This improves run speed but is only successful when there is no feedback between parts.
+
+A simplification is **good** if it brings the benefits of faster model development and run speed (feasibility and utility) while maintaining sufficient accuracy (validity) and credibility [@Robinson2014].
+
+A practical way to calibrate this is to **prototype**: build the simplest plausible model first, then add scope or detail incrementally and check whether outputs change meaningfully. Stop when they stop changing.
+
+## References
+
+::: {#refs}
+:::
+
+<br><br>
