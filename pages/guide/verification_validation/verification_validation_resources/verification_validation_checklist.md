@@ -15,8 +15,11 @@ Desk checking
 Debugging
 
 * [ ] Write tests - they'll help for spotting bugs.
-* [ ] During model development, monitor the model using logs - they'll help with spotting bugs.
 * [ ] Use GitHub issues to record bugs as they arise, so they aren't forgotten and are recorded for future reference.
+
+Execution tracing
+
+* [ ] Add logging or tracing output around key decisions. Run the model for a short, controlled period and manually check the trace against your conceptual model.
 
 Assertion checking
 
