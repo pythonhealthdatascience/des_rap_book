@@ -20,6 +20,7 @@ RUN set -eux; \
         dirmngr locales git \
         # R compilation dependencies
         build-essential gfortran \
+        curl \
         libxml2-dev \
         libglpk-dev \
         libgmp-dev \
