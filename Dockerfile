@@ -62,15 +62,17 @@ ENV LC_ALL=en_GB.UTF-8
 ENV PYTHONIOENCODING=utf-8
 
 # ============================================================
-# STAGE 2: Install R from CRAN
+# STAGE 2: Install R 4.5.x from CRAN (pinned, not latest)
 # ============================================================
-RUN wget -q https://cran.r-project.org/bin/linux/ubuntu/noble/r-base-core_4.5.3-1.2404.0_amd64.deb && \
-    wget -q https://cran.r-project.org/bin/linux/ubuntu/noble/r-base_4.5.3-1.2404.0_all.deb && \
+RUN wget -qO- https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc | \
+    gpg --dearmor -o /usr/share/keyrings/r-project.gpg && \
+    echo "deb [signed-by=/usr/share/keyrings/r-project.gpg] https://cloud.r-project.org/bin/linux/ubuntu noble-cran40/" \
+        > /etc/apt/sources.list.d/r-project.list && \
     apt-get update && \
     apt-get install -y --no-install-recommends \
-        ./r-base-core_4.5.3-1.2404.0_amd64.deb \
-        ./r-base_4.5.3-1.2404.0_all.deb && \
-    rm -rf /var/lib/apt/lists/* r-base*.deb
+        r-base=4.5.3-1.2404.0 \
+        r-base-dev=4.5.3-1.2404.0 && \
+    rm -rf /var/lib/apt/lists/*
 
 # ============================================================
 # STAGE 3: Install Quarto
