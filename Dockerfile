@@ -62,7 +62,7 @@ ENV LC_ALL=en_GB.UTF-8
 ENV PYTHONIOENCODING=utf-8
 
 # ============================================================
-# STAGE 2: Install R 4.5.x from CRAN (pinned, not latest)
+# STAGE 2: Install R 4.5.3 from CRAN (pinned)
 # ============================================================
 RUN wget -qO- https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc | \
     gpg --dearmor -o /usr/share/keyrings/r-project.gpg && \
@@ -71,7 +71,9 @@ RUN wget -qO- https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc |
     apt-get update && \
     apt-get install -y --no-install-recommends \
         r-base=4.5.3-1.2404.0 \
-        r-base-dev=4.5.3-1.2404.0 && \
+        r-base-core=4.5.3-1.2404.0 \
+        r-base-dev=4.5.3-1.2404.0 \
+        r-recommended=4.5.3-1.2404.0 && \
     rm -rf /var/lib/apt/lists/*
 
 # ============================================================
