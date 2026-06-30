@@ -62,7 +62,7 @@ ENV LC_ALL=en_GB.UTF-8
 ENV PYTHONIOENCODING=utf-8
 
 # ============================================================
-# STAGE 2: Install R 4.5.3 from CRAN (pinned)
+# STAGE 2: Install R 4.4.1 from CRAN (pinned)
 # ============================================================
 RUN wget -qO- https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc | \
     gpg --dearmor -o /usr/share/keyrings/r-project.gpg && \
@@ -70,10 +70,10 @@ RUN wget -qO- https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc |
         > /etc/apt/sources.list.d/r-project.list && \
     apt-get update && \
     apt-get install -y --no-install-recommends \
-        r-base=4.5.3-1.2404.0 \
-        r-base-core=4.5.3-1.2404.0 \
-        r-base-dev=4.5.3-1.2404.0 \
-        r-recommended=4.5.3-1.2404.0 && \
+        r-base=4.4.1-1.2404.0 \
+        r-base-core=4.4.1-1.2404.0 \
+        r-base-dev=4.4.1-1.2404.0 \
+        r-recommended=4.4.1-1.2404.0 && \
     rm -rf /var/lib/apt/lists/*
 
 # ============================================================
@@ -126,8 +126,8 @@ RUN $CONDA_DIR/bin/conda env create -f environment.yaml
 # libraries, NOT conda libraries in PATH
 ENV RENV_PATHS_LIBRARY=/workspace/renv/library
 
-RUN Rscript -e "install.packages('renv', repos = 'https://cloud.r-project.org')" && \
-    Rscript -e "renv::restore()"
+RUN Rscript -e "install.packages(c('renv', 'pak'), repos = 'https://cloud.r-project.org')" && \
+    Rscript -e "options(renv.config.pak.enabled = TRUE); renv::restore()"
 
 # ============================================================
 # STAGE 8: Activate conda environment for RUNTIME only
