@@ -72,9 +72,14 @@ For more information on this project, check out the [STARS project website](http
 
 ## Citation
 
-To cite this work, see the `CITATION.cff` file in this repository or use the "Cite this repository" button on GitHub.
+If you this book supports your work, please **cite our paper**:
 
-You can also cite the archived version of this work on Zenodo: https://doi.org/10.5281/zenodo.17094155.
+> Heather A, Monks T, Harper A et al. Reproducible analytical pipelines for healthcare discrete‑event simulation: An open guide and worked examples [version 1; peer review: awaiting peer review]. NIHR Open Res 2026, 6:68 (https://doi.org/10.3310/nihropenres.14296.1)
+
+You may choose to also cite the software repository or archived version:
+
+* Repository details are also provided in the `CITATION.cff` file in this repository or via the "Cite this repository" button on GitHub.
+* Archived version of this work on Zenodo: https://doi.org/10.5281/zenodo.17094155.
 
 <br>
 
