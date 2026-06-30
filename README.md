@@ -72,9 +72,14 @@ For more information on this project, check out the [STARS project website](http
 
 ## Citation
 
-To cite this work, see the `CITATION.cff` file in this repository or use the "Cite this repository" button on GitHub.
+If you this book supports your work, please **cite our paper**:
 
-You can also cite the archived version of this work on Zenodo: https://doi.org/10.5281/zenodo.17094155.
+> Heather A, Monks T, Harper A et al. Reproducible analytical pipelines for healthcare discrete‑event simulation: An open guide and worked examples [version 1; peer review: awaiting peer review]. NIHR Open Res 2026, 6:68 (https://doi.org/10.3310/nihropenres.14296.1)
+
+You may choose to also cite the software repository or archived version:
+
+* Repository details are also provided in the `CITATION.cff` file in this repository or via the "Cite this repository" button on GitHub.
+* Archived version of this work on Zenodo: https://doi.org/10.5281/zenodo.17094155.
 
 <br>
 
@@ -117,3 +122,19 @@ If you're interested in contributing (or just viewing this website locally), che
 ## Funding
 
 This project is supported by the Medical Research Council [grant number [MR/Z503915/1](https://gtr.ukri.org/projects?ref=MR%2FZ503915%2F1)] from 1st May 2024 to 31st October 2026.
+
+It is also supported by the National Institute for Health and Care Research (NIHR) under the NIHR Applied Research Collaboration South West Peninsula (Grant Reference Number NIHR200167). The views expressed are those of the author(s) and not necessarily those of the NIHR or the Department of Health and Social Care.
+
+<br>
+
+<p align="center">
+  <img alt="University of Exeter logo" src="images/exeter_logo.png" width="45%">
+&nbsp; &nbsp; &nbsp; &nbsp;
+  <img alt="University of Bristol logo" src="images/bristol_logo.png" width="45%">
+</p>
+
+<p align="center">
+  <img alt="UKRI MRC logo" src="images/ukri_mrc_logo.png" width="45%">
+&nbsp; &nbsp; &nbsp; &nbsp;
+  <img alt="NIHR logo" src="images/nihr_logo.png" width="45%">
+</p>
