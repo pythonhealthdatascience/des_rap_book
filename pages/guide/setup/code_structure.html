@@ -2,14 +2,17 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.8.27">
+<meta name="generator" content="quarto-1.9.38">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2026-03-12">
+<meta name="dcterms.date" content="2026-06-12">
 
 <title>Code organisation – DES RAP</title>
 <style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
 div.columns{display: flex; gap: min(4vw, 1.5em);}
@@ -69,19 +72,18 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../../../site_libs/clipboard/clipboard.min.js"></script>
 <script src="../../../site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="../../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
-<script src="../../../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
 <script src="../../../site_libs/quarto-html/popper.min.js"></script>
 <script src="../../../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../../../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-ed96de9b727972fe78a7b5d16c58bf87.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
-<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-dark-4d9afe2b8d18ee9fa5d0d57b5ed4214d.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
-<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-ed96de9b727972fe78a7b5d16c58bf87.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-dark-0a6b7249c26820e032cb0bd839ff02b1.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="../../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../../site_libs/bootstrap/bootstrap-8646131623927dd14514c4f557b54440.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../../../site_libs/bootstrap/bootstrap-dark-8646131623927dd14514c4f557b54440.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="light">
-<link href="../../../site_libs/bootstrap/bootstrap-8646131623927dd14514c4f557b54440.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<link href="../../../site_libs/bootstrap/bootstrap-7f8cd31a252a2f1de6afc3b3fc113e9e.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../../site_libs/bootstrap/bootstrap-dark-7f8cd31a252a2f1de6afc3b3fc113e9e.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="light">
+<link href="../../../site_libs/bootstrap/bootstrap-7f8cd31a252a2f1de6afc3b3fc113e9e.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <script src="../../../site_libs/quarto-contrib/glightbox/glightbox.min.js"></script>
 <link href="../../../site_libs/quarto-contrib/glightbox/glightbox.min.css" rel="stylesheet">
 <link href="../../../site_libs/quarto-contrib/glightbox/lightbox.css" rel="stylesheet">
@@ -114,10 +116,10 @@ gtag('config', 'G-W2FC4GDHFK', { 'anonymize_ip': true});
 document.addEventListener('DOMContentLoaded', function () {
 cookieconsent.run({
   "notice_banner_type":"simple",
-  "consent_type":"implied",
+  "consent_type":"express",
   "palette":"light",
   "language":"en",
-  "page_load_consent_levels":["strictly-necessary","functionality","tracking","targeting"],
+  "page_load_consent_levels":["strictly-necessary"],
   "notice_banner_reject_button_hide":false,
   "preferences_center_close_button_hide":false,
   "website_name":""
@@ -266,7 +268,7 @@ background-size: cover;
       <div>
       <div class="quarto-title-meta-heading">Page last modified</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">March 12, 2026</p>
+        <p class="date">June 12, 2026</p>
       </div>
     </div>
     
@@ -661,8 +663,7 @@ background-size: cover;
 <p><strong>Required packages:</strong></p>
 <p>The following imports are required. These should be available from environment setup on the <a href="../../../pages/guide/setup/package.html">Structuring as a package</a> page.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
 </div>
@@ -989,8 +990,8 @@ background-size: cover;
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<div id="radio_AWPFBGXTGJ" class="webex-radiogroup">
-<label><input type="radio" autocomplete="off" name="radio_AWPFBGXTGJ" value="answer"> <span>Because small, reusable functions/classes make code more modular, easier to read, test, and maintain, and avoid duplication.</span></label><label><input type="radio" autocomplete="off" name="radio_AWPFBGXTGJ" value=""> <span>Because as long as logic is in functions or classes, it doesn't matter if there is a lot of duplicated code.</span></label>
+<div id="radio_GYZEIGZTEI" class="webex-radiogroup">
+<label><input type="radio" autocomplete="off" name="radio_GYZEIGZTEI" value="answer"> <span>Because small, reusable functions/classes make code more modular, easier to read, test, and maintain, and avoid duplication.</span></label><label><input type="radio" autocomplete="off" name="radio_GYZEIGZTEI" value=""> <span>Because as long as logic is in functions or classes, it doesn't matter if there is a lot of duplicated code.</span></label>
 </div>
 </div>
 </div>
@@ -1004,8 +1005,8 @@ background-size: cover;
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<div id="radio_YKCCRBDZRU" class="webex-radiogroup">
-<label><input type="radio" autocomplete="off" name="radio_YKCCRBDZRU" value=""> <span>To automatically run every hour and update all patients in the system.</span></label><label><input type="radio" autocomplete="off" name="radio_YKCCRBDZRU" value="answer"> <span>It initialises a new <code>Patient</code> object by setting attributes such as <code>patient_id</code>, <code>arrival_time</code>, and the initial <code>status</code>.</span></label><label><input type="radio" autocomplete="off" name="radio_YKCCRBDZRU" value=""> <span>To delete the patient from the queue when they arrive at the hospital.</span></label>
+<div id="radio_SBBRROKQCM" class="webex-radiogroup">
+<label><input type="radio" autocomplete="off" name="radio_SBBRROKQCM" value=""> <span>To automatically run every hour and update all patients in the system.</span></label><label><input type="radio" autocomplete="off" name="radio_SBBRROKQCM" value="answer"> <span>It initialises a new <code>Patient</code> object by setting attributes such as <code>patient_id</code>, <code>arrival_time</code>, and the initial <code>status</code>.</span></label><label><input type="radio" autocomplete="off" name="radio_SBBRROKQCM" value=""> <span>To delete the patient from the queue when they arrive at the hospital.</span></label>
 </div>
 </div>
 </div>
@@ -1021,8 +1022,8 @@ background-size: cover;
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<div id="radio_IIQBWXXSYT" class="webex-radiogroup">
-<label><input type="radio" autocomplete="off" name="radio_IIQBWXXSYT" value="answer"> <span>Because small, reusable functions make code more modular, easier to read, test, and maintain, and avoid duplication.</span></label><label><input type="radio" autocomplete="off" name="radio_IIQBWXXSYT" value=""> <span>Because as long as logic is in functions, it doesn't matter if there is a lot of duplicated code.</span></label>
+<div id="radio_PGHDPCDHPK" class="webex-radiogroup">
+<label><input type="radio" autocomplete="off" name="radio_PGHDPCDHPK" value="answer"> <span>Because small, reusable functions make code more modular, easier to read, test, and maintain, and avoid duplication.</span></label><label><input type="radio" autocomplete="off" name="radio_PGHDPCDHPK" value=""> <span>Because as long as logic is in functions, it doesn't matter if there is a lot of duplicated code.</span></label>
 </div>
 </div>
 </div>
@@ -1036,8 +1037,8 @@ background-size: cover;
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<div id="radio_OSXCHWLZGC" class="webex-radiogroup">
-<label><input type="radio" autocomplete="off" name="radio_OSXCHWLZGC" value=""> <span>A list containing duration, status, and a vector of results.</span></label><label><input type="radio" autocomplete="off" name="radio_OSXCHWLZGC" value="answer"> <span>A single numeric value: the estimated total wait time.</span></label><label><input type="radio" autocomplete="off" name="radio_OSXCHWLZGC" value=""> <span>A data frame with one row per patient and their individual wait time.</span></label>
+<div id="radio_NCKJDRNJCY" class="webex-radiogroup">
+<label><input type="radio" autocomplete="off" name="radio_NCKJDRNJCY" value=""> <span>A list containing duration, status, and a vector of results.</span></label><label><input type="radio" autocomplete="off" name="radio_NCKJDRNJCY" value="answer"> <span>A single numeric value: the estimated total wait time.</span></label><label><input type="radio" autocomplete="off" name="radio_NCKJDRNJCY" value=""> <span>A data frame with one row per patient and their individual wait time.</span></label>
 </div>
 </div>
 </div>
