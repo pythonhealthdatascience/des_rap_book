@@ -49,6 +49,12 @@ RETICULATE_PYTHON=/home/amy/mambaforge/envs/des-rap-book/bin/python
 RETICULATE_CONDA=/home/amy/mambaforge/bin/conda
 ```
 
+If using Pop!_OS, you will also need to a line to similar to this (but with appropriate version). This is to allow `pak::pkg_sysreqs("plotly")` to run on `environment.qmd`.
+
+```
+PKG_SYSREQS_PLATFORM=ubuntu-24.04
+```
+
 <br>
 
 ## Linting
