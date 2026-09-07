@@ -30,9 +30,7 @@ renv::restore()
 quarto render
 ```
 
-### Common `reticulate` error and solution
-
-When rendering a Quarto document containing executable Python code with `reticulate`, configuration errors can occur if R is not using the same Python as your conda/mamba environment.
+**However,** the first time you try to run it, you will likely run into a `reticulate` error. When rendering a Quarto document containing executable Python code with `reticulate`, configuration errors can occur if R is not using the same Python as your conda/mamba environment.
 
 Whilst you can use `reticulate::use_condaenv()` on each page, this caused errors for our GitHub action - and anyway, a more robust approach is to configure which Python interpreter reticulate should use.
 
