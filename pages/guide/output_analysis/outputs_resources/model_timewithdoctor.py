@@ -49,6 +49,7 @@ class Model:
 
         # Set up attributes to store results
         self.patients = []
+        self.patient_id_counter = 0
         self.results_list = []
 
         # Initialise distributions
@@ -73,7 +74,8 @@ class Model:
                 period = "\U0001F539 DC"
 
             # Create a new patient
-            patient = Patient(patient_id=len(self.patients)+1,
+            self.patient_id_counter += 1
+            patient = Patient(patient_id=self.patient_id_counter,
                               period=period,
                               arrival_time=self.env.now)
             self.patients.append(patient)

@@ -211,6 +211,7 @@ class Model:
 
         # Set up attributes to store results
         self.patients = []
+        self.patient_id_counter = 0
 
         # Initialise distributions
         self.arrival_dist = Exponential(
@@ -228,7 +229,8 @@ class Model:
             yield self.env.timeout(sampled_iat)
 
             # Create a new patient
-            patient = Patient(patient_id=len(self.patients)+1,
+            self.patient_id_counter += 1
+            patient = Patient(patient_id=self.patient_id_counter,
                               arrival_time=self.env.now)
             self.patients.append(patient)
 
@@ -306,6 +308,7 @@ Independent seeding also helps you avoid subtle mistakes that can happen with ma
 ```{.python}
 # Set up attributes to store results
 self.patients = []
+self.patient_id_counter = 0
 ```
 
 The `patients` list will store the `Patient` instances created for each arrival. The list stores references to the objects, so any changes made to a Patient's attributes after being added will be reflected in the list.
@@ -352,7 +355,8 @@ The statement `yield self.env.timeout(sampled_iat)` is how the simulation waits 
 
 ```{.python}
 # Create a new patient
-patient = Patient(patient_id=len(self.patients)+1,
+self.patient_id_counter += 1
+patient = Patient(patient_id=self.patient_id_counter,
                   arrival_time=self.env.now)
 self.patients.append(patient)
 ```
@@ -697,6 +701,7 @@ class Model:
 
         # Set up attributes to store results
         self.patients = []
+        self.patient_id_counter = 0
 
         # Create all the distributions#<<
         self.dist = DistributionRegistry.create_batch(#<<
@@ -715,7 +720,8 @@ class Model:
             yield self.env.timeout(sampled_iat)
 
             # Create a new patient
-            patient = Patient(patient_id=len(self.patients)+1,
+            self.patient_id_counter += 1
+            patient = Patient(patient_id=self.patient_id_counter,
                               arrival_time=self.env.now)
             self.patients.append(patient)
 
