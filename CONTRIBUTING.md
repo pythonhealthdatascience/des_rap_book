@@ -18,15 +18,20 @@ renv::init()
 renv::restore()
 ```
 
+> On Linux, some system dependencies are required for all packages to install successfully.
+>
+> ```
+> sudo apt install libfontconfig1-dev libharfbuzz-dev libfribidi-dev
+> ```
+
 **3. Create the book.**
 
 ```
 quarto render
+quarto preview
 ```
 
-### Common `reticulate` error and solution
-
-When rendering a Quarto document containing executable Python code with `reticulate`, configuration errors can occur if R is not using the same Python as your conda/mamba environment.
+**However,** the first time you try to run it, you will likely run into a `reticulate` error. When rendering a Quarto document containing executable Python code with `reticulate`, configuration errors can occur if R is not using the same Python as your conda/mamba environment.
 
 Whilst you can use `reticulate::use_condaenv()` on each page, this caused errors for our GitHub action - and anyway, a more robust approach is to configure which Python interpreter reticulate should use.
 
@@ -43,6 +48,12 @@ For example, if you environment is at `/home/amy/mambaforge/envs/des-rap-book`, 
 ```
 RETICULATE_PYTHON=/home/amy/mambaforge/envs/des-rap-book/bin/python
 RETICULATE_CONDA=/home/amy/mambaforge/bin/conda
+```
+
+If using Pop!_OS, you will also need to a line to similar to this (but with appropriate version). This is to allow `pak::pkg_sysreqs("plotly")` to run on `environment.qmd`.
+
+```
+PKG_SYSREQS_PLATFORM=ubuntu-24.04
 ```
 
 <br>

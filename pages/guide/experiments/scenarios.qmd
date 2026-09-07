@@ -513,6 +513,42 @@ In practice, sensitivity analysis is often performed within each scenario - for 
 
 :::
 
+### Two-way and factorial sensitivity analysis
+
+The previous example varied one parameter at a time. However, model outputs can depend on several uncertain parameters at once. Varying two or more parameters together can show:
+
+* The **main effect** of each parameter: its average effect on the outcome across the values of other parameters.
+* An **interaction effect**: whether the effect of one parameter changes depending on the value of another parameter.
+
+One way to investigate this is to use a 2k factorial design, as described in @Robinson2007. For each parameter (called a "factor"), you choose a plausible low (`-`) and high (`+`) value, then run the model for every possible combination of these values. For example:
+
+| Factor 1 | Factor 2 | Factor 3 | Response |
+| - | - | - | - |
+| - | - | - | $R_1$ |
+| + | - | - | $R_2$ |
+| - | + | - | $R_3$ |
+| + | + | - | $R_4$ |
+| - | - | + | $R_5$ |
+| + | - | + | $R_6$ |
+| - | + | + | $R_7$ |
+| + | + | + | $R_8$ |
+
+The main effect of Factor 1 is the average change in the response when Factor 1 changes from its low to high value, across all combinations of Factors 2 and 3:
+
+$$
+\frac{
+  (R_2 - R_1) + (R_4 - R_3) + (R_6 - R_5) + (R_8 - R_7)
+}{4}
+$$
+
+For example, a main effect of `+2` minutes for mean waiting time would indicate that changing Factor 1 from its low to high value increases mean waiting time by 2 minutes *on average* across the tested combinations of the other factors.
+
+An interaction occurs when the effect of one factor is different at different values of another factor. For example, increasing the number of doctors may reduce waiting time substantially when demand is high, but have little effect when demand is low. In that case, the effect of the number of doctors depends on the arrival rate: the two factors interact. See @Robinson2007 for the formula for calculating interaction effects.
+
+For an applied healthcare example, please see Monks, T., Pearson, M., Pitt, M., Stein, K., & James, M. A. (2015). *Evaluating the impact of a simulation study in emergency stroke care*. Operations research for health care, 6, 40-49. <https://doi.org/10.1016/j.orhc.2015.09.002>. They used a 2k factorial design to explore uncertainty in an emergency stroke care simulation:
+
+> "Here we focus on the uncertainty in the model results. To illustrate the results of the model we include a 23 factorial design including two of the early referral parameters and the proportion of exclusions between midnight and 11 am (due to our concern about underestimating the proportion of 'wake-up' strokes where the onset time is unknown). Full results, main and interaction effects are provided in the online supplementary material (see Appendix A)."
+
 ## Saving results
 
 Saving your simulation results to file is important for reproducility, as it allows others to verify your findings and generate consistent (or new) figures and analyses, even if they can't re-run your simulation.
