@@ -28,6 +28,7 @@ renv::restore()
 
 ```
 quarto render
+quarto preview
 ```
 
 **However,** the first time you try to run it, you will likely run into a `reticulate` error. When rendering a Quarto document containing executable Python code with `reticulate`, configuration errors can occur if R is not using the same Python as your conda/mamba environment.
