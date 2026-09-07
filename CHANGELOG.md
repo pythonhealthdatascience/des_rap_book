@@ -5,6 +5,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Dates formatted as YYYY-MM-DD as per [ISO standard](https://www.iso.org/iso-8601-date-and-time-format.html).
 
+## v0.6.0 - 2026-09-07
+
+Various changes including new conceptual modelling page and new section on factorial sensitivity analysis. Also additional MCQ, some fixes to environment and code, and other changes and additions to pages.
+
+### Added
+
+* Add conceptual modelling page (#200).
+* Add factorial sensitivity analysis (#211).
+* Add MCQ to pages otherwise missing them (#145).
+
+### Fixed
+
+* Environment fixes (curl, rlang, R pinned, upgrade lintquarto).
+* Correct some commands on environment page (#208).
+* Add `patient_id_counter` to all Python code (#209).
+
+### Changed
+
+* Hid Python/R buttons on impact page.
+* Add renal capacity model and quotes from Lucy and Dan to index and impact page (#199).
+* Mention TRACE and execution tracing (#196) on verification and validation page.
+* Add delete instructions (#198) to environment page.
+* Add link to STARS Quarto workshop on documentation page (#194).
+* Add paper citation and ARC funding and logos.
+* Add rig Pop OS instructions to environment page.
+
 ## v0.5.0 - 2026-02-20
 
 This release has lots and lots of changes based on peer review of the book from Nav Mustafee, Rob Challen, Tom Slater and Alison Harper. Other changes include addressing FAIRness requirements, switching R length of warm-up analysis to use intervals, and improving the docker action used to build the site.
