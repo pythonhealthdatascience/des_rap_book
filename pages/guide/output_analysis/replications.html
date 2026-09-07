@@ -81,9 +81,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
 <script src="../../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../../site_libs/bootstrap/bootstrap-7f8cd31a252a2f1de6afc3b3fc113e9e.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
-<link href="../../../site_libs/bootstrap/bootstrap-dark-7f8cd31a252a2f1de6afc3b3fc113e9e.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="light">
-<link href="../../../site_libs/bootstrap/bootstrap-7f8cd31a252a2f1de6afc3b3fc113e9e.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<link href="../../../site_libs/bootstrap/bootstrap-89bf9c8858e372e59dfa59e4754bf5d6.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../../site_libs/bootstrap/bootstrap-dark-89bf9c8858e372e59dfa59e4754bf5d6.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="light">
+<link href="../../../site_libs/bootstrap/bootstrap-89bf9c8858e372e59dfa59e4754bf5d6.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
 <link href="../../../site_libs/quarto-contrib/line-highlight-1.0.0/line-highlight.css" rel="stylesheet">
 <script src="../../../site_libs/quarto-contrib/glightbox/glightbox.min.js"></script>
 <link href="../../../site_libs/quarto-contrib/glightbox/glightbox.min.css" rel="stylesheet">
@@ -1026,143 +1026,145 @@ background-size: cover;
 <span id="cb6-57"><a href="#cb6-57" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-58"><a href="#cb6-58" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Set up attributes to store results</span></span>
 <span id="cb6-59"><a href="#cb6-59" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.patients <span class="op">=</span> []</span>
-<span id="cb6-60"><a href="#cb6-60" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.results_list <span class="op">=</span> []</span>
-<span id="cb6-61"><a href="#cb6-61" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.area_n_in_system <span class="op">=</span> [<span class="dv">0</span>]</span>
-<span id="cb6-62"><a href="#cb6-62" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.time_last_n_in_system <span class="op">=</span> <span class="va">self</span>.env.now</span>
-<span id="cb6-63"><a href="#cb6-63" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.n_in_system <span class="op">=</span> <span class="dv">0</span></span>
-<span id="cb6-64"><a href="#cb6-64" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-65"><a href="#cb6-65" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Initialise distributions</span></span>
-<span id="cb6-66"><a href="#cb6-66" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.arrival_dist <span class="op">=</span> Exponential(mean<span class="op">=</span><span class="va">self</span>.param.interarrival_time,</span>
-<span id="cb6-67"><a href="#cb6-67" aria-hidden="true" tabindex="-1"></a>                                        random_seed<span class="op">=</span>seeds[<span class="dv">0</span>])</span>
-<span id="cb6-68"><a href="#cb6-68" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.consult_dist <span class="op">=</span> Exponential(mean<span class="op">=</span><span class="va">self</span>.param.consultation_time,</span>
-<span id="cb6-69"><a href="#cb6-69" aria-hidden="true" tabindex="-1"></a>                                        random_seed<span class="op">=</span>seeds[<span class="dv">1</span>])</span>
-<span id="cb6-70"><a href="#cb6-70" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-71"><a href="#cb6-71" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> update_n_in_system(<span class="va">self</span>, inc):</span>
-<span id="cb6-72"><a href="#cb6-72" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""</span></span>
-<span id="cb6-73"><a href="#cb6-73" aria-hidden="true" tabindex="-1"></a><span class="co">        Update the time-weighted statistics for number of patients in system.</span></span>
-<span id="cb6-74"><a href="#cb6-74" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-75"><a href="#cb6-75" aria-hidden="true" tabindex="-1"></a><span class="co">        Parameters</span></span>
-<span id="cb6-76"><a href="#cb6-76" aria-hidden="true" tabindex="-1"></a><span class="co">        ----------</span></span>
-<span id="cb6-77"><a href="#cb6-77" aria-hidden="true" tabindex="-1"></a><span class="co">        inc : int</span></span>
-<span id="cb6-78"><a href="#cb6-78" aria-hidden="true" tabindex="-1"></a><span class="co">            Change in the number of patients (+1, 0, -1).</span></span>
-<span id="cb6-79"><a href="#cb6-79" aria-hidden="true" tabindex="-1"></a><span class="co">        """</span></span>
-<span id="cb6-80"><a href="#cb6-80" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Compute time since last event and calculate area under curve for that</span></span>
-<span id="cb6-81"><a href="#cb6-81" aria-hidden="true" tabindex="-1"></a>        duration <span class="op">=</span> <span class="va">self</span>.env.now <span class="op">-</span> <span class="va">self</span>.time_last_n_in_system</span>
-<span id="cb6-82"><a href="#cb6-82" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.area_n_in_system.append(<span class="va">self</span>.n_in_system <span class="op">*</span> duration)</span>
-<span id="cb6-83"><a href="#cb6-83" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Update time and n in system</span></span>
-<span id="cb6-84"><a href="#cb6-84" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.time_last_n_in_system <span class="op">=</span> <span class="va">self</span>.env.now</span>
-<span id="cb6-85"><a href="#cb6-85" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.n_in_system <span class="op">+=</span> inc</span>
-<span id="cb6-86"><a href="#cb6-86" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-87"><a href="#cb6-87" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> generate_arrivals(<span class="va">self</span>):</span>
-<span id="cb6-88"><a href="#cb6-88" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""</span></span>
-<span id="cb6-89"><a href="#cb6-89" aria-hidden="true" tabindex="-1"></a><span class="co">        Process that generates patient arrivals.</span></span>
-<span id="cb6-90"><a href="#cb6-90" aria-hidden="true" tabindex="-1"></a><span class="co">        """</span></span>
-<span id="cb6-91"><a href="#cb6-91" aria-hidden="true" tabindex="-1"></a>        <span class="cf">while</span> <span class="va">True</span>:</span>
-<span id="cb6-92"><a href="#cb6-92" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Sample and pass time to next arrival</span></span>
-<span id="cb6-93"><a href="#cb6-93" aria-hidden="true" tabindex="-1"></a>            sampled_iat <span class="op">=</span> <span class="va">self</span>.arrival_dist.sample()</span>
-<span id="cb6-94"><a href="#cb6-94" aria-hidden="true" tabindex="-1"></a>            <span class="cf">yield</span> <span class="va">self</span>.env.timeout(sampled_iat)</span>
-<span id="cb6-95"><a href="#cb6-95" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-96"><a href="#cb6-96" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Check whether arrived during warm-up or data collection</span></span>
-<span id="cb6-97"><a href="#cb6-97" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> <span class="va">self</span>.env.now <span class="op">&lt;</span> <span class="va">self</span>.param.warm_up_period:</span>
-<span id="cb6-98"><a href="#cb6-98" aria-hidden="true" tabindex="-1"></a>                period <span class="op">=</span> <span class="st">"</span><span class="ch">\U0001F538</span><span class="st"> WU"</span></span>
-<span id="cb6-99"><a href="#cb6-99" aria-hidden="true" tabindex="-1"></a>            <span class="cf">else</span>:</span>
-<span id="cb6-100"><a href="#cb6-100" aria-hidden="true" tabindex="-1"></a>                period <span class="op">=</span> <span class="st">"</span><span class="ch">\U0001F539</span><span class="st"> DC"</span></span>
-<span id="cb6-101"><a href="#cb6-101" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-102"><a href="#cb6-102" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Create a new patient</span></span>
-<span id="cb6-103"><a href="#cb6-103" aria-hidden="true" tabindex="-1"></a>            patient <span class="op">=</span> Patient(patient_id<span class="op">=</span><span class="bu">len</span>(<span class="va">self</span>.patients)<span class="op">+</span><span class="dv">1</span>,</span>
-<span id="cb6-104"><a href="#cb6-104" aria-hidden="true" tabindex="-1"></a>                              period<span class="op">=</span>period,</span>
-<span id="cb6-105"><a href="#cb6-105" aria-hidden="true" tabindex="-1"></a>                              arrival_time<span class="op">=</span><span class="va">self</span>.env.now)</span>
-<span id="cb6-106"><a href="#cb6-106" aria-hidden="true" tabindex="-1"></a>            <span class="va">self</span>.patients.append(patient)</span>
-<span id="cb6-107"><a href="#cb6-107" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-108"><a href="#cb6-108" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Update the number in the system</span></span>
-<span id="cb6-109"><a href="#cb6-109" aria-hidden="true" tabindex="-1"></a>            <span class="va">self</span>.update_n_in_system(inc<span class="op">=</span><span class="dv">1</span>)</span>
-<span id="cb6-110"><a href="#cb6-110" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-111"><a href="#cb6-111" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Print arrival time</span></span>
-<span id="cb6-112"><a href="#cb6-112" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> <span class="va">self</span>.param.verbose:</span>
-<span id="cb6-113"><a href="#cb6-113" aria-hidden="true" tabindex="-1"></a>                <span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span>patient<span class="sc">.</span>period<span class="sc">}</span><span class="ss"> Patient </span><span class="sc">{</span>patient<span class="sc">.</span>patient_id<span class="sc">}</span><span class="ss"> "</span> <span class="op">+</span></span>
-<span id="cb6-114"><a href="#cb6-114" aria-hidden="true" tabindex="-1"></a>                      <span class="ss">f"arrives at time: </span><span class="sc">{</span>patient<span class="sc">.</span>arrival_time<span class="sc">:.3f}</span><span class="ss">"</span>)</span>
-<span id="cb6-115"><a href="#cb6-115" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-116"><a href="#cb6-116" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Start process of consultation</span></span>
-<span id="cb6-117"><a href="#cb6-117" aria-hidden="true" tabindex="-1"></a>            <span class="va">self</span>.env.process(<span class="va">self</span>.consultation(patient))</span>
-<span id="cb6-118"><a href="#cb6-118" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-119"><a href="#cb6-119" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> consultation(<span class="va">self</span>, patient):</span>
-<span id="cb6-120"><a href="#cb6-120" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""</span></span>
-<span id="cb6-121"><a href="#cb6-121" aria-hidden="true" tabindex="-1"></a><span class="co">        Process that simulates a consultation.</span></span>
-<span id="cb6-122"><a href="#cb6-122" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-123"><a href="#cb6-123" aria-hidden="true" tabindex="-1"></a><span class="co">        Parameters</span></span>
-<span id="cb6-124"><a href="#cb6-124" aria-hidden="true" tabindex="-1"></a><span class="co">        ----------</span></span>
-<span id="cb6-125"><a href="#cb6-125" aria-hidden="true" tabindex="-1"></a><span class="co">        patient :</span></span>
-<span id="cb6-126"><a href="#cb6-126" aria-hidden="true" tabindex="-1"></a><span class="co">            Instance of the Patient() class representing a single patient.</span></span>
-<span id="cb6-127"><a href="#cb6-127" aria-hidden="true" tabindex="-1"></a><span class="co">        """</span></span>
-<span id="cb6-128"><a href="#cb6-128" aria-hidden="true" tabindex="-1"></a>        start_wait <span class="op">=</span> <span class="va">self</span>.env.now</span>
-<span id="cb6-129"><a href="#cb6-129" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Patient requests access to a doctor (resource)</span></span>
-<span id="cb6-130"><a href="#cb6-130" aria-hidden="true" tabindex="-1"></a>        <span class="cf">with</span> <span class="va">self</span>.doctor.request() <span class="im">as</span> req:</span>
-<span id="cb6-131"><a href="#cb6-131" aria-hidden="true" tabindex="-1"></a>            <span class="cf">yield</span> req</span>
-<span id="cb6-132"><a href="#cb6-132" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-133"><a href="#cb6-133" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Record how long patient waited before consultation</span></span>
-<span id="cb6-134"><a href="#cb6-134" aria-hidden="true" tabindex="-1"></a>            patient.wait_time <span class="op">=</span> <span class="va">self</span>.env.now <span class="op">-</span> start_wait</span>
-<span id="cb6-135"><a href="#cb6-135" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-136"><a href="#cb6-136" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> <span class="va">self</span>.param.verbose:</span>
-<span id="cb6-137"><a href="#cb6-137" aria-hidden="true" tabindex="-1"></a>                <span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span>patient<span class="sc">.</span>period<span class="sc">}</span><span class="ss"> Patient </span><span class="sc">{</span>patient<span class="sc">.</span>patient_id<span class="sc">}</span><span class="ss"> "</span> <span class="op">+</span></span>
-<span id="cb6-138"><a href="#cb6-138" aria-hidden="true" tabindex="-1"></a>                      <span class="ss">f"starts consultation at: </span><span class="sc">{</span><span class="va">self</span><span class="sc">.</span>env<span class="sc">.</span>now<span class="sc">:.3f}</span><span class="ss">"</span>)</span>
-<span id="cb6-139"><a href="#cb6-139" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-140"><a href="#cb6-140" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Sample consultation duration and pass time spent with doctor</span></span>
-<span id="cb6-141"><a href="#cb6-141" aria-hidden="true" tabindex="-1"></a>            patient.time_with_doctor <span class="op">=</span> <span class="va">self</span>.consult_dist.sample()</span>
-<span id="cb6-142"><a href="#cb6-142" aria-hidden="true" tabindex="-1"></a>            <span class="cf">yield</span> <span class="va">self</span>.env.timeout(patient.time_with_doctor)</span>
-<span id="cb6-143"><a href="#cb6-143" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-144"><a href="#cb6-144" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Update number in system</span></span>
-<span id="cb6-145"><a href="#cb6-145" aria-hidden="true" tabindex="-1"></a>            <span class="va">self</span>.update_n_in_system(inc<span class="op">=-</span><span class="dv">1</span>)</span>
-<span id="cb6-146"><a href="#cb6-146" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-147"><a href="#cb6-147" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Record end time</span></span>
-<span id="cb6-148"><a href="#cb6-148" aria-hidden="true" tabindex="-1"></a>            patient.end_time <span class="op">=</span> <span class="va">self</span>.env.now</span>
-<span id="cb6-149"><a href="#cb6-149" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> <span class="va">self</span>.param.verbose:</span>
-<span id="cb6-150"><a href="#cb6-150" aria-hidden="true" tabindex="-1"></a>                <span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span>patient<span class="sc">.</span>period<span class="sc">}</span><span class="ss"> Patient </span><span class="sc">{</span>patient<span class="sc">.</span>patient_id<span class="sc">}</span><span class="ss"> "</span> <span class="op">+</span></span>
-<span id="cb6-151"><a href="#cb6-151" aria-hidden="true" tabindex="-1"></a>                      <span class="ss">f"leaves at: </span><span class="sc">{</span>patient<span class="sc">.</span>end_time<span class="sc">:.3f}</span><span class="ss">"</span>)</span>
-<span id="cb6-152"><a href="#cb6-152" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-153"><a href="#cb6-153" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> reset_results(<span class="va">self</span>):</span>
-<span id="cb6-154"><a href="#cb6-154" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""</span></span>
-<span id="cb6-155"><a href="#cb6-155" aria-hidden="true" tabindex="-1"></a><span class="co">        Reset results.</span></span>
-<span id="cb6-156"><a href="#cb6-156" aria-hidden="true" tabindex="-1"></a><span class="co">        """</span></span>
-<span id="cb6-157"><a href="#cb6-157" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.patients <span class="op">=</span> []</span>
-<span id="cb6-158"><a href="#cb6-158" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.doctor.init_results()</span>
-<span id="cb6-159"><a href="#cb6-159" aria-hidden="true" tabindex="-1"></a>        <span class="co"># For number in system, we reset area and time but not the count, as</span></span>
-<span id="cb6-160"><a href="#cb6-160" aria-hidden="true" tabindex="-1"></a>        <span class="co"># it should include any remaining warm-up patients in the count</span></span>
-<span id="cb6-161"><a href="#cb6-161" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.area_n_in_system <span class="op">=</span> [<span class="dv">0</span>]</span>
-<span id="cb6-162"><a href="#cb6-162" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.time_last_n_in_system <span class="op">=</span> <span class="va">self</span>.env.now</span>
-<span id="cb6-163"><a href="#cb6-163" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-164"><a href="#cb6-164" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> warmup(<span class="va">self</span>):</span>
-<span id="cb6-165"><a href="#cb6-165" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""</span></span>
-<span id="cb6-166"><a href="#cb6-166" aria-hidden="true" tabindex="-1"></a><span class="co">        Reset result collection after the warm-up period.</span></span>
-<span id="cb6-167"><a href="#cb6-167" aria-hidden="true" tabindex="-1"></a><span class="co">        """</span></span>
-<span id="cb6-168"><a href="#cb6-168" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="va">self</span>.param.warm_up_period <span class="op">&gt;</span> <span class="dv">0</span>:</span>
-<span id="cb6-169"><a href="#cb6-169" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Delay process until warm-up period has completed</span></span>
-<span id="cb6-170"><a href="#cb6-170" aria-hidden="true" tabindex="-1"></a>            <span class="cf">yield</span> <span class="va">self</span>.env.timeout(<span class="va">self</span>.param.warm_up_period)</span>
-<span id="cb6-171"><a href="#cb6-171" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Reset results variables</span></span>
-<span id="cb6-172"><a href="#cb6-172" aria-hidden="true" tabindex="-1"></a>            <span class="va">self</span>.reset_results()</span>
-<span id="cb6-173"><a href="#cb6-173" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> <span class="va">self</span>.param.verbose:</span>
-<span id="cb6-174"><a href="#cb6-174" aria-hidden="true" tabindex="-1"></a>                <span class="bu">print</span>(<span class="ss">f"Warm up period ended at time: </span><span class="sc">{</span><span class="va">self</span><span class="sc">.</span>env<span class="sc">.</span>now<span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb6-175"><a href="#cb6-175" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-176"><a href="#cb6-176" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> run(<span class="va">self</span>):</span>
-<span id="cb6-177"><a href="#cb6-177" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""</span></span>
-<span id="cb6-178"><a href="#cb6-178" aria-hidden="true" tabindex="-1"></a><span class="co">        Run the simulation.</span></span>
-<span id="cb6-179"><a href="#cb6-179" aria-hidden="true" tabindex="-1"></a><span class="co">        """</span></span>
-<span id="cb6-180"><a href="#cb6-180" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Schedule arrival generator and warm-up</span></span>
-<span id="cb6-181"><a href="#cb6-181" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.env.process(<span class="va">self</span>.generate_arrivals())</span>
-<span id="cb6-182"><a href="#cb6-182" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.env.process(<span class="va">self</span>.warmup())</span>
-<span id="cb6-183"><a href="#cb6-183" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-184"><a href="#cb6-184" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Run the simulation</span></span>
-<span id="cb6-185"><a href="#cb6-185" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.env.run(until<span class="op">=</span>(<span class="va">self</span>.param.warm_up_period <span class="op">+</span></span>
-<span id="cb6-186"><a href="#cb6-186" aria-hidden="true" tabindex="-1"></a>                            <span class="va">self</span>.param.data_collection_period))</span>
-<span id="cb6-187"><a href="#cb6-187" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-188"><a href="#cb6-188" aria-hidden="true" tabindex="-1"></a>        <span class="co"># At simulation end, update time-weighted statistics by accounting</span></span>
-<span id="cb6-189"><a href="#cb6-189" aria-hidden="true" tabindex="-1"></a>        <span class="co"># for the time from the last event up to the simulation finish.</span></span>
-<span id="cb6-190"><a href="#cb6-190" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.doctor.update_time_weighted_stats()</span>
-<span id="cb6-191"><a href="#cb6-191" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-192"><a href="#cb6-192" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Run final calculation of number in system</span></span>
-<span id="cb6-193"><a href="#cb6-193" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.update_n_in_system(inc<span class="op">=</span><span class="dv">0</span>)</span>
-<span id="cb6-194"><a href="#cb6-194" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-195"><a href="#cb6-195" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Create list of dictionaries containing each patient's attributes</span></span>
-<span id="cb6-196"><a href="#cb6-196" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.results_list <span class="op">=</span> [x.__dict__ <span class="cf">for</span> x <span class="kw">in</span> <span class="va">self</span>.patients]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb6-60"><a href="#cb6-60" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.patient_id_counter <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb6-61"><a href="#cb6-61" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.results_list <span class="op">=</span> []</span>
+<span id="cb6-62"><a href="#cb6-62" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.area_n_in_system <span class="op">=</span> [<span class="dv">0</span>]</span>
+<span id="cb6-63"><a href="#cb6-63" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.time_last_n_in_system <span class="op">=</span> <span class="va">self</span>.env.now</span>
+<span id="cb6-64"><a href="#cb6-64" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.n_in_system <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb6-65"><a href="#cb6-65" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-66"><a href="#cb6-66" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Initialise distributions</span></span>
+<span id="cb6-67"><a href="#cb6-67" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.arrival_dist <span class="op">=</span> Exponential(mean<span class="op">=</span><span class="va">self</span>.param.interarrival_time,</span>
+<span id="cb6-68"><a href="#cb6-68" aria-hidden="true" tabindex="-1"></a>                                        random_seed<span class="op">=</span>seeds[<span class="dv">0</span>])</span>
+<span id="cb6-69"><a href="#cb6-69" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.consult_dist <span class="op">=</span> Exponential(mean<span class="op">=</span><span class="va">self</span>.param.consultation_time,</span>
+<span id="cb6-70"><a href="#cb6-70" aria-hidden="true" tabindex="-1"></a>                                        random_seed<span class="op">=</span>seeds[<span class="dv">1</span>])</span>
+<span id="cb6-71"><a href="#cb6-71" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-72"><a href="#cb6-72" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> update_n_in_system(<span class="va">self</span>, inc):</span>
+<span id="cb6-73"><a href="#cb6-73" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""</span></span>
+<span id="cb6-74"><a href="#cb6-74" aria-hidden="true" tabindex="-1"></a><span class="co">        Update the time-weighted statistics for number of patients in system.</span></span>
+<span id="cb6-75"><a href="#cb6-75" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-76"><a href="#cb6-76" aria-hidden="true" tabindex="-1"></a><span class="co">        Parameters</span></span>
+<span id="cb6-77"><a href="#cb6-77" aria-hidden="true" tabindex="-1"></a><span class="co">        ----------</span></span>
+<span id="cb6-78"><a href="#cb6-78" aria-hidden="true" tabindex="-1"></a><span class="co">        inc : int</span></span>
+<span id="cb6-79"><a href="#cb6-79" aria-hidden="true" tabindex="-1"></a><span class="co">            Change in the number of patients (+1, 0, -1).</span></span>
+<span id="cb6-80"><a href="#cb6-80" aria-hidden="true" tabindex="-1"></a><span class="co">        """</span></span>
+<span id="cb6-81"><a href="#cb6-81" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Compute time since last event and calculate area under curve for that</span></span>
+<span id="cb6-82"><a href="#cb6-82" aria-hidden="true" tabindex="-1"></a>        duration <span class="op">=</span> <span class="va">self</span>.env.now <span class="op">-</span> <span class="va">self</span>.time_last_n_in_system</span>
+<span id="cb6-83"><a href="#cb6-83" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.area_n_in_system.append(<span class="va">self</span>.n_in_system <span class="op">*</span> duration)</span>
+<span id="cb6-84"><a href="#cb6-84" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Update time and n in system</span></span>
+<span id="cb6-85"><a href="#cb6-85" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.time_last_n_in_system <span class="op">=</span> <span class="va">self</span>.env.now</span>
+<span id="cb6-86"><a href="#cb6-86" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.n_in_system <span class="op">+=</span> inc</span>
+<span id="cb6-87"><a href="#cb6-87" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-88"><a href="#cb6-88" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> generate_arrivals(<span class="va">self</span>):</span>
+<span id="cb6-89"><a href="#cb6-89" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""</span></span>
+<span id="cb6-90"><a href="#cb6-90" aria-hidden="true" tabindex="-1"></a><span class="co">        Process that generates patient arrivals.</span></span>
+<span id="cb6-91"><a href="#cb6-91" aria-hidden="true" tabindex="-1"></a><span class="co">        """</span></span>
+<span id="cb6-92"><a href="#cb6-92" aria-hidden="true" tabindex="-1"></a>        <span class="cf">while</span> <span class="va">True</span>:</span>
+<span id="cb6-93"><a href="#cb6-93" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Sample and pass time to next arrival</span></span>
+<span id="cb6-94"><a href="#cb6-94" aria-hidden="true" tabindex="-1"></a>            sampled_iat <span class="op">=</span> <span class="va">self</span>.arrival_dist.sample()</span>
+<span id="cb6-95"><a href="#cb6-95" aria-hidden="true" tabindex="-1"></a>            <span class="cf">yield</span> <span class="va">self</span>.env.timeout(sampled_iat)</span>
+<span id="cb6-96"><a href="#cb6-96" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-97"><a href="#cb6-97" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Check whether arrived during warm-up or data collection</span></span>
+<span id="cb6-98"><a href="#cb6-98" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> <span class="va">self</span>.env.now <span class="op">&lt;</span> <span class="va">self</span>.param.warm_up_period:</span>
+<span id="cb6-99"><a href="#cb6-99" aria-hidden="true" tabindex="-1"></a>                period <span class="op">=</span> <span class="st">"</span><span class="ch">\U0001F538</span><span class="st"> WU"</span></span>
+<span id="cb6-100"><a href="#cb6-100" aria-hidden="true" tabindex="-1"></a>            <span class="cf">else</span>:</span>
+<span id="cb6-101"><a href="#cb6-101" aria-hidden="true" tabindex="-1"></a>                period <span class="op">=</span> <span class="st">"</span><span class="ch">\U0001F539</span><span class="st"> DC"</span></span>
+<span id="cb6-102"><a href="#cb6-102" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-103"><a href="#cb6-103" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Create a new patient</span></span>
+<span id="cb6-104"><a href="#cb6-104" aria-hidden="true" tabindex="-1"></a>            <span class="va">self</span>.patient_id_counter <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb6-105"><a href="#cb6-105" aria-hidden="true" tabindex="-1"></a>            patient <span class="op">=</span> Patient(patient_id<span class="op">=</span><span class="va">self</span>.patient_id_counter,</span>
+<span id="cb6-106"><a href="#cb6-106" aria-hidden="true" tabindex="-1"></a>                              period<span class="op">=</span>period,</span>
+<span id="cb6-107"><a href="#cb6-107" aria-hidden="true" tabindex="-1"></a>                              arrival_time<span class="op">=</span><span class="va">self</span>.env.now)</span>
+<span id="cb6-108"><a href="#cb6-108" aria-hidden="true" tabindex="-1"></a>            <span class="va">self</span>.patients.append(patient)</span>
+<span id="cb6-109"><a href="#cb6-109" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-110"><a href="#cb6-110" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Update the number in the system</span></span>
+<span id="cb6-111"><a href="#cb6-111" aria-hidden="true" tabindex="-1"></a>            <span class="va">self</span>.update_n_in_system(inc<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb6-112"><a href="#cb6-112" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-113"><a href="#cb6-113" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Print arrival time</span></span>
+<span id="cb6-114"><a href="#cb6-114" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> <span class="va">self</span>.param.verbose:</span>
+<span id="cb6-115"><a href="#cb6-115" aria-hidden="true" tabindex="-1"></a>                <span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span>patient<span class="sc">.</span>period<span class="sc">}</span><span class="ss"> Patient </span><span class="sc">{</span>patient<span class="sc">.</span>patient_id<span class="sc">}</span><span class="ss"> "</span> <span class="op">+</span></span>
+<span id="cb6-116"><a href="#cb6-116" aria-hidden="true" tabindex="-1"></a>                      <span class="ss">f"arrives at time: </span><span class="sc">{</span>patient<span class="sc">.</span>arrival_time<span class="sc">:.3f}</span><span class="ss">"</span>)</span>
+<span id="cb6-117"><a href="#cb6-117" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-118"><a href="#cb6-118" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Start process of consultation</span></span>
+<span id="cb6-119"><a href="#cb6-119" aria-hidden="true" tabindex="-1"></a>            <span class="va">self</span>.env.process(<span class="va">self</span>.consultation(patient))</span>
+<span id="cb6-120"><a href="#cb6-120" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-121"><a href="#cb6-121" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> consultation(<span class="va">self</span>, patient):</span>
+<span id="cb6-122"><a href="#cb6-122" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""</span></span>
+<span id="cb6-123"><a href="#cb6-123" aria-hidden="true" tabindex="-1"></a><span class="co">        Process that simulates a consultation.</span></span>
+<span id="cb6-124"><a href="#cb6-124" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-125"><a href="#cb6-125" aria-hidden="true" tabindex="-1"></a><span class="co">        Parameters</span></span>
+<span id="cb6-126"><a href="#cb6-126" aria-hidden="true" tabindex="-1"></a><span class="co">        ----------</span></span>
+<span id="cb6-127"><a href="#cb6-127" aria-hidden="true" tabindex="-1"></a><span class="co">        patient :</span></span>
+<span id="cb6-128"><a href="#cb6-128" aria-hidden="true" tabindex="-1"></a><span class="co">            Instance of the Patient() class representing a single patient.</span></span>
+<span id="cb6-129"><a href="#cb6-129" aria-hidden="true" tabindex="-1"></a><span class="co">        """</span></span>
+<span id="cb6-130"><a href="#cb6-130" aria-hidden="true" tabindex="-1"></a>        start_wait <span class="op">=</span> <span class="va">self</span>.env.now</span>
+<span id="cb6-131"><a href="#cb6-131" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Patient requests access to a doctor (resource)</span></span>
+<span id="cb6-132"><a href="#cb6-132" aria-hidden="true" tabindex="-1"></a>        <span class="cf">with</span> <span class="va">self</span>.doctor.request() <span class="im">as</span> req:</span>
+<span id="cb6-133"><a href="#cb6-133" aria-hidden="true" tabindex="-1"></a>            <span class="cf">yield</span> req</span>
+<span id="cb6-134"><a href="#cb6-134" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-135"><a href="#cb6-135" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Record how long patient waited before consultation</span></span>
+<span id="cb6-136"><a href="#cb6-136" aria-hidden="true" tabindex="-1"></a>            patient.wait_time <span class="op">=</span> <span class="va">self</span>.env.now <span class="op">-</span> start_wait</span>
+<span id="cb6-137"><a href="#cb6-137" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-138"><a href="#cb6-138" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> <span class="va">self</span>.param.verbose:</span>
+<span id="cb6-139"><a href="#cb6-139" aria-hidden="true" tabindex="-1"></a>                <span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span>patient<span class="sc">.</span>period<span class="sc">}</span><span class="ss"> Patient </span><span class="sc">{</span>patient<span class="sc">.</span>patient_id<span class="sc">}</span><span class="ss"> "</span> <span class="op">+</span></span>
+<span id="cb6-140"><a href="#cb6-140" aria-hidden="true" tabindex="-1"></a>                      <span class="ss">f"starts consultation at: </span><span class="sc">{</span><span class="va">self</span><span class="sc">.</span>env<span class="sc">.</span>now<span class="sc">:.3f}</span><span class="ss">"</span>)</span>
+<span id="cb6-141"><a href="#cb6-141" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-142"><a href="#cb6-142" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Sample consultation duration and pass time spent with doctor</span></span>
+<span id="cb6-143"><a href="#cb6-143" aria-hidden="true" tabindex="-1"></a>            patient.time_with_doctor <span class="op">=</span> <span class="va">self</span>.consult_dist.sample()</span>
+<span id="cb6-144"><a href="#cb6-144" aria-hidden="true" tabindex="-1"></a>            <span class="cf">yield</span> <span class="va">self</span>.env.timeout(patient.time_with_doctor)</span>
+<span id="cb6-145"><a href="#cb6-145" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-146"><a href="#cb6-146" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Update number in system</span></span>
+<span id="cb6-147"><a href="#cb6-147" aria-hidden="true" tabindex="-1"></a>            <span class="va">self</span>.update_n_in_system(inc<span class="op">=-</span><span class="dv">1</span>)</span>
+<span id="cb6-148"><a href="#cb6-148" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-149"><a href="#cb6-149" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Record end time</span></span>
+<span id="cb6-150"><a href="#cb6-150" aria-hidden="true" tabindex="-1"></a>            patient.end_time <span class="op">=</span> <span class="va">self</span>.env.now</span>
+<span id="cb6-151"><a href="#cb6-151" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> <span class="va">self</span>.param.verbose:</span>
+<span id="cb6-152"><a href="#cb6-152" aria-hidden="true" tabindex="-1"></a>                <span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span>patient<span class="sc">.</span>period<span class="sc">}</span><span class="ss"> Patient </span><span class="sc">{</span>patient<span class="sc">.</span>patient_id<span class="sc">}</span><span class="ss"> "</span> <span class="op">+</span></span>
+<span id="cb6-153"><a href="#cb6-153" aria-hidden="true" tabindex="-1"></a>                      <span class="ss">f"leaves at: </span><span class="sc">{</span>patient<span class="sc">.</span>end_time<span class="sc">:.3f}</span><span class="ss">"</span>)</span>
+<span id="cb6-154"><a href="#cb6-154" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-155"><a href="#cb6-155" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> reset_results(<span class="va">self</span>):</span>
+<span id="cb6-156"><a href="#cb6-156" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""</span></span>
+<span id="cb6-157"><a href="#cb6-157" aria-hidden="true" tabindex="-1"></a><span class="co">        Reset results.</span></span>
+<span id="cb6-158"><a href="#cb6-158" aria-hidden="true" tabindex="-1"></a><span class="co">        """</span></span>
+<span id="cb6-159"><a href="#cb6-159" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.patients <span class="op">=</span> []</span>
+<span id="cb6-160"><a href="#cb6-160" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.doctor.init_results()</span>
+<span id="cb6-161"><a href="#cb6-161" aria-hidden="true" tabindex="-1"></a>        <span class="co"># For number in system, we reset area and time but not the count, as</span></span>
+<span id="cb6-162"><a href="#cb6-162" aria-hidden="true" tabindex="-1"></a>        <span class="co"># it should include any remaining warm-up patients in the count</span></span>
+<span id="cb6-163"><a href="#cb6-163" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.area_n_in_system <span class="op">=</span> [<span class="dv">0</span>]</span>
+<span id="cb6-164"><a href="#cb6-164" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.time_last_n_in_system <span class="op">=</span> <span class="va">self</span>.env.now</span>
+<span id="cb6-165"><a href="#cb6-165" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-166"><a href="#cb6-166" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> warmup(<span class="va">self</span>):</span>
+<span id="cb6-167"><a href="#cb6-167" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""</span></span>
+<span id="cb6-168"><a href="#cb6-168" aria-hidden="true" tabindex="-1"></a><span class="co">        Reset result collection after the warm-up period.</span></span>
+<span id="cb6-169"><a href="#cb6-169" aria-hidden="true" tabindex="-1"></a><span class="co">        """</span></span>
+<span id="cb6-170"><a href="#cb6-170" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="va">self</span>.param.warm_up_period <span class="op">&gt;</span> <span class="dv">0</span>:</span>
+<span id="cb6-171"><a href="#cb6-171" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Delay process until warm-up period has completed</span></span>
+<span id="cb6-172"><a href="#cb6-172" aria-hidden="true" tabindex="-1"></a>            <span class="cf">yield</span> <span class="va">self</span>.env.timeout(<span class="va">self</span>.param.warm_up_period)</span>
+<span id="cb6-173"><a href="#cb6-173" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Reset results variables</span></span>
+<span id="cb6-174"><a href="#cb6-174" aria-hidden="true" tabindex="-1"></a>            <span class="va">self</span>.reset_results()</span>
+<span id="cb6-175"><a href="#cb6-175" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> <span class="va">self</span>.param.verbose:</span>
+<span id="cb6-176"><a href="#cb6-176" aria-hidden="true" tabindex="-1"></a>                <span class="bu">print</span>(<span class="ss">f"Warm up period ended at time: </span><span class="sc">{</span><span class="va">self</span><span class="sc">.</span>env<span class="sc">.</span>now<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb6-177"><a href="#cb6-177" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-178"><a href="#cb6-178" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> run(<span class="va">self</span>):</span>
+<span id="cb6-179"><a href="#cb6-179" aria-hidden="true" tabindex="-1"></a>        <span class="co">"""</span></span>
+<span id="cb6-180"><a href="#cb6-180" aria-hidden="true" tabindex="-1"></a><span class="co">        Run the simulation.</span></span>
+<span id="cb6-181"><a href="#cb6-181" aria-hidden="true" tabindex="-1"></a><span class="co">        """</span></span>
+<span id="cb6-182"><a href="#cb6-182" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Schedule arrival generator and warm-up</span></span>
+<span id="cb6-183"><a href="#cb6-183" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.env.process(<span class="va">self</span>.generate_arrivals())</span>
+<span id="cb6-184"><a href="#cb6-184" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.env.process(<span class="va">self</span>.warmup())</span>
+<span id="cb6-185"><a href="#cb6-185" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-186"><a href="#cb6-186" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Run the simulation</span></span>
+<span id="cb6-187"><a href="#cb6-187" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.env.run(until<span class="op">=</span>(<span class="va">self</span>.param.warm_up_period <span class="op">+</span></span>
+<span id="cb6-188"><a href="#cb6-188" aria-hidden="true" tabindex="-1"></a>                            <span class="va">self</span>.param.data_collection_period))</span>
+<span id="cb6-189"><a href="#cb6-189" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-190"><a href="#cb6-190" aria-hidden="true" tabindex="-1"></a>        <span class="co"># At simulation end, update time-weighted statistics by accounting</span></span>
+<span id="cb6-191"><a href="#cb6-191" aria-hidden="true" tabindex="-1"></a>        <span class="co"># for the time from the last event up to the simulation finish.</span></span>
+<span id="cb6-192"><a href="#cb6-192" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.doctor.update_time_weighted_stats()</span>
+<span id="cb6-193"><a href="#cb6-193" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-194"><a href="#cb6-194" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Run final calculation of number in system</span></span>
+<span id="cb6-195"><a href="#cb6-195" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.update_n_in_system(inc<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb6-196"><a href="#cb6-196" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-197"><a href="#cb6-197" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Create list of dictionaries containing each patient's attributes</span></span>
+<span id="cb6-198"><a href="#cb6-198" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.results_list <span class="op">=</span> [x.__dict__ <span class="cf">for</span> x <span class="kw">in</span> <span class="va">self</span>.patients]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
 </div>
@@ -1413,7 +1415,7 @@ background-size: cover;
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>HTML(to_html_datatable(result[<span class="st">"patient"</span>]))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <!--| quarto-html-table-processing: none -->
-<table id="itables_e2b2771b_7395_4e21_b7f1_413693ea0d42"><tbody><tr>
+<table id="itables_dddead92_0c51_420c_a35d_a63fab675a6e"><tbody><tr>
     <td style="vertical-align:middle; text-align:left">
     <a href="https://mwouts.github.io/itables/"><svg class="main-svg" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink" width="64" viewbox="0 0 500 400" style="font-family: 'Droid Sans', sans-serif;">
     <g style="fill:#d9d7fc">
@@ -1479,11 +1481,11 @@ background-size: cover;
 <script type="module">
     import { ITable, jQuery as $ } from 'https://www.unpkg.com/dt_for_itables@2.4.0/dt_bundle.js';
 
-    document.querySelectorAll("#itables_e2b2771b_7395_4e21_b7f1_413693ea0d42:not(.dataTable)").forEach(table => {
+    document.querySelectorAll("#itables_dddead92_0c51_420c_a35d_a63fab675a6e:not(.dataTable)").forEach(table => {
         if (!(table instanceof HTMLTableElement))
             return;
 
-        let dt_args = {"layout": {"topStart": "pageLength", "topEnd": "search", "bottomStart": "info", "bottomEnd": "paging"}, "order": [], "classes": ["display", "nowrap"], "text_in_header_can_be_selected": true, "style": {"table-layout": "auto", "width": "auto", "margin": "auto", "caption-side": "bottom"}, "table_html": "<table><thead>\n    <tr style=\"text-align: right;\">\n      \n      <th>patient_id</th>\n      <th>period</th>\n      <th>arrival_time</th>\n      <th>wait_time</th>\n      <th>time_with_doctor</th>\n      <th>end_time</th>\n      <th>run</th>\n      <th>time_in_system</th>\n      <th>unseen_wait_time</th>\n    </tr>\n  </thead></table>", "data_json": "[[1, \"\\ud83d\\udd39 DC\", 37.77825, 0.0, 19.610317, 57.388567, 0, 19.610317, \"___NaN___\"], [2, \"\\ud83d\\udd39 DC\", 38.108184, 0.0, 9.489737, 47.597921, 0, 9.489737, \"___NaN___\"], [3, \"\\ud83d\\udd39 DC\", 42.610666, 4.987255, 41.665475, \"___NaN___\", 0, \"___NaN___\", \"___NaN___\"], [4, \"\\ud83d\\udd39 DC\", 44.087985, 12.574406, 5.874479, 62.53687, 0, 18.448885, \"___NaN___\"], [5, \"\\ud83d\\udd39 DC\", 55.587763, 1.800804, 27.882444, \"___NaN___\", 0, \"___NaN___\", \"___NaN___\"], [6, \"\\ud83d\\udd39 DC\", 64.880007, 0.0, 24.914615, \"___NaN___\", 0, \"___NaN___\", \"___NaN___\"], [7, \"\\ud83d\\udd39 DC\", 64.954293, \"___NaN___\", \"___NaN___\", \"___NaN___\", 0, \"___NaN___\", 5.045707], [1, \"\\ud83d\\udd39 DC\", 31.630258, 0.493526, 21.468744, 53.592528, 1, 21.96227, \"___NaN___\"], [2, \"\\ud83d\\udd39 DC\", 36.408782, 0.0, 8.402275, 44.811057, 1, 8.402275, \"___NaN___\"], [3, \"\\ud83d\\udd39 DC\", 37.174693, 3.549298, 4.223705, 44.947696, 1, 7.773003, \"___NaN___\"], [4, \"\\ud83d\\udd39 DC\", 37.756151, 7.054906, 24.535514, 69.346571, 1, 31.59042, \"___NaN___\"], [5, \"\\ud83d\\udd39 DC\", 41.314036, 3.633659, 11.753835, 56.701531, 1, 15.387495, \"___NaN___\"], [6, \"\\ud83d\\udd39 DC\", 42.089686, 11.502842, 5.214397, 58.806925, 1, 16.717239, \"___NaN___\"], [7, \"\\ud83d\\udd39 DC\", 43.398751, 13.30278, 35.259976, \"___NaN___\", 1, \"___NaN___\", \"___NaN___\"], [8, \"\\ud83d\\udd39 DC\", 43.620175, 15.18675, 3.105589, 61.912514, 1, 18.29234, \"___NaN___\"], [9, \"\\ud83d\\udd39 DC\", 44.772508, 17.140007, 19.989189, \"___NaN___\", 1, \"___NaN___\", \"___NaN___\"], [10, \"\\ud83d\\udd39 DC\", 45.892284, 23.454287, 10.531722, \"___NaN___\", 1, \"___NaN___\", \"___NaN___\"], [11, \"\\ud83d\\udd39 DC\", 49.606833, \"___NaN___\", \"___NaN___\", \"___NaN___\", 1, \"___NaN___\", 20.393167], [12, \"\\ud83d\\udd39 DC\", 50.649656, \"___NaN___\", \"___NaN___\", \"___NaN___\", 1, \"___NaN___\", 19.350344], [13, \"\\ud83d\\udd39 DC\", 55.971829, \"___NaN___\", \"___NaN___\", \"___NaN___\", 1, \"___NaN___\", 14.028171], [14, \"\\ud83d\\udd39 DC\", 59.495786, \"___NaN___\", \"___NaN___\", \"___NaN___\", 1, \"___NaN___\", 10.504214], [15, \"\\ud83d\\udd39 DC\", 65.469879, \"___NaN___\", \"___NaN___\", \"___NaN___\", 1, \"___NaN___\", 4.530121], [16, \"\\ud83d\\udd39 DC\", 65.822711, \"___NaN___\", \"___NaN___\", \"___NaN___\", 1, \"___NaN___\", 4.177289], [1, \"\\ud83d\\udd39 DC\", 37.522238, 0.0, 11.765446, 49.287684, 2, 11.765446, \"___NaN___\"], [2, \"\\ud83d\\udd39 DC\", 38.735562, 10.552122, 11.924576, 61.21226, 2, 22.476698, \"___NaN___\"], [3, \"\\ud83d\\udd39 DC\", 44.397666, 5.759021, 1.643346, 51.800033, 2, 7.402367, \"___NaN___\"], [4, \"\\ud83d\\udd39 DC\", 46.202295, 5.597738, 3.767369, 55.567403, 2, 9.365107, \"___NaN___\"], [5, \"\\ud83d\\udd39 DC\", 58.280425, 0.0, 1.556105, 59.836529, 2, 1.556105, \"___NaN___\"], [1, \"\\ud83d\\udd39 DC\", 34.411489, 0.0, 6.933158, 41.344647, 3, 6.933158, \"___NaN___\"], [2, \"\\ud83d\\udd39 DC\", 38.687761, 0.0, 0.401808, 39.089569, 3, 0.401808, \"___NaN___\"], [3, \"\\ud83d\\udd39 DC\", 47.794929, 0.0, 3.660066, 51.454995, 3, 3.660066, \"___NaN___\"], [4, \"\\ud83d\\udd39 DC\", 51.478815, 0.0, 39.246069, \"___NaN___\", 3, \"___NaN___\", \"___NaN___\"], [5, \"\\ud83d\\udd39 DC\", 65.917423, 0.0, 3.812023, 69.729446, 3, 3.812023, \"___NaN___\"], [6, \"\\ud83d\\udd39 DC\", 66.47293, 0.0, 20.104443, \"___NaN___\", 3, \"___NaN___\", \"___NaN___\"], [7, \"\\ud83d\\udd39 DC\", 67.322711, 2.406735, 8.659463, \"___NaN___\", 3, \"___NaN___\", \"___NaN___\"], [8, \"\\ud83d\\udd39 DC\", 68.698988, \"___NaN___\", \"___NaN___\", \"___NaN___\", 3, \"___NaN___\", 1.301012], [1, \"\\ud83d\\udd39 DC\", 44.324928, 0.0, 5.084293, 49.409222, 4, 5.084293, \"___NaN___\"], [2, \"\\ud83d\\udd39 DC\", 44.851316, 0.0, 5.327243, 50.178559, 4, 5.327243, \"___NaN___\"], [3, \"\\ud83d\\udd39 DC\", 46.404347, 3.004875, 19.908329, 69.317551, 4, 22.913204, \"___NaN___\"], [4, \"\\ud83d\\udd39 DC\", 47.150296, 3.028263, 0.354333, 50.532892, 4, 3.382596, \"___NaN___\"], [5, \"\\ud83d\\udd39 DC\", 53.586216, 0.0, 13.568114, 67.15433, 4, 13.568114, \"___NaN___\"], [6, \"\\ud83d\\udd39 DC\", 54.448043, 0.0, 3.432695, 57.880739, 4, 3.432695, \"___NaN___\"]]"};
+        let dt_args = {"layout": {"topStart": "pageLength", "topEnd": "search", "bottomStart": "info", "bottomEnd": "paging"}, "text_in_header_can_be_selected": true, "order": [], "style": {"table-layout": "auto", "width": "auto", "margin": "auto", "caption-side": "bottom"}, "classes": ["display", "nowrap"], "table_html": "<table><thead>\n    <tr style=\"text-align: right;\">\n      \n      <th>patient_id</th>\n      <th>period</th>\n      <th>arrival_time</th>\n      <th>wait_time</th>\n      <th>time_with_doctor</th>\n      <th>end_time</th>\n      <th>run</th>\n      <th>time_in_system</th>\n      <th>unseen_wait_time</th>\n    </tr>\n  </thead></table>", "data_json": "[[6, \"\\ud83d\\udd39 DC\", 37.77825, 0.0, 19.610317, 57.388567, 0, 19.610317, \"___NaN___\"], [7, \"\\ud83d\\udd39 DC\", 38.108184, 0.0, 9.489737, 47.597921, 0, 9.489737, \"___NaN___\"], [8, \"\\ud83d\\udd39 DC\", 42.610666, 4.987255, 41.665475, \"___NaN___\", 0, \"___NaN___\", \"___NaN___\"], [9, \"\\ud83d\\udd39 DC\", 44.087985, 12.574406, 5.874479, 62.53687, 0, 18.448885, \"___NaN___\"], [10, \"\\ud83d\\udd39 DC\", 55.587763, 1.800804, 27.882444, \"___NaN___\", 0, \"___NaN___\", \"___NaN___\"], [11, \"\\ud83d\\udd39 DC\", 64.880007, 0.0, 24.914615, \"___NaN___\", 0, \"___NaN___\", \"___NaN___\"], [12, \"\\ud83d\\udd39 DC\", 64.954293, \"___NaN___\", \"___NaN___\", \"___NaN___\", 0, \"___NaN___\", 5.045707], [7, \"\\ud83d\\udd39 DC\", 31.630258, 0.493526, 21.468744, 53.592528, 1, 21.96227, \"___NaN___\"], [8, \"\\ud83d\\udd39 DC\", 36.408782, 0.0, 8.402275, 44.811057, 1, 8.402275, \"___NaN___\"], [9, \"\\ud83d\\udd39 DC\", 37.174693, 3.549298, 4.223705, 44.947696, 1, 7.773003, \"___NaN___\"], [10, \"\\ud83d\\udd39 DC\", 37.756151, 7.054906, 24.535514, 69.346571, 1, 31.59042, \"___NaN___\"], [11, \"\\ud83d\\udd39 DC\", 41.314036, 3.633659, 11.753835, 56.701531, 1, 15.387495, \"___NaN___\"], [12, \"\\ud83d\\udd39 DC\", 42.089686, 11.502842, 5.214397, 58.806925, 1, 16.717239, \"___NaN___\"], [13, \"\\ud83d\\udd39 DC\", 43.398751, 13.30278, 35.259976, \"___NaN___\", 1, \"___NaN___\", \"___NaN___\"], [14, \"\\ud83d\\udd39 DC\", 43.620175, 15.18675, 3.105589, 61.912514, 1, 18.29234, \"___NaN___\"], [15, \"\\ud83d\\udd39 DC\", 44.772508, 17.140007, 19.989189, \"___NaN___\", 1, \"___NaN___\", \"___NaN___\"], [16, \"\\ud83d\\udd39 DC\", 45.892284, 23.454287, 10.531722, \"___NaN___\", 1, \"___NaN___\", \"___NaN___\"], [17, \"\\ud83d\\udd39 DC\", 49.606833, \"___NaN___\", \"___NaN___\", \"___NaN___\", 1, \"___NaN___\", 20.393167], [18, \"\\ud83d\\udd39 DC\", 50.649656, \"___NaN___\", \"___NaN___\", \"___NaN___\", 1, \"___NaN___\", 19.350344], [19, \"\\ud83d\\udd39 DC\", 55.971829, \"___NaN___\", \"___NaN___\", \"___NaN___\", 1, \"___NaN___\", 14.028171], [20, \"\\ud83d\\udd39 DC\", 59.495786, \"___NaN___\", \"___NaN___\", \"___NaN___\", 1, \"___NaN___\", 10.504214], [21, \"\\ud83d\\udd39 DC\", 65.469879, \"___NaN___\", \"___NaN___\", \"___NaN___\", 1, \"___NaN___\", 4.530121], [22, \"\\ud83d\\udd39 DC\", 65.822711, \"___NaN___\", \"___NaN___\", \"___NaN___\", 1, \"___NaN___\", 4.177289], [6, \"\\ud83d\\udd39 DC\", 37.522238, 0.0, 11.765446, 49.287684, 2, 11.765446, \"___NaN___\"], [7, \"\\ud83d\\udd39 DC\", 38.735562, 10.552122, 11.924576, 61.21226, 2, 22.476698, \"___NaN___\"], [8, \"\\ud83d\\udd39 DC\", 44.397666, 5.759021, 1.643346, 51.800033, 2, 7.402367, \"___NaN___\"], [9, \"\\ud83d\\udd39 DC\", 46.202295, 5.597738, 3.767369, 55.567403, 2, 9.365107, \"___NaN___\"], [10, \"\\ud83d\\udd39 DC\", 58.280425, 0.0, 1.556105, 59.836529, 2, 1.556105, \"___NaN___\"], [9, \"\\ud83d\\udd39 DC\", 34.411489, 0.0, 6.933158, 41.344647, 3, 6.933158, \"___NaN___\"], [10, \"\\ud83d\\udd39 DC\", 38.687761, 0.0, 0.401808, 39.089569, 3, 0.401808, \"___NaN___\"], [11, \"\\ud83d\\udd39 DC\", 47.794929, 0.0, 3.660066, 51.454995, 3, 3.660066, \"___NaN___\"], [12, \"\\ud83d\\udd39 DC\", 51.478815, 0.0, 39.246069, \"___NaN___\", 3, \"___NaN___\", \"___NaN___\"], [13, \"\\ud83d\\udd39 DC\", 65.917423, 0.0, 3.812023, 69.729446, 3, 3.812023, \"___NaN___\"], [14, \"\\ud83d\\udd39 DC\", 66.47293, 0.0, 20.104443, \"___NaN___\", 3, \"___NaN___\", \"___NaN___\"], [15, \"\\ud83d\\udd39 DC\", 67.322711, 2.406735, 8.659463, \"___NaN___\", 3, \"___NaN___\", \"___NaN___\"], [16, \"\\ud83d\\udd39 DC\", 68.698988, \"___NaN___\", \"___NaN___\", \"___NaN___\", 3, \"___NaN___\", 1.301012], [3, \"\\ud83d\\udd39 DC\", 44.324928, 0.0, 5.084293, 49.409222, 4, 5.084293, \"___NaN___\"], [4, \"\\ud83d\\udd39 DC\", 44.851316, 0.0, 5.327243, 50.178559, 4, 5.327243, \"___NaN___\"], [5, \"\\ud83d\\udd39 DC\", 46.404347, 3.004875, 19.908329, 69.317551, 4, 22.913204, \"___NaN___\"], [6, \"\\ud83d\\udd39 DC\", 47.150296, 3.028263, 0.354333, 50.532892, 4, 3.382596, \"___NaN___\"], [7, \"\\ud83d\\udd39 DC\", 53.586216, 0.0, 13.568114, 67.15433, 4, 13.568114, \"___NaN___\"], [8, \"\\ud83d\\udd39 DC\", 54.448043, 0.0, 3.432695, 57.880739, 4, 3.432695, \"___NaN___\"]]"};
         new ITable(table, dt_args);
     });
 </script>
@@ -1491,7 +1493,7 @@ background-size: cover;
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>HTML(to_html_datatable(result[<span class="st">"run"</span>]))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <!--| quarto-html-table-processing: none -->
-<table id="itables_826d154d_592f_4d9a_881d_7fcec3dad6f7"><tbody><tr>
+<table id="itables_2d0d8297_5d39_4106_9a30_684590122b19"><tbody><tr>
     <td style="vertical-align:middle; text-align:left">
     <a href="https://mwouts.github.io/itables/"><svg class="main-svg" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink" width="64" viewbox="0 0 500 400" style="font-family: 'Droid Sans', sans-serif;">
     <g style="fill:#d9d7fc">
@@ -1557,11 +1559,11 @@ background-size: cover;
 <script type="module">
     import { ITable, jQuery as $ } from 'https://www.unpkg.com/dt_for_itables@2.4.0/dt_bundle.js';
 
-    document.querySelectorAll("#itables_826d154d_592f_4d9a_881d_7fcec3dad6f7:not(.dataTable)").forEach(table => {
+    document.querySelectorAll("#itables_2d0d8297_5d39_4106_9a30_684590122b19:not(.dataTable)").forEach(table => {
         if (!(table instanceof HTMLTableElement))
             return;
 
-        let dt_args = {"layout": {"topStart": null, "topEnd": null, "bottomStart": null, "bottomEnd": null}, "order": [], "classes": ["display", "nowrap"], "text_in_header_can_be_selected": true, "style": {"table-layout": "auto", "width": "auto", "margin": "auto", "caption-side": "bottom"}, "table_html": "<table><thead>\n    <tr style=\"text-align: right;\">\n      \n      <th>run_number</th>\n      <th>arrivals</th>\n      <th>mean_wait_time</th>\n      <th>mean_time_with_doctor</th>\n      <th>mean_utilisation_tw</th>\n      <th>mean_queue_length</th>\n      <th>mean_time_in_system</th>\n      <th>mean_patients_in_system</th>\n      <th>unseen_count</th>\n      <th>unseen_wait_time</th>\n    </tr>\n  </thead></table>", "data_json": "[[0, 7, 3.227077, 21.572845, 0.874391, 0.610204, 15.849647, 3.233378, 1, 5.045707], [1, 16, 9.531805, 14.448495, 0.972301, 4.272286, 17.16072, 7.18919, 6, 12.163884], [2, 5, 4.381776, 6.131368, 0.736394, 0.699459, 10.513144, 2.908642, 0, \"___NaN___\"], [3, 8, 0.343819, 11.831004, 0.361094, 0.092694, 3.701764, 1.175976, 1, 1.301012], [4, 6, 1.005523, 7.945835, 0.696053, 0.150828, 8.951358, 2.238988, 0, \"___NaN___\"]]"};
+        let dt_args = {"layout": {"topStart": null, "topEnd": null, "bottomStart": null, "bottomEnd": null}, "text_in_header_can_be_selected": true, "order": [], "style": {"table-layout": "auto", "width": "auto", "margin": "auto", "caption-side": "bottom"}, "classes": ["display", "nowrap"], "table_html": "<table><thead>\n    <tr style=\"text-align: right;\">\n      \n      <th>run_number</th>\n      <th>arrivals</th>\n      <th>mean_wait_time</th>\n      <th>mean_time_with_doctor</th>\n      <th>mean_utilisation_tw</th>\n      <th>mean_queue_length</th>\n      <th>mean_time_in_system</th>\n      <th>mean_patients_in_system</th>\n      <th>unseen_count</th>\n      <th>unseen_wait_time</th>\n    </tr>\n  </thead></table>", "data_json": "[[0, 7, 3.227077, 21.572845, 0.874391, 0.610204, 15.849647, 3.233378, 1, 5.045707], [1, 16, 9.531805, 14.448495, 0.972301, 4.272286, 17.16072, 7.18919, 6, 12.163884], [2, 5, 4.381776, 6.131368, 0.736394, 0.699459, 10.513144, 2.908642, 0, \"___NaN___\"], [3, 8, 0.343819, 11.831004, 0.361094, 0.092694, 3.701764, 1.175976, 1, 1.301012], [4, 6, 1.005523, 7.945835, 0.696053, 0.150828, 8.951358, 2.238988, 0, \"___NaN___\"]]"};
         new ITable(table, dt_args);
     });
 </script>
@@ -1569,7 +1571,7 @@ background-size: cover;
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15" data-source-line-numbers="nil" data-code-line-numbers="nil"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>HTML(to_html_datatable(result[<span class="st">"overall"</span>]))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <!--| quarto-html-table-processing: none -->
-<table id="itables_54a9772d_c25b_4416_a7ee_7ab00ad35bcb"><tbody><tr>
+<table id="itables_574a9d47_1db9_4130_aa73_46ee39ed1fe0"><tbody><tr>
     <td style="vertical-align:middle; text-align:left">
     <a href="https://mwouts.github.io/itables/"><svg class="main-svg" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink" width="64" viewbox="0 0 500 400" style="font-family: 'Droid Sans', sans-serif;">
     <g style="fill:#d9d7fc">
@@ -1635,11 +1637,11 @@ background-size: cover;
 <script type="module">
     import { ITable, jQuery as $ } from 'https://www.unpkg.com/dt_for_itables@2.4.0/dt_bundle.js';
 
-    document.querySelectorAll("#itables_54a9772d_c25b_4416_a7ee_7ab00ad35bcb:not(.dataTable)").forEach(table => {
+    document.querySelectorAll("#itables_574a9d47_1db9_4130_aa73_46ee39ed1fe0:not(.dataTable)").forEach(table => {
         if (!(table instanceof HTMLTableElement))
             return;
 
-        let dt_args = {"layout": {"topStart": null, "topEnd": null, "bottomStart": null, "bottomEnd": null}, "order": [], "classes": ["display", "nowrap"], "text_in_header_can_be_selected": true, "style": {"table-layout": "auto", "width": "auto", "margin": "auto", "caption-side": "bottom"}, "table_html": "<table><thead>\n    <tr style=\"text-align: right;\">\n      <th></th>\n      <th>arrivals</th>\n      <th>mean_wait_time</th>\n      <th>mean_time_with_doctor</th>\n      <th>mean_utilisation_tw</th>\n      <th>mean_queue_length</th>\n      <th>mean_time_in_system</th>\n      <th>mean_patients_in_system</th>\n      <th>unseen_count</th>\n      <th>unseen_wait_time</th>\n    </tr>\n  </thead></table>", "data_json": "[[\"mean\", 8.4, 3.698, 12.385909, 0.728047, 1.165094, 11.235326, 3.349235, 1.6, 6.170201], [\"std_dev\", 4.393177, 3.64769, 6.078559, 0.232822, 1.757707, 5.451946, 2.286291, 2.50998, 5.518049], [\"lower_95_ci\", 2.945151, -0.831205, 4.838382, 0.43896, -1.017387, 4.465841, 0.51043, -1.516552, -7.537393], [\"upper_95_ci\", 13.854849, 8.227205, 19.933437, 1.017134, 3.347576, 18.004812, 6.18804, 4.716552, 19.877795]]"};
+        let dt_args = {"layout": {"topStart": null, "topEnd": null, "bottomStart": null, "bottomEnd": null}, "text_in_header_can_be_selected": true, "order": [], "style": {"table-layout": "auto", "width": "auto", "margin": "auto", "caption-side": "bottom"}, "classes": ["display", "nowrap"], "table_html": "<table><thead>\n    <tr style=\"text-align: right;\">\n      <th></th>\n      <th>arrivals</th>\n      <th>mean_wait_time</th>\n      <th>mean_time_with_doctor</th>\n      <th>mean_utilisation_tw</th>\n      <th>mean_queue_length</th>\n      <th>mean_time_in_system</th>\n      <th>mean_patients_in_system</th>\n      <th>unseen_count</th>\n      <th>unseen_wait_time</th>\n    </tr>\n  </thead></table>", "data_json": "[[\"mean\", 8.4, 3.698, 12.385909, 0.728047, 1.165094, 11.235326, 3.349235, 1.6, 6.170201], [\"std_dev\", 4.393177, 3.64769, 6.078559, 0.232822, 1.757707, 5.451946, 2.286291, 2.50998, 5.518049], [\"lower_95_ci\", 2.945151, -0.831205, 4.838382, 0.43896, -1.017387, 4.465841, 0.51043, -1.516552, -7.537393], [\"upper_95_ci\", 13.854849, 8.227205, 19.933437, 1.017134, 3.347576, 18.004812, 6.18804, 4.716552, 19.877795]]"};
         new ITable(table, dt_args);
     });
 </script>
