@@ -326,7 +326,44 @@ For most users, the best way to manage R versions is to use [`rig`](https://gith
 
 ### Install `rig`
 
-Follow the installation instructions for your operating system on the [rig GitHub](https://github.com/r-lib/rig) page. After installation, check that it works by running:
+Follow the installation instructions for your operating system on the [rig GitHub](https://github.com/r-lib/rig) page.
+
+::: {.callout-note collapse="true" title="Example: Pop_OS!"}
+
+First, follow the [rig GitHub](https://github.com/r-lib/rig) instructions:
+
+```{.bash}
+`which sudo` curl -L https://rig.r-pkg.org/deb/rig.gpg -o /etc/apt/trusted.gpg.d/rig.gpg
+`which sudo` sh -c 'echo "deb http://rig.r-pkg.org/deb rig main" > /etc/apt/sources.list.d/rig.list'
+`which sudo` apt update
+`which sudo` apt install r-rig
+```
+
+As Pop_OS! is not officially supported, we then also need to set the `RIG_PLATFORM`, [as described in this GitHub issue](https://github.com/r-lib/rig/issues/206#issuecomment-2057856982). First, let's find out what version the OS is:
+
+```{.bash}
+cat /etc/os-release
+```
+
+Then set the relevant `RIG_PLATFORM`, for example:
+
+```{.bash}
+echo 'export RIG_PLATFORM=ubuntu-24.04' >> ~/.profile
+```
+
+Apply the settings to your terminal and check we see `ubuntu-24.04` when run command below:
+
+```{.bash}
+source ~/.profile
+echo "$RIG_PLATFORM"
+rig system detect-platform
+```
+
+You should now be able to run rig commands (e.g., `rig add 4.4.1`).
+
+:::
+
+After installation, check that it works by running:
 
 ```{.bash}
 rig --version
