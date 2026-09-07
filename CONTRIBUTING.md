@@ -18,6 +18,12 @@ renv::init()
 renv::restore()
 ```
 
+> On Linux, some system dependencies are required for all packages to install successfully.
+>
+> ```
+> sudo apt install libfontconfig1-dev libharfbuzz-dev libfribidi-dev
+> ```
+
 **3. Create the book.**
 
 ```
