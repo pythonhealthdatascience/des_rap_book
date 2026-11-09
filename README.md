@@ -42,6 +42,8 @@ Check it out at: **https://pythonhealthdatascience.github.io/des_rap_book/**.
 
 * **Reporting and collaboration:** Generating tables/figures, licensing, sharing, peer review, archiving, citation, and changelogs.
 
+![Content summary](images/content_summary.drawio.png)
+
 <br>
 
 ## Getting started/Navigation
