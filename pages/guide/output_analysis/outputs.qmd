@@ -1584,7 +1584,7 @@ kable(result[["run_results"]])
 
 :::: {.python-content}
 
-Mean utilisation measures the proportion of available doctor time that is actually used during the data collection period. We have suggested two different approaches for measuring utilisation - both return the same result.
+Mean utilisation measures the proportion of available doctor time that is actually used during the data collection period. We have suggested two different approaches for measuring utilisation - both return the same result. We also link to an alternative implementation of the second approach that uses an event log.
 
 ### Approach 1
 
@@ -2219,6 +2219,16 @@ class Runner:
 :::
 
 Moving forward, as we develop the code in the rest of the book (for example, when we introduce [replications](replications.qmd) on the next page), we will use the second, time‑weighted utilisation approach.
+
+### Alternative implementation for approach 2
+
+Another way to implement the time-weighted approach (approach 2) is to calculate utilisation from an **event log**. Rather than tracking usage within a `MonitoredResource` class during the simulation, we record when resources start and finish being used, then use these events to reconstruct the number of busy resources over time.
+
+While we do not work through this implementation in the book, you can see an example in the [ambdes ambulances simulation model](https://github.com/ambmodels/ambdes/):
+
+* In `model.py`, we use resource classes from [vidigi](https://github.com/hsma-tools/vidigi), which have built-in support for event logging.
+* In `results.py`, the `UtilisationCalculator` class uses this log to calculate time-weighted utilisation.
+* In `tests/test_utilisation.py`, tests check that the event-log implementation produces results consistent with the `MonitoredResource` approach.
 
 ::::
 
